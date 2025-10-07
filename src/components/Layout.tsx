@@ -8,8 +8,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   const handleLogout = () => {
-    // 開発用: 認証バイパス中のためログアウトは無効
-    alert('開発モード: ログアウト機能は一時的に無効化されています')
+    // 開発モード: localStorageをクリアしてログイン画面へ
+    localStorage.removeItem('auth')
+    window.location.href = '/login'
   }
 
   const navItems = [
