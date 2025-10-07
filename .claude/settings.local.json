@@ -14,7 +14,10 @@
       "Bash(git push:*)",
       "Bash(git commit:*)",
       "Bash(npm run build:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tsx:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

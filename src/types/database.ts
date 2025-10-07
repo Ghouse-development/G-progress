@@ -12,6 +12,8 @@ export type Department =
   | '工事'
   | '発注・積算'
   | '工事事務'
+  | '外構設計'
+  | '外構工事'
   | 'システム開発部'
   | '商品企画部'
   | '広告マーケティング部'
@@ -122,6 +124,10 @@ export interface Task {
   created_at: string
   updated_at: string
   assigned_employee?: Employee
+  dos?: string
+  donts?: string
+  manual_url?: string
+  video_url?: string
 }
 
 export interface Attachment {

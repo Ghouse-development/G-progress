@@ -1,4 +1,5 @@
 ﻿import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { fetchProjects } from '../lib/api'
 import { Project, Customer, Employee } from '../types/database'
 import { format, differenceInDays } from 'date-fns'
@@ -11,6 +12,7 @@ interface ProjectWithRelations extends Project {
 }
 
 export default function ProjectList() {
+  const navigate = useNavigate()
   const [projects, setProjects] = useState<ProjectWithRelations[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -117,7 +119,11 @@ export default function ProjectList() {
                 const isOverdue = remainingDays !== null && remainingDays < 0
 
                 return (
-                  <tr key={project.id} className="hover:bg-gray-50">
+                  <tr
+                    key={project.id}
+                    className="hover:bg-gray-50 cursor-pointer"
+                    onClick={() => navigate(`/projects/${project.id}`)}
+                  >
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {project.customer?.names?.join('・') || '-'}
                     </td>
