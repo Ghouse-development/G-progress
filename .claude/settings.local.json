@@ -13,7 +13,8 @@
       "Bash(git commit -m \"$(cat <<''COMMITMSG''\nInitial commit: G-progress業務管理システム\n\n- React + TypeScript + Vite プロジェクト構造セットアップ\n- Supabaseクライアント設定と環境変数構成\n- データベーススキーマ設計（従業員、業者、顧客、案件、入金、タスク、監査ログ）\n- TypeScript型定義ファイル作成\n- 基本レイアウトとログインページ実装\n- Apple調モノクロUIデザイン\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nCOMMITMSG\n)\")",
       "Bash(git push:*)",
       "Bash(git commit:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)"
     ],
     "deny": [],
     "ask": []
