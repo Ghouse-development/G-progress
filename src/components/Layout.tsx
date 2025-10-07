@@ -1,13 +1,13 @@
 import { Link, useLocation } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
 import { Home, FolderKanban, Calendar, LogOut } from 'lucide-react'
 import './Layout.css'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation()
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
+  const handleLogout = () => {
+    // 開発用: 認証バイパス中のためログアウトは無効
+    alert('開発モード: ログアウト機能は一時的に無効化されています')
   }
 
   const navItems = [
