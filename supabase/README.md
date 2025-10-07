@@ -8,29 +8,26 @@
 
 3. `schema.sql` の内容をコピーして実行
 
-## 初期データの投入
+## サンプルデータの投入
 
-最初に管理者ユーザーを作成する必要があります：
+開発・テスト用のサンプルデータが用意されています：
 
-1. Supabaseダッシュボードの「Authentication」→「Users」→「Add user」
-   - Email: `admin@ghouse.jp`
-   - Password: `Ghouse0648`
-   - Confirm password: `Ghouse0648`
+1. SQL Editorで `sample_data.sql` の内容をコピーして実行
 
-2. 作成したユーザーのUIDをコピー
+**サンプルデータの内容**:
+- 従業員10名（システム開発部、営業、設計、工事など）
+- 業者6社（設計事務所、構造事務所、水道業者など）
+- 顧客5組（様々な家族構成）
+- 案件5件（契約前〜完了まで様々なステータス）
+- 入金データ20件
+- タスク15件
+- 通知3件
+- 監査ログ3件
 
-3. SQL Editorで以下を実行（UIDを置き換える）:
+## 認証なしで開発する場合
 
-```sql
-INSERT INTO employees (id, email, name, department, role)
-VALUES (
-  'ユーザーのUID',
-  'admin@ghouse.jp',
-  '管理者',
-  '経営管理部',
-  'executive'
-);
-```
+現在は認証をバイパスしているため、Supabaseの認証設定なしでも動作します。
+本番環境では `src/App.tsx` で認証を有効化してください。
 
 ## データベース構造
 
