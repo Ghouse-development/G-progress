@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>キャッシュクリア</title>
+</head>
+<body>
+    <h1>キャッシュをクリアしています...</h1>
+    <script>
+        localStorage.clear();
+        sessionStorage.clear();
+        alert('キャッシュをクリアしました。OKを押すとログイン画面に移動します。');
+        window.location.href = '/';
+    </script>
+</body>
+</html>
