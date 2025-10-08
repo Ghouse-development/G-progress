@@ -3,6 +3,7 @@ import Layout from '../components/Layout'
 import DashboardHome from '../components/DashboardHome'
 import ProjectList from './ProjectList'
 import ProjectDetail from './ProjectDetail'
+import Calendar from './Calendar'
 
 export default function Dashboard() {
   return (
@@ -11,7 +12,7 @@ export default function Dashboard() {
         <Route path="/" element={<DashboardHome />} />
         <Route path="/projects" element={<ProjectList />} />
         <Route path="/projects/:id" element={<ProjectDetail />} />
-        <Route path="/calendar" element={<div>カレンダー</div>} />
+        <Route path="/calendar" element={<Calendar />} />
       </Routes>
     </Layout>
   )
