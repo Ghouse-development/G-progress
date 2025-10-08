@@ -176,25 +176,21 @@ export default function DashboardHome() {
     return true
   })
 
-  // 全職種のリスト（管理者モード用）
-  const ALL_POSITIONS = [
-    '営業', '営業事務', 'ローン事務',
-    '意匠設計', 'IC', '実施設計', '構造設計', '申請設計',
-    '工事', '工事事務', '積算・発注',
-    '外構設計', '外構工事'
-  ]
+  // 全タスクの一意なタイトルリストを取得（管理者モード用）
+  const getAllUniqueTasks = () => {
+    const uniqueTitles = Array.from(new Set(tasks.map(t => t.title)))
+    return uniqueTitles.sort() // アルファベット順にソート
+  }
 
-  // 特定の案件・特定の職種のタスクを取得
-  const getProjectTasksByPosition = (projectId: string, position: string) => {
-    return tasks.filter(t => {
-      if (t.project_id !== projectId) return false
-      const taskPosition = t.description?.split(':')[0]?.trim()
-      return taskPosition === position
-    }).sort((a, b) => {
-      // 期限日でソート（早い順）
-      if (!a.due_date || !b.due_date) return 0
-      return new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
-    })
+  const uniqueTaskTitles = getAllUniqueTasks()
+
+  // 特定の案件・特定のタスクタイトルのタスクを取得
+  const getProjectTaskByTitle = (projectId: string, taskTitle: string): Task | null => {
+    const task = tasks.find(t =>
+      t.project_id === projectId &&
+      t.title === taskTitle
+    )
+    return task || null
   }
 
   // タスクの状態を色で表現（簡易版）
@@ -469,7 +465,7 @@ export default function DashboardHome() {
             </div>
           </div>
 
-          {/* マトリクステーブル：横軸は全タスク（職種） */}
+          {/* マトリクステーブル：横軸は全タスク（個別のタスクタイトル） */}
           <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: '600px' }}>
             <table className="text-xs border-collapse" style={{ minWidth: '100%' }}>
               <thead className="sticky top-0 z-10 bg-white">
@@ -477,15 +473,15 @@ export default function DashboardHome() {
                   <th className="border-2 border-gray-300 p-2 bg-pastel-blue-light text-left font-bold text-gray-800 sticky left-0 z-20" style={{ minWidth: '180px' }}>
                     案件名
                   </th>
-                  {ALL_POSITIONS.map(position => (
+                  {uniqueTaskTitles.map(taskTitle => (
                     <th
-                      key={position}
+                      key={taskTitle}
                       className="border-2 border-gray-300 p-1 bg-pastel-blue-light text-center font-bold text-gray-800"
-                      style={{ minWidth: '90px' }}
-                      title={position}
+                      style={{ minWidth: '120px' }}
+                      title={taskTitle}
                     >
                       <div className="text-xs leading-tight">
-                        {position}
+                        {taskTitle.length > 15 ? taskTitle.substring(0, 15) + '...' : taskTitle}
                       </div>
                     </th>
                   ))}
@@ -494,7 +490,7 @@ export default function DashboardHome() {
               <tbody>
                 {filteredProjects.length === 0 ? (
                   <tr>
-                    <td colSpan={ALL_POSITIONS.length + 1} className="border-2 border-gray-300 p-8 text-center text-gray-500">
+                    <td colSpan={uniqueTaskTitles.length + 1} className="border-2 border-gray-300 p-8 text-center text-gray-500">
                       該当する案件がありません
                     </td>
                   </tr>
@@ -509,31 +505,26 @@ export default function DashboardHome() {
                           契約: {format(new Date(project.contract_date), 'MM/dd')}
                         </div>
                       </td>
-                      {ALL_POSITIONS.map(position => {
-                        const positionTasks = getProjectTasksByPosition(project.id, position)
+                      {uniqueTaskTitles.map(taskTitle => {
+                        const task = getProjectTaskByTitle(project.id, taskTitle)
 
                         return (
-                          <td key={position} className="border border-gray-300 p-0.5" style={{ minWidth: '90px' }}>
-                            {positionTasks.length > 0 ? (
-                              <div className="space-y-0.5">
-                                {positionTasks.map(task => (
-                                  <div
-                                    key={task.id}
-                                    className={`px-1 py-0.5 rounded text-xs ${getTaskStatusColor(task)}`}
-                                    title={`${task.title}\n期限: ${task.due_date ? format(new Date(task.due_date), 'MM/dd') : '未設定'}\nステータス: ${
-                                      (task.status as string) === 'completed' || task.status === 'not_applicable' ? '完了' :
-                                      task.status === 'requested' ? '進行中' :
-                                      '未着手'
-                                    }`}
-                                  >
-                                    <div className="flex items-center justify-between gap-1">
-                                      <span className="font-bold">{getTaskStatusIcon(task)}</span>
-                                      <span className="text-xs">
-                                        {task.due_date ? format(new Date(task.due_date), 'MM/dd') : '-'}
-                                      </span>
-                                    </div>
-                                  </div>
-                                ))}
+                          <td key={taskTitle} className="border border-gray-300 p-0.5" style={{ minWidth: '120px' }}>
+                            {task ? (
+                              <div
+                                className={`px-1 py-0.5 rounded text-xs ${getTaskStatusColor(task)}`}
+                                title={`${task.title}\n期限: ${task.due_date ? format(new Date(task.due_date), 'MM/dd') : '未設定'}\nステータス: ${
+                                  (task.status as string) === 'completed' || task.status === 'not_applicable' ? '完了' :
+                                  task.status === 'requested' ? '進行中' :
+                                  '未着手'
+                                }`}
+                              >
+                                <div className="flex items-center justify-between gap-1">
+                                  <span className="font-bold">{getTaskStatusIcon(task)}</span>
+                                  <span className="text-xs">
+                                    {task.due_date ? format(new Date(task.due_date), 'MM/dd') : '-'}
+                                  </span>
+                                </div>
                               </div>
                             ) : (
                               <div className="h-8 flex items-center justify-center text-gray-400">
