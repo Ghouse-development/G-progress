@@ -117,7 +117,7 @@ export default function Calendar() {
   }
 
   const days = getDaysInMonth()
-  const weekdays = ['日', '月', '火', '水', '木', '金', '土']
+  const weekdays = ['月', '火', '水', '木', '金', '土', '日']
 
   return (
     <div className="min-h-screen bg-pastel-blue-light p-6">
@@ -160,8 +160,8 @@ export default function Calendar() {
               <div
                 key={day}
                 className={`p-4 text-center font-bold ${
-                  index === 0 ? 'text-red-600' :
-                  index === 6 ? 'text-blue-600' :
+                  index === 5 ? 'text-blue-600' :
+                  index === 6 ? 'text-red-600' :
                   'text-gray-800'
                 } bg-pastel-blue-light`}
               >
@@ -172,8 +172,8 @@ export default function Calendar() {
 
           {/* 日付グリッド */}
           <div className="grid grid-cols-7">
-            {/* 月初の空白セル */}
-            {Array.from({ length: days[0].getDay() }).map((_, index) => (
+            {/* 月初の空白セル（月曜始まり対応） */}
+            {Array.from({ length: (days[0].getDay() + 6) % 7 }).map((_, index) => (
               <div key={`empty-${index}`} className="border border-gray-200 p-2 min-h-32 bg-gray-50"></div>
             ))}
 
