@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { Task, Project, Employee } from '../types/database'
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths } from 'date-fns'
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, isSameMonth, addMonths, subMonths } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
@@ -88,16 +88,19 @@ export default function Calendar() {
     }
   }
 
-  const getDaysInMonth = () => {
-    const start = startOfMonth(currentMonth)
-    const end = endOfMonth(currentMonth)
-    return eachDayOfInterval({ start, end })
+  const getCalendarDays = () => {
+    const monthStart = startOfMonth(currentMonth)
+    const monthEnd = endOfMonth(currentMonth)
+    const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 }) // 月曜始まり
+    const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 })
+
+    return eachDayOfInterval({ start: calendarStart, end: calendarEnd })
   }
 
   const getTasksForDay = (day: Date) => {
     return tasks.filter(task =>
       task.due_date && isSameDay(new Date(task.due_date), day)
-    )
+    ).slice(0, 10) // 最大10件
   }
 
   const previousMonth = () => {
@@ -116,144 +119,148 @@ export default function Calendar() {
     )
   }
 
-  const days = getDaysInMonth()
+  const days = getCalendarDays()
   const weekdays = ['月', '火', '水', '木', '金', '土', '日']
 
+  // 6週間分のデータを6行に分割
+  const weeks: Date[][] = []
+  for (let i = 0; i < days.length; i += 7) {
+    weeks.push(days.slice(i, i + 7))
+  }
+
   return (
-    <div className="min-h-screen bg-pastel-blue-light p-6">
+    <div className="min-h-screen bg-gray-50 p-4">
       <div className="container mx-auto">
         {/* ヘッダー */}
-        <div className="bg-white rounded-xl shadow-pastel-lg p-6 mb-6">
+        <div className="bg-white rounded-lg shadow p-4 mb-4">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-bold text-gray-900">カレンダー</h1>
+            <h1 className="text-2xl font-bold text-gray-900">カレンダー</h1>
             <div className="text-sm text-gray-600">
               {currentUser && `${currentUser.name} (${currentUser.department})`}
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-center gap-4">
             <button
               onClick={previousMonth}
-              className="p-2 rounded-lg hover:bg-pastel-blue-light transition"
+              className="p-2 rounded-full hover:bg-gray-100 transition"
             >
-              <ChevronLeft size={24} />
+              <ChevronLeft size={20} />
             </button>
 
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-xl font-bold text-gray-900 min-w-48 text-center">
               {format(currentMonth, 'yyyy年 M月', { locale: ja })}
             </h2>
 
             <button
               onClick={nextMonth}
-              className="p-2 rounded-lg hover:bg-pastel-blue-light transition"
+              className="p-2 rounded-full hover:bg-gray-100 transition"
             >
-              <ChevronRight size={24} />
+              <ChevronRight size={20} />
             </button>
           </div>
         </div>
 
-        {/* カレンダーグリッド */}
-        <div className="bg-white rounded-xl shadow-pastel-lg overflow-hidden border-4 border-gray-400">
+        {/* カレンダーグリッド (7×6) */}
+        <div className="bg-white rounded-lg shadow overflow-hidden">
           {/* 曜日ヘッダー */}
-          <div className="grid grid-cols-7 border-b-4 border-gray-400">
+          <div className="grid grid-cols-7 border-b">
             {weekdays.map((day, index) => (
               <div
                 key={day}
-                className={`p-3 text-center font-bold border-r-2 border-gray-300 last:border-r-0 ${
-                  index === 5 ? 'text-blue-600 bg-blue-50' :
-                  index === 6 ? 'text-red-600 bg-red-50' :
-                  'text-gray-800 bg-pastel-blue-light'
-                }`}
+                className={`p-2 text-center text-sm font-semibold ${
+                  index === 5 ? 'text-blue-600' : // 土曜
+                  index === 6 ? 'text-red-600' : // 日曜
+                  'text-gray-700'
+                } bg-gray-50`}
               >
                 {day}
               </div>
             ))}
           </div>
 
-          {/* 日付グリッド */}
-          <div className="grid grid-cols-7 border-collapse">
-            {/* 月初の空白セル（月曜始まり対応） */}
-            {Array.from({ length: (days[0].getDay() + 6) % 7 }).map((_, index) => (
-              <div
-                key={`empty-${index}`}
-                className="border-2 border-gray-300 p-3 min-h-28 bg-gray-100"
-              ></div>
-            ))}
+          {/* 6週間のグリッド */}
+          {weeks.map((week, weekIndex) => (
+            <div key={weekIndex} className="grid grid-cols-7" style={{ minHeight: '120px' }}>
+              {week.map(day => {
+                const dayTasks = getTasksForDay(day)
+                const isToday = isSameDay(day, new Date())
+                const isCurrentMonth = isSameMonth(day, currentMonth)
+                const dayOfWeek = (day.getDay() + 6) % 7 // 月曜=0, 日曜=6
 
-            {/* 日付セル */}
-            {days.map(day => {
-              const dayTasks = getTasksForDay(day)
-              const isToday = isSameDay(day, new Date())
-              const dayOfWeek = (day.getDay() + 6) % 7 // 月曜=0, 日曜=6
+                return (
+                  <div
+                    key={day.toString()}
+                    className={`border-r border-b p-2 transition-colors min-h-[120px] ${
+                      isToday ? 'bg-blue-50' :
+                      !isCurrentMonth ? 'bg-gray-50' :
+                      dayOfWeek === 6 ? 'bg-red-50' : // 日曜
+                      dayOfWeek === 5 ? 'bg-blue-50' : // 土曜
+                      'bg-white hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className={`text-sm font-medium mb-1 ${
+                      isToday ? 'bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center' :
+                      !isCurrentMonth ? 'text-gray-400' :
+                      dayOfWeek === 6 ? 'text-red-600' :
+                      dayOfWeek === 5 ? 'text-blue-600' :
+                      'text-gray-900'
+                    }`}>
+                      {format(day, 'd')}
+                    </div>
 
-              return (
-                <div
-                  key={day.toString()}
-                  className={`border-2 border-gray-300 p-3 min-h-28 transition-colors ${
-                    isToday ? 'bg-yellow-100 border-yellow-500 border-4' :
-                    dayOfWeek === 5 ? 'bg-blue-50' :
-                    dayOfWeek === 6 ? 'bg-red-50' :
-                    'bg-white hover:bg-pastel-blue-light'
-                  }`}
-                >
-                  <div className={`text-base font-bold mb-2 ${
-                    isToday ? 'text-yellow-700' :
-                    dayOfWeek === 6 ? 'text-red-600' :
-                    dayOfWeek === 5 ? 'text-blue-600' :
-                    'text-gray-800'
-                  }`}>
-                    {format(day, 'd')}日
-                  </div>
-
-                  <div className="space-y-1">
-                    {dayTasks.length === 0 ? (
-                      <div className="text-xs text-gray-400 text-center">-</div>
-                    ) : (
-                      dayTasks.map(task => {
+                    <div className="space-y-1">
+                      {dayTasks.map((task, index) => {
+                        if (index >= 10) return null // 最大10件
                         const isMilestone = MILESTONE_EVENTS.some(event => task.title.includes(event))
                         return (
                           <div
                             key={task.id}
-                            className={`text-xs p-1.5 rounded border ${
-                              isMilestone ? 'bg-red-200 text-red-900 font-bold border-red-400' :
-                              task.status === 'completed' ? 'bg-green-100 text-green-800 border-green-400' :
-                              task.status === 'requested' ? 'bg-blue-100 text-blue-800 border-blue-400' :
-                              'bg-gray-100 text-gray-800 border-gray-400'
+                            className={`text-xs px-1.5 py-0.5 rounded truncate ${
+                              isMilestone ? 'bg-red-500 text-white font-semibold' :
+                              task.status === 'completed' ? 'bg-blue-100 text-blue-900' :
+                              task.status === 'requested' ? 'bg-yellow-100 text-yellow-900' :
+                              'bg-gray-100 text-gray-700'
                             }`}
-                            title={`${task.title} - ${task.project?.customer?.names?.join('・') || ''}`}
+                            title={`${task.title}${task.project?.customer?.names ? ' - ' + task.project.customer.names.join('・') + '様' : ''}`}
                           >
                             {isMilestone && '⭐ '}
-                            <div className="truncate">{task.title}</div>
+                            {task.title}
                           </div>
                         )
-                      })
-                    )}
+                      })}
+                      {dayTasks.length > 10 && (
+                        <div className="text-xs text-gray-500">
+                          +{dayTasks.length - 10}件
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )
-            })}
-          </div>
+                )
+              })}
+            </div>
+          ))}
         </div>
 
         {/* 凡例 */}
-        <div className="bg-white rounded-xl shadow-pastel-lg p-6 mt-6">
-          <h3 className="font-bold text-gray-900 mb-3">凡例</h3>
-          <div className="flex flex-wrap gap-4">
+        <div className="bg-white rounded-lg shadow p-4 mt-4">
+          <h3 className="font-bold text-gray-900 mb-3 text-sm">凡例</h3>
+          <div className="flex flex-wrap gap-4 text-xs">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-red-100 border border-red-300 rounded"></div>
-              <span className="text-sm">⭐ マイルストーンイベント（全セクション共通）</span>
+              <div className="w-4 h-4 bg-red-500 rounded"></div>
+              <span>⭐ マイルストーン</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-pastel-green-light border border-pastel-green rounded"></div>
-              <span className="text-sm">完了タスク</span>
+              <div className="w-4 h-4 bg-blue-100 border border-blue-300 rounded"></div>
+              <span>完了タスク</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-pastel-blue-light border border-pastel-blue rounded"></div>
-              <span className="text-sm">進行中タスク</span>
+              <div className="w-4 h-4 bg-yellow-100 border border-yellow-300 rounded"></div>
+              <span>着手中タスク</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-gray-100 border border-gray-300 rounded"></div>
-              <span className="text-sm">未着手タスク</span>
+              <span>未着手タスク</span>
             </div>
           </div>
         </div>
