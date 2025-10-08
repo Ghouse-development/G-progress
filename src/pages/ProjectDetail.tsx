@@ -77,6 +77,9 @@ export default function ProjectDetail() {
   const [loading, setLoading] = useState(true)
   const [showTaskModal, setShowTaskModal] = useState(false)
   const [selectedTask, setSelectedTask] = useState<TaskWithPosition | null>(null)
+  const [editMode, setEditMode] = useState(false)
+  const [editedDueDate, setEditedDueDate] = useState('')
+  const [editedActualDate, setEditedActualDate] = useState('')
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -119,6 +122,36 @@ export default function ProjectDetail() {
       alert('ステータスを更新しました')
     } else {
       alert('ステータスの更新に失敗しました')
+    }
+  }
+
+  const handleUpdateTaskDates = async () => {
+    if (!selectedTask) return
+
+    const updateData: any = {
+      updated_at: new Date().toISOString()
+    }
+
+    if (editedDueDate) {
+      updateData.due_date = editedDueDate
+    }
+
+    if (editedActualDate) {
+      updateData.actual_completion_date = editedActualDate
+    }
+
+    const { error } = await supabase
+      .from('tasks')
+      .update(updateData)
+      .eq('id', selectedTask.id)
+
+    if (!error) {
+      await loadProjectData()
+      setEditMode(false)
+      setSelectedTask(null)
+      alert('日付を更新しました')
+    } else {
+      alert('日付の更新に失敗しました: ' + error.message)
     }
   }
 
@@ -637,7 +670,10 @@ export default function ProjectDetail() {
               <div className="flex items-center justify-between mb-4 pb-3 border-b-2 border-pastel-blue">
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{selectedTask.title}</h2>
                 <button
-                  onClick={() => setSelectedTask(null)}
+                  onClick={() => {
+                    setSelectedTask(null)
+                    setEditMode(false)
+                  }}
                   className="text-gray-500 hover:text-gray-700 text-3xl leading-none touch-target"
                 >
                   ×
@@ -679,6 +715,85 @@ export default function ProjectDetail() {
                     ✓ 完了
                   </button>
                 </div>
+              </div>
+
+              {/* 日付管理セクション */}
+              <div className="mb-6 bg-gray-50 rounded-xl p-4 border-2 border-gray-200">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-bold text-gray-700">日付管理</h3>
+                  {!editMode && (
+                    <button
+                      onClick={() => {
+                        setEditMode(true)
+                        setEditedDueDate(selectedTask.due_date || '')
+                        setEditedActualDate(selectedTask.actual_completion_date || '')
+                      }}
+                      className="px-3 py-1 bg-blue-500 text-white rounded-lg text-xs font-bold hover:bg-blue-600 transition-colors"
+                    >
+                      編集
+                    </button>
+                  )}
+                </div>
+
+                {editMode ? (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 mb-1">
+                        期限日
+                      </label>
+                      <input
+                        type="date"
+                        value={editedDueDate}
+                        onChange={(e) => setEditedDueDate(e.target.value)}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 mb-1">
+                        実際の完了日
+                      </label>
+                      <input
+                        type="date"
+                        value={editedActualDate}
+                        onChange={(e) => setEditedActualDate(e.target.value)}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        onClick={handleUpdateTaskDates}
+                        className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg font-bold hover:bg-blue-600 transition-colors"
+                      >
+                        保存
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditMode(false)
+                          setEditedDueDate('')
+                          setEditedActualDate('')
+                        }}
+                        className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg font-bold hover:bg-gray-400 transition-colors"
+                      >
+                        キャンセル
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600 font-semibold">期限日:</span>
+                      <span className="font-bold text-gray-900">
+                        {selectedTask.due_date ? format(new Date(selectedTask.due_date), 'yyyy/MM/dd (E)', { locale: ja }) : '未設定'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600 font-semibold">実際の完了日:</span>
+                      <span className="font-bold text-gray-900">
+                        {selectedTask.actual_completion_date ? format(new Date(selectedTask.actual_completion_date), 'yyyy/MM/dd (E)', { locale: ja }) : '未設定'}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* 作業内容 */}

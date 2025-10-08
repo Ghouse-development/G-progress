@@ -119,6 +119,7 @@ export interface Task {
   description?: string
   assigned_to?: string
   due_date?: string
+  actual_completion_date?: string
   status: TaskStatus
   priority: TaskPriority
   created_at: string

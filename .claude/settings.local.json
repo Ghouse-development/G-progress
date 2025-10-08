@@ -23,7 +23,8 @@
       "Bash(git fetch:*)",
       "Bash(git log:*)",
       "WebFetch(domain:api.github.com)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(psql:*)"
     ],
     "deny": [],
     "ask": []
