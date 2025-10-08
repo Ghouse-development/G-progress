@@ -4,7 +4,7 @@ export default function Login() {
   const navigate = useNavigate()
 
   const handleLogin = () => {
-    // 開発モード: 認証なしでログイン
+    // 開発モード: 認証なしでログイン（ボタンをクリックするだけでOK）
     localStorage.setItem('auth', 'true')
     localStorage.setItem('currentUserId', '1') // デフォルトユーザーIDを設定
     navigate('/')
