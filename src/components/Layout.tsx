@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Home, FolderKanban, Calendar, LogOut, Menu, X, Search } from 'lucide-react'
+import { Home, FolderKanban, Calendar, LogOut, Menu, X, Search, BarChart3 } from 'lucide-react'
 import GlobalSearch from './GlobalSearch'
 import './Layout.css'
 
@@ -32,6 +32,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { path: '/', label: 'ダッシュボード', icon: Home },
     { path: '/projects', label: '案件一覧', icon: FolderKanban },
     { path: '/calendar', label: 'カレンダー', icon: Calendar },
+    { path: '/admin/progress', label: '管理者モード', icon: BarChart3 },
   ]
 
   const handleSearchClick = () => {

@@ -69,30 +69,35 @@ export default function Calendar() {
     const start = startOfMonth(currentMonth)
     const end = endOfMonth(currentMonth)
 
-    // タスクを取得
-    const { data: tasksData } = await supabase
+    // タスクを取得（プロジェクトと顧客情報も含む）
+    const { data: tasksData, error } = await supabase
       .from('tasks')
       .select(`
         *,
-        project:projects(*)
+        project:projects(
+          *,
+          customer:customers(*)
+        )
       `)
       .gte('due_date', format(start, 'yyyy-MM-dd'))
       .lte('due_date', format(end, 'yyyy-MM-dd'))
 
+    if (error) {
+      console.error('Error loading tasks:', error)
+      return
+    }
+
     if (tasksData) {
-      // 担当者のタスクまたはマイルストーンタスクをフィルタリング
-      const filteredTasks = tasksData.filter((task: any) => {
-        // マイルストーンタスクは全て表示
-        if (MILESTONE_EVENTS.some(event => task.title.includes(event))) {
-          return true
-        }
+      console.log(`カレンダー: ${tasksData.length}件のタスクを取得しました`)
 
-        // 担当部門のタスクのみ表示
-        const taskDept = task.description?.split(':')[0]?.trim()
-        return taskDept === currentUser.department
-      })
+      // 全てのタスクを表示（フィルタなし）
+      // マイルストーンと担当者のタスクを区別して表示
+      const allTasks = tasksData.map((task: any) => ({
+        ...task,
+        isMilestone: MILESTONE_EVENTS.some(event => task.title.includes(event))
+      }))
 
-      setTasks(filteredTasks as TaskWithProject[])
+      setTasks(allTasks as TaskWithProject[])
     }
   }
 
