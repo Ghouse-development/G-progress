@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { Project, Task } from '../types/database'
 import { differenceInDays, format } from 'date-fns'
+import { ja } from 'date-fns/locale'
 import { HelpCircle } from 'lucide-react'
 
 // 年度計算関数（8月1日～翌年7月31日）
@@ -176,33 +177,47 @@ export default function DashboardHome() {
     return true
   })
 
-  // 職種別進捗状況計算（管理者モード用）
-  const getPositionProgress = (projectId: string, position: string): 'completed' | 'inprogress' | 'warning' | 'delayed' | 'none' => {
-    const positionTasks = tasks.filter(task => {
-      const taskPosition = task.description?.split(':')[0]?.trim()
-      return task.project_id === projectId && taskPosition === position
-    })
+  // 全案件のタスクを期限日順で取得（管理者モード用）
+  const getAllTasksSorted = () => {
+    // 全案件のタスクを期限日順でソート
+    const allTasks = tasks
+      .filter((t): t is Task & { due_date: string } => !!t.due_date) // 期限日があるタスクのみ
+      .sort((a, b) => new Date(a.due_date).getTime() - new Date(b.due_date).getTime())
 
-    if (positionTasks.length === 0) return 'none'
+    // 重複しない期限日のリストを作成
+    const uniqueDueDates = Array.from(new Set(allTasks.map(t => t.due_date)))
+      .filter((d): d is string => !!d)
+      .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
 
-    const completedTasks = positionTasks.filter(t => t.status === 'completed')
-    const delayedTasks = positionTasks.filter(t => {
-      if (!t.due_date || t.status === 'completed') return false
-      return differenceInDays(new Date(), new Date(t.due_date)) > 0
-    })
-
-    if (completedTasks.length === positionTasks.length) return 'completed'
-    if (delayedTasks.length >= 2) return 'delayed'
-    if (delayedTasks.length === 1) return 'warning'
-    return 'inprogress'
+    return { allTasks, uniqueDueDates }
   }
 
-  const ALL_POSITIONS = [
-    '営業', '営業事務', 'ローン事務',
-    '意匠設計', 'IC', '実施設計', '構造設計', '申請設計',
-    '工事', '工事事務', '積算・発注',
-    '外構設計', '外構工事'
-  ]
+  // 特定の案件・特定の日付のタスクを取得
+  const getProjectTasksByDate = (projectId: string, dueDate: string) => {
+    return tasks.filter(t =>
+      t.project_id === projectId &&
+      t.due_date === dueDate
+    )
+  }
+
+  // タスクの状態を色で表現
+  const getTaskColor = (task: Task) => {
+    // completedの型チェック（Task型にcompletedステータスがある場合）
+    const isCompleted = task.status === 'not_applicable' || (task.status as string) === 'completed'
+    if (isCompleted) return 'bg-green-500 text-white'
+
+    if (task.due_date) {
+      const daysOverdue = differenceInDays(new Date(), new Date(task.due_date))
+      if (daysOverdue > 0 && !isCompleted) {
+        return 'bg-red-500 text-white' // 遅延
+      }
+    }
+
+    if (task.status === 'requested') return 'bg-blue-500 text-white' // 進行中
+    return 'bg-yellow-500 text-white' // 未着手
+  }
+
+  const { uniqueDueDates } = mode === 'admin' ? getAllTasksSorted() : { uniqueDueDates: [] }
 
   return (
     <div className="space-y-6">
@@ -429,44 +444,42 @@ export default function DashboardHome() {
               <span className="font-bold text-gray-800">凡例:</span>
               <div className="flex items-center gap-1">
                 <div className="w-4 h-4 bg-green-500 rounded"></div>
-                <span>完了</span>
+                <span>✓ 完了</span>
               </div>
               <div className="flex items-center gap-1">
                 <div className="w-4 h-4 bg-blue-500 rounded"></div>
-                <span>進行中</span>
+                <span>● 進行中</span>
               </div>
               <div className="flex items-center gap-1">
                 <div className="w-4 h-4 bg-yellow-500 rounded"></div>
-                <span>要注意(1件遅延)</span>
+                <span>○ 未着手</span>
               </div>
               <div className="flex items-center gap-1">
                 <div className="w-4 h-4 bg-red-500 rounded"></div>
-                <span>遅延(2件以上)</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-4 h-4 bg-gray-300 rounded"></div>
-                <span>タスクなし</span>
+                <span>× 遅延</span>
               </div>
             </div>
           </div>
 
-          {/* マトリクステーブル */}
-          <div className="overflow-x-auto" style={{ maxHeight: '600px', overflowY: 'auto' }}>
-            <table className="text-xs border-collapse" style={{ width: '100%', tableLayout: 'fixed' }}>
+          {/* マトリクステーブル：タスクを横方向に展開 */}
+          <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: '600px' }}>
+            <table className="text-xs border-collapse" style={{ minWidth: '100%' }}>
               <thead className="sticky top-0 z-10 bg-white">
                 <tr>
-                  <th className="border-2 border-gray-300 p-2 bg-pastel-blue-light text-left font-bold text-gray-800" style={{ width: '180px' }}>
+                  <th className="border-2 border-gray-300 p-2 bg-pastel-blue-light text-left font-bold text-gray-800 sticky left-0 z-20" style={{ minWidth: '180px' }}>
                     案件名
                   </th>
-                  {ALL_POSITIONS.map(position => (
+                  {uniqueDueDates.map(dueDate => (
                     <th
-                      key={position}
+                      key={dueDate}
                       className="border-2 border-gray-300 p-1 bg-pastel-blue-light text-center font-bold text-gray-800"
-                      style={{ width: '65px' }}
-                      title={position}
+                      style={{ minWidth: '100px' }}
                     >
-                      <div className="truncate text-xs leading-tight">
-                        {position.length > 4 ? position.slice(0, 3) + '..' : position}
+                      <div className="text-xs leading-tight">
+                        {format(new Date(dueDate), 'MM/dd')}
+                      </div>
+                      <div className="text-xs text-gray-600">
+                        ({format(new Date(dueDate), 'E', { locale: ja })})
                       </div>
                     </th>
                   ))}
@@ -475,14 +488,14 @@ export default function DashboardHome() {
               <tbody>
                 {filteredProjects.length === 0 ? (
                   <tr>
-                    <td colSpan={ALL_POSITIONS.length + 1} className="border-2 border-gray-300 p-8 text-center text-gray-500">
+                    <td colSpan={uniqueDueDates.length + 1} className="border-2 border-gray-300 p-8 text-center text-gray-500">
                       該当する案件がありません
                     </td>
                   </tr>
                 ) : (
                   filteredProjects.map((project: any) => (
                     <tr key={project.id} className="hover:bg-pastel-blue-light transition-colors">
-                      <td className="border-2 border-gray-300 p-2 font-medium text-gray-900 bg-white">
+                      <td className="border-2 border-gray-300 p-2 font-medium text-gray-900 bg-white sticky left-0 z-10">
                         <div className="font-bold text-xs truncate" title={`${project.customer?.names?.join('・') || '顧客名なし'}様邸`}>
                           {project.customer?.names?.join('・') || '顧客名なし'}様
                         </div>
@@ -490,23 +503,38 @@ export default function DashboardHome() {
                           {format(new Date(project.contract_date), 'MM/dd')}
                         </div>
                       </td>
-                      {ALL_POSITIONS.map(position => {
-                        const progress = getPositionProgress(project.id, position)
-                        const bgColor =
-                          progress === 'completed' ? 'bg-green-500' :
-                          progress === 'inprogress' ? 'bg-blue-500' :
-                          progress === 'warning' ? 'bg-yellow-500' :
-                          progress === 'delayed' ? 'bg-red-500' :
-                          'bg-gray-300'
+                      {uniqueDueDates.map(dueDate => {
+                        const dayTasks = getProjectTasksByDate(project.id, dueDate)
 
                         return (
-                          <td key={position} className="border border-gray-300 p-0.5">
-                            <div className={`w-full h-10 ${bgColor} rounded flex items-center justify-center text-white font-bold text-sm`}>
-                              {progress === 'completed' && '✓'}
-                              {progress === 'inprogress' && '●'}
-                              {progress === 'warning' && '!'}
-                              {progress === 'delayed' && '×'}
-                            </div>
+                          <td key={dueDate} className="border border-gray-300 p-0.5" style={{ minWidth: '100px' }}>
+                            {dayTasks.length > 0 ? (
+                              <div className="space-y-0.5">
+                                {dayTasks.map(task => {
+                                  const position = task.description?.split(':')[0]?.trim() || ''
+                                  return (
+                                    <div
+                                      key={task.id}
+                                      className={`px-1 py-0.5 rounded text-xs ${getTaskColor(task)}`}
+                                      title={`${task.title} (${position})\nステータス: ${
+                                        task.status === 'completed' ? '完了' :
+                                        task.status === 'requested' ? '進行中' :
+                                        '未着手'
+                                      }`}
+                                    >
+                                      <div className="truncate font-medium">
+                                        {task.status === 'completed' && '✓ '}
+                                        {task.status === 'requested' && '● '}
+                                        {task.status === 'not_started' && '○ '}
+                                        {position}
+                                      </div>
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            ) : (
+                              <div className="h-8"></div>
+                            )}
                           </td>
                         )
                       })}
