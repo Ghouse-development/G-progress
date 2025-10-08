@@ -153,17 +153,17 @@ export default function Calendar() {
         </div>
 
         {/* カレンダーグリッド */}
-        <div className="bg-white rounded-xl shadow-pastel-lg overflow-hidden">
+        <div className="bg-white rounded-xl shadow-pastel-lg overflow-hidden border-4 border-gray-400">
           {/* 曜日ヘッダー */}
-          <div className="grid grid-cols-7 border-b-2 border-gray-300">
+          <div className="grid grid-cols-7 border-b-4 border-gray-400">
             {weekdays.map((day, index) => (
               <div
                 key={day}
-                className={`p-4 text-center font-bold ${
-                  index === 5 ? 'text-blue-600' :
-                  index === 6 ? 'text-red-600' :
-                  'text-gray-800'
-                } bg-pastel-blue-light`}
+                className={`p-3 text-center font-bold border-r-2 border-gray-300 last:border-r-0 ${
+                  index === 5 ? 'text-blue-600 bg-blue-50' :
+                  index === 6 ? 'text-red-600 bg-red-50' :
+                  'text-gray-800 bg-pastel-blue-light'
+                }`}
               >
                 {day}
               </div>
@@ -171,52 +171,63 @@ export default function Calendar() {
           </div>
 
           {/* 日付グリッド */}
-          <div className="grid grid-cols-7">
+          <div className="grid grid-cols-7 border-collapse">
             {/* 月初の空白セル（月曜始まり対応） */}
             {Array.from({ length: (days[0].getDay() + 6) % 7 }).map((_, index) => (
-              <div key={`empty-${index}`} className="border border-gray-200 p-2 min-h-32 bg-gray-50"></div>
+              <div
+                key={`empty-${index}`}
+                className="border-2 border-gray-300 p-3 min-h-28 bg-gray-100"
+              ></div>
             ))}
 
             {/* 日付セル */}
             {days.map(day => {
               const dayTasks = getTasksForDay(day)
               const isToday = isSameDay(day, new Date())
+              const dayOfWeek = (day.getDay() + 6) % 7 // 月曜=0, 日曜=6
 
               return (
                 <div
                   key={day.toString()}
-                  className={`border border-gray-200 p-2 min-h-32 transition-colors ${
-                    isToday ? 'bg-yellow-50 border-yellow-400 border-2' : 'hover:bg-pastel-blue-light'
+                  className={`border-2 border-gray-300 p-3 min-h-28 transition-colors ${
+                    isToday ? 'bg-yellow-100 border-yellow-500 border-4' :
+                    dayOfWeek === 5 ? 'bg-blue-50' :
+                    dayOfWeek === 6 ? 'bg-red-50' :
+                    'bg-white hover:bg-pastel-blue-light'
                   }`}
                 >
-                  <div className={`text-sm font-bold mb-2 ${
-                    isToday ? 'text-yellow-600' :
-                    day.getDay() === 0 ? 'text-red-600' :
-                    day.getDay() === 6 ? 'text-blue-600' :
+                  <div className={`text-base font-bold mb-2 ${
+                    isToday ? 'text-yellow-700' :
+                    dayOfWeek === 6 ? 'text-red-600' :
+                    dayOfWeek === 5 ? 'text-blue-600' :
                     'text-gray-800'
                   }`}>
-                    {format(day, 'd')}
+                    {format(day, 'd')}日
                   </div>
 
                   <div className="space-y-1">
-                    {dayTasks.map(task => {
-                      const isMilestone = MILESTONE_EVENTS.some(event => task.title.includes(event))
-                      return (
-                        <div
-                          key={task.id}
-                          className={`text-xs p-1 rounded truncate ${
-                            isMilestone ? 'bg-red-100 text-red-800 font-bold' :
-                            task.status === 'completed' ? 'bg-pastel-green-light text-pastel-green-dark' :
-                            task.status === 'requested' ? 'bg-pastel-blue-light text-pastel-blue-dark' :
-                            'bg-gray-100 text-gray-800'
-                          }`}
-                          title={`${task.title} - ${task.project?.customer?.names?.join('・') || ''}`}
-                        >
-                          {isMilestone && '⭐ '}
-                          {task.title}
-                        </div>
-                      )
-                    })}
+                    {dayTasks.length === 0 ? (
+                      <div className="text-xs text-gray-400 text-center">-</div>
+                    ) : (
+                      dayTasks.map(task => {
+                        const isMilestone = MILESTONE_EVENTS.some(event => task.title.includes(event))
+                        return (
+                          <div
+                            key={task.id}
+                            className={`text-xs p-1.5 rounded border ${
+                              isMilestone ? 'bg-red-200 text-red-900 font-bold border-red-400' :
+                              task.status === 'completed' ? 'bg-green-100 text-green-800 border-green-400' :
+                              task.status === 'requested' ? 'bg-blue-100 text-blue-800 border-blue-400' :
+                              'bg-gray-100 text-gray-800 border-gray-400'
+                            }`}
+                            title={`${task.title} - ${task.project?.customer?.names?.join('・') || ''}`}
+                          >
+                            {isMilestone && '⭐ '}
+                            <div className="truncate">{task.title}</div>
+                          </div>
+                        )
+                      })
+                    )}
                   </div>
                 </div>
               )

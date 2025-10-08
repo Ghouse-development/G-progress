@@ -183,23 +183,21 @@ export default function ProjectList() {
                 </p>
               </div>
 
-              {/* 部署ステータス */}
-              <div className="p-4 bg-pastel-blue-light">
-                <div className="grid grid-cols-2 gap-2">
+              {/* 部署ステータス（1行4列） */}
+              <div className="p-3 bg-pastel-blue-light">
+                <div className="flex gap-2 justify-between">
                   {deptStatuses.map((dept) => (
                     <div
                       key={dept.department}
-                      className="flex items-center gap-2 bg-white rounded-lg p-2 shadow-sm"
+                      className="flex flex-col items-center bg-white rounded-lg p-2 shadow-sm flex-1"
                     >
-                      <div className={`w-4 h-4 rounded ${getStatusBadgeColor(dept.status)}`}></div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-xs font-bold text-gray-800 truncate">{dept.department}</div>
-                        {dept.delayedTasks > 0 && (
-                          <div className="text-xs text-red-600">
-                            {dept.delayedTasks}件遅延
-                          </div>
-                        )}
-                      </div>
+                      <div className={`w-6 h-6 rounded-full ${getStatusBadgeColor(dept.status)}`}></div>
+                      <div className="text-xs font-bold text-gray-800 mt-1 text-center">{dept.department.replace('部', '')}</div>
+                      {dept.delayedTasks > 0 && (
+                        <div className="text-xs text-red-600 text-center">
+                          {dept.delayedTasks}件
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

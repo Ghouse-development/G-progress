@@ -393,18 +393,22 @@ export default function DashboardHome() {
 
           {/* マトリクステーブル */}
           <div className="overflow-x-auto" style={{ maxHeight: '600px', overflowY: 'auto' }}>
-            <table className="w-full text-xs border-collapse">
+            <table className="text-xs border-collapse" style={{ width: '100%', tableLayout: 'fixed' }}>
               <thead className="sticky top-0 z-10 bg-white">
                 <tr>
-                  <th className="border-2 border-gray-300 p-2 bg-pastel-blue-light text-left font-bold text-gray-800 min-w-48">
+                  <th className="border-2 border-gray-300 p-2 bg-pastel-blue-light text-left font-bold text-gray-800" style={{ width: '180px' }}>
                     案件名
                   </th>
                   {ALL_POSITIONS.map(position => (
                     <th
                       key={position}
-                      className="border-2 border-gray-300 p-2 bg-pastel-blue-light text-center font-bold text-gray-800 min-w-20"
+                      className="border-2 border-gray-300 p-1 bg-pastel-blue-light text-center font-bold text-gray-800"
+                      style={{ width: '65px' }}
+                      title={position}
                     >
-                      {position}
+                      <div className="truncate text-xs leading-tight">
+                        {position.length > 4 ? position.slice(0, 3) + '..' : position}
+                      </div>
                     </th>
                   ))}
                 </tr>
@@ -419,10 +423,12 @@ export default function DashboardHome() {
                 ) : (
                   filteredProjects.map((project: any) => (
                     <tr key={project.id} className="hover:bg-pastel-blue-light transition-colors">
-                      <td className="border-2 border-gray-300 p-2 font-medium text-gray-900 bg-white sticky left-0">
-                        <div className="font-bold">{project.customer?.names?.join('・') || '顧客名なし'}様邸</div>
-                        <div className="text-gray-600 text-xs mt-1">
-                          契約: {format(new Date(project.contract_date), 'yyyy/MM/dd')}
+                      <td className="border-2 border-gray-300 p-2 font-medium text-gray-900 bg-white">
+                        <div className="font-bold text-xs truncate" title={`${project.customer?.names?.join('・') || '顧客名なし'}様邸`}>
+                          {project.customer?.names?.join('・') || '顧客名なし'}様
+                        </div>
+                        <div className="text-gray-600 text-xs">
+                          {format(new Date(project.contract_date), 'MM/dd')}
                         </div>
                       </td>
                       {ALL_POSITIONS.map(position => {
@@ -435,8 +441,8 @@ export default function DashboardHome() {
                           'bg-gray-300'
 
                         return (
-                          <td key={position} className="border border-gray-300 p-1">
-                            <div className={`w-full h-8 ${bgColor} rounded flex items-center justify-center text-white font-bold`}>
+                          <td key={position} className="border border-gray-300 p-0.5">
+                            <div className={`w-full h-10 ${bgColor} rounded flex items-center justify-center text-white font-bold text-sm`}>
                               {progress === 'completed' && '✓'}
                               {progress === 'inprogress' && '●'}
                               {progress === 'warning' && '!'}
