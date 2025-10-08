@@ -278,11 +278,11 @@ export default function ProjectDetail() {
         </div>
 
         {/* タスク管理グリッド */}
-        <div className="bg-white shadow-pastel-lg rounded-xl overflow-hidden border-2 border-gray-300">
-          <div className="overflow-x-auto">
+        <div className="bg-white shadow-pastel-lg rounded-xl overflow-hidden border-2 border-gray-300" style={{ maxHeight: 'calc(100vh - 350px)' }}>
+          <div className="overflow-x-auto overflow-y-auto h-full">
             <div className="inline-block min-w-full">
               {/* 部門ヘッダー */}
-              <div className="flex border-b-2 border-gray-300">
+              <div className="flex border-b-2 border-gray-300 sticky top-0 z-30 bg-white">
                 <div className="w-28 flex-shrink-0 border-r-2 border-gray-300 p-4 text-center font-bold text-base text-gray-800 bg-white">
                   日付
                 </div>
@@ -306,7 +306,7 @@ export default function ProjectDetail() {
               </div>
 
               {/* 職種ヘッダー（担当者名と完遂率付き） */}
-              <div className="flex border-b-2 border-gray-300 bg-white sticky top-0 z-10 shadow-pastel">
+              <div className="flex border-b-2 border-gray-300 bg-white sticky z-20 shadow-pastel" style={{ top: '60px' }}>
                 <div className="w-28 flex-shrink-0 border-r-2 border-gray-300 p-4 text-center font-bold text-base bg-pastel-blue-light text-gray-800">
                   日付
                 </div>
@@ -341,7 +341,7 @@ export default function ProjectDetail() {
               </div>
 
               {/* グリッドボディ */}
-              <div className="max-h-screen overflow-y-auto">
+              <div>
                 {Array.from({ length: 366 }, (_, index) => index).map((day) => {
                   const hasTask = tasks.some(t => t.dayFromContract === day)
                   const currentDate = project ? addDays(new Date(project.contract_date), day) : new Date()
