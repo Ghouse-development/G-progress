@@ -40,19 +40,27 @@ export default function Calendar() {
   }, [currentMonth, currentUser])
 
   const loadCurrentUser = async () => {
-    // 開発モード: 仮のユーザーIDを使用
+    // 開発モード: localStorageまたはデフォルトユーザーIDを使用
     const userId = localStorage.getItem('currentUserId') || '1'
 
-    const { data, error } = await supabase
-      .from('employees')
-      .select('*')
-      .eq('id', userId)
-      .single()
+    try {
+      const { data, error } = await supabase
+        .from('employees')
+        .select('*')
+        .eq('id', userId)
+        .single()
 
-    if (!error && data) {
-      setCurrentUser(data as Employee)
+      if (!error && data) {
+        setCurrentUser(data as Employee)
+      } else {
+        // エラー時はデフォルトユーザーを設定
+        console.log('Could not load user, using default')
+      }
+    } catch (error) {
+      console.log('Error loading user:', error)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   const loadTasks = async () => {

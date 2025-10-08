@@ -6,6 +6,7 @@ export default function Login() {
   const handleLogin = () => {
     // 開発モード: 認証なしでログイン
     localStorage.setItem('auth', 'true')
+    localStorage.setItem('currentUserId', '1') // デフォルトユーザーIDを設定
     navigate('/')
   }
 

@@ -46,18 +46,35 @@ export default function DashboardHome() {
   }, [mode, fiscalYear, currentUserId])
 
   const loadCurrentUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      const { data: employee } = await supabase
-        .from('employees')
-        .select('id')
-        .eq('email', user.email)
-        .single()
-
-      if (employee) {
-        setCurrentUserId(employee.id)
-      }
+    // 開発モード: localStorageまたはデフォルトユーザーIDを使用
+    const savedUserId = localStorage.getItem('currentUserId')
+    if (savedUserId) {
+      setCurrentUserId(savedUserId)
+      return
     }
+
+    // Supabase認証を試みる（本番用）
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: employee } = await supabase
+          .from('employees')
+          .select('id')
+          .eq('email', user.email)
+          .single()
+
+        if (employee) {
+          setCurrentUserId(employee.id)
+          return
+        }
+      }
+    } catch (error) {
+      console.log('Supabase auth not configured, using default user')
+    }
+
+    // デフォルト: ユーザーID '1' を使用（開発モード）
+    setCurrentUserId('1')
+    localStorage.setItem('currentUserId', '1')
   }
 
   const loadProjects = async () => {
