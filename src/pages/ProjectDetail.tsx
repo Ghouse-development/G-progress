@@ -220,6 +220,25 @@ export default function ProjectDetail() {
             ← 案件一覧に戻る
           </button>
 
+          {/* タスクステータス凡例 */}
+          <div className="bg-white rounded-xl shadow-pastel p-4 mb-4 border-2 border-gray-200">
+            <div className="flex items-center gap-6 flex-wrap">
+              <div className="font-bold text-gray-900">タスクステータス:</div>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 task-completed rounded"></div>
+                <span className="text-sm text-gray-700">✓ 完了</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 task-in-progress rounded"></div>
+                <span className="text-sm text-gray-700">● 作業中</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 task-not-started rounded"></div>
+                <span className="text-sm text-gray-700">○ 未着手</span>
+              </div>
+            </div>
+          </div>
+
           {/* プロジェクト情報カード */}
           <div className="bg-white rounded-xl shadow-pastel-lg border-2 border-gray-300 overflow-hidden">
             <div className="bg-gradient-pastel-blue p-6 text-pastel-blue-dark">
@@ -292,13 +311,13 @@ export default function ProjectDetail() {
                 {DEPARTMENTS.map((dept, index) => (
                   <div
                     key={dept.name}
-                    className={`text-center py-4 px-2 font-bold text-lg ${
+                    className={`text-center py-3 px-1 font-bold text-base ${
                       index === 0 ? 'bg-gradient-pastel-blue text-pastel-blue-dark' :
                       index === 1 ? 'bg-gradient-pastel-green text-pastel-green-dark' :
                       index === 2 ? 'bg-gradient-pastel-orange text-pastel-orange-dark' :
                       'bg-pastel-teal text-gray-800'
                     } ${index < DEPARTMENTS.length - 1 ? 'border-r-4 border-white' : ''}`}
-                    style={{ width: `${dept.positions.length * 150}px` }}
+                    style={{ width: `${dept.positions.length * 130}px` }}
                   >
                     {dept.name}
                   </div>
@@ -319,17 +338,17 @@ export default function ProjectDetail() {
                   return (
                     <div
                       key={position}
-                      className="border-r-2 border-gray-300 p-3 text-center bg-white"
-                      style={{ width: '150px' }}
+                      className="border-r-2 border-gray-300 p-2 text-center bg-white"
+                      style={{ width: '130px' }}
                     >
-                      <div className="font-bold text-sm text-gray-800 mb-1">{position}</div>
-                      <div className="text-xs text-gray-600 mb-2">
+                      <div className="font-bold text-xs text-gray-800 mb-1">{position}</div>
+                      <div className="text-xs text-gray-600 mb-1 truncate" title={employee ? employee.name : '未割当'}>
                         {employee ? employee.name : '未割当'}
                       </div>
                       <div className="flex items-center gap-1">
-                        <div className="flex-1 bg-gray-200 rounded-full h-2">
+                        <div className="flex-1 bg-gray-200 rounded-full h-1.5">
                           <div
-                            className="bg-gradient-pastel-green h-2 rounded-full transition-all duration-300"
+                            className="bg-gradient-pastel-green h-1.5 rounded-full transition-all duration-300"
                             style={{ width: `${completionRate}%` }}
                           ></div>
                         </div>
@@ -377,23 +396,20 @@ export default function ProjectDetail() {
                         return (
                           <div
                             key={`${day}-${position}`}
-                            className="border border-gray-300 p-3 min-h-16 transition-colors duration-150 flex flex-col items-center justify-center gap-2"
-                            style={{ width: '150px' }}
+                            className="border border-gray-300 p-2 min-h-14 transition-colors duration-150 flex flex-col items-center justify-center gap-1"
+                            style={{ width: '130px' }}
                           >
                             {cellTasks.map((task) => {
-                              const statusColors = {
-                                completed: 'bg-gradient-pastel-green border-2 border-pastel-green text-pastel-green-dark shadow-pastel',
-                                requested: 'bg-gradient-pastel-blue border-2 border-pastel-blue text-pastel-blue-dark shadow-pastel',
-                                not_started: 'bg-pastel-blue-light border-2 border-pastel-blue text-gray-800 shadow-pastel',
-                                not_applicable: 'bg-gray-50 border border-gray-300 text-gray-600'
-                              }
+                              const statusClass =
+                                task.status === 'completed' ? 'task-completed' :
+                                task.status === 'requested' ? 'task-in-progress' :
+                                'task-not-started'
+
                               return (
                                 <div
                                   key={task.id}
                                   onClick={() => setSelectedTask(task)}
-                                  className={`text-sm font-medium rounded-lg px-3 py-2 mb-2 truncate cursor-pointer hover:shadow-pastel-lg hover:scale-105 transition-all duration-200 ${
-                                    statusColors[task.status as keyof typeof statusColors] || statusColors.not_started
-                                  }`}
+                                  className={`text-xs rounded-lg px-2 py-1.5 truncate cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200 ${statusClass}`}
                                   title={task.title}
                                 >
                                   {task.title}

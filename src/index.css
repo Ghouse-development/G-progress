@@ -1151,3 +1151,24 @@ th, td {
   border-top: 3px solid #E3F2FD;
   margin: 1rem 0;
 }
+
+/* タスクステータスの強化された色分け */
+.task-completed {
+  background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%) !important;
+  border: 2px solid #66BB6A !important;
+  color: #2E7D32 !important;
+  font-weight: 600;
+}
+
+.task-in-progress {
+  background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%) !important;
+  border: 2px solid #42A5F5 !important;
+  color: #1565C0 !important;
+  font-weight: 600;
+}
+
+.task-not-started {
+  background: #F5F5F5 !important;
+  border: 2px solid #BDBDBD !important;
+  color: #616161 !important;
+}
