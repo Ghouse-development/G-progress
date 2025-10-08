@@ -84,6 +84,24 @@ export default function ProjectDetail() {
     }
   }
 
+  const handleUpdateTaskStatus = async (taskId: string, newStatus: 'not_started' | 'requested' | 'completed') => {
+    const { error } = await supabase
+      .from('tasks')
+      .update({ status: newStatus, updated_at: new Date().toISOString() })
+      .eq('id', taskId)
+
+    if (!error) {
+      // Update local state
+      setTasks(tasks.map(t => t.id === taskId ? { ...t, status: newStatus } : t))
+      if (selectedTask && selectedTask.id === taskId) {
+        setSelectedTask({ ...selectedTask, status: newStatus })
+      }
+      alert('ステータスを更新しました')
+    } else {
+      alert('ステータスの更新に失敗しました')
+    }
+  }
+
   const handleAddTask = async () => {
     if (!project || !newTask.title || !newTask.due_date) {
       alert('タスク名と期限は必須です')
@@ -225,16 +243,16 @@ export default function ProjectDetail() {
             <div className="flex items-center gap-6 flex-wrap">
               <div className="font-bold text-gray-900">タスクステータス:</div>
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 task-completed rounded"></div>
-                <span className="text-sm text-gray-700">✓ 完了</span>
+                <div className="w-6 h-6 task-not-started rounded"></div>
+                <span className="text-sm text-gray-700">○ 未着手（赤）</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 task-in-progress rounded"></div>
-                <span className="text-sm text-gray-700">● 作業中</span>
+                <span className="text-sm text-gray-700">● 着手中（黄）</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 task-not-started rounded"></div>
-                <span className="text-sm text-gray-700">○ 未着手</span>
+                <div className="w-6 h-6 task-completed rounded"></div>
+                <span className="text-sm text-gray-700">✓ 完了（青）</span>
               </div>
             </div>
           </div>
@@ -298,8 +316,8 @@ export default function ProjectDetail() {
 
         {/* タスク管理グリッド */}
         <div className="bg-white shadow-pastel-lg rounded-xl overflow-hidden border-2 border-gray-300" style={{ maxHeight: 'calc(100vh - 350px)' }}>
-          <div className="overflow-x-auto overflow-y-auto h-full">
-            <div className="inline-block min-w-full">
+          <div className="overflow-x-auto overflow-y-auto h-full" style={{ scrollbarWidth: 'thin' }}>
+            <div className="inline-block" style={{ minWidth: '1720px' }}>
               {/* 部門ヘッダー */}
               <div className="flex border-b-2 border-gray-300 sticky top-0 z-30 bg-white">
                 <div className="w-28 flex-shrink-0 border-r-2 border-gray-300 p-4 text-center font-bold text-base text-gray-800 bg-white">
@@ -547,16 +565,41 @@ export default function ProjectDetail() {
                 </button>
               </div>
 
-              {/* ステータス */}
-              <div className="mb-4">
-                <span className={`inline-block px-4 py-2 rounded-full text-base font-bold shadow-pastel ${
-                  selectedTask.status === 'completed' ? 'bg-gradient-pastel-green text-pastel-green-dark' :
-                  selectedTask.status === 'requested' ? 'bg-gradient-pastel-blue text-pastel-blue-dark' :
-                  'bg-pastel-blue-light text-gray-800'
-                }`}>
-                  {selectedTask.status === 'completed' ? '✓ 完了' :
-                   selectedTask.status === 'requested' ? '● 進行中' : '○ 未着手'}
-                </span>
+              {/* ステータス変更ボタン */}
+              <div className="mb-6">
+                <h3 className="text-sm font-bold text-gray-700 mb-3">ステータス</h3>
+                <div className="flex gap-3 flex-wrap">
+                  <button
+                    onClick={() => handleUpdateTaskStatus(selectedTask.id, 'not_started')}
+                    className={`px-6 py-3 rounded-lg font-bold text-white transition-all duration-200 ${
+                      selectedTask.status === 'not_started'
+                        ? 'bg-red-500 shadow-lg scale-105'
+                        : 'bg-red-300 hover:bg-red-400'
+                    }`}
+                  >
+                    ○ 未着手
+                  </button>
+                  <button
+                    onClick={() => handleUpdateTaskStatus(selectedTask.id, 'requested')}
+                    className={`px-6 py-3 rounded-lg font-bold text-white transition-all duration-200 ${
+                      selectedTask.status === 'requested'
+                        ? 'bg-yellow-500 shadow-lg scale-105'
+                        : 'bg-yellow-300 hover:bg-yellow-400'
+                    }`}
+                  >
+                    ● 着手中
+                  </button>
+                  <button
+                    onClick={() => handleUpdateTaskStatus(selectedTask.id, 'completed')}
+                    className={`px-6 py-3 rounded-lg font-bold text-white transition-all duration-200 ${
+                      selectedTask.status === 'completed'
+                        ? 'bg-blue-500 shadow-lg scale-105'
+                        : 'bg-blue-300 hover:bg-blue-400'
+                    }`}
+                  >
+                    ✓ 完了
+                  </button>
+                </div>
               </div>
 
               {/* 作業内容 */}

@@ -17,7 +17,8 @@
       "Bash(npm run dev:*)",
       "Bash(npm install:*)",
       "Bash(npx tsx:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Read(//c/**)"
     ],
     "deny": [],
     "ask": []

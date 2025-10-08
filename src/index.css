@@ -1152,23 +1152,24 @@ th, td {
   margin: 1rem 0;
 }
 
-/* タスクステータスの強化された色分け */
+/* タスクステータスの強化された色分け（赤・黄・青） */
 .task-completed {
-  background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%) !important;
-  border: 2px solid #66BB6A !important;
-  color: #2E7D32 !important;
+  background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%) !important;
+  border: 2px solid #3B82F6 !important;
+  color: #1E40AF !important;
   font-weight: 600;
 }
 
 .task-in-progress {
-  background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%) !important;
-  border: 2px solid #42A5F5 !important;
-  color: #1565C0 !important;
+  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%) !important;
+  border: 2px solid #F59E0B !important;
+  color: #92400E !important;
   font-weight: 600;
 }
 
 .task-not-started {
-  background: #F5F5F5 !important;
-  border: 2px solid #BDBDBD !important;
-  color: #616161 !important;
+  background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%) !important;
+  border: 2px solid #EF4444 !important;
+  color: #991B1B !important;
+  font-weight: 600;
 }
