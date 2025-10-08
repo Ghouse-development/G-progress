@@ -1,11 +1,26 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Home, FolderKanban, Calendar, LogOut, Menu, X } from 'lucide-react'
+import { Home, FolderKanban, Calendar, LogOut, Menu, X, Search } from 'lucide-react'
+import GlobalSearch from './GlobalSearch'
 import './Layout.css'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation()
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+
+  // Ctrl+K or Cmd+K でグローバル検索を開く
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault()
+        setSearchOpen(true)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   const handleLogout = () => {
     // 開発モード: localStorageをクリアしてログイン画面へ
@@ -18,6 +33,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { path: '/projects', label: '案件一覧', icon: FolderKanban },
     { path: '/calendar', label: 'カレンダー', icon: Calendar },
   ]
+
+  const handleSearchClick = () => {
+    setSearchOpen(true)
+  }
 
   return (
     <div className="layout-container">
@@ -42,6 +61,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </Link>
             )
           })}
+
+          {/* 検索ボタン */}
+          <button
+            onClick={handleSearchClick}
+            className="nav-item"
+            title={sidebarCollapsed ? '検索 (Ctrl+K)' : '検索'}
+          >
+            <Search size={20} />
+            {!sidebarCollapsed && <span>検索</span>}
+            {!sidebarCollapsed && (
+              <kbd className="ml-auto text-xs px-1.5 py-0.5 bg-gray-700 rounded">Ctrl+K</kbd>
+            )}
+          </button>
         </nav>
 
         <div className="layout-footer">
@@ -76,6 +108,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {children}
         </main>
       </div>
+
+      {/* グローバル検索モーダル */}
+      <GlobalSearch isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </div>
   )
 }

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Project, Customer, Employee, Task } from '../types/database'
 import { format, differenceInDays } from 'date-fns'
+import { ArrowUpDown, Filter } from 'lucide-react'
 
 interface ProjectWithRelations extends Project {
   customer: Customer
@@ -20,10 +21,16 @@ interface DepartmentStatus {
   totalTasks: number
 }
 
+type SortField = 'contract_date' | 'progress_rate' | 'delayed_tasks' | 'customer_name'
+type FilterStatus = 'all' | 'delayed' | 'normal'
+
 export default function ProjectList() {
   const navigate = useNavigate()
   const [projects, setProjects] = useState<ProjectWithRelations[]>([])
   const [loading, setLoading] = useState(true)
+  const [sortField, setSortField] = useState<SortField>('contract_date')
+  const [sortAscending, setSortAscending] = useState(false)
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>('all')
 
   useEffect(() => {
     loadProjects()
@@ -130,6 +137,54 @@ export default function ProjectList() {
     }
   }
 
+  // ソート＆フィルタ処理
+  const getSortedAndFilteredProjects = () => {
+    let filtered = [...projects]
+
+    // フィルタ
+    if (filterStatus === 'delayed') {
+      filtered = filtered.filter(project => {
+        const deptStatuses = getDepartmentStatus(project)
+        return deptStatuses.some(dept => dept.status === 'delayed' || dept.status === 'warning')
+      })
+    } else if (filterStatus === 'normal') {
+      filtered = filtered.filter(project => {
+        const deptStatuses = getDepartmentStatus(project)
+        return deptStatuses.every(dept => dept.status === 'ontrack')
+      })
+    }
+
+    // ソート
+    filtered.sort((a, b) => {
+      let compareValue = 0
+
+      switch (sortField) {
+        case 'contract_date':
+          compareValue = new Date(a.contract_date).getTime() - new Date(b.contract_date).getTime()
+          break
+        case 'progress_rate':
+          compareValue = a.progress_rate - b.progress_rate
+          break
+        case 'delayed_tasks':
+          const aDelayed = getDepartmentStatus(a).reduce((sum, dept) => sum + dept.delayedTasks, 0)
+          const bDelayed = getDepartmentStatus(b).reduce((sum, dept) => sum + dept.delayedTasks, 0)
+          compareValue = aDelayed - bDelayed
+          break
+        case 'customer_name':
+          const aName = a.customer?.names?.join('') || ''
+          const bName = b.customer?.names?.join('') || ''
+          compareValue = aName.localeCompare(bName, 'ja')
+          break
+      }
+
+      return sortAscending ? compareValue : -compareValue
+    })
+
+    return filtered
+  }
+
+  const displayProjects = getSortedAndFilteredProjects()
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -142,6 +197,75 @@ export default function ProjectList() {
     <div className="container mx-auto p-6">
       <div className="mb-6">
         <h1 className="text-3xl font-bold mb-3">案件一覧</h1>
+
+        {/* ソート＆フィルタツールバー */}
+        <div className="bg-white rounded-lg shadow-pastel p-4 mb-4">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            {/* ソート */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <ArrowUpDown size={20} className="text-gray-600" />
+                <span className="font-bold text-gray-900">並び順:</span>
+              </div>
+              <select
+                value={sortField}
+                onChange={(e) => setSortField(e.target.value as SortField)}
+                className="px-3 py-2 border border-pastel-blue rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-pastel-blue"
+              >
+                <option value="contract_date">契約日順</option>
+                <option value="progress_rate">進捗率順</option>
+                <option value="delayed_tasks">遅延件数順</option>
+                <option value="customer_name">顧客名順</option>
+              </select>
+              <button
+                onClick={() => setSortAscending(!sortAscending)}
+                className="px-3 py-2 bg-pastel-blue-light text-pastel-blue-dark rounded-lg hover:bg-pastel-blue transition-colors font-medium"
+              >
+                {sortAscending ? '昇順 ↑' : '降順 ↓'}
+              </button>
+            </div>
+
+            {/* フィルタ */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <Filter size={20} className="text-gray-600" />
+                <span className="font-bold text-gray-900">絞り込み:</span>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setFilterStatus('all')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    filterStatus === 'all'
+                      ? 'bg-pastel-blue text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  全て ({projects.length})
+                </button>
+                <button
+                  onClick={() => setFilterStatus('delayed')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    filterStatus === 'delayed'
+                      ? 'bg-red-500 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  遅延あり
+                </button>
+                <button
+                  onClick={() => setFilterStatus('normal')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    filterStatus === 'normal'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  計画通り
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* 凡例 */}
         <div className="bg-white rounded-lg shadow-pastel p-4">
@@ -164,7 +288,7 @@ export default function ProjectList() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {projects.map((project) => {
+        {displayProjects.map((project) => {
           const deptStatuses = getDepartmentStatus(project)
 
           return (
@@ -240,9 +364,11 @@ export default function ProjectList() {
         })}
       </div>
 
-      {projects.length === 0 && (
+      {displayProjects.length === 0 && (
         <div className="text-center py-12 text-gray-500 bg-white rounded-xl shadow-pastel">
-          案件データがありません
+          {filterStatus === 'all'
+            ? '案件データがありません'
+            : `絞り込み条件に一致する案件がありません（全${projects.length}件中0件）`}
         </div>
       )}
     </div>
