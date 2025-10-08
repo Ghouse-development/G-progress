@@ -1173,3 +1173,125 @@ th, td {
   color: #991B1B !important;
   font-weight: 600;
 }
+
+/* ========================================
+   PC版横スクロール対策CSS
+   ======================================== */
+
+/* 横見切れをなくし、PCは1画面に収める基本設定 */
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* フレックスやグリッドの子要素が縮められない問題の対策 */
+* {
+  min-width: 0;
+}
+
+/* 共通ユーティリティ：ページ全体で横スクロール禁止＆幅制御 */
+.no-x-scroll {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* PC時は自動で"詰める"レイアウト。スマホ/タブレットは従来通り */
+@media (min-width: 1025px) {
+  .pc-fit {
+    width: 100%;
+    max-width: 100vw;
+  }
+
+  .pc-fit table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+  }
+
+  .pc-fit th,
+  .pc-fit td {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+}
+
+/* 最終手段の自動スケール（必要時のみ .auto-fit-scale を外側に付与） */
+@media (min-width: 1025px) {
+  .auto-fit-scale {
+    transform-origin: top left;
+  }
+}
+
+/* モバイル/タブレットは従来どおり横スクロール許可 */
+@media (max-width: 1024px) {
+  .allow-x-scroll {
+    overflow-x: auto;
+  }
+}
+
+/* ========================================
+   Googleカレンダー風カレンダーグリッド
+   ======================================== */
+
+/* カレンダーグリッド本体（全ての日を1つのグリッドに配置） */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: 1fr; /* 全ての行の高さを均等に */
+  width: 100%;
+  max-width: 100vw;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* 各日セル */
+.calendar-day {
+  border: 1px solid #e5e7eb;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* 日付番号（右上配置） */
+.calendar-day > .date {
+  text-align: right;
+  font-size: 0.9rem;
+  color: #555;
+  flex-shrink: 0;
+}
+
+/* タスクリスト領域 */
+.calendar-day > .events {
+  flex-grow: 1;
+  font-size: 0.8rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* PC版: 縦スクロール禁止、1画面に収める */
+@media (min-width: 1025px) {
+  .calendar-grid {
+    height: 80vh;
+    overflow-y: hidden;
+  }
+}
+
+/* タブレット・スマホ版: 縦スクロール許可 */
+@media (max-width: 1024px) {
+  .calendar-grid {
+    height: auto;
+    grid-auto-rows: auto;
+  }
+
+  .calendar-day {
+    min-height: 100px;
+  }
+}

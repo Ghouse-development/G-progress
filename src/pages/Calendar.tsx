@@ -100,7 +100,7 @@ export default function Calendar() {
   const getTasksForDay = (day: Date) => {
     return tasks.filter(task =>
       task.due_date && isSameDay(new Date(task.due_date), day)
-    ).slice(0, 10) // 最大10件
+    ).slice(0, 3) // 最大3件（1画面に収めるため）
   }
 
   const previousMonth = () => {
@@ -121,12 +121,6 @@ export default function Calendar() {
 
   const days = getCalendarDays()
   const weekdays = ['月', '火', '水', '木', '金', '土', '日']
-
-  // 6週間分のデータを6行に分割
-  const weeks: Date[][] = []
-  for (let i = 0; i < days.length; i += 7) {
-    weeks.push(days.slice(i, i + 7))
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
@@ -162,13 +156,13 @@ export default function Calendar() {
         </div>
 
         {/* カレンダーグリッド (7×6) */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="bg-white rounded-lg shadow p-4">
           {/* 曜日ヘッダー */}
-          <div className="grid grid-cols-7 border-b">
+          <div className="grid grid-cols-7 border-b mb-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
             {weekdays.map((day, index) => (
               <div
                 key={day}
-                className={`p-2 text-center text-sm font-semibold ${
+                className={`p-2 text-center text-sm font-semibold border ${
                   index === 5 ? 'text-blue-600' : // 土曜
                   index === 6 ? 'text-red-600' : // 日曜
                   'text-gray-700'
@@ -179,67 +173,68 @@ export default function Calendar() {
             ))}
           </div>
 
-          {/* 6週間のグリッド */}
-          {weeks.map((week, weekIndex) => (
-            <div key={weekIndex} className="grid grid-cols-7" style={{ minHeight: '120px' }}>
-              {week.map(day => {
-                const dayTasks = getTasksForDay(day)
-                const isToday = isSameDay(day, new Date())
-                const isCurrentMonth = isSameMonth(day, currentMonth)
-                const dayOfWeek = (day.getDay() + 6) % 7 // 月曜=0, 日曜=6
+          {/* カレンダーグリッド：全ての日を1つのグリッドに配置 */}
+          <div className="calendar-grid">
+            {days.map(day => {
+              const dayTasks = getTasksForDay(day)
+              const isToday = isSameDay(day, new Date())
+              const isCurrentMonth = isSameMonth(day, currentMonth)
+              const dayOfWeek = (day.getDay() + 6) % 7 // 月曜=0, 日曜=6
 
-                return (
-                  <div
-                    key={day.toString()}
-                    className={`border-r border-b p-2 transition-colors min-h-[120px] ${
-                      isToday ? 'bg-blue-50' :
-                      !isCurrentMonth ? 'bg-gray-50' :
-                      dayOfWeek === 6 ? 'bg-red-50' : // 日曜
-                      dayOfWeek === 5 ? 'bg-blue-50' : // 土曜
-                      'bg-white hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className={`text-sm font-medium mb-1 ${
-                      isToday ? 'bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center' :
-                      !isCurrentMonth ? 'text-gray-400' :
-                      dayOfWeek === 6 ? 'text-red-600' :
-                      dayOfWeek === 5 ? 'text-blue-600' :
-                      'text-gray-900'
-                    }`}>
-                      {format(day, 'd')}
-                    </div>
-
-                    <div className="space-y-1">
-                      {dayTasks.map((task, index) => {
-                        if (index >= 10) return null // 最大10件
-                        const isMilestone = MILESTONE_EVENTS.some(event => task.title.includes(event))
-                        return (
-                          <div
-                            key={task.id}
-                            className={`text-xs px-1.5 py-0.5 rounded truncate ${
-                              isMilestone ? 'bg-red-500 text-white font-semibold' :
-                              task.status === 'completed' ? 'bg-blue-100 text-blue-900' :
-                              task.status === 'requested' ? 'bg-yellow-100 text-yellow-900' :
-                              'bg-gray-100 text-gray-700'
-                            }`}
-                            title={`${task.title}${task.project?.customer?.names ? ' - ' + task.project.customer.names.join('・') + '様' : ''}`}
-                          >
-                            {isMilestone && '⭐ '}
-                            {task.title}
-                          </div>
-                        )
-                      })}
-                      {dayTasks.length > 10 && (
-                        <div className="text-xs text-gray-500">
-                          +{dayTasks.length - 10}件
-                        </div>
-                      )}
-                    </div>
+              return (
+                <div
+                  key={day.toString()}
+                  className={`calendar-day transition-colors ${
+                    isToday ? 'border-2 border-blue-500 bg-blue-50' :
+                    !isCurrentMonth ? 'bg-gray-50' :
+                    dayOfWeek === 6 ? 'bg-red-50' : // 日曜
+                    dayOfWeek === 5 ? 'bg-blue-50' : // 土曜
+                    'bg-white hover:bg-gray-50'
+                  }`}
+                >
+                  <div className={`date font-medium ${
+                    isToday ? 'bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center ml-auto' :
+                    !isCurrentMonth ? 'text-gray-400' :
+                    dayOfWeek === 6 ? 'text-red-600' :
+                    dayOfWeek === 5 ? 'text-blue-600' :
+                    'text-gray-900'
+                  }`}>
+                    {format(day, 'd')}
                   </div>
-                )
-              })}
-            </div>
-          ))}
+
+                  <div className="events">
+                    {dayTasks.map((task) => {
+                      const isMilestone = MILESTONE_EVENTS.some(event => task.title.includes(event))
+                      return (
+                        <div
+                          key={task.id}
+                          className={`text-xs px-1.5 py-0.5 rounded truncate ${
+                            isMilestone ? 'bg-red-500 text-white font-semibold' :
+                            task.status === 'completed' ? 'bg-blue-100 text-blue-900' :
+                            task.status === 'requested' ? 'bg-yellow-100 text-yellow-900' :
+                            'bg-gray-100 text-gray-700'
+                          }`}
+                          title={`${task.title}${task.project?.customer?.names ? ' - ' + task.project.customer.names.join('・') + '様' : ''}`}
+                        >
+                          {isMilestone && '⭐ '}
+                          {task.title}
+                        </div>
+                      )
+                    })}
+                    {tasks.filter(task =>
+                      task.due_date && isSameDay(new Date(task.due_date), day)
+                    ).length > 3 && (
+                      <div className="text-xs text-gray-500">
+                        +{tasks.filter(task =>
+                          task.due_date && isSameDay(new Date(task.due_date), day)
+                        ).length - 3}件
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         </div>
 
         {/* 凡例 */}

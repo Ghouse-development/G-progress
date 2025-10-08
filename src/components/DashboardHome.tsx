@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { Project, Task } from '../types/database'
 import { differenceInDays, format } from 'date-fns'
+import { HelpCircle } from 'lucide-react'
 
 // 年度計算関数（8月1日～翌年7月31日）
 const getFiscalYear = (date: Date): number => {
@@ -194,43 +195,64 @@ export default function DashboardHome() {
 
         <div className="flex items-center gap-4">
           {/* 年度選択 */}
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">年度:</label>
-            <select
-              value={fiscalYear}
-              onChange={(e) => setFiscalYear(Number(e.target.value))}
-              className="px-3 py-2 border border-pastel-blue rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-pastel-blue"
-            >
-              {availableYears.map(year => (
-                <option key={year} value={year}>
-                  {year}年度 ({year}/8/1 - {year + 1}/7/31)
-                </option>
-              ))}
-            </select>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
+                年度
+                <span title="当社では8月1日〜翌年7月31日を1年度としています">
+                  <HelpCircle size={14} className="text-gray-400 cursor-help" />
+                </span>
+                :
+              </label>
+              <select
+                value={fiscalYear}
+                onChange={(e) => setFiscalYear(Number(e.target.value))}
+                className="px-3 py-2 border border-pastel-blue rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-pastel-blue"
+                title="当社では8月1日〜翌年7月31日を1年度としています"
+              >
+                {availableYears.map(year => (
+                  <option key={year} value={year}>
+                    {year}年度 ({year}/8/1 - {year + 1}/7/31)
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="text-xs text-gray-600 text-right">
+              💡 当社は8月開始
+            </div>
           </div>
 
           {/* モード切替 */}
-          <div className="flex items-center gap-2 bg-pastel-blue-light rounded-lg p-1 border-2 border-pastel-blue">
-            <button
-              onClick={() => setMode('staff')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-                mode === 'staff'
-                  ? 'bg-gradient-pastel-blue text-pastel-blue-dark shadow-pastel'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              👤 担当者モード
-            </button>
-            <button
-              onClick={() => setMode('admin')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-                mode === 'admin'
-                  ? 'bg-gradient-pastel-blue text-pastel-blue-dark shadow-pastel'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              👨‍💼 管理者モード
-            </button>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2 bg-pastel-blue-light rounded-lg p-1 border-2 border-pastel-blue">
+              <button
+                onClick={() => setMode('staff')}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                  mode === 'staff'
+                    ? 'bg-gradient-pastel-blue text-pastel-blue-dark shadow-pastel'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+                title="あなたが担当する案件のみを表示します"
+              >
+                👤 担当者モード
+              </button>
+              <button
+                onClick={() => setMode('admin')}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                  mode === 'admin'
+                    ? 'bg-gradient-pastel-blue text-pastel-blue-dark shadow-pastel'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+                title="全社の案件を俯瞰的に確認できます"
+              >
+                👨‍💼 管理者モード
+              </button>
+            </div>
+            <div className="text-xs text-gray-600 text-right">
+              {mode === 'admin'
+                ? '💡 全社の案件を俯瞰的に確認できます'
+                : '💡 あなたが担当する案件のみを表示します'}
+            </div>
           </div>
         </div>
       </div>
@@ -257,7 +279,12 @@ export default function DashboardHome() {
       {/* 統計情報 */}
       <div className="grid grid-cols-4 gap-4">
         <div className="bg-white rounded-lg border-2 border-pastel-blue shadow-pastel p-4">
-          <p className="text-xs text-gray-600 mb-1">全社進捗率</p>
+          <div className="flex items-center gap-1 mb-1">
+            <p className="text-xs text-gray-600">全社進捗率</p>
+            <span title="全案件の平均進捗率を表示しています">
+              <HelpCircle size={12} className="text-gray-400 cursor-help" />
+            </span>
+          </div>
           <p className="text-2xl font-bold text-pastel-blue-dark">{averageProgress}%</p>
           <div className="mt-2 bg-gray-200 rounded-full h-2">
             <div
@@ -268,19 +295,34 @@ export default function DashboardHome() {
         </div>
 
         <div className="bg-white rounded-lg border-2 border-pastel-orange shadow-pastel p-4">
-          <p className="text-xs text-gray-600 mb-1">遅延案件数</p>
+          <div className="flex items-center gap-1 mb-1">
+            <p className="text-xs text-gray-600">遅延案件数</p>
+            <span title="進捗率が50%未満の案件数を表示しています">
+              <HelpCircle size={12} className="text-gray-400 cursor-help" />
+            </span>
+          </div>
           <p className="text-2xl font-bold text-pastel-orange-dark">{delayedProjects}</p>
           <p className="text-xs text-gray-500 mt-2">進捗50%未満</p>
         </div>
 
         <div className="bg-white rounded-lg border-2 border-pastel-green shadow-pastel p-4">
-          <p className="text-xs text-gray-600 mb-1">進行中案件</p>
+          <div className="flex items-center gap-1 mb-1">
+            <p className="text-xs text-gray-600">進行中案件</p>
+            <span title="契約後または着工後の案件数を表示しています">
+              <HelpCircle size={12} className="text-gray-400 cursor-help" />
+            </span>
+          </div>
           <p className="text-2xl font-bold text-pastel-green-dark">{activeProjects}</p>
           <p className="text-xs text-gray-500 mt-2">契約後・着工後</p>
         </div>
 
         <div className="bg-white rounded-lg border-2 border-pastel-blue shadow-pastel p-4">
-          <p className="text-xs text-gray-600 mb-1">総案件数</p>
+          <div className="flex items-center gap-1 mb-1">
+            <p className="text-xs text-gray-600">総案件数</p>
+            <span title={`${fiscalYear}年度の総案件数を表示しています`}>
+              <HelpCircle size={12} className="text-gray-400 cursor-help" />
+            </span>
+          </div>
           <p className="text-2xl font-bold text-pastel-blue-dark">{totalProjects}</p>
           <p className="text-xs text-gray-500 mt-2">{fiscalYear}年度</p>
         </div>

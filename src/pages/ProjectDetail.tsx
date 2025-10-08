@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Project, Customer, Employee, Task } from '../types/database'
 import { format, differenceInDays, addDays } from 'date-fns'
 import { ja } from 'date-fns/locale'
+import { HelpCircle } from 'lucide-react'
 
 interface ProjectWithRelations extends Project {
   customer: Customer
@@ -39,6 +40,23 @@ const DEPARTMENTS = [
 
 const ALL_POSITIONS = DEPARTMENTS.flatMap(d => d.positions)
 
+// 職種の説明マップ（初心者向け）
+const POSITION_DESCRIPTIONS: Record<string, string> = {
+  '営業': '顧客との窓口を担当。契約から引き渡しまでサポート。',
+  '営業事務': '営業のサポート業務。書類作成や顧客対応。',
+  'ローン事務': '住宅ローンの手続きをサポート。',
+  '意匠設計': '建物の外観・内装のデザインを担当。',
+  'IC': 'インテリアコーディネーター。室内装飾の専門家。',
+  '実施設計': '施工に必要な詳細図面を作成。',
+  '構造設計': '建物の骨組み（構造）を設計。安全性を確保。',
+  '申請設計': '建築確認申請などの手続きを担当。',
+  '工事': '現場での施工管理を担当。',
+  '工事事務': '工事に関する事務作業。発注や書類管理。',
+  '積算・発注': '材料の数量計算と業者への発注を担当。',
+  '外構設計': '庭や駐車場などの外回りを設計。',
+  '外構工事': '外構の施工を担当。'
+}
+
 // 今日が契約日から何日目かを計算
 const getTodayFromContract = (contractDate: string): number => {
   return differenceInDays(new Date(), new Date(contractDate))
@@ -67,6 +85,8 @@ export default function ProjectDetail() {
     assigned_to: ''
   })
   const [employees, setEmployees] = useState<Employee[]>([])
+  const [showGuide, setShowGuide] = useState(true) // グリッド説明の表示状態
+  const todayRowRef = useRef<HTMLDivElement>(null) // 今日の行への参照
 
   useEffect(() => {
     loadProjectData()
@@ -211,6 +231,13 @@ export default function ProjectDetail() {
     return Math.round((completedTasks.length / positionTasks.length) * 100)
   }
 
+  // 今日の行へスクロール
+  const scrollToToday = () => {
+    if (todayRowRef.current) {
+      todayRowRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -228,8 +255,8 @@ export default function ProjectDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-pastel-blue-light">
-      <div className="container mx-auto p-6">
+    <div className="min-h-screen bg-pastel-blue-light no-x-scroll pc-fit">
+      <div className="container mx-auto p-6 no-x-scroll">
         <div className="mb-6">
           <button
             onClick={() => navigate('/projects')}
@@ -255,6 +282,52 @@ export default function ProjectDetail() {
                 <span className="text-sm text-gray-700">✓ 完了（青）</span>
               </div>
             </div>
+          </div>
+
+          {/* グリッドの見方説明（初心者向け） */}
+          {showGuide && (
+            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4 rounded-lg shadow-pastel">
+              <div className="flex items-start justify-between">
+                <div className="flex items-start gap-3">
+                  <HelpCircle className="text-blue-600 flex-shrink-0 mt-1" size={24} />
+                  <div>
+                    <p className="text-sm text-blue-900 font-bold mb-2">📘 タスク管理グリッドの見方</p>
+                    <ul className="text-xs text-blue-800 space-y-1.5 ml-2">
+                      <li>• <strong>縦軸（日付）:</strong> 契約日から何日目かを表示（0日目〜365日目）</li>
+                      <li>• <strong>横軸（職種）:</strong> 営業、設計、工事など13種類の職種</li>
+                      <li>• <strong>セル内のタスク:</strong> クリックすると詳細情報が見れます</li>
+                      <li>• <strong>赤い太線:</strong> 今日の位置を示しています</li>
+                      <li>• <strong>職種名にマウスを乗せると:</strong> 詳しい説明が表示されます</li>
+                    </ul>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowGuide(false)}
+                  className="text-blue-600 hover:text-blue-800 text-sm font-medium ml-2"
+                >
+                  ✕ 閉じる
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* 今日へジャンプボタン */}
+          <div className="flex items-center gap-3 mb-4">
+            <button
+              onClick={scrollToToday}
+              className="px-4 py-2 bg-red-500 text-white rounded-lg shadow-pastel hover:bg-red-600 transition-all duration-200 font-bold text-sm flex items-center gap-2"
+            >
+              📍 今日の位置へジャンプ
+            </button>
+            {!showGuide && (
+              <button
+                onClick={() => setShowGuide(true)}
+                className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg shadow-pastel hover:bg-blue-200 transition-all duration-200 font-medium text-sm flex items-center gap-2"
+              >
+                <HelpCircle size={16} />
+                グリッドの見方を表示
+              </button>
+            )}
           </div>
 
           {/* プロジェクト情報カード */}
@@ -315,9 +388,9 @@ export default function ProjectDetail() {
         </div>
 
         {/* タスク管理グリッド */}
-        <div className="bg-white shadow-pastel-lg rounded-xl overflow-hidden border-2 border-gray-300" style={{ maxHeight: 'calc(100vh - 350px)' }}>
-          <div className="overflow-x-auto overflow-y-auto h-full" style={{ scrollbarWidth: 'thin' }}>
-            <div className="inline-block" style={{ minWidth: '1720px' }}>
+        <div className="bg-white shadow-pastel-lg rounded-xl border-2 border-gray-300" style={{ maxHeight: 'calc(100vh - 350px)' }}>
+          <div className="overflow-x-auto overflow-y-auto rounded-xl" style={{ scrollbarWidth: 'thin', maxHeight: 'calc(100vh - 350px)' }}>
+            <div className="inline-block" style={{ minWidth: '100%' }}>
               {/* 部門ヘッダー */}
               <div className="flex border-b-2 border-gray-300 sticky top-0 z-30 bg-white">
                 <div className="w-28 flex-shrink-0 border-r-2 border-gray-300 p-4 text-center font-bold text-base text-gray-800 bg-white">
@@ -329,13 +402,16 @@ export default function ProjectDetail() {
                 {DEPARTMENTS.map((dept, index) => (
                   <div
                     key={dept.name}
-                    className={`text-center py-3 px-1 font-bold text-base ${
+                    className={`text-center py-3 px-1 font-bold text-base min-w-0 overflow-hidden text-ellipsis whitespace-nowrap ${
                       index === 0 ? 'bg-gradient-pastel-blue text-pastel-blue-dark' :
                       index === 1 ? 'bg-gradient-pastel-green text-pastel-green-dark' :
                       index === 2 ? 'bg-gradient-pastel-orange text-pastel-orange-dark' :
                       'bg-pastel-teal text-gray-800'
                     } ${index < DEPARTMENTS.length - 1 ? 'border-r-4 border-white' : ''}`}
-                    style={{ width: `${dept.positions.length * 130}px` }}
+                    style={{
+                      flex: `${dept.positions.length} 1 0%`,
+                      minWidth: `${dept.positions.length * 80}px`
+                    }}
                   >
                     {dept.name}
                   </div>
@@ -353,24 +429,26 @@ export default function ProjectDetail() {
                 {ALL_POSITIONS.map((position) => {
                   const employee = getEmployeeByPosition(position)
                   const completionRate = getCompletionRateByPosition(position)
+                  const positionDescription = POSITION_DESCRIPTIONS[position] || position
                   return (
                     <div
                       key={position}
-                      className="border-r-2 border-gray-300 p-2 text-center bg-white"
-                      style={{ width: '130px' }}
+                      className="border-r-2 border-gray-300 p-2 text-center bg-white min-w-0 overflow-hidden"
+                      style={{ flex: '1 1 0%', minWidth: '80px' }}
+                      title={positionDescription}
                     >
-                      <div className="font-bold text-xs text-gray-800 mb-1">{position}</div>
+                      <div className="font-bold text-xs text-gray-800 mb-1 truncate cursor-help">{position}</div>
                       <div className="text-xs text-gray-600 mb-1 truncate" title={employee ? employee.name : '未割当'}>
                         {employee ? employee.name : '未割当'}
                       </div>
-                      <div className="flex items-center gap-1">
-                        <div className="flex-1 bg-gray-200 rounded-full h-1.5">
+                      <div className="flex items-center gap-1 min-w-0">
+                        <div className="flex-1 bg-gray-200 rounded-full h-1.5 min-w-0">
                           <div
                             className="bg-gradient-pastel-green h-1.5 rounded-full transition-all duration-300"
                             style={{ width: `${completionRate}%` }}
                           ></div>
                         </div>
-                        <span className="text-xs font-bold text-pastel-green-dark">{completionRate}%</span>
+                        <span className="text-xs font-bold text-pastel-green-dark whitespace-nowrap">{completionRate}%</span>
                       </div>
                     </div>
                   )
@@ -388,6 +466,7 @@ export default function ProjectDetail() {
                   return (
                     <div
                       key={day}
+                      ref={isToday ? todayRowRef : null}
                       data-fiscal-year={fiscalYear}
                       className={`flex border-b border-gray-300 transition-colors duration-150 ${
                         day % 2 === 0 ? 'bg-white' : 'bg-pastel-blue-light'
@@ -414,8 +493,8 @@ export default function ProjectDetail() {
                         return (
                           <div
                             key={`${day}-${position}`}
-                            className="border border-gray-300 p-2 min-h-14 transition-colors duration-150 flex flex-col items-center justify-center gap-1"
-                            style={{ width: '130px' }}
+                            className="border border-gray-300 p-2 min-h-14 transition-colors duration-150 flex flex-col items-center justify-center gap-1 min-w-0 overflow-hidden"
+                            style={{ flex: '1 1 0%', minWidth: '80px' }}
                           >
                             {cellTasks.map((task) => {
                               const statusClass =
@@ -427,7 +506,7 @@ export default function ProjectDetail() {
                                 <div
                                   key={task.id}
                                   onClick={() => setSelectedTask(task)}
-                                  className={`text-xs rounded-lg px-2 py-1.5 truncate cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200 ${statusClass}`}
+                                  className={`text-xs rounded-lg px-2 py-1.5 truncate cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200 min-w-0 max-w-full ${statusClass}`}
                                   title={task.title}
                                 >
                                   {task.title}

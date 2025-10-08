@@ -18,7 +18,8 @@
       "Bash(npm install:*)",
       "Bash(npx tsx:*)",
       "Bash(cat:*)",
-      "Read(//c/**)"
+      "Read(//c/**)",
+      "mcp__ide__getDiagnostics"
     ],
     "deny": [],
     "ask": []
