@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Project, Customer, Employee, Task } from '../types/database'
 import { format, differenceInDays } from 'date-fns'
-import { ArrowUpDown, Filter } from 'lucide-react'
+import { ArrowUpDown, Filter, Plus, Edit2, Trash2, X } from 'lucide-react'
 
 interface ProjectWithRelations extends Project {
   customer: Customer
@@ -32,9 +32,45 @@ export default function ProjectList() {
   const [sortAscending, setSortAscending] = useState(false)
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all')
 
+  // モーダル管理
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [editingProject, setEditingProject] = useState<ProjectWithRelations | null>(null)
+  const [deletingProjectId, setDeletingProjectId] = useState<string | null>(null)
+
+  // 従業員データ
+  const [employees, setEmployees] = useState<Employee[]>([])
+
+  // フォームデータ
+  const [formData, setFormData] = useState({
+    // 顧客情報
+    customerNames: '',
+    buildingSite: '',
+    // 案件情報
+    contractDate: format(new Date(), 'yyyy-MM-dd'),
+    status: 'post_contract' as Project['status'],
+    progressRate: 0,
+    assignedSales: '',
+    assignedDesign: '',
+    assignedConstruction: ''
+  })
+
   useEffect(() => {
     loadProjects()
+    loadEmployees()
   }, [])
+
+  const loadEmployees = async () => {
+    const { data } = await supabase
+      .from('employees')
+      .select('*')
+      .order('name')
+
+    if (data) {
+      setEmployees(data as Employee[])
+    }
+  }
 
   const loadProjects = async () => {
     try {
@@ -185,6 +221,158 @@ export default function ProjectList() {
 
   const displayProjects = getSortedAndFilteredProjects()
 
+  // 案件作成
+  const handleCreateProject = async () => {
+    if (!formData.customerNames.trim() || !formData.buildingSite.trim()) {
+      alert('顧客名と建設地は必須です')
+      return
+    }
+
+    try {
+      // 1. 顧客を作成
+      const { data: customer, error: customerError } = await supabase
+        .from('customers')
+        .insert({
+          names: formData.customerNames.split('・').map(n => n.trim()),
+          building_site: formData.buildingSite
+        })
+        .select()
+        .single()
+
+      if (customerError) throw customerError
+
+      // 2. 案件を作成
+      const { error: projectError } = await supabase
+        .from('projects')
+        .insert({
+          customer_id: customer.id,
+          contract_date: formData.contractDate,
+          status: formData.status,
+          progress_rate: formData.progressRate,
+          assigned_sales: formData.assignedSales || null,
+          assigned_design: formData.assignedDesign || null,
+          assigned_construction: formData.assignedConstruction || null
+        })
+
+      if (projectError) throw projectError
+
+      // リロード
+      await loadProjects()
+      setShowCreateModal(false)
+      resetForm()
+      alert('案件を作成しました')
+    } catch (error) {
+      console.error('Failed to create project:', error)
+      alert('案件の作成に失敗しました')
+    }
+  }
+
+  // 案件編集
+  const handleEditProject = async () => {
+    if (!editingProject || !formData.customerNames.trim() || !formData.buildingSite.trim()) {
+      alert('顧客名と建設地は必須です')
+      return
+    }
+
+    try {
+      // 1. 顧客情報を更新
+      const { error: customerError } = await supabase
+        .from('customers')
+        .update({
+          names: formData.customerNames.split('・').map(n => n.trim()),
+          building_site: formData.buildingSite
+        })
+        .eq('id', editingProject.customer_id)
+
+      if (customerError) throw customerError
+
+      // 2. 案件情報を更新
+      const { error: projectError } = await supabase
+        .from('projects')
+        .update({
+          contract_date: formData.contractDate,
+          status: formData.status,
+          progress_rate: formData.progressRate,
+          assigned_sales: formData.assignedSales || null,
+          assigned_design: formData.assignedDesign || null,
+          assigned_construction: formData.assignedConstruction || null
+        })
+        .eq('id', editingProject.id)
+
+      if (projectError) throw projectError
+
+      // リロード
+      await loadProjects()
+      setShowEditModal(false)
+      setEditingProject(null)
+      resetForm()
+      alert('案件を更新しました')
+    } catch (error) {
+      console.error('Failed to update project:', error)
+      alert('案件の更新に失敗しました')
+    }
+  }
+
+  // 案件削除
+  const handleDeleteProject = async () => {
+    if (!deletingProjectId) return
+
+    try {
+      // 案件を削除（カスケード削除でタスクも削除される想定）
+      const { error } = await supabase
+        .from('projects')
+        .delete()
+        .eq('id', deletingProjectId)
+
+      if (error) throw error
+
+      // リロード
+      await loadProjects()
+      setShowDeleteDialog(false)
+      setDeletingProjectId(null)
+      alert('案件を削除しました')
+    } catch (error) {
+      console.error('Failed to delete project:', error)
+      alert('案件の削除に失敗しました')
+    }
+  }
+
+  // フォームリセット
+  const resetForm = () => {
+    setFormData({
+      customerNames: '',
+      buildingSite: '',
+      contractDate: format(new Date(), 'yyyy-MM-dd'),
+      status: 'post_contract',
+      progressRate: 0,
+      assignedSales: '',
+      assignedDesign: '',
+      assignedConstruction: ''
+    })
+  }
+
+  // 編集モーダルを開く
+  const openEditModal = (project: ProjectWithRelations) => {
+    setEditingProject(project)
+    setFormData({
+      customerNames: project.customer?.names?.join('・') || '',
+      buildingSite: project.customer?.building_site || '',
+      contractDate: project.contract_date,
+      status: project.status,
+      progressRate: project.progress_rate,
+      assignedSales: project.assigned_sales || '',
+      assignedDesign: project.assigned_design || '',
+      assignedConstruction: project.assigned_construction || ''
+    })
+    setShowEditModal(true)
+  }
+
+  // 削除確認ダイアログを開く
+  const openDeleteDialog = (projectId: string) => {
+    setDeletingProjectId(projectId)
+    setShowDeleteDialog(true)
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -196,7 +384,16 @@ export default function ProjectList() {
   return (
     <div className="container mx-auto p-6">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-3">案件一覧</h1>
+        <div className="flex items-center justify-between mb-3">
+          <h1 className="text-3xl font-bold">案件一覧</h1>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          >
+            <Plus size={20} />
+            新規案件追加
+          </button>
+        </div>
 
         {/* ソート＆フィルタツールバー */}
         <div className="bg-white rounded-lg shadow-pastel p-4 mb-4">
@@ -299,12 +496,38 @@ export default function ProjectList() {
             >
               {/* ヘッダー */}
               <div className="bg-gradient-pastel-blue p-4">
-                <h3 className="text-xl font-bold text-pastel-blue-dark mb-1">
-                  {project.customer?.names?.join('・') || '顧客名なし'}様邸
-                </h3>
-                <p className="text-sm text-blue-800">
-                  📍 {project.customer?.building_site || '-'}
-                </p>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold text-pastel-blue-dark mb-1">
+                      {project.customer?.names?.join('・') || '顧客名なし'}様邸
+                    </h3>
+                    <p className="text-sm text-blue-800">
+                      📍 {project.customer?.building_site || '-'}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        openEditModal(project)
+                      }}
+                      className="p-2 bg-white rounded-lg hover:bg-gray-100 transition-colors"
+                      title="編集"
+                    >
+                      <Edit2 size={16} className="text-blue-600" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        openDeleteDialog(project.id)
+                      }}
+                      className="p-2 bg-white rounded-lg hover:bg-gray-100 transition-colors"
+                      title="削除"
+                    >
+                      <Trash2 size={16} className="text-red-600" />
+                    </button>
+                  </div>
+                </div>
               </div>
 
               {/* 部署ステータス（1行4列） */}
@@ -369,6 +592,357 @@ export default function ProjectList() {
           {filterStatus === 'all'
             ? '案件データがありません'
             : `絞り込み条件に一致する案件がありません（全${projects.length}件中0件）`}
+        </div>
+      )}
+
+      {/* 新規案件作成モーダル */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">新規案件追加</h2>
+                <button
+                  onClick={() => {
+                    setShowCreateModal(false)
+                    resetForm()
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {/* 顧客情報 */}
+                <div>
+                  <h3 className="font-bold text-gray-900 mb-3">顧客情報</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        顧客名 <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.customerNames}
+                        onChange={(e) => setFormData({ ...formData, customerNames: e.target.value })}
+                        placeholder="例: 山田太郎・花子"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">複数名の場合は「・」で区切ってください</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        建設地 <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.buildingSite}
+                        onChange={(e) => setFormData({ ...formData, buildingSite: e.target.value })}
+                        placeholder="例: 東京都渋谷区〇〇1-2-3"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 案件情報 */}
+                <div>
+                  <h3 className="font-bold text-gray-900 mb-3">案件情報</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">契約日</label>
+                      <input
+                        type="date"
+                        value={formData.contractDate}
+                        onChange={(e) => setFormData({ ...formData, contractDate: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">ステータス</label>
+                      <select
+                        value={formData.status}
+                        onChange={(e) => setFormData({ ...formData, status: e.target.value as Project['status'] })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="pre_contract">契約前</option>
+                        <option value="post_contract">契約後</option>
+                        <option value="construction">着工後</option>
+                        <option value="completed">完了</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">進捗率 (%)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={formData.progressRate}
+                        onChange={(e) => setFormData({ ...formData, progressRate: parseInt(e.target.value) || 0 })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 担当者 */}
+                <div>
+                  <h3 className="font-bold text-gray-900 mb-3">担当者</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">営業担当</label>
+                      <select
+                        value={formData.assignedSales}
+                        onChange={(e) => setFormData({ ...formData, assignedSales: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">未設定</option>
+                        {employees.filter(e => ['営業', '営業事務', 'ローン事務'].includes(e.department)).map(emp => (
+                          <option key={emp.id} value={emp.id}>{emp.name} ({emp.department})</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">設計担当</label>
+                      <select
+                        value={formData.assignedDesign}
+                        onChange={(e) => setFormData({ ...formData, assignedDesign: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">未設定</option>
+                        {employees.filter(e => ['実施設計', '意匠設計', '申請設計', '構造設計', 'IC'].includes(e.department)).map(emp => (
+                          <option key={emp.id} value={emp.id}>{emp.name} ({emp.department})</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">工事担当</label>
+                      <select
+                        value={formData.assignedConstruction}
+                        onChange={(e) => setFormData({ ...formData, assignedConstruction: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">未設定</option>
+                        {employees.filter(e => ['工事', '発注・積算', '工事事務'].includes(e.department)).map(emp => (
+                          <option key={emp.id} value={emp.id}>{emp.name} ({emp.department})</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    setShowCreateModal(false)
+                    resetForm()
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                >
+                  キャンセル
+                </button>
+                <button
+                  onClick={handleCreateProject}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
+                  作成
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 案件編集モーダル */}
+      {showEditModal && editingProject && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">案件編集</h2>
+                <button
+                  onClick={() => {
+                    setShowEditModal(false)
+                    setEditingProject(null)
+                    resetForm()
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {/* 顧客情報 */}
+                <div>
+                  <h3 className="font-bold text-gray-900 mb-3">顧客情報</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        顧客名 <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.customerNames}
+                        onChange={(e) => setFormData({ ...formData, customerNames: e.target.value })}
+                        placeholder="例: 山田太郎・花子"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">複数名の場合は「・」で区切ってください</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        建設地 <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.buildingSite}
+                        onChange={(e) => setFormData({ ...formData, buildingSite: e.target.value })}
+                        placeholder="例: 東京都渋谷区〇〇1-2-3"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 案件情報 */}
+                <div>
+                  <h3 className="font-bold text-gray-900 mb-3">案件情報</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">契約日</label>
+                      <input
+                        type="date"
+                        value={formData.contractDate}
+                        onChange={(e) => setFormData({ ...formData, contractDate: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">ステータス</label>
+                      <select
+                        value={formData.status}
+                        onChange={(e) => setFormData({ ...formData, status: e.target.value as Project['status'] })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="pre_contract">契約前</option>
+                        <option value="post_contract">契約後</option>
+                        <option value="construction">着工後</option>
+                        <option value="completed">完了</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">進捗率 (%)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={formData.progressRate}
+                        onChange={(e) => setFormData({ ...formData, progressRate: parseInt(e.target.value) || 0 })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 担当者 */}
+                <div>
+                  <h3 className="font-bold text-gray-900 mb-3">担当者</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">営業担当</label>
+                      <select
+                        value={formData.assignedSales}
+                        onChange={(e) => setFormData({ ...formData, assignedSales: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">未設定</option>
+                        {employees.filter(e => ['営業', '営業事務', 'ローン事務'].includes(e.department)).map(emp => (
+                          <option key={emp.id} value={emp.id}>{emp.name} ({emp.department})</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">設計担当</label>
+                      <select
+                        value={formData.assignedDesign}
+                        onChange={(e) => setFormData({ ...formData, assignedDesign: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">未設定</option>
+                        {employees.filter(e => ['実施設計', '意匠設計', '申請設計', '構造設計', 'IC'].includes(e.department)).map(emp => (
+                          <option key={emp.id} value={emp.id}>{emp.name} ({emp.department})</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">工事担当</label>
+                      <select
+                        value={formData.assignedConstruction}
+                        onChange={(e) => setFormData({ ...formData, assignedConstruction: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">未設定</option>
+                        {employees.filter(e => ['工事', '発注・積算', '工事事務'].includes(e.department)).map(emp => (
+                          <option key={emp.id} value={emp.id}>{emp.name} ({emp.department})</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    setShowEditModal(false)
+                    setEditingProject(null)
+                    resetForm()
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                >
+                  キャンセル
+                </button>
+                <button
+                  onClick={handleEditProject}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
+                  更新
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 削除確認ダイアログ */}
+      {showDeleteDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-3">案件を削除しますか？</h3>
+            <p className="text-gray-600 mb-6">
+              この操作は取り消せません。案件に紐づくタスクも削除される可能性があります。
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowDeleteDialog(false)
+                  setDeletingProjectId(null)
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={handleDeleteProject}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+              >
+                削除
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
