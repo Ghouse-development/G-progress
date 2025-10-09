@@ -119,7 +119,6 @@ export default function ProjectDetail() {
       if (selectedTask && selectedTask.id === taskId) {
         setSelectedTask({ ...selectedTask, status: newStatus })
       }
-      alert('ステータスを更新しました')
     } else {
       alert('ステータスの更新に失敗しました')
     }
@@ -791,71 +790,77 @@ export default function ProjectDetail() {
                 </div>
               </div>
 
-              {/* Do's */}
-              <div className="modal-section bg-pastel-green-light border-pastel-green">
-                <div className="modal-section-header text-pastel-green-dark">
-                  <span className="text-xl">✓</span>
-                  <span>Do's（やるべきこと）</span>
+              {/* Do's & Don'ts（横並び） */}
+              <div className="flex gap-4 flex-wrap">
+                {/* Do's */}
+                <div className="modal-section bg-pastel-green-light border-pastel-green flex-1" style={{ minWidth: '250px' }}>
+                  <div className="modal-section-header text-pastel-green-dark">
+                    <span className="text-xl">✓</span>
+                    <span>Do's（やるべきこと）</span>
+                  </div>
+                  <div className="modal-section-content whitespace-pre-wrap">
+                    {selectedTask.dos || '設定されていません'}
+                  </div>
                 </div>
-                <div className="modal-section-content whitespace-pre-wrap">
-                  {selectedTask.dos || '設定されていません'}
+
+                {/* Don'ts */}
+                <div className="modal-section bg-red-50 border-red-300 flex-1" style={{ minWidth: '250px' }}>
+                  <div className="modal-section-header text-red-600">
+                    <span className="text-xl">✗</span>
+                    <span>Don'ts（やってはいけないこと）</span>
+                  </div>
+                  <div className="modal-section-content whitespace-pre-wrap">
+                    {selectedTask.donts || '設定されていません'}
+                  </div>
                 </div>
               </div>
 
-              {/* Don'ts */}
-              <div className="modal-section bg-red-50 border-red-300">
-                <div className="modal-section-header text-red-600">
-                  <span className="text-xl">✗</span>
-                  <span>Don'ts（やってはいけないこと）</span>
+              {/* マニュアル & 動画（横並び） */}
+              <div className="flex gap-4 flex-wrap">
+                {/* マニュアル */}
+                <div className="modal-section bg-pastel-purple border-gray-300 flex-1" style={{ minWidth: '250px' }}>
+                  <div className="modal-section-header text-gray-700">
+                    <span className="text-xl">📄</span>
+                    <span>マニュアル</span>
+                  </div>
+                  <div className="modal-section-content">
+                    {selectedTask.manual_url ? (
+                      <a
+                        href={selectedTask.manual_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium touch-target"
+                      >
+                        <span>📎</span>
+                        <span>マニュアルを開く</span>
+                      </a>
+                    ) : (
+                      <p className="text-gray-500">設定されていません</p>
+                    )}
+                  </div>
                 </div>
-                <div className="modal-section-content whitespace-pre-wrap">
-                  {selectedTask.donts || '設定されていません'}
-                </div>
-              </div>
 
-              {/* マニュアル */}
-              <div className="modal-section bg-pastel-purple border-gray-300">
-                <div className="modal-section-header text-gray-700">
-                  <span className="text-xl">📄</span>
-                  <span>マニュアル</span>
-                </div>
-                <div className="modal-section-content">
-                  {selectedTask.manual_url ? (
-                    <a
-                      href={selectedTask.manual_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium touch-target"
-                    >
-                      <span>📎</span>
-                      <span>マニュアルを開く</span>
-                    </a>
-                  ) : (
-                    <p className="text-gray-500">設定されていません</p>
-                  )}
-                </div>
-              </div>
-
-              {/* 動画 */}
-              <div className="modal-section bg-pastel-pink border-gray-300">
-                <div className="modal-section-header text-gray-700">
-                  <span className="text-xl">🎥</span>
-                  <span>動画</span>
-                </div>
-                <div className="modal-section-content">
-                  {selectedTask.video_url ? (
-                    <a
-                      href={selectedTask.video_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium touch-target"
-                    >
-                      <span>▶</span>
-                      <span>動画を見る</span>
-                    </a>
-                  ) : (
-                    <p className="text-gray-500">設定されていません</p>
-                  )}
+                {/* 動画 */}
+                <div className="modal-section bg-pastel-pink border-gray-300 flex-1" style={{ minWidth: '250px' }}>
+                  <div className="modal-section-header text-gray-700">
+                    <span className="text-xl">🎥</span>
+                    <span>動画</span>
+                  </div>
+                  <div className="modal-section-content">
+                    {selectedTask.video_url ? (
+                      <a
+                        href={selectedTask.video_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium touch-target"
+                      >
+                        <span>▶</span>
+                        <span>動画を見る</span>
+                      </a>
+                    ) : (
+                      <p className="text-gray-500">設定されていません</p>
+                    )}
+                  </div>
                 </div>
               </div>
 
