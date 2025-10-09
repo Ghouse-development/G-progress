@@ -24,7 +24,9 @@
       "Bash(git log:*)",
       "WebFetch(domain:api.github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(psql:*)"
+      "Bash(psql:*)",
+      "WebSearch",
+      "WebFetch(domain:g-progress-qy7x9s2g2-ghouse-developments-projects.vercel.app)"
     ],
     "deny": [],
     "ask": []

@@ -6,7 +6,8 @@ import './Layout.css'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation()
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  // モバイルではデフォルトでサイドバーを閉じる
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(window.innerWidth <= 768)
   const [searchOpen, setSearchOpen] = useState(false)
 
   // Ctrl+K or Cmd+K でグローバル検索を開く
@@ -20,6 +21,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
+  // ウィンドウリサイズ時にサイドバーの状態を更新
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 768) {
+        setSidebarCollapsed(true)
+      }
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
   }, [])
 
   const handleLogout = () => {
@@ -40,6 +53,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="layout-container">
+      {/* モバイル用オーバーレイ（サイドバーが開いているときに背景をクリックで閉じる） */}
+      {!sidebarCollapsed && window.innerWidth <= 768 && (
+        <div
+          className="sidebar-overlay"
+          onClick={() => setSidebarCollapsed(true)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            zIndex: 9998,
+          }}
+        />
+      )}
+
       <aside className={`layout-sidebar ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
         <div className="layout-logo">
           <h1 className="layout-title">{!sidebarCollapsed && 'G-progress'}</h1>

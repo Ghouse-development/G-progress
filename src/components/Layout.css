@@ -168,3 +168,63 @@
 .sidebar-toggle-button.sidebar-toggle-collapsed {
   left: 52px;
 }
+
+/* ===============================================
+   モバイル対応（768px以下）
+   =============================================== */
+@media (max-width: 768px) {
+  .layout-container {
+    flex-direction: column;
+  }
+
+  /* サイドバーをオーバーレイ表示 */
+  .layout-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 9999;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    width: 256px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  /* サイドバーが開いた状態（collapsedがfalse） */
+  .layout-sidebar:not(.sidebar-collapsed) {
+    transform: translateX(0);
+  }
+
+  /* モバイルでは collapsed クラスでサイドバーを非表示に */
+  .layout-sidebar.sidebar-collapsed {
+    transform: translateX(-100%);
+    width: 256px;
+  }
+
+  /* ハンバーガーメニューボタン */
+  .sidebar-toggle-button {
+    position: fixed;
+    left: 16px;
+    top: 16px;
+    z-index: 10000;
+  }
+
+  .sidebar-toggle-button.sidebar-toggle-collapsed {
+    left: 16px;
+  }
+
+  /* メインコンテンツ */
+  .layout-main {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .layout-header {
+    padding: 16px;
+    padding-top: 60px; /* ハンバーガーメニューボタンの下 */
+  }
+
+  .layout-content {
+    padding: 16px;
+  }
+}
