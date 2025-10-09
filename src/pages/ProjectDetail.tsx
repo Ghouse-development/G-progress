@@ -88,7 +88,7 @@ export default function ProjectDetail() {
     assigned_to: ''
   })
   const [employees, setEmployees] = useState<Employee[]>([])
-  const [showGuide, setShowGuide] = useState(true) // グリッド説明の表示状態
+  const [showGuide, setShowGuide] = useState(false) // グリッド説明の表示状態（デフォルトで非表示）
   const todayRowRef = useRef<HTMLDivElement>(null) // 今日の行への参照
 
   useEffect(() => {
@@ -271,6 +271,23 @@ export default function ProjectDetail() {
     }
   }
 
+  // セルダブルクリックでタスク追加モーダルを開く
+  const handleCellDoubleClick = (position: string, day: number) => {
+    if (!project) return
+
+    // 契約日からday日後の日付を計算
+    const dueDate = format(addDays(new Date(project.contract_date), day), 'yyyy-MM-dd')
+
+    setNewTask({
+      title: '',
+      description: '',
+      position: position,
+      due_date: dueDate,
+      assigned_to: ''
+    })
+    setShowTaskModal(true)
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -290,97 +307,34 @@ export default function ProjectDetail() {
   return (
     <div className="min-h-screen bg-pastel-blue-light no-x-scroll pc-fit">
       <div className="container mx-auto p-6 no-x-scroll">
-        <div className="mb-6">
+        <div className="mb-3">
           <button
             onClick={() => navigate('/projects')}
-            className="mb-4 px-4 py-2 bg-white text-gray-700 rounded-lg shadow-pastel border border-pastel-blue hover:bg-pastel-blue-light transition-all duration-200 font-medium"
+            className="mb-2 px-3 py-1.5 bg-white text-gray-700 rounded-lg shadow-sm border border-gray-300 hover:bg-gray-50 transition-all duration-200 text-sm font-medium"
           >
             ← 案件一覧に戻る
           </button>
 
-          {/* タスクステータス凡例 */}
-          <div className="bg-white rounded-xl shadow-pastel p-4 mb-4 border-2 border-gray-200">
-            <div className="flex items-center gap-6 flex-wrap">
-              <div className="font-bold text-gray-900">タスクステータス:</div>
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 task-not-started rounded"></div>
-                <span className="text-sm text-gray-700">○ 未着手（赤）</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 task-in-progress rounded"></div>
-                <span className="text-sm text-gray-700">● 着手中（黄）</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 task-completed rounded"></div>
-                <span className="text-sm text-gray-700">✓ 完了（青）</span>
-              </div>
-            </div>
-          </div>
-
-          {/* グリッドの見方説明（初心者向け） */}
-          {showGuide && (
-            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4 rounded-lg shadow-pastel">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-3">
-                  <HelpCircle className="text-blue-600 flex-shrink-0 mt-1" size={24} />
-                  <div>
-                    <p className="text-sm text-blue-900 font-bold mb-2">📘 タスク管理グリッドの見方</p>
-                    <ul className="text-xs text-blue-800 space-y-1.5 ml-2">
-                      <li>• <strong>縦軸（日付）:</strong> 契約日から何日目かを表示（0日目〜365日目）</li>
-                      <li>• <strong>横軸（職種）:</strong> 営業、設計、工事など13種類の職種</li>
-                      <li>• <strong>セル内のタスク:</strong> クリックすると詳細情報が見れます</li>
-                      <li>• <strong>赤い太線:</strong> 今日の位置を示しています</li>
-                      <li>• <strong>職種名にマウスを乗せると:</strong> 詳しい説明が表示されます</li>
-                    </ul>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShowGuide(false)}
-                  className="text-blue-600 hover:text-blue-800 text-sm font-medium ml-2"
-                >
-                  ✕ 閉じる
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* 今日へジャンプボタン */}
-          <div className="flex items-center gap-3 mb-4">
-            <button
-              onClick={scrollToToday}
-              className="px-4 py-2 bg-red-500 text-white rounded-lg shadow-pastel hover:bg-red-600 transition-all duration-200 font-bold text-sm flex items-center gap-2"
-            >
-              📍 今日の位置へジャンプ
-            </button>
-            {!showGuide && (
-              <button
-                onClick={() => setShowGuide(true)}
-                className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg shadow-pastel hover:bg-blue-200 transition-all duration-200 font-medium text-sm flex items-center gap-2"
-              >
-                <HelpCircle size={16} />
-                グリッドの見方を表示
-              </button>
-            )}
-          </div>
-
-          {/* プロジェクト情報カード */}
-          <div className="bg-white rounded-xl shadow-pastel-lg border-2 border-gray-300 overflow-hidden">
-            <div className="bg-gradient-pastel-blue p-6 text-pastel-blue-dark">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-4xl font-bold mb-3">
+          {/* コンパクトなプロジェクト情報カード */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-300 overflow-hidden mb-2">
+            <div className="p-3 bg-gradient-to-r from-blue-50 to-blue-100">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <h1 className="text-xl font-bold text-gray-900">
                     {project.customer?.names?.join('・') || '顧客名なし'}様邸
                   </h1>
-                  <div className="flex flex-wrap items-center gap-6 text-xl text-blue-800">
-                    <span>📅 {format(new Date(project.contract_date), 'yyyy/MM/dd')}</span>
-                    <span>📍 {project.customer?.building_site || '-'}</span>
-                  </div>
+                  <span className="text-xs text-gray-600">
+                    📅 {format(new Date(project.contract_date), 'yyyy/MM/dd')}
+                  </span>
+                  <span className="text-xs text-gray-600">
+                    📍 {project.customer?.building_site || '-'}
+                  </span>
                 </div>
-                <span className={`px-5 py-3 rounded-full text-lg font-bold shadow-pastel ${
+                <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                   project.status === 'pre_contract' ? 'bg-white text-gray-800' :
-                  project.status === 'post_contract' ? 'bg-pastel-blue text-pastel-blue-dark' :
-                  project.status === 'construction' ? 'bg-pastel-orange text-pastel-orange-dark' :
-                  'bg-pastel-green text-pastel-green-dark'
+                  project.status === 'post_contract' ? 'bg-blue-100 text-blue-800' :
+                  project.status === 'construction' ? 'bg-orange-100 text-orange-800' :
+                  'bg-green-100 text-green-800'
                 }`}>
                   {project.status === 'pre_contract' ? '契約前' :
                    project.status === 'post_contract' ? '契約後' :
@@ -389,35 +343,63 @@ export default function ProjectDetail() {
               </div>
             </div>
 
-            <div className="p-4 bg-white border-t-2 border-gray-300">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <div className="flex items-center gap-4 flex-wrap">
-                  <div className="flex items-center gap-1">
-                    <span className="compact-text font-semibold text-gray-700">タスク:</span>
-                    <span className="text-lg font-bold text-gray-900">{tasks.length}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="compact-text text-pastel-green-dark">✓</span>
-                    <span className="text-sm font-bold text-pastel-green-dark">{tasks.filter(t => t.status === 'completed').length}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="compact-text text-pastel-blue-dark">●</span>
-                    <span className="text-sm font-bold text-pastel-blue-dark">{tasks.filter(t => t.status === 'requested').length}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="compact-text text-gray-600">○</span>
-                    <span className="text-sm font-bold text-gray-600">{tasks.filter(t => t.status === 'not_started').length}</span>
-                  </div>
+            <div className="px-3 py-2 bg-white border-t border-gray-200">
+              <div className="flex items-center justify-between flex-wrap gap-2 text-xs">
+                <div className="flex items-center gap-3">
+                  <span className="text-gray-600">タスク: <strong>{tasks.length}</strong></span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-3 h-3 task-not-started rounded"></span>
+                    <strong>{tasks.filter(t => t.status === 'not_started').length}</strong>
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-3 h-3 task-in-progress rounded"></span>
+                    <strong>{tasks.filter(t => t.status === 'requested').length}</strong>
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-3 h-3 task-completed rounded"></span>
+                    <strong>{tasks.filter(t => t.status === 'completed').length}</strong>
+                  </span>
                 </div>
-                <button
-                  onClick={() => setShowTaskModal(true)}
-                  className="px-4 py-2 bg-gradient-pastel-blue text-pastel-blue-dark rounded-lg hover:shadow-pastel-lg transition-all duration-200 font-bold compact-text shadow-pastel touch-target"
-                >
-                  ➕ タスク追加
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={scrollToToday}
+                    className="px-2 py-1 bg-red-500 text-white rounded text-xs font-bold hover:bg-red-600 transition-all"
+                  >
+                    📍 今日
+                  </button>
+                  <button
+                    onClick={() => setShowGuide(!showGuide)}
+                    className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200 transition-all flex items-center gap-1"
+                  >
+                    <HelpCircle size={12} />
+                    ?
+                  </button>
+                </div>
               </div>
             </div>
           </div>
+
+          {/* グリッドの見方説明（コンパクト版） */}
+          {showGuide && (
+            <div className="bg-blue-50 border-l-2 border-blue-500 p-2 mb-2 rounded text-xs">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="font-bold text-blue-900 mb-1">使い方</p>
+                  <ul className="text-blue-800 space-y-0.5 ml-2">
+                    <li>• タスククリック → 詳細表示</li>
+                    <li>• セルダブルクリック → タスク追加</li>
+                    <li>• 縦軸：契約日からの日数 / 横軸：職種</li>
+                  </ul>
+                </div>
+                <button
+                  onClick={() => setShowGuide(false)}
+                  className="text-blue-600 hover:text-blue-800 text-xs font-medium ml-2"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* タスク管理グリッド */}
@@ -526,8 +508,10 @@ export default function ProjectDetail() {
                         return (
                           <div
                             key={`${day}-${position}`}
-                            className="border border-gray-300 p-2 min-h-14 transition-colors duration-150 flex flex-col items-center justify-center gap-1 min-w-0 overflow-hidden"
+                            className="border border-gray-300 p-2 min-h-14 transition-colors duration-150 flex flex-col items-center justify-center gap-1 min-w-0 overflow-hidden cursor-pointer hover:bg-gray-100"
                             style={{ flex: '1 1 0%', minWidth: '80px' }}
+                            onDoubleClick={() => handleCellDoubleClick(position, day)}
+                            title="ダブルクリックでタスク追加"
                           >
                             {cellTasks.map((task) => {
                               const statusClass =
