@@ -31,13 +31,12 @@ export default function Calendar() {
 
   useEffect(() => {
     loadCurrentUser()
+    loadTasks() // 初回ロード時にタスクも取得
   }, [])
 
   useEffect(() => {
-    if (currentUser) {
-      loadTasks()
-    }
-  }, [currentMonth, currentUser])
+    loadTasks() // 月が変更されたらタスクを再取得
+  }, [currentMonth])
 
   const loadCurrentUser = async () => {
     // 開発モード: localStorageまたはデフォルトユーザーIDを使用
@@ -64,10 +63,10 @@ export default function Calendar() {
   }
 
   const loadTasks = async () => {
-    if (!currentUser) return
-
     const start = startOfMonth(currentMonth)
     const end = endOfMonth(currentMonth)
+
+    console.log(`カレンダー: ${format(start, 'yyyy-MM-dd')} ～ ${format(end, 'yyyy-MM-dd')} の範囲でタスクを取得します`)
 
     // タスクを取得（プロジェクトと顧客情報も含む）
     const { data: tasksData, error } = await supabase
@@ -83,13 +82,13 @@ export default function Calendar() {
       .lte('due_date', format(end, 'yyyy-MM-dd'))
 
     if (error) {
-      console.error('Error loading tasks:', error)
+      console.error('❌ カレンダー: タスクの取得に失敗:', error)
       return
     }
 
-    if (tasksData) {
-      console.log(`カレンダー: ${tasksData.length}件のタスクを取得しました`)
+    console.log(`✅ カレンダー: ${tasksData?.length || 0}件のタスクを取得しました`, tasksData)
 
+    if (tasksData) {
       // 全てのタスクを表示（フィルタなし）
       // マイルストーンと担当者のタスクを区別して表示
       const allTasks = tasksData.map((task: any) => ({
@@ -98,6 +97,8 @@ export default function Calendar() {
       }))
 
       setTasks(allTasks as TaskWithProject[])
+    } else {
+      setTasks([])
     }
   }
 
