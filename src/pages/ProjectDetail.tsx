@@ -77,11 +77,7 @@ export default function ProjectDetail() {
   const [loading, setLoading] = useState(true)
   const [showTaskModal, setShowTaskModal] = useState(false)
   const [selectedTask, setSelectedTask] = useState<TaskWithPosition | null>(null)
-  const [editMode, setEditMode] = useState(false)
-  const [editedDueDate, setEditedDueDate] = useState('')
-  const [editedActualDate, setEditedActualDate] = useState('')
   const [editingDueDate, setEditingDueDate] = useState(false)
-  const [editingActualDate, setEditingActualDate] = useState(false)
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -102,7 +98,7 @@ export default function ProjectDetail() {
     const { data, error } = await supabase
       .from('employees')
       .select('*')
-      .order('name')
+      .order('last_name')
 
     if (!error && data) {
       setEmployees(data as Employee[])
@@ -151,36 +147,6 @@ export default function ProjectDetail() {
       alert(`予期しないエラーが発生しました: ${err}`)
       // エラーの場合は再読み込み
       await loadProjectData(false)
-    }
-  }
-
-  const handleUpdateTaskDates = async () => {
-    if (!selectedTask) return
-
-    const updateData: any = {
-      updated_at: new Date().toISOString()
-    }
-
-    if (editedDueDate) {
-      updateData.due_date = editedDueDate
-    }
-
-    if (editedActualDate) {
-      updateData.actual_completion_date = editedActualDate
-    }
-
-    const { error } = await supabase
-      .from('tasks')
-      .update(updateData)
-      .eq('id', selectedTask.id)
-
-    if (!error) {
-      await loadProjectData()
-      setEditMode(false)
-      setSelectedTask(null)
-      alert('日付を更新しました')
-    } else {
-      alert('日付の更新に失敗しました: ' + error.message)
     }
   }
 
@@ -263,9 +229,9 @@ export default function ProjectDetail() {
         .select(`
           *,
           customer:customers(*),
-          sales:assigned_sales(id, name, department),
-          design:assigned_design(id, name, department),
-          construction:assigned_construction(id, name, department)
+          sales:assigned_sales(id, last_name, first_name, department),
+          design:assigned_design(id, last_name, first_name, department),
+          construction:assigned_construction(id, last_name, first_name, department)
         `)
         .eq('id', id)
         .single()
@@ -519,8 +485,8 @@ export default function ProjectDetail() {
                       title={positionDescription}
                     >
                       <div className="font-bold text-xs text-gray-800 mb-1 truncate cursor-help">{position}</div>
-                      <div className="text-xs text-gray-600 mb-1 truncate" title={employee ? employee.name : '未割当'}>
-                        {employee ? employee.name : '未割当'}
+                      <div className="text-xs text-gray-600 mb-1 truncate" title={employee ? `${employee.last_name} ${employee.first_name}` : '未割当'}>
+                        {employee ? `${employee.last_name} ${employee.first_name}` : '未割当'}
                       </div>
                       <div className="flex items-center gap-1 min-w-0">
                         <div className="flex-1 bg-gray-200 rounded-full h-1.5 min-w-0">
@@ -667,7 +633,7 @@ export default function ProjectDetail() {
                     <option value="">未割り当て</option>
                     {employees.map((emp) => (
                       <option key={emp.id} value={emp.id}>
-                        {emp.name} ({emp.department})
+                        {emp.last_name} {emp.first_name} ({emp.department})
                       </option>
                     ))}
                   </select>
@@ -723,9 +689,7 @@ export default function ProjectDetail() {
                 <button
                   onClick={() => {
                     setSelectedTask(null)
-                    setEditMode(false)
                     setEditingDueDate(false)
-                    setEditingActualDate(false)
                   }}
                   className="text-gray-500 hover:text-gray-700 text-3xl leading-none touch-target"
                 >
@@ -896,7 +860,6 @@ export default function ProjectDetail() {
                   onClick={() => {
                     setSelectedTask(null)
                     setEditingDueDate(false)
-                    setEditingActualDate(false)
                   }}
                   className="w-full px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 font-bold text-lg shadow-lg"
                 >

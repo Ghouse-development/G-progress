@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Home, FolderKanban, Calendar, LogOut, Menu, X, Search, Settings, Package, Users } from 'lucide-react'
+import { Home, FolderKanban, Calendar, LogOut, Menu, X, Search, Package, Users } from 'lucide-react'
 import GlobalSearch from './GlobalSearch'
 import { useMode } from '../contexts/ModeContext'
 import './Layout.css'

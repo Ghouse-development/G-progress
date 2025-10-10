@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { Project, Task, Employee, Customer, Product } from '../types/database'
+import { Project, Task, Employee, Product } from '../types/database'
 import { differenceInDays, format } from 'date-fns'
 import { HelpCircle, Plus, X } from 'lucide-react'
 import { useMode } from '../contexts/ModeContext'
@@ -28,7 +27,6 @@ interface DepartmentStatus {
 }
 
 export default function DashboardHome() {
-  const navigate = useNavigate()
   const { mode, setMode } = useMode()
   const [fiscalYear, setFiscalYear] = useState<number>(getFiscalYear(new Date()))
   const [projects, setProjects] = useState<Project[]>([])
@@ -145,7 +143,7 @@ export default function DashboardHome() {
     const { data } = await supabase
       .from('employees')
       .select('*')
-      .order('name')
+      .order('last_name')
 
     if (data) {
       setEmployees(data as Employee[])
@@ -303,21 +301,6 @@ export default function DashboardHome() {
       t.title === taskTitle
     )
     return task || null
-  }
-
-  // タスクの状態を色で表現（案件詳細の4項目に合わせる）
-  const getTaskStatusIcon = (task: Task) => {
-    // 完了: 🔵
-    if (task.status === 'not_applicable' || task.status === 'completed') return '🔵'
-
-    // 遅れ: 🔴
-    if (task.status === 'delayed') return '🔴'
-
-    // 着手中: 🟡
-    if (task.status === 'requested') return '🟡'
-
-    // 未着手: ⚫
-    return '⚫'
   }
 
   const getTaskStatusColor = (task: Task) => {
@@ -794,7 +777,7 @@ export default function DashboardHome() {
                       >
                         <option value="">未設定</option>
                         {employees.map(emp => (
-                          <option key={emp.id} value={emp.id}>{emp.name} ({emp.department})</option>
+                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name} ({emp.department})</option>
                         ))}
                       </select>
                     </div>
@@ -807,7 +790,7 @@ export default function DashboardHome() {
                       >
                         <option value="">未設定</option>
                         {employees.map(emp => (
-                          <option key={emp.id} value={emp.id}>{emp.name} ({emp.department})</option>
+                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name} ({emp.department})</option>
                         ))}
                       </select>
                     </div>
@@ -820,7 +803,7 @@ export default function DashboardHome() {
                       >
                         <option value="">未設定</option>
                         {employees.map(emp => (
-                          <option key={emp.id} value={emp.id}>{emp.name} ({emp.department})</option>
+                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name} ({emp.department})</option>
                         ))}
                       </select>
                     </div>

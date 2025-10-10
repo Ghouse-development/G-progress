@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Project, Customer, Employee, Task } from '../types/database'
 import { format, differenceInDays } from 'date-fns'
-import { ArrowUpDown, Filter, Plus, Edit2, Trash2, X } from 'lucide-react'
+import { ArrowUpDown, Filter, Edit2, Trash2, X } from 'lucide-react'
 
 interface ProjectWithRelations extends Project {
   customer: Customer
@@ -65,7 +65,7 @@ export default function ProjectList() {
     const { data } = await supabase
       .from('employees')
       .select('*')
-      .order('name')
+      .order('last_name')
 
     if (data) {
       setEmployees(data as Employee[])
@@ -81,9 +81,9 @@ export default function ProjectList() {
         .select(`
           *,
           customer:customers(*),
-          sales:assigned_sales(id, name, department),
-          design:assigned_design(id, name, department),
-          construction:assigned_construction(id, name, department)
+          sales:assigned_sales(id, last_name, first_name, department),
+          design:assigned_design(id, last_name, first_name, department),
+          construction:assigned_construction(id, last_name, first_name, department)
         `)
         .order('contract_date', { ascending: false })
 
@@ -732,7 +732,7 @@ export default function ProjectList() {
                       >
                         <option value="">未設定</option>
                         {employees.filter(e => ['営業', '営業事務', 'ローン事務'].includes(e.department)).map(emp => (
-                          <option key={emp.id} value={emp.id}>{emp.name} ({emp.department})</option>
+                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name} ({emp.department})</option>
                         ))}
                       </select>
                     </div>
@@ -745,7 +745,7 @@ export default function ProjectList() {
                       >
                         <option value="">未設定</option>
                         {employees.filter(e => ['実施設計', '意匠設計', '申請設計', '構造設計', 'IC'].includes(e.department)).map(emp => (
-                          <option key={emp.id} value={emp.id}>{emp.name} ({emp.department})</option>
+                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name} ({emp.department})</option>
                         ))}
                       </select>
                     </div>
@@ -758,7 +758,7 @@ export default function ProjectList() {
                       >
                         <option value="">未設定</option>
                         {employees.filter(e => ['工事', '発注・積算', '工事事務'].includes(e.department)).map(emp => (
-                          <option key={emp.id} value={emp.id}>{emp.name} ({emp.department})</option>
+                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name} ({emp.department})</option>
                         ))}
                       </select>
                     </div>
@@ -893,7 +893,7 @@ export default function ProjectList() {
                       >
                         <option value="">未設定</option>
                         {employees.filter(e => ['営業', '営業事務', 'ローン事務'].includes(e.department)).map(emp => (
-                          <option key={emp.id} value={emp.id}>{emp.name} ({emp.department})</option>
+                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name} ({emp.department})</option>
                         ))}
                       </select>
                     </div>
@@ -906,7 +906,7 @@ export default function ProjectList() {
                       >
                         <option value="">未設定</option>
                         {employees.filter(e => ['実施設計', '意匠設計', '申請設計', '構造設計', 'IC'].includes(e.department)).map(emp => (
-                          <option key={emp.id} value={emp.id}>{emp.name} ({emp.department})</option>
+                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name} ({emp.department})</option>
                         ))}
                       </select>
                     </div>
@@ -919,7 +919,7 @@ export default function ProjectList() {
                       >
                         <option value="">未設定</option>
                         {employees.filter(e => ['工事', '発注・積算', '工事事務'].includes(e.department)).map(emp => (
-                          <option key={emp.id} value={emp.id}>{emp.name} ({emp.department})</option>
+                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name} ({emp.department})</option>
                         ))}
                       </select>
                     </div>
