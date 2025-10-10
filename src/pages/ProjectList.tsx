@@ -21,8 +21,8 @@ interface DepartmentStatus {
   totalTasks: number
 }
 
-type SortField = 'contract_date' | 'progress_rate' | 'delayed_tasks' | 'customer_name'
-type FilterStatus = 'all' | 'delayed' | 'normal'
+type SortField = 'contract_date' | 'construction_start_date' | 'progress_rate' | 'delayed_tasks' | 'customer_name'
+type FilterStatus = 'not_started' | 'requested' | 'delayed' | 'completed'
 
 export default function ProjectList() {
   const navigate = useNavigate()
@@ -30,7 +30,7 @@ export default function ProjectList() {
   const [loading, setLoading] = useState(true)
   const [sortField, setSortField] = useState<SortField>('contract_date')
   const [sortAscending, setSortAscending] = useState(false)
-  const [filterStatus, setFilterStatus] = useState<FilterStatus>('all')
+  const [filterStatus, setFilterStatus] = useState<FilterStatus | 'all'>('all')
 
   // モーダル管理
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -178,15 +178,29 @@ export default function ProjectList() {
     let filtered = [...projects]
 
     // フィルタ
-    if (filterStatus === 'delayed') {
+    if (filterStatus === 'not_started') {
+      // 未着手タスクのみがある案件
       filtered = filtered.filter(project => {
-        const deptStatuses = getDepartmentStatus(project)
-        return deptStatuses.some(dept => dept.status === 'delayed' || dept.status === 'warning')
+        const tasks = project.tasks || []
+        return tasks.some(task => task.status === 'not_started')
       })
-    } else if (filterStatus === 'normal') {
+    } else if (filterStatus === 'requested') {
+      // 着手中タスクがある案件
       filtered = filtered.filter(project => {
-        const deptStatuses = getDepartmentStatus(project)
-        return deptStatuses.every(dept => dept.status === 'ontrack')
+        const tasks = project.tasks || []
+        return tasks.some(task => task.status === 'requested')
+      })
+    } else if (filterStatus === 'delayed') {
+      // 遅れタスクがある案件
+      filtered = filtered.filter(project => {
+        const tasks = project.tasks || []
+        return tasks.some(task => task.status === 'delayed')
+      })
+    } else if (filterStatus === 'completed') {
+      // 完了済みタスクがある案件
+      filtered = filtered.filter(project => {
+        const tasks = project.tasks || []
+        return tasks.some(task => task.status === 'completed')
       })
     }
 
@@ -197,6 +211,11 @@ export default function ProjectList() {
       switch (sortField) {
         case 'contract_date':
           compareValue = new Date(a.contract_date).getTime() - new Date(b.contract_date).getTime()
+          break
+        case 'construction_start_date':
+          const aDate = a.construction_start_date ? new Date(a.construction_start_date).getTime() : 0
+          const bDate = b.construction_start_date ? new Date(b.construction_start_date).getTime() : 0
+          compareValue = aDate - bDate
           break
         case 'progress_rate':
           compareValue = a.progress_rate - b.progress_rate
@@ -385,14 +404,7 @@ export default function ProjectList() {
     <div className="container mx-auto p-6">
       <div className="mb-6">
         <div className="flex items-center justify-between mb-3">
-          <h1 className="text-3xl font-bold">案件一覧</h1>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-          >
-            <Plus size={20} />
-            新規案件追加
-          </button>
+          <h1 className="text-2xl font-bold text-gray-900">案件一覧</h1>
         </div>
 
         {/* ソート＆フィルタツールバー */}
@@ -410,6 +422,7 @@ export default function ProjectList() {
                 className="px-3 py-2 border border-pastel-blue rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-pastel-blue"
               >
                 <option value="contract_date">契約日順</option>
+                <option value="construction_start_date">着工日順</option>
                 <option value="progress_rate">進捗率順</option>
                 <option value="delayed_tasks">遅延件数順</option>
                 <option value="customer_name">顧客名順</option>
@@ -433,11 +446,31 @@ export default function ProjectList() {
                   onClick={() => setFilterStatus('all')}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                     filterStatus === 'all'
-                      ? 'bg-pastel-blue text-white'
+                      ? 'bg-blue-500 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
                   全て ({projects.length})
+                </button>
+                <button
+                  onClick={() => setFilterStatus('not_started')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    filterStatus === 'not_started'
+                      ? 'bg-gray-500 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  ⚫ 未着手
+                </button>
+                <button
+                  onClick={() => setFilterStatus('requested')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    filterStatus === 'requested'
+                      ? 'bg-yellow-400 text-gray-900'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  🟡 着手中
                 </button>
                 <button
                   onClick={() => setFilterStatus('delayed')}
@@ -447,17 +480,17 @@ export default function ProjectList() {
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  遅延あり
+                  🔴 遅れ
                 </button>
                 <button
-                  onClick={() => setFilterStatus('normal')}
+                  onClick={() => setFilterStatus('completed')}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    filterStatus === 'normal'
+                    filterStatus === 'completed'
                       ? 'bg-blue-500 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  計画通り
+                  🔵 完了済
                 </button>
               </div>
             </div>
@@ -502,7 +535,7 @@ export default function ProjectList() {
                       {project.customer?.names?.join('・') || '顧客名なし'}様邸
                     </h3>
                     <p className="text-sm text-blue-800">
-                      📍 {project.customer?.building_site || '-'}
+                      {project.customer?.building_site || '-'}
                     </p>
                   </div>
                   <div className="flex gap-2">

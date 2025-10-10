@@ -82,11 +82,11 @@ export default function Calendar() {
       .lte('due_date', format(end, 'yyyy-MM-dd'))
 
     if (error) {
-      console.error('❌ カレンダー: タスクの取得に失敗:', error)
+      console.error('カレンダー: タスクの取得に失敗:', error)
       return
     }
 
-    console.log(`✅ カレンダー: ${tasksData?.length || 0}件のタスクを取得しました`, tasksData)
+    console.log(`カレンダー: ${tasksData?.length || 0}件のタスクを取得しました`, tasksData)
 
     if (tasksData) {
       // 全てのタスクを表示（フィルタなし）
@@ -137,32 +137,32 @@ export default function Calendar() {
   const weekdays = ['月', '火', '水', '木', '金', '土', '日']
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="container mx-auto">
+    <div className="h-screen bg-gray-50 p-3 flex flex-col overflow-hidden">
+      <div className="container mx-auto flex flex-col h-full">
         {/* ヘッダー */}
-        <div className="bg-white rounded-lg shadow p-4 mb-4">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-900">カレンダー</h1>
-            <div className="text-sm text-gray-600">
-              {currentUser && `${currentUser.name} (${currentUser.department})`}
+        <div className="bg-white rounded-lg shadow p-3 mb-3 flex-shrink-0">
+          <div className="flex items-center justify-between mb-2">
+            <h1 className="text-xl font-bold text-gray-900">カレンダー</h1>
+            <div className="text-xs text-gray-600">
+              {currentUser && `${currentUser.last_name} ${currentUser.first_name} (${currentUser.department})`}
             </div>
           </div>
 
           <div className="flex items-center justify-center gap-4">
             <button
               onClick={previousMonth}
-              className="p-2 rounded-full hover:bg-gray-100 transition"
+              className="p-1 rounded-full hover:bg-gray-100 transition"
             >
               <ChevronLeft size={20} />
             </button>
 
-            <h2 className="text-xl font-bold text-gray-900 min-w-48 text-center">
+            <h2 className="text-lg font-bold text-gray-900 min-w-40 text-center">
               {format(currentMonth, 'yyyy年 M月', { locale: ja })}
             </h2>
 
             <button
               onClick={nextMonth}
-              className="p-2 rounded-full hover:bg-gray-100 transition"
+              className="p-1 rounded-full hover:bg-gray-100 transition"
             >
               <ChevronRight size={20} />
             </button>
@@ -170,17 +170,18 @@ export default function Calendar() {
         </div>
 
         {/* カレンダーグリッド (7×6) */}
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-white rounded-lg shadow p-3 flex-1 flex flex-col overflow-hidden">
           {/* 曜日ヘッダー */}
-          <div className="grid grid-cols-7 border-b mb-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
+          <div className="grid grid-cols-7 border-b-4 border-gray-800 mb-2 flex-shrink-0" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
             {weekdays.map((day, index) => (
               <div
                 key={day}
-                className={`p-2 text-center text-sm font-semibold border ${
-                  index === 5 ? 'text-blue-600' : // 土曜
-                  index === 6 ? 'text-red-600' : // 日曜
-                  'text-gray-700'
-                } bg-gray-50`}
+                className={`p-2 text-center text-base font-black border-2 ${
+                  index === 5 ? 'text-blue-700 bg-blue-100 border-blue-300' : // 土曜
+                  index === 6 ? 'text-red-700 bg-red-100 border-red-300' : // 日曜
+                  'text-gray-900 bg-gray-200 border-gray-300'
+                }`}
+                style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
               >
                 {day}
               </div>
@@ -188,7 +189,7 @@ export default function Calendar() {
           </div>
 
           {/* カレンダーグリッド：全ての日を1つのグリッドに配置 */}
-          <div className="calendar-grid">
+          <div className="calendar-grid flex-1" style={{ minHeight: 0 }}>
             {days.map(day => {
               const dayTasks = getTasksForDay(day)
               const isToday = isSameDay(day, new Date())
@@ -206,8 +207,8 @@ export default function Calendar() {
                     'bg-white hover:bg-gray-50'
                   }`}
                 >
-                  <div className={`date font-medium ${
-                    isToday ? 'bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center ml-auto' :
+                  <div className={`date text-lg font-bold ${
+                    isToday ? 'bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center ml-auto' :
                     !isCurrentMonth ? 'text-gray-400' :
                     dayOfWeek === 6 ? 'text-red-600' :
                     dayOfWeek === 5 ? 'text-blue-600' :
@@ -222,15 +223,14 @@ export default function Calendar() {
                       return (
                         <div
                           key={task.id}
-                          className={`text-xs px-1.5 py-0.5 rounded truncate ${
-                            isMilestone ? 'bg-red-500 text-white font-semibold' :
-                            task.status === 'completed' ? 'bg-blue-100 text-blue-900' :
-                            task.status === 'requested' ? 'bg-yellow-100 text-yellow-900' :
-                            'bg-gray-100 text-gray-700'
+                          className={`text-sm px-2 py-1 rounded truncate cursor-pointer ${
+                            isMilestone ? 'bg-red-600 text-white font-bold shadow-lg' :
+                            task.status === 'completed' ? 'bg-blue-200 text-blue-900 font-semibold' :
+                            task.status === 'requested' ? 'bg-yellow-200 text-yellow-900 font-semibold' :
+                            'bg-gray-200 text-gray-800 font-medium'
                           }`}
                           title={`${task.title}${task.project?.customer?.names ? ' - ' + task.project.customer.names.join('・') + '様' : ''}`}
                         >
-                          {isMilestone && '⭐ '}
                           {task.title}
                         </div>
                       )
@@ -238,7 +238,7 @@ export default function Calendar() {
                     {tasks.filter(task =>
                       task.due_date && isSameDay(new Date(task.due_date), day)
                     ).length > 3 && (
-                      <div className="text-xs text-gray-500">
+                      <div className="text-sm text-gray-600 font-semibold">
                         +{tasks.filter(task =>
                           task.due_date && isSameDay(new Date(task.due_date), day)
                         ).length - 3}件
@@ -252,24 +252,24 @@ export default function Calendar() {
         </div>
 
         {/* 凡例 */}
-        <div className="bg-white rounded-lg shadow p-4 mt-4">
-          <h3 className="font-bold text-gray-900 mb-3 text-sm">凡例</h3>
-          <div className="flex flex-wrap gap-4 text-xs">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-red-500 rounded"></div>
-              <span>⭐ マイルストーン</span>
+        <div className="bg-white rounded-lg shadow p-2 mt-2 flex-shrink-0">
+          <div className="flex items-center justify-center gap-4 text-xs">
+            <span className="font-bold text-gray-900">凡例:</span>
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 bg-red-600 rounded"></div>
+              <span>マイルストーン</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-blue-100 border border-blue-300 rounded"></div>
-              <span>完了タスク</span>
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 bg-blue-200 border border-blue-300 rounded"></div>
+              <span>完了</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-yellow-100 border border-yellow-300 rounded"></div>
-              <span>着手中タスク</span>
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 bg-yellow-200 border border-yellow-300 rounded"></div>
+              <span>着手中</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-gray-100 border border-gray-300 rounded"></div>
-              <span>未着手タスク</span>
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 bg-gray-200 border border-gray-300 rounded"></div>
+              <span>未着手</span>
             </div>
           </div>
         </div>

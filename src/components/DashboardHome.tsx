@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { Project, Task } from '../types/database'
+import { Project, Task, Employee, Customer, Product } from '../types/database'
 import { differenceInDays, format } from 'date-fns'
-import { HelpCircle } from 'lucide-react'
+import { HelpCircle, Plus, X } from 'lucide-react'
+import { useMode } from '../contexts/ModeContext'
 
 // 年度計算関数（8月1日～翌年7月31日）
 const getFiscalYear = (date: Date): number => {
@@ -26,12 +28,29 @@ interface DepartmentStatus {
 }
 
 export default function DashboardHome() {
-  const [mode, setMode] = useState<'staff' | 'admin'>('staff')
+  const navigate = useNavigate()
+  const { mode, setMode } = useMode()
   const [fiscalYear, setFiscalYear] = useState<number>(getFiscalYear(new Date()))
   const [projects, setProjects] = useState<Project[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [constructionFilter, setConstructionFilter] = useState<'all' | 'pre' | 'post'>('all')
+
+  // 新規案件追加用のstate
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [employees, setEmployees] = useState<Employee[]>([])
+  const [products, setProducts] = useState<Product[]>([])
+  const [formData, setFormData] = useState({
+    customerNames: '',
+    buildingSite: '',
+    contractDate: format(new Date(), 'yyyy-MM-dd'),
+    status: 'post_contract' as Project['status'],
+    progressRate: 0,
+    productId: '',
+    assignedSales: '',
+    assignedDesign: '',
+    assignedConstruction: ''
+  })
 
   // 利用可能な年度のリスト（過去5年分）
   const currentFY = getFiscalYear(new Date())
@@ -39,6 +58,8 @@ export default function DashboardHome() {
 
   useEffect(() => {
     loadCurrentUser()
+    loadEmployees()
+    loadProducts()
   }, [])
 
   useEffect(() => {
@@ -82,7 +103,14 @@ export default function DashboardHome() {
 
     let query = supabase
       .from('projects')
-      .select('*, customer:customers(*)')
+      .select(`
+        *,
+        customer:customers(*),
+        product:products(*),
+        sales:assigned_sales(id, name, department),
+        design:assigned_design(id, name, department),
+        construction:assigned_construction(id, name, department)
+      `)
       .gte('contract_date', startDate.toISOString())
       .lte('contract_date', endDate.toISOString())
 
@@ -111,6 +139,90 @@ export default function DashboardHome() {
         setTasks([])
       }
     }
+  }
+
+  const loadEmployees = async () => {
+    const { data } = await supabase
+      .from('employees')
+      .select('*')
+      .order('name')
+
+    if (data) {
+      setEmployees(data as Employee[])
+    }
+  }
+
+  const loadProducts = async () => {
+    const { data } = await supabase
+      .from('products')
+      .select('*')
+      .order('name')
+
+    if (data) {
+      setProducts(data as Product[])
+    }
+  }
+
+  // 案件作成
+  const handleCreateProject = async () => {
+    if (!formData.customerNames.trim() || !formData.buildingSite.trim()) {
+      alert('顧客名と建設地は必須です')
+      return
+    }
+
+    try {
+      // 1. 顧客を作成
+      const { data: customer, error: customerError } = await supabase
+        .from('customers')
+        .insert({
+          names: formData.customerNames.split('・').map(n => n.trim()),
+          building_site: formData.buildingSite
+        })
+        .select()
+        .single()
+
+      if (customerError) throw customerError
+
+      // 2. 案件を作成
+      const { error: projectError } = await supabase
+        .from('projects')
+        .insert({
+          customer_id: customer.id,
+          product_id: formData.productId || null,
+          contract_date: formData.contractDate,
+          status: formData.status,
+          progress_rate: formData.progressRate,
+          assigned_sales: formData.assignedSales || null,
+          assigned_design: formData.assignedDesign || null,
+          assigned_construction: formData.assignedConstruction || null
+        })
+
+      if (projectError) throw projectError
+
+      // リロード
+      await loadProjects()
+      setShowCreateModal(false)
+      resetForm()
+      alert('案件を作成しました')
+    } catch (error) {
+      console.error('Failed to create project:', error)
+      alert('案件の作成に失敗しました')
+    }
+  }
+
+  // フォームリセット
+  const resetForm = () => {
+    setFormData({
+      customerNames: '',
+      buildingSite: '',
+      contractDate: format(new Date(), 'yyyy-MM-dd'),
+      status: 'post_contract',
+      progressRate: 0,
+      productId: '',
+      assignedSales: '',
+      assignedDesign: '',
+      assignedConstruction: ''
+    })
   }
 
   // 統計計算
@@ -193,57 +305,70 @@ export default function DashboardHome() {
     return task || null
   }
 
-  // タスクの状態を色で表現（簡易版）
+  // タスクの状態を色で表現（案件詳細の4項目に合わせる）
   const getTaskStatusIcon = (task: Task) => {
-    const isCompleted = task.status === 'not_applicable' || (task.status as string) === 'completed'
-    if (isCompleted) return '✓'
-    if (task.status === 'requested') return '●'
+    // 完了: 🔵
+    if (task.status === 'not_applicable' || task.status === 'completed') return '🔵'
 
-    // 遅延チェック
-    if (task.due_date) {
-      const daysOverdue = differenceInDays(new Date(), new Date(task.due_date))
-      if (daysOverdue > 0) return '×'
-    }
+    // 遅れ: 🔴
+    if (task.status === 'delayed') return '🔴'
 
-    return '○'
+    // 着手中: 🟡
+    if (task.status === 'requested') return '🟡'
+
+    // 未着手: ⚫
+    return '⚫'
   }
 
   const getTaskStatusColor = (task: Task) => {
-    const isCompleted = task.status === 'not_applicable' || (task.status as string) === 'completed'
-    if (isCompleted) return 'bg-green-500 text-white'
-
-    if (task.due_date) {
-      const daysOverdue = differenceInDays(new Date(), new Date(task.due_date))
-      if (daysOverdue > 0 && !isCompleted) {
-        return 'bg-red-500 text-white' // 遅延
-      }
+    // 完了: 青（透明性あり）
+    if (task.status === 'not_applicable' || task.status === 'completed') {
+      return 'bg-blue-100 text-blue-900 border border-blue-300'
     }
 
-    if (task.status === 'requested') return 'bg-blue-500 text-white'
-    return 'bg-yellow-500 text-white'
+    // 遅れ: 赤（透明性あり）
+    if (task.status === 'delayed') {
+      return 'bg-red-100 text-red-900 border border-red-300'
+    }
+
+    // 着手中: 黄色（透明性あり）
+    if (task.status === 'requested') {
+      return 'bg-yellow-100 text-yellow-900 border border-yellow-300'
+    }
+
+    // 未着手: グレー（透明性あり）
+    return 'bg-gray-100 text-gray-900 border border-gray-300'
   }
 
   return (
     <div className="space-y-6">
       {/* ヘッダー: モード切替と年度選択 */}
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-light text-black">ダッシュボード</h2>
+        <h2 className="text-2xl font-bold text-gray-900">ダッシュボード</h2>
 
         <div className="flex items-center gap-4">
+          {/* 新規案件追加ボタン */}
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          >
+            <Plus size={20} />
+            新規案件追加
+          </button>
           {/* 年度選択 */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
+              <label className="text-lg font-bold text-gray-900 flex items-center gap-1">
                 年度
                 <span title="当社では8月1日〜翌年7月31日を1年度としています">
-                  <HelpCircle size={14} className="text-gray-400 cursor-help" />
+                  <HelpCircle size={16} className="text-gray-400 cursor-help" />
                 </span>
                 :
               </label>
               <select
                 value={fiscalYear}
                 onChange={(e) => setFiscalYear(Number(e.target.value))}
-                className="px-3 py-2 border border-pastel-blue rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-pastel-blue"
+                className="px-6 py-3 border-3 border-blue-500 rounded-lg bg-white text-gray-900 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-lg hover:shadow-xl transition-all"
                 title="当社では8月1日〜翌年7月31日を1年度としています"
               >
                 {availableYears.map(year => (
@@ -252,9 +377,6 @@ export default function DashboardHome() {
                   </option>
                 ))}
               </select>
-            </div>
-            <div className="text-xs text-gray-600 text-right">
-              💡 当社は8月開始
             </div>
           </div>
 
@@ -270,7 +392,7 @@ export default function DashboardHome() {
                 }`}
                 title="あなたが担当する案件のみを表示します"
               >
-                👤 担当者モード
+                担当者モード
               </button>
               <button
                 onClick={() => setMode('admin')}
@@ -281,35 +403,11 @@ export default function DashboardHome() {
                 }`}
                 title="全社の案件を俯瞰的に確認できます"
               >
-                👨‍💼 管理者モード
+                管理者モード
               </button>
-            </div>
-            <div className="text-xs text-gray-600 text-right">
-              {mode === 'admin'
-                ? '💡 全社の案件を俯瞰的に確認できます'
-                : '💡 あなたが担当する案件のみを表示します'}
             </div>
           </div>
         </div>
-      </div>
-
-      {/* モード表示インジケーター */}
-      <div className={`px-4 py-2 rounded-lg border-2 ${
-        mode === 'admin'
-          ? 'bg-pastel-orange-light border-pastel-orange'
-          : 'bg-pastel-blue-light border-pastel-blue'
-      }`}>
-        <p className="text-sm">
-          {mode === 'admin' ? (
-            <span className="font-medium text-pastel-orange-dark">
-              📊 管理者モード: 全社の案件（{totalProjects}件）を表示中
-            </span>
-          ) : (
-            <span className="font-medium text-pastel-blue-dark">
-              📋 担当者モード: あなたが担当する案件（{totalProjects}件）を表示中
-            </span>
-          )}
-        </p>
       </div>
 
       {/* 統計情報 */}
@@ -370,30 +468,43 @@ export default function DashboardHome() {
           <div
             key={dept.department}
             className={`bg-white rounded-lg border-2 shadow-pastel p-3 ${
-              dept.status === 'normal' ? 'border-pastel-blue' :
-              dept.status === 'warning' ? 'border-yellow-500' :
-              'border-red-500'
+              dept.status === 'normal' ? 'border-blue-300' :
+              dept.status === 'warning' ? 'border-yellow-300' :
+              'border-red-300'
             }`}
           >
             <h3 className="text-xs font-semibold text-gray-800 mb-2 text-center">{dept.department}</h3>
             <div className="flex items-center justify-center">
-              <div className={`w-12 h-12 rounded-full shadow-pastel flex items-center justify-center ${
-                dept.status === 'normal' ? 'bg-blue-500' :
-                dept.status === 'warning' ? 'bg-yellow-500' :
-                'bg-red-500'
+              <div className={`w-12 h-12 rounded-full shadow-md flex items-center justify-center ${
+                dept.status === 'normal' ? 'bg-blue-100 border-2 border-blue-500' :
+                dept.status === 'warning' ? 'bg-yellow-100 border-2 border-yellow-500' :
+                'bg-red-100 border-2 border-red-500'
               }`}>
-                <span className="text-xl text-white font-bold">
+                <span className={`text-2xl font-bold ${
+                  dept.status === 'normal' ? 'text-blue-900' :
+                  dept.status === 'warning' ? 'text-yellow-900' :
+                  'text-red-900'
+                }`}>
                   {dept.status === 'normal' ? '✓' :
                    dept.status === 'warning' ? '!' :
                    '×'}
                 </span>
               </div>
             </div>
-            <p className="text-center mt-2 text-xs text-gray-600 font-medium">
-              {dept.status === 'normal' && '計画通り'}
-              {dept.status === 'warning' && `要注意 (${dept.delayedCount}件遅延)`}
-              {dept.status === 'delayed' && `遅れあり (${dept.delayedCount}件遅延)`}
+            <p className={`text-center mt-2 text-xs font-bold ${
+              dept.status === 'normal' ? 'text-blue-900' :
+              dept.status === 'warning' ? 'text-yellow-900' :
+              'text-red-900'
+            }`}>
+              {dept.status === 'normal' && '完了'}
+              {dept.status === 'warning' && '着手中'}
+              {dept.status === 'delayed' && '遅れ'}
             </p>
+            {dept.delayedCount > 0 && (
+              <p className="text-center text-xs text-red-600 font-semibold">
+                {dept.delayedCount}件遅延
+              </p>
+            )}
           </div>
         ))}
       </div>
@@ -442,36 +553,22 @@ export default function DashboardHome() {
             </div>
           </div>
 
-          {/* 凡例 */}
-          <div className="p-3 bg-pastel-blue-light border-b border-gray-300">
-            <div className="flex items-center gap-4 text-xs flex-wrap">
-              <span className="font-bold text-gray-800">凡例:</span>
-              <div className="flex items-center gap-1">
-                <div className="w-4 h-4 bg-green-500 rounded"></div>
-                <span>✓ 完了</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-4 h-4 bg-blue-500 rounded"></div>
-                <span>● 進行中</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-4 h-4 bg-yellow-500 rounded"></div>
-                <span>○ 未着手</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-4 h-4 bg-red-500 rounded"></div>
-                <span>× 遅延</span>
-              </div>
-            </div>
-          </div>
-
           {/* マトリクステーブル：横軸は全タスク（個別のタスクタイトル） */}
-          <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: '600px' }}>
-            <table className="text-xs border-collapse" style={{ minWidth: '100%' }}>
-              <thead className="sticky top-0 z-10 bg-white">
+          <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: '600px', position: 'relative' }}>
+            <table className="text-xs border-collapse" style={{ minWidth: '100%', position: 'relative' }}>
+              <thead className="sticky top-0 z-30 bg-white">
                 <tr>
-                  <th className="border-2 border-gray-300 p-2 bg-pastel-blue-light text-left font-bold text-gray-800 sticky left-0 z-20" style={{ minWidth: '180px' }}>
+                  <th className="border-2 border-gray-300 p-2 text-left font-bold text-gray-800 sticky left-0 shadow-md" style={{ minWidth: '180px', width: '180px', backgroundColor: '#DBEAFE', zIndex: 50 }}>
                     案件名
+                  </th>
+                  <th className="border-2 border-gray-300 p-2 text-center font-bold text-gray-800 sticky shadow-md" style={{ minWidth: '100px', width: '100px', left: '180px', backgroundColor: '#DBEAFE', zIndex: 50 }}>
+                    営業担当
+                  </th>
+                  <th className="border-2 border-gray-300 p-2 text-center font-bold text-gray-800 sticky shadow-md" style={{ minWidth: '100px', width: '100px', left: '280px', backgroundColor: '#DBEAFE', zIndex: 50 }}>
+                    設計担当
+                  </th>
+                  <th className="border-2 border-gray-300 p-2 text-center font-bold text-gray-800 sticky shadow-md" style={{ minWidth: '100px', width: '100px', left: '380px', backgroundColor: '#DBEAFE', zIndex: 50 }}>
+                    工事担当
                   </th>
                   {uniqueTaskTitles.map(taskTitle => (
                     <th
@@ -490,44 +587,81 @@ export default function DashboardHome() {
               <tbody>
                 {filteredProjects.length === 0 ? (
                   <tr>
-                    <td colSpan={uniqueTaskTitles.length + 1} className="border-2 border-gray-300 p-8 text-center text-gray-500">
+                    <td colSpan={uniqueTaskTitles.length + 4} className="border-2 border-gray-300 p-8 text-center text-gray-500">
                       該当する案件がありません
                     </td>
                   </tr>
                 ) : (
                   filteredProjects.map((project: any) => (
                     <tr key={project.id} className="hover:bg-pastel-blue-light transition-colors">
-                      <td className="border-2 border-gray-300 p-2 font-medium text-gray-900 bg-white sticky left-0 z-10">
-                        <div className="font-bold text-xs truncate" title={`${project.customer?.names?.join('・') || '顧客名なし'}様邸`}>
+                      <td className="border-2 border-gray-300 p-4 sticky left-0 shadow-md" style={{ width: '180px', backgroundColor: '#EFF6FF', zIndex: 10 }}>
+                        <div className="font-black text-xl text-blue-900 mb-2 tracking-tight" style={{ fontWeight: 900 }} title={`${project.customer?.names?.join('・') || '顧客名なし'}様邸`}>
                           {project.customer?.names?.join('・') || '顧客名なし'}様
                         </div>
-                        <div className="text-gray-600 text-xs">
+                        {project.product && (
+                          <div className="text-blue-700 text-sm font-bold mb-1">
+                            {project.product.name}
+                          </div>
+                        )}
+                        <div className="text-gray-600 text-sm font-medium">
                           契約: {format(new Date(project.contract_date), 'MM/dd')}
                         </div>
+                      </td>
+                      <td className="border-2 border-gray-300 p-2 sticky shadow-md text-center" style={{ width: '100px', left: '180px', backgroundColor: '#EFF6FF', zIndex: 10 }}>
+                        {project.sales ? (
+                          <div className="flex flex-col items-center gap-1">
+                            <div className="w-6 h-6 rounded-full bg-blue-500"></div>
+                            <div className="text-xs font-bold text-gray-900 truncate" title={project.sales.name}>
+                              {project.sales.name}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-sm font-bold text-gray-400">-</div>
+                        )}
+                      </td>
+                      <td className="border-2 border-gray-300 p-2 sticky shadow-md text-center" style={{ width: '100px', left: '280px', backgroundColor: '#EFF6FF', zIndex: 10 }}>
+                        {project.design ? (
+                          <div className="flex flex-col items-center gap-1">
+                            <div className="w-6 h-6 rounded-full bg-green-500"></div>
+                            <div className="text-xs font-bold text-gray-900 truncate" title={project.design.name}>
+                              {project.design.name}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-sm font-bold text-gray-400">-</div>
+                        )}
+                      </td>
+                      <td className="border-2 border-gray-300 p-2 sticky shadow-md text-center" style={{ width: '100px', left: '380px', backgroundColor: '#EFF6FF', zIndex: 10 }}>
+                        {project.construction ? (
+                          <div className="flex flex-col items-center gap-1">
+                            <div className="w-6 h-6 rounded-full bg-orange-500"></div>
+                            <div className="text-xs font-bold text-gray-900 truncate" title={project.construction.name}>
+                              {project.construction.name}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-sm font-bold text-gray-400">-</div>
+                        )}
                       </td>
                       {uniqueTaskTitles.map(taskTitle => {
                         const task = getProjectTaskByTitle(project.id, taskTitle)
 
                         return (
-                          <td key={taskTitle} className="border border-gray-300 p-0.5" style={{ minWidth: '120px' }}>
+                          <td key={taskTitle} className="border border-gray-300 p-1" style={{ minWidth: '120px' }}>
                             {task ? (
                               <div
-                                className={`px-1 py-0.5 rounded text-xs ${getTaskStatusColor(task)}`}
+                                className={`px-3 py-2 rounded-xl text-center text-base font-bold shadow-sm hover:shadow-md transition-all cursor-pointer ${getTaskStatusColor(task)}`}
                                 title={`${task.title}\n期限: ${task.due_date ? format(new Date(task.due_date), 'MM/dd') : '未設定'}\nステータス: ${
-                                  (task.status as string) === 'completed' || task.status === 'not_applicable' ? '完了' :
-                                  task.status === 'requested' ? '進行中' :
+                                  task.status === 'completed' || task.status === 'not_applicable' ? '完了' :
+                                  task.status === 'delayed' ? '遅れ' :
+                                  task.status === 'requested' ? '着手中' :
                                   '未着手'
                                 }`}
                               >
-                                <div className="flex items-center justify-between gap-1">
-                                  <span className="font-bold">{getTaskStatusIcon(task)}</span>
-                                  <span className="text-xs">
-                                    {task.due_date ? format(new Date(task.due_date), 'MM/dd') : '-'}
-                                  </span>
-                                </div>
+                                {task.due_date ? format(new Date(task.due_date), 'MM/dd') : '-'}
                               </div>
                             ) : (
-                              <div className="h-8 flex items-center justify-center text-gray-400">
+                              <div className="h-10 flex items-center justify-center text-gray-400">
                                 -
                               </div>
                             )}
@@ -543,16 +677,178 @@ export default function DashboardHome() {
         </div>
       )}
 
-      {/* グラフエリア（プレースホルダー） */}
-      <div className="bg-white rounded-lg border-2 border-pastel-blue shadow-pastel p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">案件状態分布</h3>
-        <div className="h-64 flex items-center justify-center text-gray-400">
-          <div className="text-center">
-            <p className="text-sm">📊 グラフを表示予定</p>
-            <p className="text-xs mt-2">(recharts実装予定)</p>
+      {/* 新規案件作成モーダル */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">新規案件追加</h2>
+                <button
+                  onClick={() => {
+                    setShowCreateModal(false)
+                    resetForm()
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {/* 顧客情報 */}
+                <div>
+                  <h3 className="font-bold text-gray-900 mb-3">顧客情報</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        顧客名 <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.customerNames}
+                        onChange={(e) => setFormData({ ...formData, customerNames: e.target.value })}
+                        placeholder="例: 山田太郎・花子"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">複数名の場合は「・」で区切ってください</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        建設地 <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.buildingSite}
+                        onChange={(e) => setFormData({ ...formData, buildingSite: e.target.value })}
+                        placeholder="例: 東京都渋谷区〇〇1-2-3"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 案件情報 */}
+                <div>
+                  <h3 className="font-bold text-gray-900 mb-3">案件情報</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">契約日</label>
+                      <input
+                        type="date"
+                        value={formData.contractDate}
+                        onChange={(e) => setFormData({ ...formData, contractDate: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">商品</label>
+                      <select
+                        value={formData.productId}
+                        onChange={(e) => setFormData({ ...formData, productId: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">未設定</option>
+                        {products.map(product => (
+                          <option key={product.id} value={product.id}>{product.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">ステータス</label>
+                      <select
+                        value={formData.status}
+                        onChange={(e) => setFormData({ ...formData, status: e.target.value as Project['status'] })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="pre_contract">契約前</option>
+                        <option value="post_contract">契約後</option>
+                        <option value="construction">着工後</option>
+                        <option value="completed">完了</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">進捗率 (%)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={formData.progressRate}
+                        onChange={(e) => setFormData({ ...formData, progressRate: parseInt(e.target.value) || 0 })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 担当者 */}
+                <div>
+                  <h3 className="font-bold text-gray-900 mb-3">担当者</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">営業担当</label>
+                      <select
+                        value={formData.assignedSales}
+                        onChange={(e) => setFormData({ ...formData, assignedSales: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">未設定</option>
+                        {employees.map(emp => (
+                          <option key={emp.id} value={emp.id}>{emp.name} ({emp.department})</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">設計担当</label>
+                      <select
+                        value={formData.assignedDesign}
+                        onChange={(e) => setFormData({ ...formData, assignedDesign: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">未設定</option>
+                        {employees.map(emp => (
+                          <option key={emp.id} value={emp.id}>{emp.name} ({emp.department})</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">工事担当</label>
+                      <select
+                        value={formData.assignedConstruction}
+                        onChange={(e) => setFormData({ ...formData, assignedConstruction: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">未設定</option>
+                        {employees.map(emp => (
+                          <option key={emp.id} value={emp.id}>{emp.name} ({emp.department})</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    setShowCreateModal(false)
+                    resetForm()
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                >
+                  キャンセル
+                </button>
+                <button
+                  onClick={handleCreateProject}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
+                  作成
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

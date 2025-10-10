@@ -26,7 +26,8 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(psql:*)",
       "WebSearch",
-      "WebFetch(domain:g-progress-qy7x9s2g2-ghouse-developments-projects.vercel.app)"
+      "WebFetch(domain:g-progress-qy7x9s2g2-ghouse-developments-projects.vercel.app)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []

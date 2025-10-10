@@ -1,4 +1,4 @@
-export type Role = 'member' | 'leader' | 'manager' | 'executive'
+export type Role = 'president' | 'executive' | 'department_head' | 'leader' | 'member'
 
 export type Department =
   | '営業'
@@ -39,7 +39,7 @@ export type PaymentType = 'contract' | 'construction_start' | 'roof_raising' | '
 
 export type PaymentStatus = 'pending' | 'completed' | 'overdue'
 
-export type TaskStatus = 'not_started' | 'requested' | 'completed' | 'not_applicable'
+export type TaskStatus = 'not_started' | 'requested' | 'delayed' | 'completed' | 'not_applicable'
 
 export type TaskPriority = 'low' | 'medium' | 'high'
 
@@ -50,7 +50,8 @@ export type NotificationType = 'delay' | 'payment_overdue' | 'task_assigned'
 export interface Employee {
   id: string
   email: string
-  name: string
+  last_name: string
+  first_name: string
   department: Department
   role: Role
   avatar_url?: string
@@ -80,9 +81,19 @@ export interface Customer {
   updated_at: string
 }
 
+export interface Product {
+  id: string
+  name: string
+  code?: string
+  description?: string
+  created_at: string
+  updated_at: string
+}
+
 export interface Project {
   id: string
   customer_id: string
+  product_id?: string
   contract_date: string
   construction_start_date?: string
   scheduled_end_date?: string
@@ -95,6 +106,7 @@ export interface Project {
   created_at: string
   updated_at: string
   customer?: Customer
+  product?: Product
   sales?: Employee
   design?: Employee
   construction?: Employee

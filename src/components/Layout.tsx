@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Home, FolderKanban, Calendar, LogOut, Menu, X, Search } from 'lucide-react'
+import { Home, FolderKanban, Calendar, LogOut, Menu, X, Search, Settings, Package, Users } from 'lucide-react'
 import GlobalSearch from './GlobalSearch'
+import { useMode } from '../contexts/ModeContext'
 import './Layout.css'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation()
+  const { mode } = useMode()
   // モバイルではデフォルトでサイドバーを閉じる
   const [sidebarCollapsed, setSidebarCollapsed] = useState(window.innerWidth <= 768)
   const [searchOpen, setSearchOpen] = useState(false)
@@ -101,9 +103,32 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Search size={20} />
             {!sidebarCollapsed && <span>検索</span>}
             {!sidebarCollapsed && (
-              <kbd className="ml-auto text-xs px-1.5 py-0.5 bg-gray-700 rounded">Ctrl+K</kbd>
+              <kbd className="ml-auto text-xs px-1.5 py-0.5 bg-gray-200 text-gray-700 rounded border border-gray-300">Ctrl+K</kbd>
             )}
           </button>
+
+          {/* マスタ管理（管理者モードのみ） */}
+          {mode === 'admin' && (
+            <>
+              <Link
+                to="/master/products"
+                className={`nav-item ${location.pathname === '/master/products' ? 'nav-item-active' : ''}`}
+                title={sidebarCollapsed ? '商品マスタ管理' : ''}
+              >
+                <Package size={20} />
+                {!sidebarCollapsed && <span>商品マスタ管理</span>}
+              </Link>
+
+              <Link
+                to="/master/employees"
+                className={`nav-item ${location.pathname === '/master/employees' ? 'nav-item-active' : ''}`}
+                title={sidebarCollapsed ? '従業員マスタ管理' : ''}
+              >
+                <Users size={20} />
+                {!sidebarCollapsed && <span>従業員マスタ管理</span>}
+              </Link>
+            </>
+          )}
         </nav>
 
         <div className="layout-footer">

@@ -80,6 +80,8 @@ export default function ProjectDetail() {
   const [editMode, setEditMode] = useState(false)
   const [editedDueDate, setEditedDueDate] = useState('')
   const [editedActualDate, setEditedActualDate] = useState('')
+  const [editingDueDate, setEditingDueDate] = useState(false)
+  const [editingActualDate, setEditingActualDate] = useState(false)
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -107,20 +109,48 @@ export default function ProjectDetail() {
     }
   }
 
-  const handleUpdateTaskStatus = async (taskId: string, newStatus: 'not_started' | 'requested' | 'completed') => {
-    const { error } = await supabase
-      .from('tasks')
-      .update({ status: newStatus, updated_at: new Date().toISOString() })
-      .eq('id', taskId)
-
-    if (!error) {
-      // Update local state
-      setTasks(tasks.map(t => t.id === taskId ? { ...t, status: newStatus } : t))
+  const handleUpdateTaskStatus = async (taskId: string, newStatus: 'not_started' | 'requested' | 'delayed' | 'completed') => {
+    try {
+      // 即座にUIを更新（暗転を防ぐ）
       if (selectedTask && selectedTask.id === taskId) {
-        setSelectedTask({ ...selectedTask, status: newStatus })
+        setSelectedTask({
+          ...selectedTask,
+          status: newStatus
+        })
       }
-    } else {
-      alert('ステータスの更新に失敗しました')
+
+      // タスクリストも即座に更新
+      setTasks(prevTasks =>
+        prevTasks.map(t =>
+          t.id === taskId ? { ...t, status: newStatus } : t
+        )
+      )
+
+      const updateData: any = {
+        status: newStatus,
+        updated_at: new Date().toISOString()
+      }
+
+      const { error } = await supabase
+        .from('tasks')
+        .update(updateData)
+        .eq('id', taskId)
+
+      if (error) {
+        console.error('Supabase error:', error)
+        alert(`ステータスの更新に失敗しました: ${error.message}`)
+        // エラーの場合は再読み込みして元に戻す
+        await loadProjectData(false)
+      }
+      // 成功した場合はバックグラウンドで再読み込み（awaitしない、ローディング表示なし）
+      else {
+        loadProjectData(false)
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err)
+      alert(`予期しないエラーが発生しました: ${err}`)
+      // エラーの場合は再読み込み
+      await loadProjectData(false)
     }
   }
 
@@ -153,6 +183,39 @@ export default function ProjectDetail() {
       alert('日付の更新に失敗しました: ' + error.message)
     }
   }
+
+  const handleUpdateDueDate = async (newDate: string) => {
+    if (!selectedTask) return
+
+    // 即座にUIを更新（暗転を防ぐ）
+    setSelectedTask({ ...selectedTask, due_date: newDate })
+    setEditingDueDate(false)
+
+    // タスクリストも即座に更新
+    setTasks(prevTasks =>
+      prevTasks.map(t =>
+        t.id === selectedTask.id ? { ...t, due_date: newDate } : t
+      )
+    )
+
+    const { error } = await supabase
+      .from('tasks')
+      .update({
+        due_date: newDate,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', selectedTask.id)
+
+    if (error) {
+      alert('期限日の更新に失敗しました: ' + error.message)
+      // エラーの場合は再読み込み
+      await loadProjectData(false)
+    } else {
+      // 成功した場合はバックグラウンドで再読み込み（ローディング表示なし）
+      loadProjectData(false)
+    }
+  }
+
 
   const handleAddTask = async () => {
     if (!project || !newTask.title || !newTask.due_date) {
@@ -189,9 +252,11 @@ export default function ProjectDetail() {
     }
   }
 
-  const loadProjectData = async () => {
+  const loadProjectData = async (showLoading = true) => {
     try {
-      setLoading(true)
+      if (showLoading) {
+        setLoading(true)
+      }
 
       const { data: projectData, error: projectError } = await supabase
         .from('projects')
@@ -231,7 +296,9 @@ export default function ProjectDetail() {
     } catch (error) {
       console.error('Failed to fetch project:', error)
     } finally {
-      setLoading(false)
+      if (showLoading) {
+        setLoading(false)
+      }
     }
   }
 
@@ -323,10 +390,10 @@ export default function ProjectDetail() {
                     {project.customer?.names?.join('・') || '顧客名なし'}様邸
                   </h1>
                   <span className="text-xs text-gray-600">
-                    📅 {format(new Date(project.contract_date), 'yyyy/MM/dd')}
+                    {format(new Date(project.contract_date), 'yyyy/MM/dd')}
                   </span>
                   <span className="text-xs text-gray-600">
-                    📍 {project.customer?.building_site || '-'}
+                    {project.customer?.building_site || '-'}
                   </span>
                 </div>
                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${
@@ -364,7 +431,7 @@ export default function ProjectDetail() {
                     onClick={scrollToToday}
                     className="px-2 py-1 bg-red-500 text-white rounded text-xs font-bold hover:bg-red-600 transition-all"
                   >
-                    📍 今日
+                    今日
                   </button>
                   <button
                     onClick={() => setShowGuide(!showGuide)}
@@ -394,7 +461,7 @@ export default function ProjectDetail() {
                   onClick={() => setShowGuide(false)}
                   className="text-blue-600 hover:text-blue-800 text-xs font-medium ml-2"
                 >
-                  ✕
+                  ×
                 </button>
               </div>
             </div>
@@ -516,6 +583,7 @@ export default function ProjectDetail() {
                               const statusClass =
                                 task.status === 'completed' ? 'task-completed' :
                                 task.status === 'requested' ? 'task-in-progress' :
+                                task.status === 'delayed' ? 'task-delayed' :
                                 'task-not-started'
 
                               return (
@@ -648,14 +716,16 @@ export default function ProjectDetail() {
 
         {/* タスク詳細モーダル（CSS強化版） */}
         {selectedTask && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-pastel-lg p-4 sm:p-6 w-full max-w-3xl max-h-screen overflow-y-auto">
-              <div className="flex items-center justify-between mb-4 pb-3 border-b-2 border-pastel-blue">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2">
+            <div className="bg-white rounded-2xl shadow-2xl p-6 w-[95vw] max-h-[95vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-4 pb-3 border-b-4 border-blue-300">
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{selectedTask.title}</h2>
                 <button
                   onClick={() => {
                     setSelectedTask(null)
                     setEditMode(false)
+                    setEditingDueDate(false)
+                    setEditingActualDate(false)
                   }}
                   className="text-gray-500 hover:text-gray-700 text-3xl leading-none touch-target"
                 >
@@ -663,211 +733,172 @@ export default function ProjectDetail() {
                 </button>
               </div>
 
-              {/* ステータス変更ボタン */}
-              <div className="mb-6">
-                <h3 className="text-sm font-bold text-gray-700 mb-3">ステータス</h3>
-                <div className="flex gap-3 flex-wrap">
+              {/* ステータス変更ボタン - ユニバーサルデザイン */}
+              <div className="mb-4">
+                <h3 className="text-lg font-bold text-gray-800 mb-3">
+                  ステータス
+                </h3>
+                <div className="grid grid-cols-4 gap-2">
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'not_started')}
-                    className={`px-6 py-3 rounded-lg font-bold text-white transition-all duration-200 ${
+                    className={`px-3 py-3 rounded-lg font-bold text-base transition-all duration-200 border-2 hover:scale-105 ${
                       selectedTask.status === 'not_started'
-                        ? 'bg-red-500 shadow-lg scale-105'
-                        : 'bg-red-300 hover:bg-red-400'
+                        ? 'bg-gray-500 text-white shadow-lg border-gray-700'
+                        : 'bg-white text-gray-900 hover:bg-gray-50 border-gray-400 shadow-sm'
                     }`}
                   >
-                    ○ 未着手
+                    ⚫ 未着手
                   </button>
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'requested')}
-                    className={`px-6 py-3 rounded-lg font-bold text-white transition-all duration-200 ${
+                    className={`px-3 py-3 rounded-lg font-bold text-base transition-all duration-200 border-2 hover:scale-105 ${
                       selectedTask.status === 'requested'
-                        ? 'bg-yellow-500 shadow-lg scale-105'
-                        : 'bg-yellow-300 hover:bg-yellow-400'
+                        ? 'bg-yellow-400 text-gray-900 shadow-lg border-yellow-600'
+                        : 'bg-white text-yellow-900 hover:bg-yellow-50 border-yellow-400 shadow-sm'
                     }`}
                   >
-                    ● 着手中
+                    🟡 着手中
+                  </button>
+                  <button
+                    onClick={() => handleUpdateTaskStatus(selectedTask.id, 'delayed')}
+                    className={`px-3 py-3 rounded-lg font-bold text-base transition-all duration-200 border-2 hover:scale-105 ${
+                      selectedTask.status === 'delayed'
+                        ? 'bg-red-500 text-white shadow-lg border-red-700'
+                        : 'bg-white text-red-900 hover:bg-red-50 border-red-400 shadow-sm'
+                    }`}
+                  >
+                    🔴 遅れ
                   </button>
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'completed')}
-                    className={`px-6 py-3 rounded-lg font-bold text-white transition-all duration-200 ${
+                    className={`px-3 py-3 rounded-lg font-bold text-base transition-all duration-200 border-2 hover:scale-105 ${
                       selectedTask.status === 'completed'
-                        ? 'bg-blue-500 shadow-lg scale-105'
-                        : 'bg-blue-300 hover:bg-blue-400'
+                        ? 'bg-blue-500 text-white shadow-lg border-blue-700'
+                        : 'bg-white text-blue-900 hover:bg-blue-50 border-blue-400 shadow-sm'
                     }`}
                   >
-                    ✓ 完了
+                    🔵 完了
                   </button>
                 </div>
               </div>
 
-              {/* 日付管理セクション */}
-              <div className="mb-6 bg-gray-50 rounded-xl p-4 border-2 border-gray-200">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-bold text-gray-700">日付管理</h3>
-                  {!editMode && (
-                    <button
-                      onClick={() => {
-                        setEditMode(true)
-                        setEditedDueDate(selectedTask.due_date || '')
-                        setEditedActualDate(selectedTask.actual_completion_date || '')
-                      }}
-                      className="px-3 py-1 bg-blue-500 text-white rounded-lg text-xs font-bold hover:bg-blue-600 transition-colors"
-                    >
-                      編集
-                    </button>
-                  )}
-                </div>
-
-                {editMode ? (
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-600 mb-1">
-                        期限日
-                      </label>
+              {/* 期限日カード */}
+              <div className="mb-3">
+                <div
+                  onClick={() => setEditingDueDate(true)}
+                  className="bg-gradient-to-br from-blue-100 to-blue-200 p-4 border-3 border-blue-500 shadow-md hover:shadow-2xl hover:scale-105 transition-all cursor-pointer max-w-md mx-auto"
+                >
+                  <div className="text-center">
+                    <div className="text-sm font-bold text-blue-900 mb-2">期限日</div>
+                    {editingDueDate ? (
                       <input
                         type="date"
-                        value={editedDueDate}
-                        onChange={(e) => setEditedDueDate(e.target.value)}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={selectedTask.due_date || ''}
+                        onChange={(e) => handleUpdateDueDate(e.target.value)}
+                        onBlur={() => setEditingDueDate(false)}
+                        autoFocus
+                        className="w-full text-center text-lg font-bold border-2 border-blue-500 rounded p-2"
                       />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-600 mb-1">
-                        実際の完了日
-                      </label>
-                      <input
-                        type="date"
-                        value={editedActualDate}
-                        onChange={(e) => setEditedActualDate(e.target.value)}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div className="flex gap-2 pt-2">
-                      <button
-                        onClick={handleUpdateTaskDates}
-                        className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg font-bold hover:bg-blue-600 transition-colors"
-                      >
-                        保存
-                      </button>
-                      <button
-                        onClick={() => {
-                          setEditMode(false)
-                          setEditedDueDate('')
-                          setEditedActualDate('')
-                        }}
-                        className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg font-bold hover:bg-gray-400 transition-colors"
-                      >
-                        キャンセル
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-600 font-semibold">期限日:</span>
-                      <span className="font-bold text-gray-900">
-                        {selectedTask.due_date ? format(new Date(selectedTask.due_date), 'yyyy/MM/dd (E)', { locale: ja }) : '未設定'}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-600 font-semibold">実際の完了日:</span>
-                      <span className="font-bold text-gray-900">
-                        {selectedTask.actual_completion_date ? format(new Date(selectedTask.actual_completion_date), 'yyyy/MM/dd (E)', { locale: ja }) : '未設定'}
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* 作業内容 */}
-              <div className="modal-section bg-pastel-blue-light border-pastel-blue">
-                <div className="modal-section-header text-pastel-blue-dark">
-                  <span className="text-xl">📋</span>
-                  <span>作業内容</span>
-                </div>
-                <div className="modal-section-content">
-                  {selectedTask.description || 'なし'}
-                </div>
-              </div>
-
-              {/* Do's & Don'ts（横並び） */}
-              <div className="flex gap-4 flex-wrap">
-                {/* Do's */}
-                <div className="modal-section bg-pastel-green-light border-pastel-green flex-1" style={{ minWidth: '250px' }}>
-                  <div className="modal-section-header text-pastel-green-dark">
-                    <span className="text-xl">✓</span>
-                    <span>Do's（やるべきこと）</span>
-                  </div>
-                  <div className="modal-section-content whitespace-pre-wrap">
-                    {selectedTask.dos || '設定されていません'}
-                  </div>
-                </div>
-
-                {/* Don'ts */}
-                <div className="modal-section bg-red-50 border-red-300 flex-1" style={{ minWidth: '250px' }}>
-                  <div className="modal-section-header text-red-600">
-                    <span className="text-xl">✗</span>
-                    <span>Don'ts（やってはいけないこと）</span>
-                  </div>
-                  <div className="modal-section-content whitespace-pre-wrap">
-                    {selectedTask.donts || '設定されていません'}
+                    ) : (
+                      <>
+                        <div className="text-2xl font-black text-blue-900">
+                          {selectedTask.due_date ? format(new Date(selectedTask.due_date), 'M/d', { locale: ja }) : '未設定'}
+                        </div>
+                        {selectedTask.due_date && (
+                          <div className="text-xs text-blue-700 mt-1">
+                            {format(new Date(selectedTask.due_date), '(E)', { locale: ja })}
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
 
-              {/* マニュアル & 動画（横並び） */}
-              <div className="flex gap-4 flex-wrap">
-                {/* マニュアル */}
-                <div className="modal-section bg-pastel-purple border-gray-300 flex-1" style={{ minWidth: '250px' }}>
-                  <div className="modal-section-header text-gray-700">
-                    <span className="text-xl">📄</span>
-                    <span>マニュアル</span>
-                  </div>
-                  <div className="modal-section-content">
+              {/* マニュアル・動画カード (2行目) */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                {/* マニュアルカード */}
+                <div className="bg-gradient-to-br from-purple-100 to-purple-200 p-4 border-3 border-purple-500 shadow-md hover:shadow-2xl hover:scale-105 transition-all cursor-pointer">
+                  <div className="text-center">
+                    <div className="text-sm font-bold text-purple-900 mb-2">マニュアル</div>
                     {selectedTask.manual_url ? (
                       <a
                         href={selectedTask.manual_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium touch-target"
+                        className="inline-block px-4 py-2 bg-purple-600 text-white hover:bg-purple-700 transition-all font-bold text-sm shadow-md hover:shadow-lg"
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        <span>📎</span>
-                        <span>マニュアルを開く</span>
+                        開く
                       </a>
                     ) : (
-                      <p className="text-gray-500">設定されていません</p>
+                      <div className="text-gray-500 text-sm">未設定</div>
                     )}
                   </div>
                 </div>
 
-                {/* 動画 */}
-                <div className="modal-section bg-pastel-pink border-gray-300 flex-1" style={{ minWidth: '250px' }}>
-                  <div className="modal-section-header text-gray-700">
-                    <span className="text-xl">🎥</span>
-                    <span>動画</span>
-                  </div>
-                  <div className="modal-section-content">
+                {/* 動画カード */}
+                <div className="bg-gradient-to-br from-pink-100 to-pink-200 p-4 border-3 border-pink-500 shadow-md hover:shadow-2xl hover:scale-105 transition-all cursor-pointer">
+                  <div className="text-center">
+                    <div className="text-sm font-bold text-pink-900 mb-2">動画</div>
                     {selectedTask.video_url ? (
                       <a
                         href={selectedTask.video_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium touch-target"
+                        className="inline-block px-4 py-2 bg-pink-600 text-white hover:bg-pink-700 transition-all font-bold text-sm shadow-md hover:shadow-lg"
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        <span>▶</span>
-                        <span>動画を見る</span>
+                        再生
                       </a>
                     ) : (
-                      <p className="text-gray-500">設定されていません</p>
+                      <div className="text-gray-500 text-sm">未設定</div>
                     )}
                   </div>
                 </div>
               </div>
 
-              <div className="mt-4 pt-3 border-t-2 border-pastel-blue">
+              {/* 作業内容 */}
+              <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-4 border-3 border-blue-300 shadow-md mb-4">
+                <div className="mb-2">
+                  <span className="text-lg font-bold text-blue-900">作業内容</span>
+                </div>
+                <div className="text-base leading-relaxed text-gray-800 bg-white p-3 rounded-lg">
+                  {selectedTask.description || 'なし'}
+                </div>
+              </div>
+
+              {/* Do's & Don'ts 横並び */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {/* Do's */}
+                <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-4 border-3 border-green-400 shadow-md">
+                  <div className="mb-2">
+                    <span className="text-lg font-bold text-green-900">Do's</span>
+                  </div>
+                  <div className="text-base leading-relaxed text-gray-800 whitespace-pre-wrap bg-white p-3 rounded-lg max-h-40 overflow-y-auto">
+                    {selectedTask.dos || '設定されていません'}
+                  </div>
+                </div>
+
+                {/* Don'ts */}
+                <div className="bg-gradient-to-r from-red-50 to-red-100 rounded-xl p-4 border-3 border-red-400 shadow-md">
+                  <div className="mb-2">
+                    <span className="text-lg font-bold text-red-900">Dont's</span>
+                  </div>
+                  <div className="text-base leading-relaxed text-gray-800 whitespace-pre-wrap bg-white p-3 rounded-lg max-h-40 overflow-y-auto">
+                    {selectedTask.donts || '設定されていません'}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 pt-3 border-t-3 border-blue-300">
                 <button
-                  onClick={() => setSelectedTask(null)}
-                  className="w-full px-4 py-3 bg-gradient-pastel-blue text-pastel-blue-dark rounded-lg hover:shadow-pastel-lg transition-all duration-200 font-bold text-base touch-target"
+                  onClick={() => {
+                    setSelectedTask(null)
+                    setEditingDueDate(false)
+                    setEditingActualDate(false)
+                  }}
+                  className="w-full px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 font-bold text-lg shadow-lg"
                 >
                   閉じる
                 </button>

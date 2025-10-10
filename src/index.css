@@ -54,12 +54,40 @@ body {
   background-color: #10b981;
 }
 
+.bg-green-600 {
+  background-color: #16a34a;
+}
+
+.bg-green-700 {
+  background-color: #15803d;
+}
+
 .bg-yellow-400 {
   background-color: #fbbf24;
 }
 
+.bg-yellow-500 {
+  background-color: #eab308;
+}
+
+.bg-orange-500 {
+  background-color: #f97316;
+}
+
+.bg-red-500 {
+  background-color: #ef4444;
+}
+
 .bg-red-600 {
   background-color: #dc2626;
+}
+
+.bg-purple-600 {
+  background-color: #9333ea;
+}
+
+.bg-pink-600 {
+  background-color: #db2777;
 }
 
 .text-gray-600 {
@@ -223,6 +251,10 @@ body {
   color: #dc2626;
 }
 
+.text-red-900 {
+  color: #7f1d1d;
+}
+
 .bg-gray-100 {
   background-color: #f3f4f6;
 }
@@ -313,6 +345,14 @@ body {
 
 .hover\:bg-gray-50:hover {
   background-color: #f9fafb;
+}
+
+.hover\:bg-red-50:hover {
+  background-color: #fef2f2;
+}
+
+.hover\:bg-yellow-50:hover {
+  background-color: #fefce8;
 }
 
 /* Table styling */
@@ -534,6 +574,14 @@ th, td {
   background-color: #f0fdf4;
 }
 
+.bg-red-50 {
+  background-color: #fef2f2;
+}
+
+.bg-yellow-50 {
+  background-color: #fefce8;
+}
+
 .text-green-600 {
   color: #16a34a;
 }
@@ -542,12 +590,48 @@ th, td {
   color: #2563eb;
 }
 
+.text-blue-700 {
+  color: #1d4ed8;
+}
+
+.text-green-700 {
+  color: #15803d;
+}
+
+.text-purple-900 {
+  color: #581c87;
+}
+
+.text-pink-900 {
+  color: #831843;
+}
+
 .border-green-300 {
   border-color: #86efac;
 }
 
 .border-blue-300 {
   border-color: #93c5fd;
+}
+
+.border-red-300 {
+  border-color: #fca5a5;
+}
+
+.border-yellow-300 {
+  border-color: #fde047;
+}
+
+.border-yellow-500 {
+  border-color: #eab308;
+}
+
+.border-purple-400 {
+  border-color: #c084fc;
+}
+
+.border-pink-400 {
+  border-color: #f472b6;
 }
 
 .text-green-800 {
@@ -657,6 +741,18 @@ th, td {
   background-color: #1d4ed8;
 }
 
+.hover\:bg-green-700:hover {
+  background-color: #15803d;
+}
+
+.hover\:bg-purple-700:hover {
+  background-color: #7e22ce;
+}
+
+.hover\:bg-pink-700:hover {
+  background-color: #be185d;
+}
+
 .bg-black {
   background-color: #000000;
 }
@@ -690,6 +786,14 @@ th, td {
 
 .shadow-xl {
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.shadow-2xl {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.hover\:shadow-2xl:hover {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
 .py-1\.5 {
@@ -745,6 +849,10 @@ th, td {
 
 .w-px {
   width: 1px;
+}
+
+.border-3 {
+  border-width: 3px;
 }
 
 .border-4 {
@@ -864,6 +972,24 @@ th, td {
   background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
 }
 
+.from-purple-100 {
+  --tw-gradient-from: #f3e8ff;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(243, 232, 255, 0));
+}
+
+.to-purple-200 {
+  --tw-gradient-to: #e9d5ff;
+}
+
+.from-pink-100 {
+  --tw-gradient-from: #fce7f3;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(252, 231, 243, 0));
+}
+
+.to-pink-200 {
+  --tw-gradient-to: #fbcfe8;
+}
+
 .text-blue-50 {
   color: #eff6ff;
 }
@@ -908,6 +1034,14 @@ th, td {
   background-color: #9ca3af;
 }
 
+.bg-gray-500 {
+  background-color: #6b7280;
+}
+
+.bg-gray-700 {
+  background-color: #374151;
+}
+
 .border-green-500 {
   border-color: #22c55e;
 }
@@ -918,6 +1052,34 @@ th, td {
 
 .border-gray-500 {
   border-color: #6b7280;
+}
+
+.border-purple-500 {
+  border-color: #a855f7;
+}
+
+.border-pink-500 {
+  border-color: #ec4899;
+}
+
+.border-red-700 {
+  border-color: #b91c1c;
+}
+
+.border-yellow-600 {
+  border-color: #ca8a04;
+}
+
+.border-blue-700 {
+  border-color: #1d4ed8;
+}
+
+.border-gray-700 {
+  border-color: #374151;
+}
+
+.scale-105 {
+  transform: scale(1.05);
 }
 
 .hover\:scale-105:hover {
@@ -1090,8 +1252,8 @@ th, td {
 /* タスク詳細モーダルのCSS強化 */
 .modal-section {
   border-radius: 0.75rem;
-  padding: 1rem;
-  margin-bottom: 1rem;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
   border: 2px solid;
   transition: all 0.2s;
 }
@@ -1102,17 +1264,17 @@ th, td {
 }
 
 .modal-section-header {
-  font-size: 0.875rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .modal-section-content {
-  font-size: 0.875rem;
-  line-height: 1.5;
+  font-size: 1rem;
+  line-height: 1.75;
 }
 
 /* Excel風の明確な罫線 */
@@ -1152,26 +1314,37 @@ th, td {
   margin: 1rem 0;
 }
 
-/* タスクステータスの強化された色分け（赤・黄・青） */
-.task-completed {
-  background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%) !important;
-  border: 2px solid #3B82F6 !important;
-  color: #1E40AF !important;
-  font-weight: 600;
+/* タスクステータスの色分け（案件詳細の4項目に合わせる） */
+.task-not-started {
+  background: #D1D5DB !important; /* グレー */
+  border: 3px solid #6B7280 !important;
+  color: #1F2937 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 4px rgba(107, 114, 128, 0.3) !important;
 }
 
 .task-in-progress {
-  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%) !important;
-  border: 2px solid #F59E0B !important;
-  color: #92400E !important;
-  font-weight: 600;
+  background: #FDE047 !important; /* 黄色 */
+  border: 3px solid #EAB308 !important;
+  color: #713F12 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 4px rgba(234, 179, 8, 0.3) !important;
 }
 
-.task-not-started {
-  background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%) !important;
-  border: 2px solid #EF4444 !important;
-  color: #991B1B !important;
-  font-weight: 600;
+.task-delayed {
+  background: #FCA5A5 !important; /* 赤 */
+  border: 3px solid #DC2626 !important;
+  color: #7F1D1D !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3) !important;
+}
+
+.task-completed {
+  background: #93C5FD !important; /* 青 */
+  border: 3px solid #2563EB !important;
+  color: #1E3A8A !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3) !important;
 }
 
 /* ========================================
@@ -1241,16 +1414,16 @@ html, body {
   grid-auto-rows: 1fr; /* 全ての行の高さを均等に */
   width: 100%;
   max-width: 100vw;
-  border: 2px solid #d1d5db;
+  border: 3px solid #374151;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 }
 
 /* 各日セル */
 .calendar-day {
-  border: 1px solid #e5e7eb;
-  padding: 8px;
+  border: 2px solid #d1d5db;
+  padding: 10px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -1261,50 +1434,53 @@ html, body {
 }
 
 .calendar-day:hover {
-  background-color: #f9fafb;
-  box-shadow: inset 0 0 0 2px #3b82f6;
+  background-color: #f3f4f6;
+  box-shadow: inset 0 0 0 3px #3b82f6;
+  transform: scale(1.02);
+  z-index: 10;
 }
 
 /* 日付番号（右上配置） */
 .calendar-day > .date {
   text-align: right;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #374151;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1f2937;
   flex-shrink: 0;
-  margin-bottom: 4px;
-  padding: 2px 4px;
-  border-radius: 4px;
+  margin-bottom: 6px;
+  padding: 3px 6px;
+  border-radius: 6px;
 }
 
 /* タスクリスト領域 */
 .calendar-day > .events {
   flex-grow: 1;
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 
 /* タスクタグのスタイル改善 */
 .calendar-day .events > div {
   border-radius: 6px;
-  padding: 4px 8px;
-  font-weight: 500;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: transform 0.15s ease;
+  padding: 6px 10px;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  transition: all 0.15s ease;
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .calendar-day .events > div:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* PC版: 縦スクロール禁止、1画面に収める */
 @media (min-width: 1025px) {
   .calendar-grid {
-    height: 80vh;
+    height: 100%;
     overflow-y: hidden;
   }
 }
