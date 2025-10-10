@@ -105,8 +105,8 @@ export default function Calendar() {
   const getCalendarDays = () => {
     const monthStart = startOfMonth(currentMonth)
     const monthEnd = endOfMonth(currentMonth)
-    const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 }) // 月曜始まり
-    const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 })
+    const calendarStart = startOfWeek(monthStart, { weekStartsOn: 0 }) // 日曜始まり
+    const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 0 })
 
     return eachDayOfInterval({ start: calendarStart, end: calendarEnd })
   }
@@ -134,7 +134,7 @@ export default function Calendar() {
   }
 
   const days = getCalendarDays()
-  const weekdays = ['月', '火', '水', '木', '金', '土', '日']
+  const weekdays = ['日', '月', '火', '水', '木', '金', '土']
 
   return (
     <div className="h-screen bg-gray-50 p-3 flex flex-col overflow-hidden">
@@ -177,8 +177,8 @@ export default function Calendar() {
               <div
                 key={day}
                 className={`p-2 text-center text-base font-black border-2 ${
-                  index === 5 ? 'text-blue-700 bg-blue-100 border-blue-300' : // 土曜
-                  index === 6 ? 'text-red-700 bg-red-100 border-red-300' : // 日曜
+                  index === 0 ? 'text-red-700 bg-red-100 border-red-300' : // 日曜
+                  index === 6 ? 'text-blue-700 bg-blue-100 border-blue-300' : // 土曜
                   'text-gray-900 bg-gray-200 border-gray-300'
                 }`}
                 style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
@@ -194,7 +194,7 @@ export default function Calendar() {
               const dayTasks = getTasksForDay(day)
               const isToday = isSameDay(day, new Date())
               const isCurrentMonth = isSameMonth(day, currentMonth)
-              const dayOfWeek = (day.getDay() + 6) % 7 // 月曜=0, 日曜=6
+              const dayOfWeek = day.getDay() // 日曜=0, 月曜=1, ..., 土曜=6
 
               return (
                 <div
@@ -202,16 +202,16 @@ export default function Calendar() {
                   className={`calendar-day transition-colors ${
                     isToday ? 'border-2 border-blue-500 bg-blue-50' :
                     !isCurrentMonth ? 'bg-gray-50' :
-                    dayOfWeek === 6 ? 'bg-red-50' : // 日曜
-                    dayOfWeek === 5 ? 'bg-blue-50' : // 土曜
+                    dayOfWeek === 0 ? 'bg-red-50' : // 日曜
+                    dayOfWeek === 6 ? 'bg-blue-50' : // 土曜
                     'bg-white hover:bg-gray-50'
                   }`}
                 >
                   <div className={`date text-lg font-bold ${
                     isToday ? 'bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center ml-auto' :
                     !isCurrentMonth ? 'text-gray-400' :
-                    dayOfWeek === 6 ? 'text-red-600' :
-                    dayOfWeek === 5 ? 'text-blue-600' :
+                    dayOfWeek === 0 ? 'text-red-600' :
+                    dayOfWeek === 6 ? 'text-blue-600' :
                     'text-gray-900'
                   }`}>
                     {format(day, 'd')}
