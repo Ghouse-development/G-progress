@@ -23,6 +23,16 @@ const MILESTONE_EVENTS = [
   '引き渡し日'
 ]
 
+// 六曜を計算する関数（簡易版）
+const ROKUYO = ['大安', '赤口', '先勝', '友引', '先負', '仏滅']
+const getRokuyo = (date: Date): string => {
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  // 簡易計算: (月 + 日) % 6
+  const index = (month + day) % 6
+  return ROKUYO[index]
+}
+
 export default function Calendar() {
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [tasks, setTasks] = useState<TaskWithProject[]>([])
@@ -105,8 +115,8 @@ export default function Calendar() {
   const getCalendarDays = () => {
     const monthStart = startOfMonth(currentMonth)
     const monthEnd = endOfMonth(currentMonth)
-    const calendarStart = startOfWeek(monthStart, { weekStartsOn: 0 }) // 日曜始まり
-    const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 0 })
+    const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 }) // 月曜始まり
+    const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 })
 
     return eachDayOfInterval({ start: calendarStart, end: calendarEnd })
   }
@@ -134,11 +144,11 @@ export default function Calendar() {
   }
 
   const days = getCalendarDays()
-  const weekdays = ['日', '月', '火', '水', '木', '金', '土']
+  const weekdays = ['月', '火', '水', '木', '金', '土', '日']
 
   return (
-    <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
-      <div className="w-full max-w-7xl mx-auto flex flex-col h-full px-4 py-3">
+    <div className="h-full w-full bg-gray-50 flex flex-col overflow-hidden" style={{ margin: '-24px' }}>
+      <div className="w-full h-full flex flex-col px-4 py-3">
         {/* ヘッダー */}
         <div className="bg-white rounded-lg shadow p-3 mb-3 flex-shrink-0">
           <div className="flex items-center justify-between mb-2">
@@ -170,14 +180,14 @@ export default function Calendar() {
         </div>
 
         {/* 曜日ヘッダー（常に表示） */}
-        <div className="bg-white rounded-t-lg shadow-md flex-shrink-0 sticky top-0 z-10">
-          <div className="grid grid-cols-7 border-b-4 border-gray-800" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
+        <div className="bg-white rounded-t-lg shadow-md flex-shrink-0">
+          <div className="grid grid-cols-7 border-b-4 border-gray-800">
             {weekdays.map((day, index) => (
               <div
                 key={day}
-                className={`p-3 text-center text-lg font-black border-2 ${
-                  index === 0 ? 'text-red-700 bg-red-100 border-red-300' : // 日曜
-                  index === 6 ? 'text-blue-700 bg-blue-100 border-blue-300' : // 土曜
+                className={`p-3 text-center text-xl font-black border-2 ${
+                  index === 5 ? 'text-blue-700 bg-blue-100 border-blue-300' : // 土曜
+                  index === 6 ? 'text-red-700 bg-red-100 border-red-300' : // 日曜
                   'text-gray-900 bg-gray-200 border-gray-300'
                 }`}
                 style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
@@ -199,6 +209,7 @@ export default function Calendar() {
               const isToday = isSameDay(day, new Date())
               const isCurrentMonth = isSameMonth(day, currentMonth)
               const dayOfWeek = day.getDay() // 日曜=0, 月曜=1, ..., 土曜=6
+              const rokuyo = getRokuyo(day)
 
               return (
                 <div
@@ -211,14 +222,23 @@ export default function Calendar() {
                     'bg-white hover:bg-gray-50'
                   }`}
                 >
-                  <div className={`date text-lg font-bold ${
-                    isToday ? 'bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center ml-auto' :
-                    !isCurrentMonth ? 'text-gray-400' :
-                    dayOfWeek === 0 ? 'text-red-600' :
-                    dayOfWeek === 6 ? 'text-blue-600' :
-                    'text-gray-900'
-                  }`}>
-                    {format(day, 'd')}
+                  <div className="flex items-start justify-between mb-1">
+                    <div className={`date text-lg font-bold ${
+                      isToday ? 'bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center' :
+                      !isCurrentMonth ? 'text-gray-400' :
+                      dayOfWeek === 0 ? 'text-red-600' :
+                      dayOfWeek === 6 ? 'text-blue-600' :
+                      'text-gray-900'
+                    }`}>
+                      {format(day, 'd')}
+                    </div>
+                    <div className={`text-xs font-semibold ${
+                      rokuyo === '大安' ? 'text-red-600' :
+                      rokuyo === '仏滅' ? 'text-gray-600' :
+                      'text-gray-500'
+                    }`}>
+                      {rokuyo}
+                    </div>
                   </div>
 
                   <div className="events">
