@@ -4,7 +4,8 @@
 CREATE TABLE employees (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email TEXT UNIQUE NOT NULL,
-  name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  first_name TEXT NOT NULL,
   department TEXT NOT NULL, -- 営業、営業事務、ローン事務、実施設計、意匠設計、申請設計、構造設計、IC、工事、発注・積算、工事事務、システム開発部、商品企画部、広告マーケティング部、CS推進部、不動産事業部、外構事業部、経営管理部、経営企画部、その他
   role TEXT NOT NULL DEFAULT 'member', -- member, leader, manager, executive
   avatar_url TEXT,
@@ -121,6 +122,8 @@ CREATE TABLE notifications (
 -- インデックス作成
 CREATE INDEX idx_employees_email ON employees(email);
 CREATE INDEX idx_employees_department ON employees(department);
+CREATE INDEX idx_employees_last_name ON employees(last_name);
+CREATE INDEX idx_employees_first_name ON employees(first_name);
 CREATE INDEX idx_projects_customer_id ON projects(customer_id);
 CREATE INDEX idx_projects_status ON projects(status);
 CREATE INDEX idx_tasks_project_id ON tasks(project_id);
