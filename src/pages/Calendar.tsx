@@ -137,8 +137,8 @@ export default function Calendar() {
   const weekdays = ['日', '月', '火', '水', '木', '金', '土']
 
   return (
-    <div className="h-screen bg-gray-50 p-3 flex flex-col overflow-hidden">
-      <div className="container mx-auto flex flex-col h-full">
+    <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
+      <div className="w-full max-w-7xl mx-auto flex flex-col h-full px-4 py-3">
         {/* ヘッダー */}
         <div className="bg-white rounded-lg shadow p-3 mb-3 flex-shrink-0">
           <div className="flex items-center justify-between mb-2">
@@ -169,14 +169,13 @@ export default function Calendar() {
           </div>
         </div>
 
-        {/* カレンダーグリッド (7×6) */}
-        <div className="bg-white rounded-lg shadow p-3 flex-1 flex flex-col overflow-hidden">
-          {/* 曜日ヘッダー */}
-          <div className="grid grid-cols-7 border-b-4 border-gray-800 mb-2 flex-shrink-0" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
+        {/* 曜日ヘッダー（常に表示） */}
+        <div className="bg-white rounded-t-lg shadow-md flex-shrink-0 sticky top-0 z-10">
+          <div className="grid grid-cols-7 border-b-4 border-gray-800" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
             {weekdays.map((day, index) => (
               <div
                 key={day}
-                className={`p-2 text-center text-base font-black border-2 ${
+                className={`p-3 text-center text-lg font-black border-2 ${
                   index === 0 ? 'text-red-700 bg-red-100 border-red-300' : // 日曜
                   index === 6 ? 'text-blue-700 bg-blue-100 border-blue-300' : // 土曜
                   'text-gray-900 bg-gray-200 border-gray-300'
@@ -187,6 +186,11 @@ export default function Calendar() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* カレンダーグリッド */}
+        <div className="bg-white rounded-b-lg shadow-md flex-1 overflow-hidden">
+          <div className="h-full overflow-y-auto"  style={{ scrollbarWidth: 'thin' }}>
 
           {/* カレンダーグリッド：全ての日を1つのグリッドに配置 */}
           <div className="calendar-grid flex-1" style={{ minHeight: 0 }}>
@@ -248,6 +252,7 @@ export default function Calendar() {
                 </div>
               )
             })}
+          </div>
           </div>
         </div>
 

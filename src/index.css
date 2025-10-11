@@ -1411,13 +1411,9 @@ html, body {
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  grid-auto-rows: 1fr; /* 全ての行の高さを均等に */
+  grid-auto-rows: minmax(100px, auto);
   width: 100%;
-  max-width: 100vw;
-  border: 3px solid #374151;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  gap: 0;
 }
 
 /* 各日セル */
