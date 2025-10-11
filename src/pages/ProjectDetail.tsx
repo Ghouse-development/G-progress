@@ -278,13 +278,18 @@ export default function ProjectDetail() {
       priority: newTask.priority
     }
 
-    const { error } = await supabase
+    console.log('タスク追加データ:', taskData)
+
+    const { data, error } = await supabase
       .from('tasks')
       .insert([taskData])
+      .select()
 
     if (error) {
+      console.error('タスク追加エラー:', error)
       toast.error('タスクの追加に失敗しました: ' + error.message)
     } else {
+      console.log('タスク追加成功:', data)
       toast.success('タスクを追加しました')
       await loadProjectData()
       setShowTaskModal(false)
@@ -1144,7 +1149,7 @@ export default function ProjectDetail() {
             </div>
 
             <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: 'calc(100vh - 250px)' }}>
-              <div className="inline-block" style={{ minWidth: '100%' }}>
+              <div style={{ minWidth: 'fit-content', width: '100%' }}>
                 {/* 部門ヘッダー */}
                 <div className="flex border-b-2 border-gray-200 sticky top-0 z-30 bg-white">
                   <div className="w-28 flex-shrink-0 border-r-2 border-gray-200 p-3 text-center font-bold text-sm text-gray-800 bg-white">
