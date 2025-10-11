@@ -827,7 +827,7 @@ export default function ProjectDetail() {
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setViewMode('table')}
-                className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors border-2 flex items-center gap-1 ${
+                className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors border-2 flex items-center gap-1 ${
                   viewMode === 'table'
                     ? 'bg-indigo-600 text-white shadow-md border-indigo-700'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300 border-gray-400'
@@ -839,7 +839,7 @@ export default function ProjectDetail() {
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors border-2 flex items-center gap-1 ${
+                className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors border-2 flex items-center gap-1 ${
                   viewMode === 'list'
                     ? 'bg-indigo-600 text-white shadow-md border-indigo-700'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300 border-gray-400'
@@ -851,7 +851,7 @@ export default function ProjectDetail() {
               </button>
               <button
                 onClick={() => setViewMode('grid')}
-                className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors border-2 flex items-center gap-1 ${
+                className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors border-2 flex items-center gap-1 ${
                   viewMode === 'grid'
                     ? 'bg-indigo-600 text-white shadow-md border-indigo-700'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300 border-gray-400'
@@ -1218,7 +1218,7 @@ export default function ProjectDetail() {
                       <div
                         key={day}
                         ref={isToday ? todayRowRef : null}
-                        className={`flex border-b border-gray-200 ${
+                        className={`flex border-b border-gray-200 min-h-[60px] ${
                           day % 2 === 0 ? 'bg-white' : 'bg-gray-50'
                         } ${hasTask ? 'hover:bg-blue-50' : ''}`}
                         style={isToday ? {
@@ -1226,13 +1226,13 @@ export default function ProjectDetail() {
                           backgroundColor: '#fef2f2'
                         } : {}}
                       >
-                        <div className={`w-28 flex-shrink-0 border-r-2 border-gray-200 p-2 text-center text-xs font-bold ${
+                        <div className={`w-28 flex-shrink-0 border-r-2 border-gray-200 p-3 text-center text-base font-bold flex items-center justify-center ${
                           hasTask ? 'text-blue-700 bg-blue-50' : 'text-gray-700'
                         }`}>
                           {format(currentDate, 'MM/dd (E)', { locale: ja })}
                         </div>
 
-                        <div className={`w-20 flex-shrink-0 border-r-2 border-gray-200 p-2 text-center text-xs font-bold ${
+                        <div className={`w-20 flex-shrink-0 border-r-2 border-gray-200 p-3 text-center text-base font-bold flex items-center justify-center ${
                           hasTask ? 'text-blue-700' : 'text-gray-600'
                         }`}>
                           {day}日
@@ -1243,7 +1243,7 @@ export default function ProjectDetail() {
                           return (
                             <div
                               key={position}
-                              className="border-r border-gray-200 p-1 text-center hover:bg-yellow-50 transition-colors cursor-pointer"
+                              className="border-r border-gray-200 p-2 text-center hover:bg-yellow-50 transition-colors cursor-pointer flex flex-col justify-center"
                               style={{ flex: '1 1 0%', minWidth: '80px' }}
                               onDoubleClick={() => handleCellDoubleClick(position, day)}
                               title="ダブルクリックでタスク追加"
@@ -1262,7 +1262,7 @@ export default function ProjectDetail() {
                                       setSelectedTask(task)
                                       setShowDetailModal(true)
                                     }}
-                                    className={`text-xs px-1 py-0.5 rounded truncate cursor-pointer mb-1 ${
+                                    className={`text-sm px-2 py-1 rounded truncate cursor-pointer mb-1 ${
                                       isDelayed ? 'bg-red-200 text-red-900 font-bold' :
                                       task.status === 'completed' ? 'bg-blue-200 text-blue-900 font-bold' :
                                       task.status === 'requested' ? 'bg-yellow-200 text-yellow-900 font-semibold' :

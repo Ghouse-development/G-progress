@@ -37,7 +37,8 @@
       "Bash(convert:*)",
       "Bash(node:*)",
       "Bash(npx supabase:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []
