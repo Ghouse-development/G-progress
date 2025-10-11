@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Employee, Department, Role } from '../types/database'
 import { Plus, Edit2, Trash2, X, ArrowLeft, Building2, Shield } from 'lucide-react'
+import { useToast } from '../contexts/ToastContext'
 
 // Role表示名マッピング
 const roleLabels: Record<Role, string> = {
@@ -41,6 +42,7 @@ const departments: Department[] = [
 
 export default function EmployeeMaster() {
   const navigate = useNavigate()
+  const toast = useToast()
   const [employees, setEmployees] = useState<Employee[]>([])
   const [showModal, setShowModal] = useState(false)
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null)
@@ -110,7 +112,7 @@ export default function EmployeeMaster() {
 
   const handleSubmit = async () => {
     if (!formData.email.trim() || !formData.last_name.trim() || !formData.first_name.trim()) {
-      alert('メールアドレス、姓、名は必須です')
+      toast.warning('メールアドレス、姓、名は必須です')
       return
     }
 
@@ -131,7 +133,7 @@ export default function EmployeeMaster() {
           .eq('id', editingEmployee.id)
 
         if (error) throw error
-        alert('従業員情報を更新しました')
+        toast.success('従業員情報を更新しました')
       } else {
         // 新規作成
         const { error } = await supabase
@@ -146,14 +148,14 @@ export default function EmployeeMaster() {
           })
 
         if (error) throw error
-        alert('従業員を追加しました')
+        toast.success('従業員を追加しました')
       }
 
       await loadEmployees()
       handleCloseModal()
     } catch (error) {
       console.error('Failed to save employee:', error)
-      alert('従業員の保存に失敗しました')
+      toast.error('従業員の保存に失敗しました')
     }
   }
 
@@ -170,11 +172,11 @@ export default function EmployeeMaster() {
 
       if (error) throw error
 
-      alert('従業員を削除しました')
+      toast.success('従業員を削除しました')
       await loadEmployees()
     } catch (error) {
       console.error('Failed to delete employee:', error)
-      alert('従業員の削除に失敗しました')
+      toast.error('従業員の削除に失敗しました')
     }
   }
 

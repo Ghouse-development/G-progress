@@ -45,7 +45,7 @@ export type TaskPriority = 'low' | 'medium' | 'high'
 
 export type AuditAction = 'create' | 'update' | 'delete' | 'login' | 'logout'
 
-export type NotificationType = 'delay' | 'payment_overdue' | 'task_assigned'
+export type NotificationType = 'delay' | 'payment_overdue' | 'task_assigned' | 'mention'
 
 export interface Employee {
   id: string
@@ -208,4 +208,19 @@ export interface Notification {
   created_at: string
   project?: Project
   task?: Task
+}
+
+export interface Comment {
+  id: string
+  project_id?: string
+  task_id?: string
+  user_id: string
+  parent_comment_id?: string
+  content: string
+  mentions: string[]
+  created_at: string
+  updated_at: string
+  edited: boolean
+  user?: Employee
+  replies?: Comment[]
 }

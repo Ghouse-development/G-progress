@@ -30,7 +30,14 @@
       "Bash(npx tsc:*)",
       "Bash(npx vercel:*)",
       "WebFetch(domain:docs.google.com)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(echo:*)",
+      "Bash(npm run test:*)",
+      "WebFetch(domain:doc-0c-5k-sheets.googleusercontent.com)",
+      "Bash(convert:*)",
+      "Bash(node:*)",
+      "Bash(npx supabase:*)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []

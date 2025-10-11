@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Plus, Edit2, Trash2, X, ArrowLeft } from 'lucide-react'
+import { useToast } from '../contexts/ToastContext'
 
 interface Department {
   id: string
@@ -12,6 +13,7 @@ interface Department {
 
 export default function DepartmentMaster() {
   const navigate = useNavigate()
+  const toast = useToast()
   const [departments, setDepartments] = useState<Department[]>([])
   const [showModal, setShowModal] = useState(false)
   const [editingDepartment, setEditingDepartment] = useState<Department | null>(null)
@@ -59,7 +61,7 @@ export default function DepartmentMaster() {
 
   const handleSubmit = async () => {
     if (!formData.name.trim()) {
-      alert('部門名は必須です')
+      toast.warning('部門名は必須です')
       return
     }
 
@@ -75,7 +77,7 @@ export default function DepartmentMaster() {
           .eq('id', editingDepartment.id)
 
         if (error) throw error
-        alert('部門を更新しました')
+        toast.success('部門を更新しました')
       } else {
         // 新規作成
         const { error } = await supabase
@@ -85,14 +87,14 @@ export default function DepartmentMaster() {
           })
 
         if (error) throw error
-        alert('部門を追加しました')
+        toast.success('部門を追加しました')
       }
 
       await loadDepartments()
       handleCloseModal()
     } catch (error) {
       console.error('Failed to save department:', error)
-      alert('部門の保存に失敗しました')
+      toast.error('部門の保存に失敗しました')
     }
   }
 
@@ -109,11 +111,11 @@ export default function DepartmentMaster() {
 
       if (error) throw error
 
-      alert('部門を削除しました')
+      toast.success('部門を削除しました')
       await loadDepartments()
     } catch (error) {
       console.error('Failed to delete department:', error)
-      alert('部門の削除に失敗しました')
+      toast.error('部門の削除に失敗しました')
     }
   }
 

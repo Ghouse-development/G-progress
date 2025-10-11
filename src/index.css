@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 * {
   margin: 0;
   padding: 0;
@@ -1491,4 +1495,195 @@ html, body {
   .calendar-day {
     min-height: 100px;
   }
+}
+
+/* Toast animations */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out;
+}
+
+.animate-fade-out {
+  animation: fade-out 0.2s ease-out forwards;
+}
+
+/* Skeleton shimmer animation */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    #f3f4f6 0%,
+    #e5e7eb 20%,
+    #f3f4f6 40%,
+    #f3f4f6 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s linear infinite;
+}
+
+/* ========================================
+   ダークモード対応
+   ======================================== */
+
+.dark {
+  color-scheme: dark;
+}
+
+.dark body {
+  background-color: #111827;
+  color: #f9fafb;
+}
+
+.dark .bg-white {
+  background-color: #1f2937;
+}
+
+.dark .bg-gray-50 {
+  background-color: #111827;
+}
+
+.dark .bg-gray-100 {
+  background-color: #1f2937;
+}
+
+.dark .bg-gray-200 {
+  background-color: #374151;
+}
+
+.dark .text-gray-900 {
+  color: #f9fafb;
+}
+
+.dark .text-gray-800 {
+  color: #e5e7eb;
+}
+
+.dark .text-gray-700 {
+  color: #d1d5db;
+}
+
+.dark .text-gray-600 {
+  color: #9ca3af;
+}
+
+.dark .border-gray-200 {
+  border-color: #374151;
+}
+
+.dark .border-gray-300 {
+  border-color: #4b5563;
+}
+
+.dark .hover\:bg-gray-50:hover {
+  background-color: #374151;
+}
+
+.dark .hover\:bg-gray-100:hover {
+  background-color: #4b5563;
+}
+
+/* ダークモードでのステータスカラー調整 */
+.dark .task-not-started {
+  background: #4b5563 !important;
+  border-color: #6b7280 !important;
+  color: #e5e7eb !important;
+}
+
+.dark .task-in-progress {
+  background: #854d0e !important;
+  border-color: #ca8a04 !important;
+  color: #fef3c7 !important;
+}
+
+.dark .task-delayed {
+  background: #7f1d1d !important;
+  border-color: #991b1b !important;
+  color: #fecaca !important;
+}
+
+.dark .task-completed {
+  background: #1e3a8a !important;
+  border-color: #1e40af !important;
+  color: #bfdbfe !important;
+}
+
+/* ダークモードでのグラデーション調整 */
+.dark .from-blue-100 {
+  --tw-gradient-from: #1e3a8a;
+}
+
+.dark .to-blue-200 {
+  --tw-gradient-to: #1e40af;
+}
+
+.dark .from-green-100 {
+  --tw-gradient-from: #14532d;
+}
+
+.dark .to-green-200 {
+  --tw-gradient-to: #15803d;
+}
+
+/* ダークモードでのカレンダー */
+.dark .calendar-day {
+  border-color: #374151;
+}
+
+.dark .calendar-day:hover {
+  background-color: #374151;
+}
+
+/* ダークモードでのモーダル */
+.dark .modal-section {
+  background-color: #1f2937;
+  border-color: #374151;
+}
+
+/* ダークモードでのシャドウ軽減 */
+.dark .shadow-md,
+.dark .shadow-lg,
+.dark .shadow-xl,
+.dark .shadow-2xl {
+  box-shadow: none;
+}
+
+/* ダークモードでのテキスト入力 */
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: #f9fafb;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #9ca3af;
 }

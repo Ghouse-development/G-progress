@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Product } from '../types/database'
 import { Plus, Edit2, Trash2, X, ArrowLeft } from 'lucide-react'
+import { useToast } from '../contexts/ToastContext'
 
 export default function ProductMaster() {
   const navigate = useNavigate()
+  const toast = useToast()
   const [products, setProducts] = useState<Product[]>([])
   const [showModal, setShowModal] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
@@ -61,7 +63,7 @@ export default function ProductMaster() {
 
   const handleSubmit = async () => {
     if (!formData.name.trim()) {
-      alert('商品名は必須です')
+      toast.warning('商品名は必須です')
       return
     }
 
@@ -79,7 +81,7 @@ export default function ProductMaster() {
           .eq('id', editingProduct.id)
 
         if (error) throw error
-        alert('商品を更新しました')
+        toast.success('商品を更新しました')
       } else {
         // 新規作成
         const { error } = await supabase
@@ -91,14 +93,14 @@ export default function ProductMaster() {
           })
 
         if (error) throw error
-        alert('商品を追加しました')
+        toast.success('商品を追加しました')
       }
 
       await loadProducts()
       handleCloseModal()
     } catch (error) {
       console.error('Failed to save product:', error)
-      alert('商品の保存に失敗しました')
+      toast.error('商品の保存に失敗しました')
     }
   }
 
@@ -115,11 +117,11 @@ export default function ProductMaster() {
 
       if (error) throw error
 
-      alert('商品を削除しました')
+      toast.success('商品を削除しました')
       await loadProducts()
     } catch (error) {
       console.error('Failed to delete product:', error)
-      alert('商品の削除に失敗しました')
+      toast.error('商品の削除に失敗しました')
     }
   }
 

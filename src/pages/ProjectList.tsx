@@ -3,7 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Project, Customer, Employee, Task } from '../types/database'
 import { format, differenceInDays } from 'date-fns'
-import { ArrowUpDown, Filter, Edit2, Trash2, X } from 'lucide-react'
+import { ArrowUpDown, Filter, Edit2, Trash2, X, Plus } from 'lucide-react'
+import { Pagination } from '../components/ui/Pagination'
+import { useToast } from '../contexts/ToastContext'
+import { SkeletonTable } from '../components/ui/Skeleton'
+import { generateProjectTasks } from '../utils/taskGenerator'
 
 interface ProjectWithRelations extends Project {
   customer: Customer
@@ -26,11 +30,17 @@ type FilterStatus = 'not_started' | 'requested' | 'delayed' | 'completed'
 
 export default function ProjectList() {
   const navigate = useNavigate()
+  const toast = useToast()
   const [projects, setProjects] = useState<ProjectWithRelations[]>([])
   const [loading, setLoading] = useState(true)
   const [sortField, setSortField] = useState<SortField>('contract_date')
   const [sortAscending, setSortAscending] = useState(false)
   const [filterStatus, setFilterStatus] = useState<FilterStatus | 'all'>('all')
+
+  // ページネーション状態
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize] = useState(50)
+  const [totalCount, setTotalCount] = useState(0)
 
   // モーダル管理
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -44,10 +54,8 @@ export default function ProjectList() {
 
   // フォームデータ
   const [formData, setFormData] = useState({
-    // 顧客情報
     customerNames: '',
     buildingSite: '',
-    // 案件情報
     contractDate: format(new Date(), 'yyyy-MM-dd'),
     status: 'post_contract' as Project['status'],
     progressRate: 0,
@@ -59,7 +67,56 @@ export default function ProjectList() {
   useEffect(() => {
     loadProjects()
     loadEmployees()
-  }, [])
+  }, [currentPage]) // ページ変更時に再読み込み
+
+  // リアルタイム更新: projects, customers, tasksテーブルの変更を監視
+  useEffect(() => {
+    // Supabase Realtimeチャンネルをセットアップ（複数テーブル監視）
+    const channel = supabase
+      .channel('project-list-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // INSERT, UPDATE, DELETE すべてのイベント
+          schema: 'public',
+          table: 'projects'
+        },
+        (payload) => {
+          console.log('Realtime project change:', payload)
+          loadProjects() // プロジェクトデータを再読み込み（ローディング表示なし）
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'customers'
+        },
+        (payload) => {
+          console.log('Realtime customer change:', payload)
+          loadProjects() // 顧客データ変更時もプロジェクトを再読み込み
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'tasks'
+        },
+        (payload) => {
+          console.log('Realtime task change:', payload)
+          loadProjects() // タスク変更は部門ステータスに影響するため再読み込み
+        }
+      )
+      .subscribe()
+
+    // クリーンアップ: コンポーネントのアンマウント時にサブスクリプション解除
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [currentPage]) // currentPageが変更されたらチャンネルを再作成
 
   const loadEmployees = async () => {
     const { data } = await supabase
@@ -76,7 +133,11 @@ export default function ProjectList() {
     try {
       setLoading(true)
 
-      const { data: projectsData } = await supabase
+      // ページネーション用の範囲計算
+      const from = (currentPage - 1) * pageSize
+      const to = from + pageSize - 1
+
+      const { data: projectsData, count } = await supabase
         .from('projects')
         .select(`
           *,
@@ -84,11 +145,11 @@ export default function ProjectList() {
           sales:assigned_sales(id, last_name, first_name, department),
           design:assigned_design(id, last_name, first_name, department),
           construction:assigned_construction(id, last_name, first_name, department)
-        `)
+        `, { count: 'exact' })
+        .range(from, to)
         .order('contract_date', { ascending: false })
 
       if (projectsData) {
-        // 各案件のタスクを取得
         const projectsWithTasks = await Promise.all(
           projectsData.map(async (project) => {
             const { data: tasks } = await supabase
@@ -104,6 +165,7 @@ export default function ProjectList() {
         )
 
         setProjects(projectsWithTasks)
+        setTotalCount(count || 0)
       }
     } catch (error) {
       console.error('Failed to fetch projects:', error)
@@ -173,38 +235,42 @@ export default function ProjectList() {
     }
   }
 
+  const getStatusBadgeClass = (status: string) => {
+    switch (status) {
+      case 'pre_contract': return 'bg-gray-200 text-gray-800'
+      case 'post_contract': return 'bg-blue-200 text-blue-900'
+      case 'construction': return 'bg-orange-200 text-orange-900'
+      case 'completed': return 'bg-green-200 text-green-900'
+      default: return 'bg-gray-200 text-gray-800'
+    }
+  }
+
   // ソート＆フィルタ処理
   const getSortedAndFilteredProjects = () => {
     let filtered = [...projects]
 
-    // フィルタ
     if (filterStatus === 'not_started') {
-      // 未着手タスクのみがある案件
       filtered = filtered.filter(project => {
         const tasks = project.tasks || []
         return tasks.some(task => task.status === 'not_started')
       })
     } else if (filterStatus === 'requested') {
-      // 着手中タスクがある案件
       filtered = filtered.filter(project => {
         const tasks = project.tasks || []
         return tasks.some(task => task.status === 'requested')
       })
     } else if (filterStatus === 'delayed') {
-      // 遅れタスクがある案件
       filtered = filtered.filter(project => {
         const tasks = project.tasks || []
         return tasks.some(task => task.status === 'delayed')
       })
     } else if (filterStatus === 'completed') {
-      // 完了済みタスクがある案件
       filtered = filtered.filter(project => {
         const tasks = project.tasks || []
         return tasks.some(task => task.status === 'completed')
       })
     }
 
-    // ソート
     filtered.sort((a, b) => {
       let compareValue = 0
 
@@ -243,12 +309,11 @@ export default function ProjectList() {
   // 案件作成
   const handleCreateProject = async () => {
     if (!formData.customerNames.trim() || !formData.buildingSite.trim()) {
-      alert('顧客名と建設地は必須です')
+      toast.warning('顧客名と建設地は必須です')
       return
     }
 
     try {
-      // 1. 顧客を作成
       const { data: customer, error: customerError } = await supabase
         .from('customers')
         .insert({
@@ -260,8 +325,7 @@ export default function ProjectList() {
 
       if (customerError) throw customerError
 
-      // 2. 案件を作成
-      const { error: projectError } = await supabase
+      const { data: project, error: projectError } = await supabase
         .from('projects')
         .insert({
           customer_id: customer.id,
@@ -272,29 +336,44 @@ export default function ProjectList() {
           assigned_design: formData.assignedDesign || null,
           assigned_construction: formData.assignedConstruction || null
         })
+        .select()
+        .single()
 
       if (projectError) throw projectError
 
-      // リロード
+      // 🚀 タスクマスタから45個のタスクを自動生成
+      const taskResult = await generateProjectTasks(
+        project.id,
+        formData.contractDate,
+        formData.assignedSales || undefined,
+        formData.assignedDesign || undefined,
+        formData.assignedConstruction || undefined
+      )
+
+      if (taskResult.success) {
+        console.log(`✅ ${taskResult.tasksCount}個のタスクを自動生成しました`)
+      } else {
+        console.error('⚠️ タスク自動生成に失敗しました:', taskResult.error)
+      }
+
       await loadProjects()
       setShowCreateModal(false)
       resetForm()
-      alert('案件を作成しました')
+      toast.success(`案件を作成しました（${taskResult.tasksCount || 0}個のタスクを自動生成）`)
     } catch (error) {
       console.error('Failed to create project:', error)
-      alert('案件の作成に失敗しました')
+      toast.error('案件の作成に失敗しました')
     }
   }
 
   // 案件編集
   const handleEditProject = async () => {
     if (!editingProject || !formData.customerNames.trim() || !formData.buildingSite.trim()) {
-      alert('顧客名と建設地は必須です')
+      toast.warning('顧客名と建設地は必須です')
       return
     }
 
     try {
-      // 1. 顧客情報を更新
       const { error: customerError } = await supabase
         .from('customers')
         .update({
@@ -305,7 +384,6 @@ export default function ProjectList() {
 
       if (customerError) throw customerError
 
-      // 2. 案件情報を更新
       const { error: projectError } = await supabase
         .from('projects')
         .update({
@@ -320,15 +398,14 @@ export default function ProjectList() {
 
       if (projectError) throw projectError
 
-      // リロード
       await loadProjects()
       setShowEditModal(false)
       setEditingProject(null)
       resetForm()
-      alert('案件を更新しました')
+      toast.success('案件を更新しました')
     } catch (error) {
       console.error('Failed to update project:', error)
-      alert('案件の更新に失敗しました')
+      toast.error('案件の更新に失敗しました')
     }
   }
 
@@ -337,7 +414,6 @@ export default function ProjectList() {
     if (!deletingProjectId) return
 
     try {
-      // 案件を削除（カスケード削除でタスクも削除される想定）
       const { error } = await supabase
         .from('projects')
         .delete()
@@ -345,14 +421,13 @@ export default function ProjectList() {
 
       if (error) throw error
 
-      // リロード
       await loadProjects()
       setShowDeleteDialog(false)
       setDeletingProjectId(null)
-      alert('案件を削除しました')
+      toast.success('案件を削除しました')
     } catch (error) {
       console.error('Failed to delete project:', error)
-      alert('案件の削除に失敗しました')
+      toast.error('案件の削除に失敗しました')
     }
   }
 
@@ -394,32 +469,60 @@ export default function ProjectList() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-xl text-gray-600">読み込み中...</div>
+      <div className="p-6 bg-gray-50 min-h-screen">
+        {/* ヘッダースケルトン */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="h-10 w-48 bg-gray-200 rounded-lg animate-pulse"></div>
+            <div className="h-12 w-40 bg-gray-200 rounded-lg animate-pulse"></div>
+          </div>
+          {/* ツールバースケルトン */}
+          <div className="bg-white rounded-lg shadow-md p-4 mb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-32 bg-gray-200 rounded-lg animate-pulse"></div>
+                <div className="h-10 w-24 bg-gray-200 rounded-lg animate-pulse"></div>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-10 w-20 bg-gray-200 rounded-lg animate-pulse"></div>
+                <div className="h-10 w-20 bg-gray-200 rounded-lg animate-pulse"></div>
+                <div className="h-10 w-20 bg-gray-200 rounded-lg animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* テーブルスケルトン */}
+        <SkeletonTable rows={10} columns={14} />
       </div>
     )
   }
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="p-6 bg-gray-50 min-h-screen">
+      {/* ヘッダー */}
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-3">
-          <h1 className="text-2xl font-bold text-gray-900">案件一覧</h1>
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-3xl font-bold text-gray-900">📋 案件一覧</h1>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-bold shadow-lg hover:shadow-xl"
+          >
+            <Plus size={20} />
+            新規案件追加
+          </button>
         </div>
 
-        {/* ソート＆フィルタツールバー */}
-        <div className="bg-white rounded-lg shadow-pastel p-4 mb-4">
+        {/* ツールバー */}
+        <div className="bg-white rounded-lg shadow-md p-4 mb-4">
           <div className="flex items-center justify-between flex-wrap gap-4">
             {/* ソート */}
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <ArrowUpDown size={20} className="text-gray-600" />
-                <span className="font-bold text-gray-900">並び順:</span>
-              </div>
+              <ArrowUpDown size={20} className="text-gray-600" />
+              <span className="font-bold text-gray-900">並び順:</span>
               <select
                 value={sortField}
                 onChange={(e) => setSortField(e.target.value as SortField)}
-                className="px-3 py-2 border border-pastel-blue rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-pastel-blue"
+                className="px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="contract_date">契約日順</option>
                 <option value="construction_start_date">着工日順</option>
@@ -429,7 +532,7 @@ export default function ProjectList() {
               </select>
               <button
                 onClick={() => setSortAscending(!sortAscending)}
-                className="px-3 py-2 bg-pastel-blue-light text-pastel-blue-dark rounded-lg hover:bg-pastel-blue transition-colors font-medium"
+                className="px-4 py-2 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition-colors font-bold"
               >
                 {sortAscending ? '昇順 ↑' : '降順 ↓'}
               </button>
@@ -437,196 +540,242 @@ export default function ProjectList() {
 
             {/* フィルタ */}
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <Filter size={20} className="text-gray-600" />
-                <span className="font-bold text-gray-900">絞り込み:</span>
-              </div>
+              <Filter size={20} className="text-gray-600" />
+              <span className="font-bold text-gray-900">絞り込み:</span>
               <div className="flex gap-2">
                 <button
                   onClick={() => setFilterStatus('all')}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-lg font-bold transition-colors ${
                     filterStatus === 'all'
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
                   全て ({projects.length})
                 </button>
                 <button
-                  onClick={() => setFilterStatus('not_started')}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    filterStatus === 'not_started'
-                      ? 'bg-gray-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  ⚫ 未着手
-                </button>
-                <button
-                  onClick={() => setFilterStatus('requested')}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    filterStatus === 'requested'
-                      ? 'bg-yellow-400 text-gray-900'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  🟡 着手中
-                </button>
-                <button
                   onClick={() => setFilterStatus('delayed')}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-lg font-bold transition-colors ${
                     filterStatus === 'delayed'
-                      ? 'bg-red-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-red-600 text-white shadow-md'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
                   🔴 遅れ
                 </button>
                 <button
-                  onClick={() => setFilterStatus('completed')}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    filterStatus === 'completed'
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  onClick={() => setFilterStatus('requested')}
+                  className={`px-4 py-2 rounded-lg font-bold transition-colors ${
+                    filterStatus === 'requested'
+                      ? 'bg-yellow-500 text-gray-900 shadow-md'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
-                  🔵 完了済
+                  🟡 着手中
+                </button>
+                <button
+                  onClick={() => setFilterStatus('completed')}
+                  className={`px-4 py-2 rounded-lg font-bold transition-colors ${
+                    filterStatus === 'completed'
+                      ? 'bg-green-600 text-white shadow-md'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  🔵 完了
                 </button>
               </div>
             </div>
           </div>
         </div>
-
-        {/* 凡例 */}
-        <div className="bg-white rounded-lg shadow-pastel p-4">
-          <div className="flex items-center gap-6 flex-wrap">
-            <div className="font-bold text-gray-900">部署ステータス:</div>
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-blue-500 rounded"></div>
-              <span className="text-sm text-gray-700">計画通り</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-yellow-500 rounded"></div>
-              <span className="text-sm text-gray-700">要注意（1-2件遅延）</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-red-500 rounded"></div>
-              <span className="text-sm text-gray-700">遅れあり（3件以上遅延）</span>
-            </div>
-          </div>
-        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {displayProjects.map((project) => {
-          const deptStatuses = getDepartmentStatus(project)
+      {/* Excelライクなテーブル */}
+      <div className="bg-white rounded-lg shadow-xl overflow-hidden border-2 border-gray-300">
+        <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: 'calc(100vh - 320px)' }}>
+          <table className="w-full border-collapse">
+            {/* ヘッダー */}
+            <thead className="sticky top-0 z-20 bg-gray-100 border-b-2 border-gray-400">
+              <tr>
+                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900 bg-blue-50 sticky left-0 z-30" style={{ minWidth: '60px' }}>
+                  No
+                </th>
+                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900 bg-blue-50 sticky left-[60px] z-30" style={{ minWidth: '200px' }}>
+                  顧客名
+                </th>
+                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900 bg-blue-50" style={{ minWidth: '250px' }}>
+                  建設地
+                </th>
+                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900" style={{ minWidth: '120px' }}>
+                  契約日
+                </th>
+                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900" style={{ minWidth: '100px' }}>
+                  ステータス
+                </th>
+                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900" style={{ minWidth: '150px' }}>
+                  進捗率
+                </th>
+                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900" style={{ minWidth: '100px' }}>
+                  営業担当
+                </th>
+                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900" style={{ minWidth: '100px' }}>
+                  設計担当
+                </th>
+                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900" style={{ minWidth: '100px' }}>
+                  工事担当
+                </th>
+                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900" style={{ minWidth: '80px' }}>
+                  営業部
+                </th>
+                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900" style={{ minWidth: '80px' }}>
+                  設計部
+                </th>
+                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900" style={{ minWidth: '80px' }}>
+                  工事部
+                </th>
+                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900" style={{ minWidth: '80px' }}>
+                  外構
+                </th>
+                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900 bg-gray-50 sticky right-0 z-30" style={{ minWidth: '120px' }}>
+                  操作
+                </th>
+              </tr>
+            </thead>
 
-          return (
-            <div
-              key={project.id}
-              onClick={() => navigate(`/projects/${project.id}`)}
-              className="bg-white rounded-xl shadow-pastel-lg hover:shadow-pastel cursor-pointer transition-all duration-200 overflow-hidden border-2 border-gray-200 hover:border-pastel-blue"
-            >
-              {/* ヘッダー */}
-              <div className="bg-gradient-pastel-blue p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold text-pastel-blue-dark mb-1">
-                      {project.customer?.names?.join('・') || '顧客名なし'}様邸
-                    </h3>
-                    <p className="text-sm text-blue-800">
-                      {project.customer?.building_site || '-'}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        openEditModal(project)
-                      }}
-                      className="p-2 bg-white rounded-lg hover:bg-gray-100 transition-colors"
-                      title="編集"
-                    >
-                      <Edit2 size={16} className="text-blue-600" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        openDeleteDialog(project.id)
-                      }}
-                      className="p-2 bg-white rounded-lg hover:bg-gray-100 transition-colors"
-                      title="削除"
-                    >
-                      <Trash2 size={16} className="text-red-600" />
-                    </button>
-                  </div>
-                </div>
-              </div>
+            {/* ボディ */}
+            <tbody>
+              {displayProjects.length === 0 ? (
+                <tr>
+                  <td colSpan={14} className="border-2 border-gray-300 p-8 text-center text-gray-500 text-lg">
+                    {filterStatus === 'all'
+                      ? '案件データがありません'
+                      : `絞り込み条件に一致する案件がありません（全${projects.length}件中0件）`}
+                  </td>
+                </tr>
+              ) : (
+                displayProjects.map((project, index) => {
+                  const deptStatuses = getDepartmentStatus(project)
 
-              {/* 部署ステータス（1行4列） */}
-              <div className="p-3 bg-pastel-blue-light">
-                <div className="flex gap-2 justify-between">
-                  {deptStatuses.map((dept) => (
-                    <div
-                      key={dept.department}
-                      className="flex flex-col items-center bg-white rounded-lg p-2 shadow-sm flex-1"
+                  return (
+                    <tr
+                      key={project.id}
+                      className="hover:bg-blue-50 transition-colors cursor-pointer"
+                      onClick={() => navigate(`/projects/${project.id}`)}
                     >
-                      <div className={`w-6 h-6 rounded-full ${getStatusBadgeColor(dept.status)}`}></div>
-                      <div className="text-xs font-bold text-gray-800 mt-1 text-center">{dept.department.replace('部', '')}</div>
-                      {dept.delayedTasks > 0 && (
-                        <div className="text-xs text-red-600 text-center">
-                          {dept.delayedTasks}件
+                      {/* No */}
+                      <td className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900 bg-gray-50 sticky left-0 z-10">
+                        {index + 1}
+                      </td>
+
+                      {/* 顧客名 */}
+                      <td className="border-2 border-gray-300 p-3 font-bold text-gray-900 bg-white sticky left-[60px] z-10">
+                        {project.customer?.names?.join('・') || '-'}様
+                      </td>
+
+                      {/* 建設地 */}
+                      <td className="border-2 border-gray-300 p-3 text-gray-800 text-sm">
+                        {project.customer?.building_site || '-'}
+                      </td>
+
+                      {/* 契約日 */}
+                      <td className="border-2 border-gray-300 p-3 text-center text-gray-900 font-medium">
+                        {format(new Date(project.contract_date), 'yyyy/MM/dd')}
+                      </td>
+
+                      {/* ステータス */}
+                      <td className="border-2 border-gray-300 p-3 text-center">
+                        <span className={`px-3 py-1 rounded-full font-bold text-xs ${getStatusBadgeClass(project.status)}`}>
+                          {getStatusLabel(project.status)}
+                        </span>
+                      </td>
+
+                      {/* 進捗率 */}
+                      <td className="border-2 border-gray-300 p-3">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 bg-gray-300 rounded-full h-6 overflow-hidden">
+                            <div
+                              className="bg-gradient-to-r from-blue-500 to-blue-600 h-6 flex items-center justify-center text-white text-xs font-bold transition-all"
+                              style={{ width: `${project.progress_rate}%` }}
+                            >
+                              {project.progress_rate >= 20 && `${project.progress_rate}%`}
+                            </div>
+                          </div>
+                          {project.progress_rate < 20 && (
+                            <span className="text-sm font-bold text-gray-900">{project.progress_rate}%</span>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
+                      </td>
 
-              {/* 詳細情報 */}
-              <div className="p-4 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">契約日:</span>
-                  <span className="text-sm font-medium text-gray-900">
-                    {format(new Date(project.contract_date), 'yyyy/MM/dd')}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">ステータス:</span>
-                  <span className={`text-xs px-2 py-1 rounded-full font-semibold ${
-                    project.status === 'pre_contract' ? 'bg-gray-100 text-gray-800' :
-                    project.status === 'post_contract' ? 'bg-pastel-blue text-pastel-blue-dark' :
-                    project.status === 'construction' ? 'bg-pastel-orange text-pastel-orange-dark' :
-                    'bg-pastel-green text-pastel-green-dark'
-                  }`}>
-                    {getStatusLabel(project.status)}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">進捗率:</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-24 bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-gradient-pastel-blue h-2 rounded-full"
-                        style={{ width: `${project.progress_rate}%` }}
-                      ></div>
-                    </div>
-                    <span className="text-sm font-bold text-pastel-blue-dark">{project.progress_rate}%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )
-        })}
-      </div>
+                      {/* 営業担当 */}
+                      <td className="border-2 border-gray-300 p-3 text-center text-sm text-gray-800">
+                        {project.sales ? `${project.sales.last_name}` : '-'}
+                      </td>
 
-      {displayProjects.length === 0 && (
-        <div className="text-center py-12 text-gray-500 bg-white rounded-xl shadow-pastel">
-          {filterStatus === 'all'
-            ? '案件データがありません'
-            : `絞り込み条件に一致する案件がありません（全${projects.length}件中0件）`}
+                      {/* 設計担当 */}
+                      <td className="border-2 border-gray-300 p-3 text-center text-sm text-gray-800">
+                        {project.design ? `${project.design.last_name}` : '-'}
+                      </td>
+
+                      {/* 工事担当 */}
+                      <td className="border-2 border-gray-300 p-3 text-center text-sm text-gray-800">
+                        {project.construction ? `${project.construction.last_name}` : '-'}
+                      </td>
+
+                      {/* 部署ステータス */}
+                      {deptStatuses.map((dept) => (
+                        <td key={dept.department} className="border-2 border-gray-300 p-2 text-center">
+                          <div className="flex flex-col items-center gap-1">
+                            <div className={`w-8 h-8 rounded-full ${getStatusBadgeColor(dept.status)}`}></div>
+                            {dept.delayedTasks > 0 && (
+                              <span className="text-xs font-bold text-red-600">{dept.delayedTasks}件</span>
+                            )}
+                          </div>
+                        </td>
+                      ))}
+
+                      {/* 操作 */}
+                      <td className="border-2 border-gray-300 p-2 bg-gray-50 sticky right-0 z-10">
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              openEditModal(project)
+                            }}
+                            className="p-2 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors"
+                            title="編集"
+                          >
+                            <Edit2 size={16} className="text-blue-600" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              openDeleteDialog(project.id)
+                            }}
+                            className="p-2 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"
+                            title="削除"
+                          >
+                            <Trash2 size={16} className="text-red-600" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })
+              )}
+            </tbody>
+          </table>
         </div>
-      )}
+
+        {/* ページネーション */}
+        {totalCount > pageSize && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={Math.ceil(totalCount / pageSize)}
+            onPageChange={setCurrentPage}
+            pageSize={pageSize}
+            totalItems={totalCount}
+          />
+        )}
+      </div>
 
       {/* 新規案件作成モーダル */}
       {showCreateModal && (
@@ -647,7 +796,6 @@ export default function ProjectList() {
               </div>
 
               <div className="space-y-4">
-                {/* 顧客情報 */}
                 <div>
                   <h3 className="font-bold text-gray-900 mb-3">顧客情報</h3>
                   <div className="space-y-3">
@@ -662,7 +810,6 @@ export default function ProjectList() {
                         placeholder="例: 山田太郎・花子"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
-                      <p className="text-xs text-gray-500 mt-1">複数名の場合は「・」で区切ってください</p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -679,7 +826,6 @@ export default function ProjectList() {
                   </div>
                 </div>
 
-                {/* 案件情報 */}
                 <div>
                   <h3 className="font-bold text-gray-900 mb-3">案件情報</h3>
                   <div className="space-y-3">
@@ -719,7 +865,6 @@ export default function ProjectList() {
                   </div>
                 </div>
 
-                {/* 担当者 */}
                 <div>
                   <h3 className="font-bold text-gray-900 mb-3">担当者</h3>
                   <div className="space-y-3">
@@ -732,7 +877,7 @@ export default function ProjectList() {
                       >
                         <option value="">未設定</option>
                         {employees.filter(e => ['営業', '営業事務', 'ローン事務'].includes(e.department)).map(emp => (
-                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name} ({emp.department})</option>
+                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name}</option>
                         ))}
                       </select>
                     </div>
@@ -745,7 +890,7 @@ export default function ProjectList() {
                       >
                         <option value="">未設定</option>
                         {employees.filter(e => ['実施設計', '意匠設計', '申請設計', '構造設計', 'IC'].includes(e.department)).map(emp => (
-                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name} ({emp.department})</option>
+                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name}</option>
                         ))}
                       </select>
                     </div>
@@ -758,7 +903,7 @@ export default function ProjectList() {
                       >
                         <option value="">未設定</option>
                         {employees.filter(e => ['工事', '発注・積算', '工事事務'].includes(e.department)).map(emp => (
-                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name} ({emp.department})</option>
+                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name}</option>
                         ))}
                       </select>
                     </div>
@@ -808,7 +953,6 @@ export default function ProjectList() {
               </div>
 
               <div className="space-y-4">
-                {/* 顧客情報 */}
                 <div>
                   <h3 className="font-bold text-gray-900 mb-3">顧客情報</h3>
                   <div className="space-y-3">
@@ -820,10 +964,8 @@ export default function ProjectList() {
                         type="text"
                         value={formData.customerNames}
                         onChange={(e) => setFormData({ ...formData, customerNames: e.target.value })}
-                        placeholder="例: 山田太郎・花子"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
-                      <p className="text-xs text-gray-500 mt-1">複数名の場合は「・」で区切ってください</p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -833,14 +975,12 @@ export default function ProjectList() {
                         type="text"
                         value={formData.buildingSite}
                         onChange={(e) => setFormData({ ...formData, buildingSite: e.target.value })}
-                        placeholder="例: 東京都渋谷区〇〇1-2-3"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
                   </div>
                 </div>
 
-                {/* 案件情報 */}
                 <div>
                   <h3 className="font-bold text-gray-900 mb-3">案件情報</h3>
                   <div className="space-y-3">
@@ -880,7 +1020,6 @@ export default function ProjectList() {
                   </div>
                 </div>
 
-                {/* 担当者 */}
                 <div>
                   <h3 className="font-bold text-gray-900 mb-3">担当者</h3>
                   <div className="space-y-3">
@@ -893,7 +1032,7 @@ export default function ProjectList() {
                       >
                         <option value="">未設定</option>
                         {employees.filter(e => ['営業', '営業事務', 'ローン事務'].includes(e.department)).map(emp => (
-                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name} ({emp.department})</option>
+                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name}</option>
                         ))}
                       </select>
                     </div>
@@ -906,7 +1045,7 @@ export default function ProjectList() {
                       >
                         <option value="">未設定</option>
                         {employees.filter(e => ['実施設計', '意匠設計', '申請設計', '構造設計', 'IC'].includes(e.department)).map(emp => (
-                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name} ({emp.department})</option>
+                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name}</option>
                         ))}
                       </select>
                     </div>
@@ -919,7 +1058,7 @@ export default function ProjectList() {
                       >
                         <option value="">未設定</option>
                         {employees.filter(e => ['工事', '発注・積算', '工事事務'].includes(e.department)).map(emp => (
-                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name} ({emp.department})</option>
+                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name}</option>
                         ))}
                       </select>
                     </div>
@@ -950,7 +1089,6 @@ export default function ProjectList() {
         </div>
       )}
 
-      {/* 削除確認ダイアログ */}
       {showDeleteDialog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">

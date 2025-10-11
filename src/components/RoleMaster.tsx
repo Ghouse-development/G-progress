@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Plus, Edit2, Trash2, X, ArrowLeft } from 'lucide-react'
+import { useToast } from '../contexts/ToastContext'
 
 interface Role {
   id: string
@@ -13,6 +14,7 @@ interface Role {
 
 export default function RoleMaster() {
   const navigate = useNavigate()
+  const toast = useToast()
   const [roles, setRoles] = useState<Role[]>([])
   const [showModal, setShowModal] = useState(false)
   const [editingRole, setEditingRole] = useState<Role | null>(null)
@@ -64,7 +66,7 @@ export default function RoleMaster() {
 
   const handleSubmit = async () => {
     if (!formData.code.trim() || !formData.name.trim()) {
-      alert('役職コードと役職名は必須です')
+      toast.warning('役職コードと役職名は必須です')
       return
     }
 
@@ -81,7 +83,7 @@ export default function RoleMaster() {
           .eq('id', editingRole.id)
 
         if (error) throw error
-        alert('役職を更新しました')
+        toast.success('役職を更新しました')
       } else {
         // 新規作成
         const { error } = await supabase
@@ -92,14 +94,14 @@ export default function RoleMaster() {
           })
 
         if (error) throw error
-        alert('役職を追加しました')
+        toast.success('役職を追加しました')
       }
 
       await loadRoles()
       handleCloseModal()
     } catch (error) {
       console.error('Failed to save role:', error)
-      alert('役職の保存に失敗しました')
+      toast.error('役職の保存に失敗しました')
     }
   }
 
@@ -116,11 +118,11 @@ export default function RoleMaster() {
 
       if (error) throw error
 
-      alert('役職を削除しました')
+      toast.success('役職を削除しました')
       await loadRoles()
     } catch (error) {
       console.error('Failed to delete role:', error)
-      alert('役職の削除に失敗しました')
+      toast.error('役職の削除に失敗しました')
     }
   }
 

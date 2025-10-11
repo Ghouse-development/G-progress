@@ -4,6 +4,7 @@ import { Project, Task, Employee, Product } from '../types/database'
 import { differenceInDays, format } from 'date-fns'
 import { HelpCircle, Plus, X } from 'lucide-react'
 import { useMode } from '../contexts/ModeContext'
+import { useToast } from '../contexts/ToastContext'
 
 // 年度計算関数（8月1日～翌年7月31日）
 const getFiscalYear = (date: Date): number => {
@@ -28,6 +29,7 @@ interface DepartmentStatus {
 
 export default function DashboardHome() {
   const { mode, setMode } = useMode()
+  const toast = useToast()
   const [fiscalYear, setFiscalYear] = useState<number>(getFiscalYear(new Date()))
   const [projects, setProjects] = useState<Project[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
@@ -63,6 +65,67 @@ export default function DashboardHome() {
   useEffect(() => {
     loadProjects()
   }, [mode, fiscalYear, currentUserId])
+
+  // リアルタイム更新: projects, customers, tasks, employeesテーブルの変更を監視
+  useEffect(() => {
+    // Supabase Realtimeチャンネルをセットアップ（複数テーブル監視）
+    const channel = supabase
+      .channel('dashboard-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // INSERT, UPDATE, DELETE すべてのイベント
+          schema: 'public',
+          table: 'projects'
+        },
+        (payload) => {
+          console.log('Realtime project change:', payload)
+          loadProjects() // プロジェクトデータを再読み込み
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'customers'
+        },
+        (payload) => {
+          console.log('Realtime customer change:', payload)
+          loadProjects() // 顧客データ変更時もプロジェクトを再読み込み
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'tasks'
+        },
+        (payload) => {
+          console.log('Realtime task change:', payload)
+          loadProjects() // タスク変更は統計に影響するため再読み込み
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'employees'
+        },
+        (payload) => {
+          console.log('Realtime employee change:', payload)
+          loadEmployees() // 従業員データを再読み込み
+        }
+      )
+      .subscribe()
+
+    // クリーンアップ: コンポーネントのアンマウント時にサブスクリプション解除
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [mode, fiscalYear, currentUserId]) // フィルタ条件変更時にチャンネルを再作成
 
   const loadCurrentUser = async () => {
     // 開発モード: localStorageまたはデフォルトユーザーIDを使用
@@ -164,7 +227,7 @@ export default function DashboardHome() {
   // 案件作成
   const handleCreateProject = async () => {
     if (!formData.customerNames.trim() || !formData.buildingSite.trim()) {
-      alert('顧客名と建設地は必須です')
+      toast.warning('顧客名と建設地は必須です')
       return
     }
 
@@ -201,10 +264,10 @@ export default function DashboardHome() {
       await loadProjects()
       setShowCreateModal(false)
       resetForm()
-      alert('案件を作成しました')
+      toast.success('案件を作成しました')
     } catch (error) {
       console.error('Failed to create project:', error)
-      alert('案件の作成に失敗しました')
+      toast.error('案件の作成に失敗しました')
     }
   }
 
@@ -309,9 +372,17 @@ export default function DashboardHome() {
       return 'bg-blue-100 text-blue-900 border border-blue-300'
     }
 
-    // 遅れ: 赤（透明性あり）
+    // 期限切れチェック（遅れを最優先）
+    if (task.due_date) {
+      const daysOverdue = differenceInDays(new Date(), new Date(task.due_date))
+      if (daysOverdue > 0) {
+        return 'bg-red-400 text-white border-2 border-red-600 font-bold'
+      }
+    }
+
+    // 遅れ: 赤（濃い赤）
     if (task.status === 'delayed') {
-      return 'bg-red-100 text-red-900 border border-red-300'
+      return 'bg-red-400 text-white border-2 border-red-600 font-bold'
     }
 
     // 着手中: 黄色（透明性あり）
@@ -445,6 +516,199 @@ export default function DashboardHome() {
         </div>
       </div>
 
+      {/* 担当者モード: 自分のタスク一覧 */}
+      {mode === 'staff' && currentUserId && (
+        <div className="space-y-4">
+          <h3 className="text-xl font-bold text-gray-900">あなたのタスク</h3>
+
+          {(() => {
+            // 自分に割り当てられたタスクを取得
+            const myTasks = tasks.filter(task => task.assigned_to === currentUserId)
+
+            // タスクを3つのカテゴリに分類
+            const delayedTasks = myTasks.filter(task => {
+              if (!task.due_date || task.status === 'completed' || task.status === 'not_applicable') return false
+              const daysOverdue = differenceInDays(new Date(), new Date(task.due_date))
+              return daysOverdue > 0
+            })
+
+            const dueTodayTasks = myTasks.filter(task => {
+              if (!task.due_date || task.status === 'completed' || task.status === 'not_applicable') return false
+              const daysOverdue = differenceInDays(new Date(), new Date(task.due_date))
+              return daysOverdue === 0
+            })
+
+            const inProgressTasks = myTasks.filter(task => {
+              if (task.status === 'completed' || task.status === 'not_applicable') return false
+              if (!task.due_date) return true
+              const daysOverdue = differenceInDays(new Date(), new Date(task.due_date))
+              return daysOverdue < 0 && (task.status === 'requested' || task.status === 'delayed')
+            })
+
+            return (
+              <>
+                {/* 遅延中のタスク */}
+                {delayedTasks.length > 0 && (
+                  <div className="bg-white rounded-lg border-2 border-red-400 shadow-pastel overflow-hidden">
+                    <div className="p-3 bg-red-100 border-b-2 border-red-400">
+                      <h4 className="text-lg font-bold text-red-900 flex items-center gap-2">
+                        🚨 遅延中のタスク ({delayedTasks.length})
+                      </h4>
+                    </div>
+                    <div className="p-4 space-y-3">
+                      {delayedTasks.map(task => {
+                        const daysOverdue = task.due_date ? differenceInDays(new Date(), new Date(task.due_date)) : 0
+                        const project = projects.find(p => p.id === task.project_id)
+
+                        return (
+                          <div key={task.id} className="bg-red-50 border-2 border-red-300 rounded-lg p-4 hover:shadow-md transition-all">
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <span className="px-3 py-1 bg-red-500 text-white text-xs font-bold rounded-full">
+                                    {daysOverdue}日遅れ
+                                  </span>
+                                  <h5 className="font-bold text-gray-900">{task.title}</h5>
+                                </div>
+                                {project && (
+                                  <p className="text-sm text-gray-700 mb-1">
+                                    案件: {project.customer?.names?.join('・') || '不明'}様邸
+                                  </p>
+                                )}
+                                <p className="text-sm text-gray-600">
+                                  期限: {task.due_date ? format(new Date(task.due_date), 'yyyy/MM/dd') : '未設定'}
+                                </p>
+                              </div>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={async () => {
+                                    await supabase
+                                      .from('tasks')
+                                      .update({ status: 'completed', actual_completion_date: new Date().toISOString() })
+                                      .eq('id', task.id)
+                                    await loadProjects()
+                                  }}
+                                  className="px-3 py-1 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700 transition-colors"
+                                >
+                                  完了
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* 今日期限のタスク */}
+                {dueTodayTasks.length > 0 && (
+                  <div className="bg-white rounded-lg border-2 border-yellow-400 shadow-pastel overflow-hidden">
+                    <div className="p-3 bg-yellow-100 border-b-2 border-yellow-400">
+                      <h4 className="text-lg font-bold text-yellow-900 flex items-center gap-2">
+                        ⏰ 今日期限のタスク ({dueTodayTasks.length})
+                      </h4>
+                    </div>
+                    <div className="p-4 space-y-3">
+                      {dueTodayTasks.map(task => {
+                        const project = projects.find(p => p.id === task.project_id)
+
+                        return (
+                          <div key={task.id} className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4 hover:shadow-md transition-all">
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex-1">
+                                <h5 className="font-bold text-gray-900 mb-2">{task.title}</h5>
+                                {project && (
+                                  <p className="text-sm text-gray-700 mb-1">
+                                    案件: {project.customer?.names?.join('・') || '不明'}様邸
+                                  </p>
+                                )}
+                                <p className="text-sm text-gray-600">
+                                  期限: {task.due_date ? format(new Date(task.due_date), 'yyyy/MM/dd') : '未設定'}
+                                </p>
+                              </div>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={async () => {
+                                    await supabase
+                                      .from('tasks')
+                                      .update({ status: 'completed', actual_completion_date: new Date().toISOString() })
+                                      .eq('id', task.id)
+                                    await loadProjects()
+                                  }}
+                                  className="px-3 py-1 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700 transition-colors"
+                                >
+                                  完了
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* 進行中のタスク */}
+                {inProgressTasks.length > 0 && (
+                  <div className="bg-white rounded-lg border-2 border-blue-400 shadow-pastel overflow-hidden">
+                    <div className="p-3 bg-blue-100 border-b-2 border-blue-400">
+                      <h4 className="text-lg font-bold text-blue-900 flex items-center gap-2">
+                        🔄 進行中のタスク ({inProgressTasks.length})
+                      </h4>
+                    </div>
+                    <div className="p-4 space-y-3">
+                      {inProgressTasks.map(task => {
+                        const project = projects.find(p => p.id === task.project_id)
+
+                        return (
+                          <div key={task.id} className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 hover:shadow-md transition-all">
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex-1">
+                                <h5 className="font-bold text-gray-900 mb-2">{task.title}</h5>
+                                {project && (
+                                  <p className="text-sm text-gray-700 mb-1">
+                                    案件: {project.customer?.names?.join('・') || '不明'}様邸
+                                  </p>
+                                )}
+                                <p className="text-sm text-gray-600">
+                                  期限: {task.due_date ? format(new Date(task.due_date), 'yyyy/MM/dd') : '未設定'}
+                                </p>
+                              </div>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={async () => {
+                                    await supabase
+                                      .from('tasks')
+                                      .update({ status: 'completed', actual_completion_date: new Date().toISOString() })
+                                      .eq('id', task.id)
+                                    await loadProjects()
+                                  }}
+                                  className="px-3 py-1 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700 transition-colors"
+                                >
+                                  完了
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* タスクが1つもない場合 */}
+                {delayedTasks.length === 0 && dueTodayTasks.length === 0 && inProgressTasks.length === 0 && (
+                  <div className="bg-white rounded-lg border-2 border-gray-300 shadow-pastel p-8 text-center">
+                    <p className="text-gray-500 text-lg">現在、割り当てられているタスクはありません</p>
+                  </div>
+                )}
+              </>
+            )
+          })()}
+        </div>
+      )}
+
       {/* 部署ステータス表示（1行4部署） */}
       <div className="grid grid-cols-4 gap-3">
         {departmentStatuses.map(dept => (
@@ -491,6 +755,111 @@ export default function DashboardHome() {
           </div>
         ))}
       </div>
+
+      {/* 管理者モード: スタッフ負荷状況 */}
+      {mode === 'admin' && (
+        <div className="bg-white rounded-lg border-2 border-pastel-blue shadow-pastel overflow-hidden">
+          <div className="p-4 bg-gradient-pastel-blue border-b-2 border-pastel-blue">
+            <h3 className="text-lg font-semibold text-pastel-blue-dark">スタッフ負荷状況</h3>
+          </div>
+          <div className="p-4">
+            <div className="grid grid-cols-4 gap-4">
+              {employees
+                .filter(emp => {
+                  // タスクが割り当てられている従業員のみ表示
+                  const empTasks = tasks.filter(task => task.assigned_to === emp.id)
+                  return empTasks.length > 0
+                })
+                .map(emp => {
+                  const empTasks = tasks.filter(task => task.assigned_to === emp.id)
+                  const delayedTasks = empTasks.filter(task => {
+                    if (!task.due_date || task.status === 'completed' || task.status === 'not_applicable') return false
+                    const daysOverdue = differenceInDays(new Date(), new Date(task.due_date))
+                    return daysOverdue > 0
+                  })
+                  const inProgressTasks = empTasks.filter(task =>
+                    task.status !== 'completed' && task.status !== 'not_applicable'
+                  )
+                  const totalTasks = empTasks.length
+                  const completedTasks = empTasks.filter(task => task.status === 'completed' || task.status === 'not_applicable').length
+
+                  // 負荷レベル判定
+                  const delayCount = delayedTasks.length
+                  let loadLevel: 'normal' | 'warning' | 'danger' = 'normal'
+                  if (delayCount >= 5) {
+                    loadLevel = 'danger'
+                  } else if (delayCount >= 2) {
+                    loadLevel = 'warning'
+                  }
+
+                  return (
+                    <div
+                      key={emp.id}
+                      className={`bg-white rounded-lg border-2 shadow-md p-4 ${
+                        loadLevel === 'danger' ? 'border-red-500 bg-red-50' :
+                        loadLevel === 'warning' ? 'border-yellow-500 bg-yellow-50' :
+                        'border-blue-300 bg-blue-50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          loadLevel === 'danger' ? 'bg-red-500' :
+                          loadLevel === 'warning' ? 'bg-yellow-500' :
+                          'bg-blue-500'
+                        }`}>
+                          <span className="text-white font-bold text-lg">
+                            {emp.last_name.charAt(0)}
+                          </span>
+                        </div>
+                        <div>
+                          <div className="font-bold text-gray-900">{emp.last_name} {emp.first_name}</div>
+                          <div className="text-xs text-gray-600">{emp.department}</div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        {/* 遅延タスク数 */}
+                        {delayedTasks.length > 0 && (
+                          <div className="flex items-center justify-between bg-red-100 border border-red-300 rounded px-3 py-2">
+                            <span className="text-sm font-medium text-red-900">🚨 遅延</span>
+                            <span className="text-lg font-bold text-red-900">{delayedTasks.length}</span>
+                          </div>
+                        )}
+
+                        {/* 進行中タスク数 */}
+                        <div className="flex items-center justify-between bg-blue-100 border border-blue-300 rounded px-3 py-2">
+                          <span className="text-sm font-medium text-blue-900">🔄 進行中</span>
+                          <span className="text-lg font-bold text-blue-900">{inProgressTasks.length}</span>
+                        </div>
+
+                        {/* 完了率 */}
+                        <div className="bg-gray-100 rounded px-3 py-2">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm font-medium text-gray-700">完了率</span>
+                            <span className="text-sm font-bold text-gray-900">
+                              {Math.round((completedTasks / totalTasks) * 100)}%
+                            </span>
+                          </div>
+                          <div className="bg-gray-300 rounded-full h-2">
+                            <div
+                              className="bg-green-500 h-2 rounded-full transition-all"
+                              style={{ width: `${(completedTasks / totalTasks) * 100}%` }}
+                            ></div>
+                          </div>
+                        </div>
+
+                        {/* 総タスク数 */}
+                        <div className="text-center text-xs text-gray-600 pt-1">
+                          総タスク数: {totalTasks}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 管理者モード: 進捗マトリクス表示 */}
       {mode === 'admin' && (
@@ -629,6 +998,11 @@ export default function DashboardHome() {
                       {uniqueTaskTitles.map(taskTitle => {
                         const task = getProjectTaskByTitle(project.id, taskTitle)
 
+                        // 遅延日数を計算
+                        const daysOverdue = task?.due_date && task.status !== 'completed' && task.status !== 'not_applicable'
+                          ? differenceInDays(new Date(), new Date(task.due_date))
+                          : 0
+
                         return (
                           <td key={taskTitle} className="border border-gray-300 p-1" style={{ minWidth: '120px' }}>
                             {task ? (
@@ -639,9 +1013,17 @@ export default function DashboardHome() {
                                   task.status === 'delayed' ? '遅れ' :
                                   task.status === 'requested' ? '着手中' :
                                   '未着手'
-                                }`}
+                                }${daysOverdue > 0 ? `\n遅延: ${daysOverdue}日` : ''}`}
                               >
-                                {task.due_date ? format(new Date(task.due_date), 'MM/dd') : '-'}
+                                {daysOverdue > 0 ? (
+                                  <div className="flex flex-col items-center">
+                                    <span className="text-lg">🚨</span>
+                                    <span className="text-xs">{daysOverdue}日遅れ</span>
+                                    <span className="text-xs">{task.due_date ? format(new Date(task.due_date), 'MM/dd') : '-'}</span>
+                                  </div>
+                                ) : (
+                                  <>{task.due_date ? format(new Date(task.due_date), 'MM/dd') : '-'}</>
+                                )}
                               </div>
                             ) : (
                               <div className="h-10 flex items-center justify-center text-gray-400">

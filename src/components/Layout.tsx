@@ -1,29 +1,18 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Home, FolderKanban, Calendar, LogOut, Menu, X, Search, Package, Users } from 'lucide-react'
-import GlobalSearch from './GlobalSearch'
+import { Home, FolderKanban, Calendar, BarChart3, Shield, LogOut, Menu, X, Package, Users, Upload } from 'lucide-react'
 import { useMode } from '../contexts/ModeContext'
+import { usePermissions } from '../contexts/PermissionsContext'
+import GlobalSearch from './GlobalSearch'
+import NotificationCenter from './NotificationCenter'
 import './Layout.css'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation()
   const { mode } = useMode()
+  const { hasPermission } = usePermissions()
   // モバイルではデフォルトでサイドバーを閉じる
   const [sidebarCollapsed, setSidebarCollapsed] = useState(window.innerWidth <= 768)
-  const [searchOpen, setSearchOpen] = useState(false)
-
-  // Ctrl+K or Cmd+K でグローバル検索を開く
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault()
-        setSearchOpen(true)
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
 
   // ウィンドウリサイズ時にサイドバーの状態を更新
   useEffect(() => {
@@ -47,11 +36,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { path: '/', label: 'ダッシュボード', icon: Home },
     { path: '/projects', label: '案件一覧', icon: FolderKanban },
     { path: '/calendar', label: 'カレンダー', icon: Calendar },
+    { path: '/reports', label: 'レポート・分析', icon: BarChart3 },
   ]
-
-  const handleSearchClick = () => {
-    setSearchOpen(true)
-  }
 
   return (
     <div className="layout-container">
@@ -94,22 +80,30 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             )
           })}
 
-          {/* 検索ボタン */}
-          <button
-            onClick={handleSearchClick}
-            className="nav-item"
-            title={sidebarCollapsed ? '検索 (Ctrl+K)' : '検索'}
-          >
-            <Search size={20} />
-            {!sidebarCollapsed && <span>検索</span>}
-            {!sidebarCollapsed && (
-              <kbd className="ml-auto text-xs px-1.5 py-0.5 bg-gray-200 text-gray-700 rounded border border-gray-300">Ctrl+K</kbd>
-            )}
-          </button>
+          {/* 監査ログ（権限のあるユーザーのみ） */}
+          {hasPermission('audit_logs:view') && (
+            <Link
+              to="/audit-logs"
+              className={`nav-item ${location.pathname === '/audit-logs' ? 'nav-item-active' : ''}`}
+              title={sidebarCollapsed ? '監査ログ' : ''}
+            >
+              <Shield size={20} />
+              {!sidebarCollapsed && <span>監査ログ</span>}
+            </Link>
+          )}
 
           {/* マスタ管理（管理者モードのみ） */}
           {mode === 'admin' && (
             <>
+              <Link
+                to="/import-csv"
+                className={`nav-item ${location.pathname === '/import-csv' ? 'nav-item-active' : ''}`}
+                title={sidebarCollapsed ? 'CSVインポート' : ''}
+              >
+                <Upload size={20} />
+                {!sidebarCollapsed && <span>CSVインポート</span>}
+              </Link>
+
               <Link
                 to="/master/products"
                 className={`nav-item ${location.pathname === '/master/products' ? 'nav-item-active' : ''}`}
@@ -154,8 +148,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       <div className="layout-main">
         <header className="layout-header">
-          <div className="notification-bar">
-            遅延案件の通知がここに表示されます
+          <div className="flex items-center justify-between p-4 bg-white border-b-2 border-gray-300">
+            <div className="flex-1 mr-4">
+              {/* Left side - could add breadcrumbs or page title here */}
+            </div>
+            <div className="flex items-center gap-3">
+              <NotificationCenter />
+              <GlobalSearch />
+            </div>
           </div>
         </header>
 
@@ -163,9 +163,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {children}
         </main>
       </div>
-
-      {/* グローバル検索モーダル */}
-      <GlobalSearch isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </div>
   )
 }

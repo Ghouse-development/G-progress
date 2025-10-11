@@ -3,7 +3,8 @@ import { supabase } from '../lib/supabase'
 import { Task, Project, Employee } from '../types/database'
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, isSameMonth, addMonths, subMonths } from 'date-fns'
 import { ja } from 'date-fns/locale'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Download } from 'lucide-react'
+import { useToast } from '../contexts/ToastContext'
 
 interface TaskWithProject extends Task {
   project?: Project
@@ -38,6 +39,8 @@ export default function Calendar() {
   const [tasks, setTasks] = useState<TaskWithProject[]>([])
   const [currentUser, setCurrentUser] = useState<Employee | null>(null)
   const [loading, setLoading] = useState(true)
+  const [draggedTask, setDraggedTask] = useState<TaskWithProject | null>(null)
+  const { showToast } = useToast()
 
   useEffect(() => {
     loadCurrentUser()
@@ -135,6 +138,91 @@ export default function Calendar() {
     setCurrentMonth(addMonths(currentMonth, 1))
   }
 
+  // ドラッグ&ドロップハンドラー
+  const handleDragStart = (task: TaskWithProject) => {
+    setDraggedTask(task)
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+  }
+
+  const handleDrop = async (day: Date) => {
+    if (!draggedTask) return
+
+    const newDueDate = format(day, 'yyyy-MM-dd')
+
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ due_date: newDueDate })
+        .eq('id', draggedTask.id)
+
+      if (error) throw error
+
+      showToast('タスクの期限を変更しました', 'success')
+      loadTasks() // カレンダーを再読み込み
+    } catch (error) {
+      console.error('タスクの期限変更エラー:', error)
+      showToast('タスクの期限変更に失敗しました', 'error')
+    }
+
+    setDraggedTask(null)
+  }
+
+  // iCalエクスポート
+  const exportToICal = () => {
+    const icalLines = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//G-progress//Calendar//JP',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      'X-WR-CALNAME:G-progress カレンダー',
+      'X-WR-TIMEZONE:Asia/Tokyo'
+    ]
+
+    tasks.forEach(task => {
+      if (!task.due_date) return
+
+      const dtstart = format(new Date(task.due_date), "yyyyMMdd'T'HHmmss")
+      const dtend = format(new Date(task.due_date), "yyyyMMdd'T'235959")
+      const dtstamp = format(new Date(), "yyyyMMdd'T'HHmmss'Z'")
+      const uid = `${task.id}@g-progress.local`
+      const summary = task.title
+      const description = task.description || ''
+      const location = task.project?.customer?.names ? task.project.customer.names.join('・') + '様' : ''
+
+      icalLines.push(
+        'BEGIN:VEVENT',
+        `UID:${uid}`,
+        `DTSTAMP:${dtstamp}`,
+        `DTSTART:${dtstart}`,
+        `DTEND:${dtend}`,
+        `SUMMARY:${summary}`,
+        `DESCRIPTION:${description.replace(/\n/g, '\\n')}`,
+        `LOCATION:${location}`,
+        `STATUS:${task.status === 'completed' ? 'COMPLETED' : task.status === 'requested' ? 'IN-PROCESS' : 'NEEDS-ACTION'}`,
+        'END:VEVENT'
+      )
+    })
+
+    icalLines.push('END:VCALENDAR')
+
+    const icalContent = icalLines.join('\r\n')
+    const blob = new Blob([icalContent], { type: 'text/calendar;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `g-progress-calendar-${format(new Date(), 'yyyyMMdd')}.ics`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+
+    showToast('カレンダーをエクスポートしました', 'success')
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -153,26 +241,35 @@ export default function Calendar() {
         <div className="bg-white rounded-lg shadow p-3 mb-3 flex-shrink-0">
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-xl font-bold text-gray-900">カレンダー</h1>
-            <div className="text-xs text-gray-600">
-              {currentUser && `${currentUser.last_name} ${currentUser.first_name} (${currentUser.department})`}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={exportToICal}
+                className="px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg border-2 border-black font-bold text-sm flex items-center gap-2 hover:opacity-90 transition"
+              >
+                <Download size={16} />
+                iCalエクスポート
+              </button>
+              <div className="text-xs text-gray-600">
+                {currentUser && `${currentUser.last_name} ${currentUser.first_name} (${currentUser.department})`}
+              </div>
             </div>
           </div>
 
           <div className="flex items-center justify-center gap-4">
             <button
               onClick={previousMonth}
-              className="p-1 rounded-full hover:bg-gray-100 transition"
+              className="p-2 rounded-full hover:bg-gray-100 transition"
             >
               <ChevronLeft size={20} />
             </button>
 
-            <h2 className="text-lg font-bold text-gray-900 min-w-40 text-center">
+            <h2 className="text-3xl font-black text-gray-900 min-w-60 text-center">
               {format(currentMonth, 'yyyy年 M月', { locale: ja })}
             </h2>
 
             <button
               onClick={nextMonth}
-              className="p-1 rounded-full hover:bg-gray-100 transition"
+              className="p-2 rounded-full hover:bg-gray-100 transition"
             >
               <ChevronRight size={20} />
             </button>
@@ -181,16 +278,16 @@ export default function Calendar() {
 
         {/* 曜日ヘッダー（常に表示） */}
         <div className="bg-white rounded-t-lg shadow-md flex-shrink-0">
-          <div className="grid grid-cols-7 border-b-4 border-gray-800">
+          <div className="grid grid-cols-7 border-b border-gray-100">
             {weekdays.map((day, index) => (
               <div
                 key={day}
-                className={`p-3 text-center text-xl font-black border-2 ${
-                  index === 5 ? 'text-blue-700 bg-blue-100 border-blue-300' : // 土曜
-                  index === 6 ? 'text-red-700 bg-red-100 border-red-300' : // 日曜
-                  'text-gray-900 bg-gray-200 border-gray-300'
+                className={`p-2 text-center text-lg font-bold border-r border-gray-100 ${
+                  index === 5 ? 'text-blue-700 bg-blue-50' : // 土曜
+                  index === 6 ? 'text-red-700 bg-red-50' : // 日曜
+                  'text-gray-900 bg-gray-100'
                 }`}
-                style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
+                style={index === 6 ? { borderRight: 'none' } : {}}
               >
                 {day}
               </div>
@@ -214,17 +311,19 @@ export default function Calendar() {
               return (
                 <div
                   key={day.toString()}
-                  className={`calendar-day transition-colors ${
+                  className={`calendar-day transition-colors border-r border-b border-gray-100 ${
                     isToday ? 'border-2 border-blue-500 bg-blue-50' :
                     !isCurrentMonth ? 'bg-gray-50' :
                     dayOfWeek === 0 ? 'bg-red-50' : // 日曜
                     dayOfWeek === 6 ? 'bg-blue-50' : // 土曜
                     'bg-white hover:bg-gray-50'
                   }`}
+                  onDragOver={handleDragOver}
+                  onDrop={() => handleDrop(day)}
                 >
                   <div className="flex items-start justify-between mb-1">
-                    <div className={`date text-lg font-bold ${
-                      isToday ? 'bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center' :
+                    <div className={`date text-5xl font-black ${
+                      isToday ? 'bg-blue-500 text-white rounded-full w-16 h-16 flex items-center justify-center' :
                       !isCurrentMonth ? 'text-gray-400' :
                       dayOfWeek === 0 ? 'text-red-600' :
                       dayOfWeek === 6 ? 'text-blue-600' :
@@ -232,7 +331,7 @@ export default function Calendar() {
                     }`}>
                       {format(day, 'd')}
                     </div>
-                    <div className={`text-xs font-semibold ${
+                    <div className={`text-sm font-semibold ${
                       rokuyo === '大安' ? 'text-red-600' :
                       rokuyo === '仏滅' ? 'text-gray-600' :
                       'text-gray-500'
@@ -247,7 +346,9 @@ export default function Calendar() {
                       return (
                         <div
                           key={task.id}
-                          className={`text-sm px-2 py-1 rounded truncate cursor-pointer ${
+                          draggable
+                          onDragStart={() => handleDragStart(task)}
+                          className={`text-sm px-2 py-1 rounded truncate cursor-move ${
                             isMilestone ? 'bg-red-600 text-white font-bold shadow-lg' :
                             task.status === 'completed' ? 'bg-blue-200 text-blue-900 font-semibold' :
                             task.status === 'requested' ? 'bg-yellow-200 text-yellow-900 font-semibold' :
