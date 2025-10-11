@@ -143,8 +143,9 @@ async function importProgressData() {
   let errorCount = 0
   let skipCount = 0
 
-  // データ行は102行目以降（インデックス101以降）
-  for (let i = 104; i < rows.length; i++) {
+  // データ行はインデックス100以降（CSVファイルの実データ開始位置）
+  // すべてのデータ行をインポート
+  for (let i = 100; i < rows.length; i++) {
     const row = rows[i]
 
     // 契約番号が空の行はスキップ
@@ -250,16 +251,35 @@ async function importProgressData() {
       }
 
       // マイルストーンタスクを作成（予定日のみ）
-      // 主要なマイルストーン日付のインデックス
+      // すべてのマイルストーン日付のインデックス
       const milestones = [
         { name: '設計ヒアリング', col: 17 },
         { name: 'プラン確定', col: 20 },
+        { name: '設計事務所発注', col: 23 },
+        { name: 'プラン確定時資金計画書お客様送付', col: 24 },
         { name: '構造GO', col: 26 },
         { name: '申請GO', col: 29 },
-        { name: '着工日', col: 94 },
-        { name: '上棟日', col: 96 },
-        { name: '完了検査', col: 103 },
-        { name: '引渡日', col: 106 }
+        { name: '構造1回目CB', col: 32 },
+        { name: '構造2回目CB', col: 35 },
+        { name: '長期GO', col: 38 },
+        { name: '会議図面渡し日', col: 51 },
+        { name: '変更契約前会議', col: 54 },
+        { name: '図面UP', col: 57 },
+        { name: '構造図UP', col: 60 },
+        { name: '着工許可', col: 63 },
+        { name: '建築確認済証', col: 72 },
+        { name: '解体開始日', col: 91 },
+        { name: '解体完了日', col: 94 },
+        { name: '変更契約日', col: 97 },
+        { name: '土地決済', col: 100 },
+        { name: '着工日', col: 107 },
+        { name: '実行予算完成', col: 110 },
+        { name: '上棟日', col: 112 },
+        { name: '中間検査', col: 116 },
+        { name: '完了検査', col: 122 },
+        { name: '引渡日', col: 128 },
+        { name: '施主希望カギ渡し日', col: 132 },
+        { name: '外構工事', col: 135 }
       ]
 
       for (const milestone of milestones) {
