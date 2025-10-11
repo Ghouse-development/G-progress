@@ -141,6 +141,34 @@ export interface Task {
   donts?: string
   manual_url?: string
   video_url?: string
+  task_master_id?: string // タスクマスタとの紐付け
+}
+
+export interface TaskMaster {
+  id: string
+  business_no: number
+  task_order: number
+  title: string
+  description?: string
+  phase: string // 集客、営業、契約、設計、工事、管理など
+  task_category?: string // C/K/S/J
+  importance?: string // A/B/S
+  purpose?: string
+  dos?: string
+  donts?: string
+  target?: string
+  what?: string
+  when_to_do?: string
+  responsible_department?: string
+  tools?: string
+  required_materials?: string
+  storage_location?: string
+  manual_url?: string
+  notes?: string
+  days_from_contract?: number // 契約日からの日数
+  duration_days?: number // 作業期間
+  created_at: string
+  updated_at: string
 }
 
 export interface Attachment {

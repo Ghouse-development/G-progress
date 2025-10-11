@@ -27,7 +27,10 @@
       "Bash(psql:*)",
       "WebSearch",
       "WebFetch(domain:g-progress-qy7x9s2g2-ghouse-developments-projects.vercel.app)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(npx vercel:*)",
+      "WebFetch(domain:docs.google.com)",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": []
