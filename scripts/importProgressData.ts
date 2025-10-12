@@ -251,48 +251,27 @@ async function importProgressData() {
       }
 
       // マイルストーンタスクを作成（予定日のみ）
-      // CSVから検出した全てのタスク列（40個）
+      // CSVヘッダー行から取得した実際のタスク名を使用
       const milestones = [
-        { name: 'タスク-列14', col: 14 },
-        { name: 'タスク-列15', col: 15 },
-        { name: 'タスク-列16', col: 16 },
-        { name: 'タスク-列17', col: 17 },
-        { name: 'タスク-列18', col: 18 },
-        { name: 'タスク-列19', col: 19 },
-        { name: 'タスク-列20', col: 20 },
-        { name: 'タスク-列21', col: 21 },
-        { name: 'タスク-列24', col: 24 },
-        { name: 'タスク-列25', col: 25 },
-        { name: 'タスク-列27', col: 27 },
-        { name: 'タスク-列28', col: 28 },
-        { name: 'タスク-列30', col: 30 },
-        { name: 'タスク-列31', col: 31 },
-        { name: 'タスク-列33', col: 33 },
-        { name: 'タスク-列34', col: 34 },
-        { name: 'タスク-列50', col: 50 },
-        { name: 'タスク-列62', col: 62 },
-        { name: 'タスク-列65', col: 65 },
-        { name: 'タスク-列71', col: 71 },
-        { name: 'タスク-列73', col: 73 },
+        { name: '請負契約', col: 14 },
+        { name: '設計ヒアリング', col: 16 },
+        { name: 'プラン確定', col: 19 },
+        { name: '構造GO', col: 24 },
+        { name: '申請GO', col: 27 },
+        { name: '構造1回目CB', col: 30 },
+        { name: '構造2回目CB', col: 33 },
+        { name: '最終打合', col: 50 },
+        { name: '構造図UP', col: 62 },
+        { name: '着工許可', col: 65 },
         { name: 'タスク-列76', col: 76 },
         { name: 'タスク-列81', col: 81 },
-        { name: 'タスク-列97', col: 97 },
+        { name: '変更契約日', col: 97 },
         { name: 'タスク-列104', col: 104 },
-        { name: 'タスク-列107', col: 107 },
-        { name: 'タスク-列119', col: 119 },
-        { name: 'タスク-列128', col: 128 },
+        { name: '上棟日', col: 119 },
+        { name: '完了検査', col: 128 },
         { name: 'タスク-列129', col: 129 },
         { name: 'タスク-列135', col: 135 },
-        { name: 'タスク-列150', col: 150 },
-        { name: 'タスク-列151', col: 151 },
-        { name: 'タスク-列155', col: 155 },
-        { name: 'タスク-列158', col: 158 },
-        { name: 'タスク-列161', col: 161 },
-        { name: 'タスク-列162', col: 162 },
-        { name: 'タスク-列168', col: 168 },
-        { name: 'タスク-列169', col: 169 },
-        { name: 'タスク-列175', col: 175 },
-        { name: 'タスク-列176', col: 176 }
+        { name: 'ローン本申込許可', col: 151 }
       ]
 
       for (const milestone of milestones) {

@@ -356,7 +356,7 @@ export default function Calendar() {
                           }`}
                           title={`${task.title}${task.project?.customer?.names ? ' - ' + task.project.customer.names.join('・') + '様' : ''}`}
                         >
-                          {task.title}
+                          {task.project?.customer?.names ? `【${task.project.customer.names.join('・')}様】` : ''}{task.title}
                         </div>
                       )
                     })}
