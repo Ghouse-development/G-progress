@@ -1,0 +1,218 @@
+[
+  {
+    "col": 14,
+    "name": "請負契約",
+    "marker": "予定",
+    "sampleDate": "7/31"
+  },
+  {
+    "col": 16,
+    "name": "設計ヒアリング",
+    "marker": "予定\n手入力",
+    "sampleDate": "9/7"
+  },
+  {
+    "col": 17,
+    "name": "設計ヒアリング（確定）",
+    "marker": "確定",
+    "sampleDate": "9/7"
+  },
+  {
+    "col": 19,
+    "name": "プラン 確定",
+    "marker": "予定\n手入力",
+    "sampleDate": "9/28"
+  },
+  {
+    "col": 20,
+    "name": "プラン 確定（確定）",
+    "marker": "確定",
+    "sampleDate": "9/28"
+  },
+  {
+    "col": 24,
+    "name": "構造 GO",
+    "marker": "予定\n手入力",
+    "sampleDate": "11/1"
+  },
+  {
+    "col": 25,
+    "name": "構造 GO（確定）",
+    "marker": "確定",
+    "sampleDate": "10/5"
+  },
+  {
+    "col": 27,
+    "name": "申請 GO",
+    "marker": "予定\n手入力",
+    "sampleDate": "11/8"
+  },
+  {
+    "col": 28,
+    "name": "申請 GO（確定）",
+    "marker": "確定",
+    "sampleDate": "10/23"
+  },
+  {
+    "col": 30,
+    "name": "構造1回目CB",
+    "marker": "予定\n手入力",
+    "sampleDate": "11/29"
+  },
+  {
+    "col": 31,
+    "name": "構造1回目CB（確定）",
+    "marker": "確定",
+    "sampleDate": "10/20"
+  },
+  {
+    "col": 33,
+    "name": "構造2回目CB",
+    "marker": "予定\n手入力",
+    "sampleDate": "12/13"
+  },
+  {
+    "col": 34,
+    "name": "構造2回目CB（確定）",
+    "marker": "確定",
+    "sampleDate": "9/28"
+  },
+  {
+    "col": 50,
+    "name": "最終打合",
+    "marker": "予定\n手入力",
+    "sampleDate": "11/6"
+  },
+  {
+    "col": 62,
+    "name": "構造図UP",
+    "marker": "予定\n手入力",
+    "sampleDate": "1/17"
+  },
+  {
+    "col": 65,
+    "name": "着工許可",
+    "marker": "予定\n手入力",
+    "sampleDate": "1/16"
+  },
+  {
+    "col": 71,
+    "name": "フラット\n設計に\n関する\n通知書\n（必要日）",
+    "marker": "",
+    "sampleDate": "6/1"
+  },
+  {
+    "col": 73,
+    "name": "建築確認済証（必要\n期日）",
+    "marker": "必要\n期日",
+    "sampleDate": "1/12"
+  },
+  {
+    "col": 76,
+    "name": "中間検査合格証（予定）",
+    "marker": "予定",
+    "sampleDate": "2/26"
+  },
+  {
+    "col": 81,
+    "name": "検査済証（予定）",
+    "marker": "予定",
+    "sampleDate": "5/22"
+  },
+  {
+    "col": 97,
+    "name": "変更契約日",
+    "marker": "予定",
+    "sampleDate": "1/17"
+  },
+  {
+    "col": 104,
+    "name": "分筆（予定）",
+    "marker": "予定",
+    "sampleDate": "9/30"
+  },
+  {
+    "col": 107,
+    "name": "請負\n契約\n着工日",
+    "marker": "",
+    "sampleDate": "1/24"
+  },
+  {
+    "col": 119,
+    "name": "上棟日",
+    "marker": "予定",
+    "sampleDate": "3/5"
+  },
+  {
+    "col": 128,
+    "name": "完了検査",
+    "marker": "予定",
+    "sampleDate": "6/3"
+  },
+  {
+    "col": 129,
+    "name": "完了検査（予定）",
+    "marker": "予定",
+    "sampleDate": "6/12"
+  },
+  {
+    "col": 135,
+    "name": "引渡日（予定）",
+    "marker": "予定",
+    "sampleDate": "7/13"
+  },
+  {
+    "col": 151,
+    "name": "ローン本申込許可",
+    "marker": "予定",
+    "sampleDate": "8/20"
+  },
+  {
+    "col": 155,
+    "name": "申込金",
+    "marker": "日付",
+    "sampleDate": "5/16"
+  },
+  {
+    "col": 158,
+    "name": "契約金（列158）",
+    "marker": "",
+    "sampleDate": "7/30"
+  },
+  {
+    "col": 161,
+    "name": "着工金",
+    "marker": "日付",
+    "sampleDate": "1/31"
+  },
+  {
+    "col": 162,
+    "name": "着工金（列162）",
+    "marker": "",
+    "sampleDate": "1/31"
+  },
+  {
+    "col": 168,
+    "name": "上棟金",
+    "marker": "日付",
+    "sampleDate": "3/12"
+  },
+  {
+    "col": 169,
+    "name": "上棟金（列169）",
+    "marker": "",
+    "sampleDate": "3/12"
+  },
+  {
+    "col": 175,
+    "name": "最終金",
+    "marker": "日付",
+    "sampleDate": "7/20"
+  },
+  {
+    "col": 176,
+    "name": "最終金（列176）",
+    "marker": "",
+    "sampleDate": "7/12"
+  }
+]

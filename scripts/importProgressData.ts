@@ -251,27 +251,44 @@ async function importProgressData() {
       }
 
       // マイルストーンタスクを作成（予定日のみ）
-      // CSVヘッダー行から取得した実際のタスク名を使用
+      // CSVから抽出した全てのタスク列（実績を除く36個）
       const milestones = [
         { name: '請負契約', col: 14 },
         { name: '設計ヒアリング', col: 16 },
+        { name: '設計ヒアリング（確定）', col: 17 },
         { name: 'プラン確定', col: 19 },
+        { name: 'プラン確定（確定）', col: 20 },
         { name: '構造GO', col: 24 },
+        { name: '構造GO（確定）', col: 25 },
         { name: '申請GO', col: 27 },
+        { name: '申請GO（確定）', col: 28 },
         { name: '構造1回目CB', col: 30 },
+        { name: '構造1回目CB（確定）', col: 31 },
         { name: '構造2回目CB', col: 33 },
+        { name: '構造2回目CB（確定）', col: 34 },
         { name: '最終打合', col: 50 },
         { name: '構造図UP', col: 62 },
         { name: '着工許可', col: 65 },
-        { name: 'タスク-列76', col: 76 },
-        { name: 'タスク-列81', col: 81 },
+        { name: 'フラット設計通知書', col: 71 },
+        { name: '建築確認済証', col: 73 },
+        { name: '中間検査合格証', col: 76 },
+        { name: '検査済証', col: 81 },
         { name: '変更契約日', col: 97 },
-        { name: 'タスク-列104', col: 104 },
+        { name: '分筆', col: 104 },
+        { name: '請負契約着工日', col: 107 },
         { name: '上棟日', col: 119 },
         { name: '完了検査', col: 128 },
-        { name: 'タスク-列129', col: 129 },
-        { name: 'タスク-列135', col: 135 },
-        { name: 'ローン本申込許可', col: 151 }
+        { name: '完了検査（予定）', col: 129 },
+        { name: '引渡日', col: 135 },
+        { name: 'ローン本申込許可', col: 151 },
+        { name: '申込金', col: 155 },
+        { name: '契約金', col: 158 },
+        { name: '着工金', col: 161 },
+        { name: '着工金（支払）', col: 162 },
+        { name: '上棟金', col: 168 },
+        { name: '上棟金（支払）', col: 169 },
+        { name: '最終金', col: 175 },
+        { name: '最終金（支払）', col: 176 }
       ]
 
       for (const milestone of milestones) {
