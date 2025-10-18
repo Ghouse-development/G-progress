@@ -1,0 +1,22 @@
+// 自動生成されたタスク定義（19個）
+const TASK_DEFINITIONS = [
+  { name: '請負契約', plannedCol: 14, actualCol: 15, department: '営業' },
+  { name: 'プラン確定', plannedInputCol: 19, confirmedCol: 20, actualCol: 21, department: '意匠設計' },
+  { name: 'プラン確定時資金計画書お客様送付', plannedInputCol: 23, confirmedCol: 25, actualCol: 26, department: '意匠設計' },
+  { name: '構造GO', plannedInputCol: 24, confirmedCol: 25, actualCol: 26, department: '構造設計' },
+  { name: '申請GO', plannedCol: 27, actualCol: 28, department: '申請設計' },
+  { name: '構造1回目CB', plannedCol: 30, actualCol: 31, department: '構造設計' },
+  { name: '着工許可', plannedCol: 65, department: '工事' },
+  { name: '新規水道引き込み工事', plannedCol: 106, actualCol: 107, department: '工事' },
+  { name: '請負契約着工日', plannedCol: 107, department: '営業' },
+  { name: '上棟日', plannedCol: 119, department: '工事' },
+  { name: '完了検査前先行工事', plannedInputCol: 126, confirmedCol: 128, actualCol: 129, department: '工事' },
+  { name: '完了検査', plannedCol: 128, actualCol: 129, department: '工事' },
+  { name: '引渡日', plannedCol: 134, actualCol: 135, department: '工事' },
+  { name: '請負契約ー変更契約ー変更合意書', plannedCol: 153, actualCol: 155, department: '営業' },
+  { name: '契約金', plannedCol: 157, actualCol: 158, department: '営業事務' },
+  { name: '着工金', plannedCol: 161, department: '工事' },
+  { name: '着工金（コメント）', plannedCol: 167, actualCol: 168, department: '工事' },
+  { name: '上棟金', plannedCol: 168, department: '工事' },
+  { name: '上棟金（コメント）', plannedCol: 174, actualCol: 175, department: '工事' },
+]
