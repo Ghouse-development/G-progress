@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Home, FolderKanban, Calendar, BarChart3, Shield, LogOut, Menu, X, Package, Users, Upload } from 'lucide-react'
+import { Home, FolderKanban, Calendar, BarChart3, Shield, LogOut, Menu, X, Package, Users, Upload, CheckSquare } from 'lucide-react'
 import { useMode } from '../contexts/ModeContext'
 import { usePermissions } from '../contexts/PermissionsContext'
 import GlobalSearch from './GlobalSearch'
@@ -36,7 +36,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { path: '/', label: 'ダッシュボード', icon: Home },
     { path: '/projects', label: '案件一覧', icon: FolderKanban },
     { path: '/calendar', label: 'カレンダー', icon: Calendar },
-    { path: '/reports', label: 'レポート・分析', icon: BarChart3 },
   ]
 
   return (
@@ -120,6 +119,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               >
                 <Users size={20} />
                 {!sidebarCollapsed && <span>従業員マスタ管理</span>}
+              </Link>
+
+              <Link
+                to="/master/tasks"
+                className={`nav-item ${location.pathname === '/master/tasks' ? 'nav-item-active' : ''}`}
+                title={sidebarCollapsed ? 'タスク管理マスタ' : ''}
+              >
+                <CheckSquare size={20} />
+                {!sidebarCollapsed && <span>タスク管理マスタ</span>}
               </Link>
             </>
           )}

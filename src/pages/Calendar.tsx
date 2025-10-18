@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Task, Project, Employee } from '../types/database'
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, isSameMonth, addMonths, subMonths } from 'date-fns'
 import { ja } from 'date-fns/locale'
-import { ChevronLeft, ChevronRight, Download } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Download, ExternalLink, X } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
 
 interface TaskWithProject extends Task {
@@ -35,11 +36,14 @@ const getRokuyo = (date: Date): string => {
 }
 
 export default function Calendar() {
-  const [currentMonth, setCurrentMonth] = useState(new Date())
+  const navigate = useNavigate()
+  const [currentMonth, setCurrentMonth] = useState(new Date(2024, 7, 1)) // 2024年8月から表示
   const [tasks, setTasks] = useState<TaskWithProject[]>([])
   const [currentUser, setCurrentUser] = useState<Employee | null>(null)
   const [loading, setLoading] = useState(true)
   const [draggedTask, setDraggedTask] = useState<TaskWithProject | null>(null)
+  const [selectedTask, setSelectedTask] = useState<TaskWithProject | null>(null)
+  const [showTaskModal, setShowTaskModal] = useState(false)
   const { showToast } = useToast()
 
   useEffect(() => {
@@ -170,6 +174,31 @@ export default function Calendar() {
     setDraggedTask(null)
   }
 
+  // タスクステータス更新
+  const handleUpdateTaskStatus = async (taskId: string, newStatus: 'not_started' | 'requested' | 'delayed' | 'completed') => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq('id', taskId)
+
+      if (error) throw error
+
+      showToast('ステータスを更新しました', 'success')
+
+      // 選択中のタスクを更新
+      if (selectedTask && selectedTask.id === taskId) {
+        setSelectedTask({ ...selectedTask, status: newStatus })
+      }
+
+      // タスクリストを再読み込み
+      loadTasks()
+    } catch (error) {
+      console.error('ステータス更新エラー:', error)
+      showToast('ステータスの更新に失敗しました', 'error')
+    }
+  }
+
   // iCalエクスポート
   const exportToICal = () => {
     const icalLines = [
@@ -235,21 +264,21 @@ export default function Calendar() {
   const weekdays = ['月', '火', '水', '木', '金', '土', '日']
 
   return (
-    <div className="h-full w-full bg-gray-50 flex flex-col overflow-hidden" style={{ margin: '-24px' }}>
+    <div className="h-full w-full flex flex-col overflow-hidden" style={{ margin: '-24px' }}>
       <div className="w-full h-full flex flex-col px-4 py-3">
         {/* ヘッダー */}
-        <div className="bg-white rounded-lg shadow p-3 mb-3 flex-shrink-0">
-          <div className="flex items-center justify-between mb-2">
-            <h1 className="text-xl font-bold text-gray-900">カレンダー</h1>
+        <div className="card-canva mb-3 flex-shrink-0">
+          <div className="flex items-center justify-between mb-3">
+            <h1 className="text-2xl font-bold text-canva-purple">カレンダー</h1>
             <div className="flex items-center gap-3">
               <button
                 onClick={exportToICal}
-                className="px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg border-2 border-black font-bold text-sm flex items-center gap-2 hover:opacity-90 transition"
+                className="btn-canva-outline flex items-center gap-2 px-4 py-2 text-base"
               >
                 <Download size={16} />
                 iCalエクスポート
               </button>
-              <div className="text-xs text-gray-600">
+              <div className="text-base text-gray-600">
                 {currentUser && `${currentUser.last_name} ${currentUser.first_name} (${currentUser.department})`}
               </div>
             </div>
@@ -258,20 +287,20 @@ export default function Calendar() {
           <div className="flex items-center justify-center gap-4">
             <button
               onClick={previousMonth}
-              className="p-2 rounded-full hover:bg-gray-100 transition"
+              className="p-2 rounded-full hover:bg-canva-purple-light hover:text-white transition"
             >
-              <ChevronLeft size={20} />
+              <ChevronLeft size={24} />
             </button>
 
-            <h2 className="text-3xl font-black text-gray-900 min-w-60 text-center">
+            <h2 className="text-3xl font-black text-canva-purple min-w-60 text-center">
               {format(currentMonth, 'yyyy年 M月', { locale: ja })}
             </h2>
 
             <button
               onClick={nextMonth}
-              className="p-2 rounded-full hover:bg-gray-100 transition"
+              className="p-2 rounded-full hover:bg-canva-purple-light hover:text-white transition"
             >
-              <ChevronRight size={20} />
+              <ChevronRight size={24} />
             </button>
           </div>
         </div>
@@ -322,7 +351,7 @@ export default function Calendar() {
                   onDrop={() => handleDrop(day)}
                 >
                   <div className="flex items-start justify-between mb-1">
-                    <div className={`date text-5xl font-black ${
+                    <div className={`date text-3xl font-black ${
                       isToday ? 'bg-blue-500 text-white rounded-full w-16 h-16 flex items-center justify-center' :
                       !isCurrentMonth ? 'text-gray-400' :
                       dayOfWeek === 0 ? 'text-red-600' :
@@ -331,7 +360,7 @@ export default function Calendar() {
                     }`}>
                       {format(day, 'd')}
                     </div>
-                    <div className={`text-sm font-semibold ${
+                    <div className={`text-base font-semibold ${
                       rokuyo === '大安' ? 'text-red-600' :
                       rokuyo === '仏滅' ? 'text-gray-600' :
                       'text-gray-500'
@@ -348,11 +377,16 @@ export default function Calendar() {
                           key={task.id}
                           draggable
                           onDragStart={() => handleDragStart(task)}
-                          className={`text-sm px-2 py-1 rounded truncate cursor-move ${
-                            isMilestone ? 'bg-red-600 text-white font-bold shadow-lg' :
-                            task.status === 'completed' ? 'bg-blue-200 text-blue-900 font-semibold' :
-                            task.status === 'requested' ? 'bg-yellow-200 text-yellow-900 font-semibold' :
-                            'bg-gray-200 text-gray-800 font-medium'
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSelectedTask(task)
+                            setShowTaskModal(true)
+                          }}
+                          className={`text-base px-2 py-1 rounded truncate cursor-pointer ${
+                            isMilestone ? 'bg-red-600 text-white font-bold shadow-lg hover:bg-red-700' :
+                            task.status === 'completed' ? 'bg-blue-200 text-blue-900 font-semibold hover:bg-blue-300' :
+                            task.status === 'requested' ? 'bg-yellow-200 text-yellow-900 font-semibold hover:bg-yellow-300' :
+                            'bg-gray-200 text-gray-800 font-medium hover:bg-gray-300'
                           }`}
                           title={`${task.title}${task.project?.customer?.names ? ' - ' + task.project.customer.names.join('・') + '様' : ''}`}
                         >
@@ -363,7 +397,7 @@ export default function Calendar() {
                     {tasks.filter(task =>
                       task.due_date && isSameDay(new Date(task.due_date), day)
                     ).length > 3 && (
-                      <div className="text-sm text-gray-600 font-semibold">
+                      <div className="text-base text-gray-600 font-semibold">
                         +{tasks.filter(task =>
                           task.due_date && isSameDay(new Date(task.due_date), day)
                         ).length - 3}件
@@ -378,9 +412,9 @@ export default function Calendar() {
         </div>
 
         {/* 凡例 */}
-        <div className="bg-white rounded-lg shadow p-2 mt-2 flex-shrink-0">
-          <div className="flex items-center justify-center gap-4 text-xs">
-            <span className="font-bold text-gray-900">凡例:</span>
+        <div className="card-canva mt-2 flex-shrink-0 py-2">
+          <div className="flex items-center justify-center gap-4 text-base">
+            <span className="font-bold text-canva-purple">凡例:</span>
             <div className="flex items-center gap-1">
               <div className="w-3 h-3 bg-red-600 rounded"></div>
               <span>マイルストーン</span>
@@ -400,6 +434,151 @@ export default function Calendar() {
           </div>
         </div>
       </div>
+
+      {/* タスク詳細モーダル */}
+      {showTaskModal && selectedTask && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="modal-canva w-full max-w-2xl">
+            {/* ヘッダー */}
+            <div className="modal-canva-header flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">{selectedTask.title}</h2>
+                {selectedTask.project?.customer?.names && (
+                  <p className="text-base text-white opacity-90 mt-1">
+                    {selectedTask.project.customer.names.join('・')}様邸
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={() => {
+                  setSelectedTask(null)
+                  setShowTaskModal(false)
+                }}
+                className="text-white hover:text-gray-200 transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* コンテンツ */}
+            <div className="modal-canva-content space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+              {/* ステータス変更ボタン */}
+              <div>
+                <label className="block text-base font-medium text-gray-700 mb-2">ステータス</label>
+                <div className="grid grid-cols-4 gap-2">
+                  <button
+                    onClick={() => handleUpdateTaskStatus(selectedTask.id, 'not_started')}
+                    className={`px-3 py-2 rounded-lg font-bold text-base transition-colors border-2 ${
+                      selectedTask.status === 'not_started'
+                        ? 'bg-gray-500 text-white border-gray-700'
+                        : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'
+                    }`}
+                  >
+                    未着手
+                  </button>
+                  <button
+                    onClick={() => handleUpdateTaskStatus(selectedTask.id, 'requested')}
+                    className={`px-3 py-2 rounded-lg font-bold text-base transition-colors border-2 ${
+                      selectedTask.status === 'requested'
+                        ? 'bg-yellow-400 text-gray-900 border-yellow-600'
+                        : 'bg-white text-yellow-700 hover:bg-yellow-50 border-yellow-300'
+                    }`}
+                  >
+                    着手中
+                  </button>
+                  <button
+                    onClick={() => handleUpdateTaskStatus(selectedTask.id, 'delayed')}
+                    className={`px-3 py-2 rounded-lg font-bold text-base transition-colors border-2 ${
+                      selectedTask.status === 'delayed'
+                        ? 'bg-red-500 text-white border-red-700'
+                        : 'bg-white text-red-700 hover:bg-red-50 border-red-300'
+                    }`}
+                  >
+                    遅延
+                  </button>
+                  <button
+                    onClick={() => handleUpdateTaskStatus(selectedTask.id, 'completed')}
+                    className={`px-3 py-2 rounded-lg font-bold text-base transition-colors border-2 ${
+                      selectedTask.status === 'completed'
+                        ? 'bg-blue-500 text-white border-blue-700'
+                        : 'bg-white text-blue-700 hover:bg-blue-50 border-blue-300'
+                    }`}
+                  >
+                    完了
+                  </button>
+                </div>
+              </div>
+
+              {/* 期限日 */}
+              <div>
+                <label className="block text-base font-medium text-gray-700 mb-2">期限日</label>
+                <div className="bg-blue-50 p-3 border-2 border-blue-300 rounded-lg text-center">
+                  <div className="text-lg font-bold text-blue-900">
+                    {selectedTask.due_date ? format(new Date(selectedTask.due_date), 'yyyy/MM/dd (E)', { locale: ja }) : '未設定'}
+                  </div>
+                </div>
+              </div>
+
+              {/* 作業内容 */}
+              {selectedTask.description && (
+                <div>
+                  <label className="block text-base font-medium text-gray-700 mb-2">作業内容</label>
+                  <div className="bg-gray-50 p-3 border-2 border-gray-300 rounded-lg text-base leading-relaxed text-gray-800">
+                    {selectedTask.description}
+                  </div>
+                </div>
+              )}
+
+              {/* Do's & Don'ts */}
+              {(selectedTask.dos || selectedTask.donts) && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                  {selectedTask.dos && (
+                    <div>
+                      <label className="block text-base font-medium text-gray-700 mb-2">Do's (推奨事項)</label>
+                      <div className="bg-green-50 p-3 border-2 border-green-300 rounded-lg text-base leading-relaxed text-gray-800 whitespace-pre-wrap max-h-32 overflow-y-auto">
+                        {selectedTask.dos}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedTask.donts && (
+                    <div>
+                      <label className="block text-base font-medium text-gray-700 mb-2">Don'ts (禁止事項)</label>
+                      <div className="bg-red-50 p-3 border-2 border-red-300 rounded-lg text-base leading-relaxed text-gray-800 whitespace-pre-wrap max-h-32 overflow-y-auto">
+                        {selectedTask.donts}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* フッター */}
+            <div className="modal-canva-footer">
+              {selectedTask.project?.id && (
+                <button
+                  onClick={() => {
+                    navigate(`/projects/${selectedTask.project?.id}`)
+                  }}
+                  className="btn-canva-secondary flex-1 flex items-center justify-center gap-2"
+                >
+                  <ExternalLink size={18} />
+                  案件詳細を開く
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  setSelectedTask(null)
+                  setShowTaskModal(false)
+                }}
+                className="btn-canva-primary flex-1"
+              >
+                閉じる
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

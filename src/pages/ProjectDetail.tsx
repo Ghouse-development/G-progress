@@ -4,9 +4,8 @@ import { supabase } from '../lib/supabase'
 import { Project, Customer, Employee, Task } from '../types/database'
 import { format, differenceInDays, addDays } from 'date-fns'
 import { ja } from 'date-fns/locale'
-import { ArrowUpDown, Filter, Plus, Eye, Trash2, Table, List, Grid, FileText, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react'
+import { ArrowUpDown, Plus, Eye, Trash2, Table, List, Grid, RefreshCw, X } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
-import FileUpload from '../components/FileUpload'
 import { regenerateProjectTasks } from '../utils/taskGenerator'
 
 interface ProjectWithRelations extends Project {
@@ -75,13 +74,11 @@ export default function ProjectDetail() {
   const [sortField, setSortField] = useState<SortField>('business_no')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all')
-  const [viewMode, setViewMode] = useState<'table' | 'list' | 'grid'>('table')
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
   // グリッドビュー用
   const todayRowRef = useRef<HTMLDivElement>(null)
 
-  // ファイル管理セクションの折りたたみ
-  const [showFilesSection, setShowFilesSection] = useState(false)
 
   // モーダル状態
   const [showTaskModal, setShowTaskModal] = useState(false)
@@ -102,6 +99,17 @@ export default function ProjectDetail() {
     loadProjectData()
     loadEmployees()
   }, [id])
+
+  // グリッドビュー表示時に今日の行へ自動スクロール
+  useEffect(() => {
+    if (viewMode === 'grid' && project && todayRowRef.current && !loading) {
+      // 少し遅延させてDOMが完全に構築されてからスクロール
+      const timer = setTimeout(() => {
+        scrollToToday()
+      }, 300)
+      return () => clearTimeout(timer)
+    }
+  }, [viewMode, project, loading])
 
   // リアルタイム更新: tasksテーブルの変更を監視
   useEffect(() => {
@@ -169,8 +177,7 @@ export default function ProjectDetail() {
         .from('tasks')
         .select(`
           *,
-          assigned_employee:assigned_to(id, last_name, first_name, department),
-          task_master:task_masters!task_master_id(business_no)
+          assigned_employee:assigned_to(id, last_name, first_name, department)
         `)
         .eq('project_id', id)
 
@@ -184,7 +191,7 @@ export default function ProjectDetail() {
         return {
           ...task,
           dayFromContract,
-          business_no: task.task_master?.business_no || 999
+          business_no: 999
         }
       })
 
@@ -645,31 +652,29 @@ export default function ProjectDetail() {
                 <h1 className="text-lg font-bold text-gray-900">
                   {project.customer?.names?.join('・') || '顧客名なし'}様邸
                 </h1>
-                <span className="text-xs font-bold text-gray-700">
+                <span className="text-base font-bold text-gray-700">
                   契約日: {format(new Date(project.contract_date), 'yyyy/MM/dd (E)', { locale: ja })}
                 </span>
-                <span className="text-xs font-bold text-gray-700">
+                <span className="text-base font-bold text-gray-700">
                   {project.customer?.building_site || '-'}
                 </span>
               </div>
-              <span className={`px-3 py-1 rounded-lg text-xs font-bold ${
-                project.status === 'pre_contract' ? 'bg-white text-gray-800 border-2 border-gray-300' :
+              <span className={`px-3 py-1 rounded-lg text-base font-bold ${
                 project.status === 'post_contract' ? 'bg-blue-100 text-blue-800 border-2 border-blue-300' :
                 project.status === 'construction' ? 'bg-orange-100 text-orange-800 border-2 border-orange-300' :
                 'bg-green-100 text-green-800 border-2 border-green-300'
               }`}>
-                {project.status === 'pre_contract' ? '契約前' :
-                 project.status === 'post_contract' ? '契約後' :
-                 project.status === 'construction' ? '着工後' : '完了'}
+                {project.status === 'post_contract' ? '契約後' :
+                 project.status === 'construction' ? '着工後' : '引き渡し済'}
               </span>
             </div>
           </div>
 
           <div className="px-3 py-1.5 bg-white border-b-2 border-gray-300">
-            <div className="flex items-center justify-between flex-wrap gap-2 text-xs">
+            <div className="flex items-center justify-between flex-wrap gap-2 text-base">
               <div className="flex items-center gap-3">
                 <span className="text-gray-700 font-bold">
-                  総タスク数: <span className="text-blue-600 text-sm">{tasks.length}</span>
+                  総タスク数: <span className="text-blue-600 text-base">{tasks.length}</span>
                 </span>
                 <span className="flex items-center gap-1">
                   <span className="w-3 h-3 rounded bg-gray-200 border border-gray-400"></span>
@@ -692,7 +697,7 @@ export default function ProjectDetail() {
           </div>
 
           <div className="px-3 py-1.5 bg-gray-50">
-            <div className="flex items-center gap-4 text-xs">
+            <div className="flex items-center gap-4 text-base">
               <div>
                 <span className="text-gray-600 font-medium">営業: </span>
                 <span className="font-bold text-gray-900">
@@ -715,182 +720,98 @@ export default function ProjectDetail() {
           </div>
         </div>
 
-        {/* ファイル管理セクション（折りたたみ可能） */}
-        <div className="bg-white rounded-lg shadow-md border-2 border-gray-300 mb-2 overflow-hidden">
-          <button
-            onClick={() => setShowFilesSection(!showFilesSection)}
-            className="w-full p-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
-          >
+        {/* ツールバー - シンプル版 */}
+        <div className="bg-white rounded-lg shadow-md p-3 mb-2 border-2 border-gray-300">
+          <div className="flex items-center justify-between gap-4">
+            {/* 左側：ソートと並び順 */}
             <div className="flex items-center gap-2">
-              <FileText size={20} className="text-blue-600" />
-              <span className="font-bold text-gray-900">プロジェクトファイル管理</span>
-              <span className="text-xs text-gray-600">(ドキュメント、画像、PDFなど)</span>
-            </div>
-            {showFilesSection ? (
-              <ChevronUp size={20} className="text-gray-600" />
-            ) : (
-              <ChevronDown size={20} className="text-gray-600" />
-            )}
-          </button>
-
-          {showFilesSection && (
-            <div className="p-4 border-t-2 border-gray-300">
-              <FileUpload projectId={id} onUploadComplete={() => {
-                toast.success('ファイルのアップロードが完了しました')
-              }} />
-            </div>
-          )}
-        </div>
-
-        {/* ツールバー */}
-        <div className="bg-white rounded-lg shadow-md p-2 mb-2 border-2 border-gray-300">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            {/* ソート */}
-            <div className="flex items-center gap-2">
-              <ArrowUpDown size={18} className="text-gray-600" />
-              <span className="font-bold text-xs text-gray-900">並び順:</span>
               <select
                 value={sortField}
                 onChange={(e) => setSortField(e.target.value as SortField)}
-                className="px-2 py-1 border-2 border-gray-300 rounded-lg bg-white text-xs text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-base text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="business_no">業務フロー順</option>
                 <option value="dayFromContract">契約日からの日数</option>
-                <option value="construction_start">着工日順</option>
                 <option value="due_date">期限日順</option>
                 <option value="status">ステータス順</option>
-                <option value="priority">優先度順</option>
-                <option value="title">タスク名順</option>
               </select>
               <button
                 onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                className="px-2 py-1 bg-gray-200 text-gray-900 rounded-lg text-xs font-bold hover:bg-gray-300 transition-colors border-2 border-gray-400"
+                className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-base font-medium hover:bg-gray-200 transition-colors"
+                title={sortOrder === 'asc' ? '昇順' : '降順'}
               >
-                {sortOrder === 'asc' ? '↑ 昇順' : '↓ 降順'}
+                <ArrowUpDown size={16} />
               </button>
             </div>
 
-            {/* フィルタ */}
-            <div className="flex items-center gap-2">
-              <Filter size={18} className="text-gray-600" />
-              <span className="font-bold text-xs text-gray-900">絞り込み:</span>
-              <div className="flex gap-1">
-                <button
-                  onClick={() => setFilterStatus('all')}
-                  className={`px-2 py-1 rounded-lg text-xs font-bold transition-colors border-2 ${
-                    filterStatus === 'all'
-                      ? 'bg-blue-600 text-white shadow-md border-blue-700'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300 border-gray-400'
-                  }`}
-                >
-                  全て ({tasks.length})
-                </button>
-                <button
-                  onClick={() => setFilterStatus('not_started')}
-                  className={`px-2 py-1 rounded-lg text-xs font-bold transition-colors border-2 ${
-                    filterStatus === 'not_started'
-                      ? 'bg-gray-600 text-white shadow-md border-gray-700'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300 border-gray-400'
-                  }`}
-                >
-                  未着手 ({tasks.filter(t => t.status === 'not_started').length})
-                </button>
-                <button
-                  onClick={() => setFilterStatus('requested')}
-                  className={`px-2 py-1 rounded-lg text-xs font-bold transition-colors border-2 ${
-                    filterStatus === 'requested'
-                      ? 'bg-yellow-600 text-white shadow-md border-yellow-700'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300 border-gray-400'
-                  }`}
-                >
-                  着手中 ({tasks.filter(t => t.status === 'requested').length})
-                </button>
-                <button
-                  onClick={() => setFilterStatus('delayed')}
-                  className={`px-2 py-1 rounded-lg text-xs font-bold transition-colors border-2 ${
-                    filterStatus === 'delayed'
-                      ? 'bg-red-600 text-white shadow-md border-red-700'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300 border-gray-400'
-                  }`}
-                >
-                  遅延 ({tasks.filter(t => t.status === 'delayed').length})
-                </button>
-                <button
-                  onClick={() => setFilterStatus('completed')}
-                  className={`px-2 py-1 rounded-lg text-xs font-bold transition-colors border-2 ${
-                    filterStatus === 'completed'
-                      ? 'bg-blue-600 text-white shadow-md border-blue-700'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300 border-gray-400'
-                  }`}
-                >
-                  完了 ({tasks.filter(t => t.status === 'completed').length})
-                </button>
-              </div>
-            </div>
-
-            {/* 表示モード切り替え */}
-            <div className="flex items-center gap-1">
+            {/* 中央：表示モード切り替え */}
+            <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
               <button
-                onClick={() => setViewMode('table')}
-                className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors border-2 flex items-center gap-1 ${
-                  viewMode === 'table'
-                    ? 'bg-indigo-600 text-white shadow-md border-indigo-700'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300 border-gray-400'
+                onClick={() => setViewMode('grid')}
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  viewMode === 'grid'
+                    ? 'bg-white text-blue-600 shadow font-bold'
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
-                title="テーブル表示"
+                title="グリッドビュー"
               >
-                <Table size={18} />
-                テーブル
+                <div className="flex items-center gap-2">
+                  <Grid size={18} />
+                  <span className="text-base">グリッド</span>
+                </div>
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors border-2 flex items-center gap-1 ${
+                className={`px-4 py-2 rounded-lg transition-colors ${
                   viewMode === 'list'
-                    ? 'bg-indigo-600 text-white shadow-md border-indigo-700'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300 border-gray-400'
+                    ? 'bg-white text-blue-600 shadow font-bold'
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
-                title="リスト表示"
+                title="職種別一覧"
               >
-                <List size={18} />
-                リスト
-              </button>
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors border-2 flex items-center gap-1 ${
-                  viewMode === 'grid'
-                    ? 'bg-indigo-600 text-white shadow-md border-indigo-700'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300 border-gray-400'
-                }`}
-                title="グリッド表示（職種×日数）"
-              >
-                <Grid size={18} />
-                グリッド
+                <div className="flex items-center gap-2">
+                  <List size={18} />
+                  <span className="text-base">職種別一覧</span>
+                </div>
               </button>
             </div>
 
-            {/* タスク操作ボタン */}
-            <div className="flex items-center gap-2">
+            {/* 右側：フィルタとアクション */}
+            <div className="flex items-center gap-3">
+              {/* フィルタ */}
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
+                className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-base text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">全て ({tasks.length})</option>
+                <option value="not_started">未着手 ({tasks.filter(t => t.status === 'not_started').length})</option>
+                <option value="requested">着手中 ({tasks.filter(t => t.status === 'requested').length})</option>
+                <option value="delayed">遅延 ({tasks.filter(t => t.status === 'delayed').length})</option>
+                <option value="completed">完了 ({tasks.filter(t => t.status === 'completed').length})</option>
+              </select>
+
+              {/* アクションボタン */}
               <button
                 onClick={handleRegenerateTasks}
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg text-xs font-bold hover:bg-purple-700 transition-colors shadow-md border-2 border-purple-700 flex items-center gap-1"
-                title="タスクマスタから45個のタスクを一括生成"
+                className="px-3 py-2 bg-purple-600 text-white rounded-lg text-base font-medium hover:bg-purple-700 transition-colors flex items-center gap-1"
+                title="タスク一括生成"
               >
-                <RefreshCw size={18} />
-                タスク一括生成
+                <RefreshCw size={16} />
               </button>
               <button
                 onClick={() => setShowTaskModal(true)}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg text-xs font-bold hover:bg-green-700 transition-colors shadow-md border-2 border-green-700 flex items-center gap-1"
+                className="px-3 py-2 bg-green-600 text-white rounded-lg text-base font-medium hover:bg-green-700 transition-colors flex items-center gap-1"
               >
-                <Plus size={18} />
-                新規タスク追加
+                <Plus size={16} />
+                新規
               </button>
             </div>
           </div>
         </div>
 
-        {/* テーブル表示モード */}
-        {viewMode === 'table' && (
+        {/* テーブル表示モード - 削除済み */}
+        {false && (
           <div className="bg-white rounded-lg shadow-xl overflow-hidden border-2 border-gray-300">
             <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: 'calc(100vh - 250px)' }}>
               <table className="w-full border-collapse">
@@ -981,7 +902,7 @@ export default function ProjectDetail() {
 
                       {/* ステータス */}
                       <td className="border-2 border-gray-300 p-3 text-center">
-                        <span className={`px-3 py-1 rounded-lg font-bold text-sm border-2 ${
+                        <span className={`px-3 py-1 rounded-lg font-bold text-base border-2 ${
                           isDelayed ? 'bg-red-200 text-red-900' : getStatusBadgeColor(task.status)
                         }`}>
                           {isDelayed ? '遅延' : getStatusText(task.status)}
@@ -990,7 +911,7 @@ export default function ProjectDetail() {
 
                       {/* 優先度 */}
                       <td className="border-2 border-gray-300 p-3 text-center">
-                        <span className={`px-3 py-1 rounded-lg font-bold text-sm border-2 ${getPriorityBadgeColor(task.priority)}`}>
+                        <span className={`px-3 py-1 rounded-lg font-bold text-base border-2 ${getPriorityBadgeColor(task.priority)}`}>
                           {getPriorityText(task.priority)}
                         </span>
                       </td>
@@ -1031,102 +952,133 @@ export default function ProjectDetail() {
         </div>
         )}
 
-        {/* リスト表示モード */}
+        {/* 職種別一覧表示モード */}
         {viewMode === 'list' && (
-          <div className="space-y-3" style={{ maxHeight: 'calc(100vh - 450px)', overflowY: 'auto' }}>
+          <div className="space-y-4" style={{ maxHeight: 'calc(100vh - 300px)', overflowY: 'auto' }}>
             {sortedTasks.length === 0 ? (
               <div className="bg-white rounded-lg shadow-md p-8 text-center text-gray-500 font-medium border-2 border-gray-300">
                 タスクがありません
               </div>
             ) : (
-              sortedTasks.map((task, index) => {
+              DEPARTMENTS.map((dept) => {
+                // この部門のタスクをフィルタリング
+                const deptTasks = sortedTasks.filter(task => {
+                  const taskPosition = task.description?.split(':')[0]?.trim()
+                  return dept.positions.includes(taskPosition || '')
+                })
+
+                if (deptTasks.length === 0) return null
+
+                return (
+                  <div key={dept.name} className="bg-white rounded-lg shadow-md border-2 border-gray-300 overflow-hidden">
+                    {/* 部門ヘッダー */}
+                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-4">
+                      <h3 className="text-xl font-bold text-white">{dept.name}</h3>
+                      <p className="text-blue-100 text-base mt-1">{deptTasks.length}件のタスク</p>
+                    </div>
+
+                    {/* 職種ごとにグループ化 */}
+                    <div className="p-4 space-y-4">
+                      {dept.positions.map(position => {
+                        const positionTasks = deptTasks.filter(task => {
+                          const taskPosition = task.description?.split(':')[0]?.trim()
+                          return taskPosition === position
+                        })
+
+                        if (positionTasks.length === 0) return null
+
+                        return (
+                          <div key={position} className="border-l-4 border-blue-400 pl-4">
+                            <h4 className="font-bold text-lg text-gray-800 mb-3">{position} ({positionTasks.length}件)</h4>
+                            <div className="space-y-2">
+                              {positionTasks.map((task, index) => {
                 // 遅延判定：期限日が過ぎていて未完了の場合
                 const isDelayed = task.due_date &&
                   task.status !== 'completed' &&
                   new Date(task.due_date) < new Date()
 
-                return (
-                <div
-                  key={task.id}
-                  className="bg-white rounded-lg shadow-md border-2 border-gray-300 p-4 hover:shadow-xl transition-shadow cursor-pointer"
-                  onClick={() => {
-                    setSelectedTask(task)
-                    setShowDetailModal(true)
-                  }}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    {/* 左側: タスク情報 */}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="text-sm font-bold text-gray-500">#{index + 1}</span>
-                        <h3 className="text-lg font-bold text-gray-900">{task.title}</h3>
-                        <span className={`px-3 py-1 rounded-lg font-bold text-sm border-2 ${
-                          isDelayed ? 'bg-red-200 text-red-900' : getStatusBadgeColor(task.status)
-                        }`}>
-                          {isDelayed ? '遅延' : getStatusText(task.status)}
-                        </span>
-                        <span className={`px-3 py-1 rounded-lg font-bold text-sm border-2 ${getPriorityBadgeColor(task.priority)}`}>
-                          優先度: {getPriorityText(task.priority)}
-                        </span>
-                      </div>
+                                return (
+                                  <div
+                                    key={task.id}
+                                    className="bg-gray-50 rounded-lg border border-gray-300 p-3 hover:shadow-md transition-shadow cursor-pointer"
+                                    onClick={() => {
+                                      setSelectedTask(task)
+                                      setShowDetailModal(true)
+                                    }}
+                                  >
+                                    <div className="flex items-start justify-between gap-4">
+                                      {/* 左側: タスク情報 */}
+                                      <div className="flex-1">
+                                        <div className="flex items-center gap-3 mb-2">
+                                          <h5 className="text-base font-bold text-gray-900">{task.title}</h5>
+                                          <span className={`px-2 py-1 rounded-lg font-bold text-base border ${
+                                            isDelayed ? 'bg-red-200 text-red-900' : getStatusBadgeColor(task.status)
+                                          }`}>
+                                            {isDelayed ? '遅延' : getStatusText(task.status)}
+                                          </span>
+                                        </div>
 
-                      <div className="flex items-center gap-6 text-sm text-gray-600">
-                        <div>
-                          <span className="font-medium">担当者: </span>
-                          <span className="font-bold text-gray-900">
-                            {task.assigned_employee
-                              ? `${task.assigned_employee.last_name} ${task.assigned_employee.first_name}`
-                              : '未割当'
-                            }
-                          </span>
-                        </div>
-                        <div>
-                          <span className="font-medium">期限: </span>
-                          <span className="font-bold text-gray-900">
-                            {task.due_date
-                              ? format(new Date(task.due_date), 'yyyy/MM/dd (E)', { locale: ja })
-                              : '未設定'
-                            }
-                          </span>
-                        </div>
-                        <div>
-                          <span className="font-medium">経過日数: </span>
-                          <span className="font-bold text-blue-700">{task.dayFromContract || 0}日目</span>
-                        </div>
-                      </div>
+                                        <div className="flex items-center gap-4 text-base text-gray-600">
+                                          <div>
+                                            <span className="font-medium">担当者: </span>
+                                            <span className="font-bold text-gray-900">
+                                              {task.assigned_employee
+                                                ? `${task.assigned_employee.last_name} ${task.assigned_employee.first_name}`
+                                                : '未割当'
+                                              }
+                                            </span>
+                                          </div>
+                                          <div>
+                                            <span className="font-medium">期限: </span>
+                                            <span className="font-bold text-gray-900">
+                                              {task.due_date
+                                                ? format(new Date(task.due_date), 'M/d (E)', { locale: ja })
+                                                : '未設定'
+                                              }
+                                            </span>
+                                          </div>
+                                          <div>
+                                            <span className="font-medium">契約から: </span>
+                                            <span className="font-bold text-blue-700">{task.dayFromContract || 0}日</span>
+                                          </div>
+                                        </div>
+                                      </div>
 
-                      {task.description && (
-                        <p className="text-sm text-gray-600 mt-2 line-clamp-2">{task.description}</p>
-                      )}
-                    </div>
-
-                    {/* 右側: 操作ボタン */}
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setSelectedTask(task)
-                          setShowDetailModal(true)
-                        }}
-                        className="p-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors border-2 border-blue-300"
-                        title="詳細表示"
-                      >
-                        <Eye size={18} />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleDeleteTask(task.id)
-                        }}
-                        className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors border-2 border-red-300"
-                        title="削除"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+                                      {/* 右側: 操作ボタン */}
+                                      <div className="flex items-center gap-1">
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            setSelectedTask(task)
+                                            setShowDetailModal(true)
+                                          }}
+                                          className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                                          title="詳細表示"
+                                        >
+                                          <Eye size={14} />
+                                        </button>
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            handleDeleteTask(task.id)
+                                          }}
+                                          className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+                                          title="削除"
+                                        >
+                                          <Trash2 size={14} />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )
+                      })}
                     </div>
                   </div>
-                </div>
-              )
+                )
               })
             )}
           </div>
@@ -1137,12 +1089,12 @@ export default function ProjectDetail() {
           <div className="bg-white rounded-lg shadow-xl overflow-hidden border-2 border-gray-300">
             {/* 今日へジャンプボタン */}
             <div className="p-3 bg-gray-50 border-b-2 border-gray-300 flex items-center justify-between">
-              <div className="text-sm font-bold text-gray-700">
+              <div className="text-base font-bold text-gray-700">
                 グリッドビュー（縦軸:日数、横軸:職種）
               </div>
               <button
                 onClick={scrollToToday}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-bold hover:bg-red-600 transition-colors"
+                className="px-4 py-2 bg-red-500 text-white rounded-lg text-base font-bold hover:bg-red-600 transition-colors"
               >
                 📍 今日へジャンプ
               </button>
@@ -1152,16 +1104,16 @@ export default function ProjectDetail() {
               <div style={{ minWidth: 'fit-content', width: '100%' }}>
                 {/* 部門ヘッダー */}
                 <div className="flex border-b-2 border-gray-200 sticky top-0 z-30 bg-white">
-                  <div className="w-28 flex-shrink-0 border-r-2 border-gray-200 p-3 text-center font-bold text-sm text-gray-800 bg-white">
+                  <div className="w-28 flex-shrink-0 border-r-2 border-gray-200 p-3 text-center font-bold text-base text-gray-800 bg-white">
                     日付
                   </div>
-                  <div className="w-20 flex-shrink-0 border-r-2 border-gray-200 p-3 text-center font-bold text-sm text-gray-800 bg-white">
+                  <div className="w-20 flex-shrink-0 border-r-2 border-gray-200 p-3 text-center font-bold text-base text-gray-800 bg-white">
                     日数
                   </div>
                   {DEPARTMENTS.map((dept, index) => (
                     <div
                       key={dept.name}
-                      className={`text-center py-2 px-1 font-bold text-sm ${
+                      className={`text-center py-2 px-1 font-bold text-base ${
                         index === 0 ? 'bg-blue-100 text-blue-900' :
                         index === 1 ? 'bg-green-100 text-green-900' :
                         index === 2 ? 'bg-orange-100 text-orange-900' :
@@ -1179,10 +1131,10 @@ export default function ProjectDetail() {
 
                 {/* 職種ヘッダー */}
                 <div className="flex border-b-2 border-gray-200 bg-white sticky z-20" style={{ top: '48px' }}>
-                  <div className="w-28 flex-shrink-0 border-r-2 border-gray-200 p-2 text-center text-xs font-bold bg-gray-50">
+                  <div className="w-28 flex-shrink-0 border-r-2 border-gray-200 p-2 text-center text-base font-bold bg-gray-50">
                     日付
                   </div>
-                  <div className="w-20 flex-shrink-0 border-r-2 border-gray-200 p-2 text-center text-xs font-bold bg-gray-50">
+                  <div className="w-20 flex-shrink-0 border-r-2 border-gray-200 p-2 text-center text-base font-bold bg-gray-50">
                     日
                   </div>
                   {ALL_POSITIONS.map((position) => {
@@ -1194,8 +1146,8 @@ export default function ProjectDetail() {
                         className="border-r border-gray-200 p-2 text-center bg-white"
                         style={{ flex: '1 1 0%', minWidth: '80px' }}
                       >
-                        <div className="font-bold text-xs text-gray-800 mb-1 truncate">{position}</div>
-                        <div className="text-xs text-gray-600 truncate" title={employee ? `${employee.last_name} ${employee.first_name}` : '未割当'}>
+                        <div className="font-bold text-base text-gray-800 mb-1 truncate">{position}</div>
+                        <div className="text-base text-gray-600 truncate" title={employee ? `${employee.last_name} ${employee.first_name}` : '未割当'}>
                           {employee ? `${employee.last_name}` : '-'}
                         </div>
                         <div className="flex items-center gap-1 mt-1">
@@ -1205,7 +1157,7 @@ export default function ProjectDetail() {
                               style={{ width: `${completionRate}%` }}
                             ></div>
                           </div>
-                          <span className="text-xs font-bold text-green-700 whitespace-nowrap">{completionRate}%</span>
+                          <span className="text-base font-bold text-green-700 whitespace-nowrap">{completionRate}%</span>
                         </div>
                       </div>
                     )
@@ -1254,10 +1206,12 @@ export default function ProjectDetail() {
                               title="ダブルクリックでタスク追加"
                             >
                               {positionTasks.map((task) => {
-                                // 遅延判定：期限日が過ぎていて未完了の場合
-                                const isDelayed = task.due_date &&
+                                // 遅延判定：ステータスがdelayedの場合、または期限日が過ぎていて未完了の場合
+                                const isDelayed = task.status === 'delayed' || (
+                                  task.due_date &&
                                   task.status !== 'completed' &&
                                   new Date(task.due_date) < new Date()
+                                )
 
                                 return (
                                   <div
@@ -1267,11 +1221,11 @@ export default function ProjectDetail() {
                                       setSelectedTask(task)
                                       setShowDetailModal(true)
                                     }}
-                                    className={`text-sm px-2 py-1 rounded truncate cursor-pointer mb-1 ${
-                                      isDelayed ? 'bg-red-200 text-red-900 font-bold' :
-                                      task.status === 'completed' ? 'bg-blue-200 text-blue-900 font-bold' :
-                                      task.status === 'requested' ? 'bg-yellow-200 text-yellow-900 font-semibold' :
-                                      'bg-gray-200 text-gray-800'
+                                    className={`text-base px-2 py-1 rounded truncate cursor-pointer mb-1 border-2 ${
+                                      isDelayed ? 'bg-red-200 text-red-900 font-bold border-red-600' :
+                                      task.status === 'completed' ? 'bg-blue-200 text-blue-900 font-bold border-blue-600' :
+                                      task.status === 'requested' ? 'bg-yellow-200 text-yellow-900 font-semibold border-yellow-600' :
+                                      'bg-gray-200 text-gray-800 border-gray-400'
                                     }`}
                                     title={task.title}
                                   >
@@ -1290,7 +1244,7 @@ export default function ProjectDetail() {
             </div>
 
             {/* グリッド説明 */}
-            <div className="p-2 bg-blue-50 border-t-2 border-gray-300 text-xs text-gray-700">
+            <div className="p-2 bg-blue-50 border-t-2 border-gray-300 text-base text-gray-700">
               <div className="flex items-center gap-4">
                 <span className="font-bold">使い方:</span>
                 <span>• タスククリック → 詳細表示</span>
@@ -1303,84 +1257,11 @@ export default function ProjectDetail() {
 
         {/* タスク追加モーダル */}
         {showTaskModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-2xl p-6 w-full max-w-2xl border-2 border-gray-300">
-              <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b-2 border-gray-300 pb-3">新しいタスクを追加</h2>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
-                    タスク名 <span className="text-red-600">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={newTask.title}
-                    onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                    className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
-                    placeholder="例: 初回面談"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
-                    期限 <span className="text-red-600">*</span>
-                  </label>
-                  <input
-                    type="date"
-                    value={newTask.due_date}
-                    onChange={(e) => setNewTask({ ...newTask, due_date: e.target.value })}
-                    className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
-                    担当者
-                  </label>
-                  <select
-                    value={newTask.assigned_to}
-                    onChange={(e) => setNewTask({ ...newTask, assigned_to: e.target.value })}
-                    className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
-                  >
-                    <option value="">未割り当て</option>
-                    {employees.map((emp) => (
-                      <option key={emp.id} value={emp.id}>
-                        {emp.last_name} {emp.first_name} ({emp.department})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
-                    優先度
-                  </label>
-                  <select
-                    value={newTask.priority}
-                    onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as 'low' | 'medium' | 'high' })}
-                    className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
-                  >
-                    <option value="low">低</option>
-                    <option value="medium">中</option>
-                    <option value="high">高</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
-                    詳細説明
-                  </label>
-                  <textarea
-                    value={newTask.description}
-                    onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-                    className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
-                    rows={4}
-                    placeholder="タスクの詳細説明（任意）"
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-3 mt-6">
+          <div className="modal-overlay">
+            <div className="bg-white rounded-lg shadow-2xl max-w-md w-full border-2 border-gray-300">
+              {/* ヘッダー */}
+              <div className="flex items-center justify-between px-5 py-4 border-b-2 border-gray-200">
+                <h2 className="text-xl font-bold text-gray-900">新しいタスクを追加</h2>
                 <button
                   onClick={() => {
                     setShowTaskModal(false)
@@ -1392,13 +1273,106 @@ export default function ProjectDetail() {
                       priority: 'medium'
                     })
                   }}
-                  className="flex-1 px-6 py-3 border-2 border-gray-400 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-bold"
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X size={22} />
+                </button>
+              </div>
+
+              {/* コンテンツ */}
+              <div className="px-5 py-4 space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
+                <div>
+                  <label className="block text-base font-medium text-gray-700 mb-1">
+                    タスク名 <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={newTask.title}
+                    onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                    className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="例: 初回面談"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-base font-medium text-gray-700 mb-1">
+                    期限 <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={newTask.due_date}
+                    onChange={(e) => setNewTask({ ...newTask, due_date: e.target.value })}
+                    className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-base font-medium text-gray-700 mb-1">
+                    担当者
+                  </label>
+                  <select
+                    value={newTask.assigned_to}
+                    onChange={(e) => setNewTask({ ...newTask, assigned_to: e.target.value })}
+                    className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">未割り当て</option>
+                    {employees.map((emp) => (
+                      <option key={emp.id} value={emp.id}>
+                        {emp.last_name} {emp.first_name} ({emp.department})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-base font-medium text-gray-700 mb-1">
+                    優先度
+                  </label>
+                  <select
+                    value={newTask.priority}
+                    onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as 'low' | 'medium' | 'high' })}
+                    className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="low">低</option>
+                    <option value="medium">中</option>
+                    <option value="high">高</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-base font-medium text-gray-700 mb-1">
+                    詳細説明
+                  </label>
+                  <textarea
+                    value={newTask.description}
+                    onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                    className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    rows={3}
+                    placeholder="タスクの詳細説明（任意）"
+                  />
+                </div>
+              </div>
+
+              {/* フッター */}
+              <div className="flex gap-2 px-5 py-3 border-t-2 border-gray-200 bg-gray-50">
+                <button
+                  onClick={() => {
+                    setShowTaskModal(false)
+                    setNewTask({
+                      title: '',
+                      description: '',
+                      assigned_to: '',
+                      due_date: '',
+                      priority: 'medium'
+                    })
+                  }}
+                  className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-100 transition-colors font-medium"
                 >
                   キャンセル
                 </button>
                 <button
                   onClick={handleAddTask}
-                  className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-bold border-2 border-green-700 shadow-md"
+                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
                 >
                   追加
                 </button>
@@ -1409,7 +1383,7 @@ export default function ProjectDetail() {
 
         {/* タスク詳細モーダル */}
         {showDetailModal && selectedTask && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="modal-overlay">
             <div className="bg-white rounded-lg shadow-2xl p-6 w-full max-w-4xl max-h-[95vh] overflow-y-auto border-2 border-gray-300">
               <div className="flex items-center justify-between mb-4 pb-3 border-b-2 border-blue-300">
                 <h2 className="text-2xl font-bold text-gray-900">{selectedTask.title}</h2>
@@ -1479,7 +1453,7 @@ export default function ProjectDetail() {
                   className="bg-gradient-to-br from-blue-100 to-blue-200 p-6 border-2 border-blue-500 shadow-md hover:shadow-lg transition-all cursor-pointer rounded-lg"
                 >
                   <div className="text-center">
-                    <div className="text-sm font-bold text-blue-900 mb-2">期限日</div>
+                    <div className="text-base font-bold text-blue-900 mb-2">期限日</div>
                     {editingDueDate ? (
                       <input
                         type="date"
@@ -1494,7 +1468,7 @@ export default function ProjectDetail() {
                         <div className="text-2xl font-black text-blue-900">
                           {selectedTask.due_date ? format(new Date(selectedTask.due_date), 'yyyy/MM/dd (E)', { locale: ja }) : '未設定'}
                         </div>
-                        <div className="text-sm text-blue-700 mt-2">
+                        <div className="text-base text-blue-700 mt-2">
                           契約日から {selectedTask.dayFromContract || 0}日目
                         </div>
                       </>
@@ -1507,36 +1481,36 @@ export default function ProjectDetail() {
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="bg-gradient-to-br from-purple-100 to-purple-200 p-6 border-2 border-purple-500 shadow-md rounded-lg">
                   <div className="text-center">
-                    <div className="text-sm font-bold text-purple-900 mb-3">マニュアル</div>
+                    <div className="text-base font-bold text-purple-900 mb-3">マニュアル</div>
                     {selectedTask.manual_url ? (
                       <a
                         href={selectedTask.manual_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-block px-6 py-2 bg-purple-600 text-white hover:bg-purple-700 transition-all font-bold text-sm shadow-md rounded-lg"
+                        className="inline-block px-6 py-2 bg-purple-600 text-white hover:bg-purple-700 transition-all font-bold text-base shadow-md rounded-lg"
                       >
                         開く
                       </a>
                     ) : (
-                      <div className="text-gray-500 text-sm">未設定</div>
+                      <div className="text-gray-500 text-base">未設定</div>
                     )}
                   </div>
                 </div>
 
                 <div className="bg-gradient-to-br from-pink-100 to-pink-200 p-6 border-2 border-pink-500 shadow-md rounded-lg">
                   <div className="text-center">
-                    <div className="text-sm font-bold text-pink-900 mb-3">動画</div>
+                    <div className="text-base font-bold text-pink-900 mb-3">動画</div>
                     {selectedTask.video_url ? (
                       <a
                         href={selectedTask.video_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-block px-6 py-2 bg-pink-600 text-white hover:bg-pink-700 transition-all font-bold text-sm shadow-md rounded-lg"
+                        className="inline-block px-6 py-2 bg-pink-600 text-white hover:bg-pink-700 transition-all font-bold text-base shadow-md rounded-lg"
                       >
                         再生
                       </a>
                     ) : (
-                      <div className="text-gray-500 text-sm">未設定</div>
+                      <div className="text-gray-500 text-base">未設定</div>
                     )}
                   </div>
                 </div>

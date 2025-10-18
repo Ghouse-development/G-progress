@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { Project, Task, Employee, Product } from '../types/database'
+import { Project, Task, Employee, Product, Payment } from '../types/database'
 import { differenceInDays, format } from 'date-fns'
 import { HelpCircle, Plus, X } from 'lucide-react'
 import { useMode } from '../contexts/ModeContext'
@@ -30,9 +30,10 @@ interface DepartmentStatus {
 export default function DashboardHome() {
   const { mode, setMode } = useMode()
   const toast = useToast()
-  const [fiscalYear, setFiscalYear] = useState<number>(getFiscalYear(new Date()))
+  const [fiscalYear, setFiscalYear] = useState<number>(2024) // 2024年度から表示
   const [projects, setProjects] = useState<Project[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
+  const [payments, setPayments] = useState<Payment[]>([])
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [constructionFilter, setConstructionFilter] = useState<'all' | 'pre' | 'post'>('all')
 
@@ -51,6 +52,10 @@ export default function DashboardHome() {
     assignedDesign: '',
     assignedConstruction: ''
   })
+
+  // 部署遅延詳細モーダル用のstate
+  const [showDepartmentDetailModal, setShowDepartmentDetailModal] = useState(false)
+  const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null)
 
   // 利用可能な年度のリスト（過去5年分）
   const currentFY = getFiscalYear(new Date())
@@ -196,8 +201,19 @@ export default function DashboardHome() {
         if (tasksData) {
           setTasks(tasksData as Task[])
         }
+
+        // プロジェクトに紐づく支払いをすべて取得
+        const { data: paymentsData } = await supabase
+          .from('payments')
+          .select('*')
+          .in('project_id', projectIds)
+
+        if (paymentsData) {
+          setPayments(paymentsData as Payment[])
+        }
       } else {
         setTasks([])
+        setPayments([])
       }
     }
   }
@@ -288,13 +304,72 @@ export default function DashboardHome() {
 
   // 統計計算
   const totalProjects = projects.length
-  const activeProjects = projects.filter(p => p.status === 'construction' || p.status === 'post_contract').length
-  const averageProgress = projects.length > 0
-    ? Math.round(projects.reduce((sum, p) => sum + p.progress_rate, 0) / projects.length)
-    : 0
-  const delayedProjects = projects.filter(p => p.progress_rate < 50 && p.status !== 'completed').length
+  const postContractProjects = projects.filter(p => p.status === 'post_contract').length
+  const constructionProjects = projects.filter(p => p.status === 'construction').length
+  const completedProjects = projects.filter(p => p.status === 'completed').length
 
-  // 部署ステータス計算
+  // 遅延タスク数を計算
+  const delayedTasksCount = tasks.filter(task => {
+    if (!task.due_date || task.status === 'completed' || task.status === 'not_applicable') return false
+    const daysOverdue = differenceInDays(new Date(), new Date(task.due_date))
+    return daysOverdue > 0
+  }).length
+
+  // 月別統計を計算（8月～7月の12ヶ月）
+  const getMonthlyStatistics = () => {
+    const months = []
+    const { startDate } = getFiscalYearRange(fiscalYear)
+
+    for (let i = 0; i < 12; i++) {
+      const monthDate = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1)
+      const monthStart = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1)
+      const monthEnd = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0, 23, 59, 59)
+
+      // 契約数：contract_dateが該当月の案件
+      const contractCount = projects.filter(p => {
+        if (!p.contract_date) return false
+        const contractDate = new Date(p.contract_date)
+        return contractDate >= monthStart && contractDate <= monthEnd
+      }).length
+
+      // 着工数：construction_start_dateが該当月の案件
+      const constructionStartCount = projects.filter(p => {
+        if (!p.construction_start_date) return false
+        const constructionDate = new Date(p.construction_start_date)
+        return constructionDate >= monthStart && constructionDate <= monthEnd
+      }).length
+
+      // 引き渡し数：handover_dateが該当月の案件
+      const handoverCount = projects.filter(p => {
+        if (!p.handover_date) return false
+        const handoverDate = new Date(p.handover_date)
+        return handoverDate >= monthStart && handoverDate <= monthEnd
+      }).length
+
+      // 入金額：actual_dateが該当月の支払い
+      const monthPayments = payments.filter(payment => {
+        if (!payment.actual_date) return false
+        const paymentDate = new Date(payment.actual_date)
+        return paymentDate >= monthStart && paymentDate <= monthEnd
+      })
+      const paymentAmount = monthPayments.reduce((sum, payment) => sum + payment.amount, 0)
+
+      months.push({
+        month: format(monthDate, 'M月'),
+        year: monthDate.getFullYear(),
+        contractCount,
+        constructionStartCount,
+        handoverCount,
+        paymentAmount
+      })
+    }
+
+    return months
+  }
+
+  const monthlyStats = getMonthlyStatistics()
+
+  // 部署ステータス計算（担当者モードでは自分の案件のみ）
   const getDepartmentStatus = (): DepartmentStatus[] => {
     const departments = [
       { name: '営業部', positions: ['営業', '営業事務', 'ローン事務'] },
@@ -303,10 +378,30 @@ export default function DashboardHome() {
       { name: '外構事業部', positions: ['外構設計', '外構工事'] }
     ]
 
+    // 担当者モードの場合、自分が担当している案件のIDリストを取得
+    let myProjectIds: string[] = []
+    if (mode === 'staff' && currentUserId) {
+      myProjectIds = projects
+        .filter(p =>
+          p.assigned_sales === currentUserId ||
+          p.assigned_design === currentUserId ||
+          p.assigned_construction === currentUserId
+        )
+        .map(p => p.id)
+    }
+
     return departments.map(dept => {
+      // 部署のタスクを取得（担当者モードでは自分の案件のみ）
       const deptTasks = tasks.filter(task => {
         const taskPosition = task.description?.split(':')[0]?.trim()
-        return dept.positions.includes(taskPosition || '')
+        const isInDepartment = dept.positions.includes(taskPosition || '')
+
+        // 管理者モードまたはタスクが自分の案件に属している場合のみ
+        if (mode === 'admin') {
+          return isInDepartment
+        } else {
+          return isInDepartment && myProjectIds.includes(task.project_id)
+        }
       })
 
       const delayedTasks = deptTasks.filter(task => {
@@ -337,11 +432,67 @@ export default function DashboardHome() {
 
   const departmentStatuses = getDepartmentStatus()
 
+  // 部署の遅延詳細を取得（職種ごとの遅延タスク数）
+  const getDepartmentDelayDetails = (departmentName: string) => {
+    const departmentMap: { [key: string]: string[] } = {
+      '営業部': ['営業', '営業事務', 'ローン事務'],
+      '設計部': ['意匠設計', 'IC', '実施設計', '構造設計', '申請設計'],
+      '工事部': ['工事', '工事事務', '積算・発注'],
+      '外構事業部': ['外構設計', '外構工事']
+    }
+
+    const positions = departmentMap[departmentName] || []
+
+    // 担当者モードの場合、自分が担当している案件のIDリストを取得
+    let myProjectIds: string[] = []
+    if (mode === 'staff' && currentUserId) {
+      myProjectIds = projects
+        .filter(p =>
+          p.assigned_sales === currentUserId ||
+          p.assigned_design === currentUserId ||
+          p.assigned_construction === currentUserId
+        )
+        .map(p => p.id)
+    }
+
+    // 職種ごとの遅延タスク数をカウント
+    return positions.map(position => {
+      const positionDelayedTasks = tasks.filter(task => {
+        // タスクが自分の案件に属しているかチェック（担当者モードの場合）
+        if (mode === 'staff' && !myProjectIds.includes(task.project_id)) {
+          return false
+        }
+
+        // タスクの職種がこの職種かチェック（descriptionから取得）
+        const taskPosition = task.description?.split(':')[0]?.trim()
+        if (taskPosition !== position) return false
+
+        // 遅延しているかチェック
+        if (!task.due_date) return false
+        if (task.status === 'completed') return false
+        const daysOverdue = differenceInDays(new Date(), new Date(task.due_date))
+        return daysOverdue > 0
+      })
+
+      return {
+        employeeId: position,
+        employeeName: position,
+        department: position,
+        delayedCount: positionDelayedTasks.length
+      }
+    }).filter(detail => detail.delayedCount > 0) // 遅延がある職種のみ
+  }
+
+  const handleDepartmentClick = (departmentName: string) => {
+    setSelectedDepartment(departmentName)
+    setShowDepartmentDetailModal(true)
+  }
+
   // 着工前/後フィルタリング
   const filteredProjects = projects.filter(project => {
     if (constructionFilter === 'all') return true
     if (constructionFilter === 'pre') {
-      return project.status === 'pre_contract' || project.status === 'post_contract'
+      return project.status === 'post_contract'
     }
     if (constructionFilter === 'post') {
       return project.status === 'construction' || project.status === 'completed'
@@ -395,7 +546,7 @@ export default function DashboardHome() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {/* ヘッダー: モード切替と年度選択 */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">ダッシュボード</h2>
@@ -404,7 +555,7 @@ export default function DashboardHome() {
           {/* 新規案件追加ボタン */}
           <button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            className="btn-canva-primary flex items-center gap-2"
           >
             <Plus size={20} />
             新規案件追加
@@ -412,17 +563,17 @@ export default function DashboardHome() {
           {/* 年度選択 */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
-              <label className="text-lg font-bold text-gray-900 flex items-center gap-1">
+              <label className="text-xl font-bold text-gray-900 flex items-center gap-1">
                 年度
                 <span title="当社では8月1日〜翌年7月31日を1年度としています">
-                  <HelpCircle size={16} className="text-gray-400 cursor-help" />
+                  <HelpCircle size={18} className="text-gray-400 cursor-help" />
                 </span>
                 :
               </label>
               <select
                 value={fiscalYear}
                 onChange={(e) => setFiscalYear(Number(e.target.value))}
-                className="px-6 py-3 border-3 border-blue-500 rounded-lg bg-white text-gray-900 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-lg hover:shadow-xl transition-all"
+                className="input-canva px-6 py-3 text-xl font-bold shadow-canva"
                 title="当社では8月1日〜翌年7月31日を1年度としています"
               >
                 {availableYears.map(year => (
@@ -436,13 +587,13 @@ export default function DashboardHome() {
 
           {/* モード切替 */}
           <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2 bg-pastel-blue-light rounded-lg p-1 border-2 border-pastel-blue">
+            <div className="flex items-center gap-2 bg-white rounded-canva p-1 shadow-canva">
               <button
                 onClick={() => setMode('staff')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                className={`px-4 py-2 rounded-canva text-base font-semibold transition-all duration-300 ${
                   mode === 'staff'
-                    ? 'bg-gradient-pastel-blue text-pastel-blue-dark shadow-pastel'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-canva-gradient-1 text-white shadow-canva'
+                    : 'text-gray-600 hover:bg-gray-100'
                 }`}
                 title="あなたが担当する案件のみを表示します"
               >
@@ -450,10 +601,10 @@ export default function DashboardHome() {
               </button>
               <button
                 onClick={() => setMode('admin')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                className={`px-4 py-2 rounded-canva text-base font-semibold transition-all duration-300 ${
                   mode === 'admin'
-                    ? 'bg-gradient-pastel-blue text-pastel-blue-dark shadow-pastel'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-canva-gradient-1 text-white shadow-canva'
+                    : 'text-gray-600 hover:bg-gray-100'
                 }`}
                 title="全社の案件を俯瞰的に確認できます"
               >
@@ -465,54 +616,60 @@ export default function DashboardHome() {
       </div>
 
       {/* 統計情報 */}
-      <div className="grid grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg border-2 border-pastel-blue shadow-pastel p-4">
-          <div className="flex items-center gap-1 mb-1">
-            <p className="text-xs text-gray-600">全社進捗率</p>
-            <span title="全案件の平均進捗率を表示しています">
-              <HelpCircle size={12} className="text-gray-400 cursor-help" />
+      <div className="grid grid-cols-5 gap-3">
+        <div className="card-canva">
+          <div className="flex items-center gap-1 mb-2">
+            <p className="text-base text-gray-600 font-semibold">全案件数</p>
+            <span title={`${fiscalYear}年度の全案件数を表示しています`}>
+              <HelpCircle size={16} className="text-gray-400 cursor-help" />
             </span>
           </div>
-          <p className="text-2xl font-bold text-pastel-blue-dark">{averageProgress}%</p>
-          <div className="mt-2 bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-gradient-pastel-blue h-2 rounded-full transition-all duration-300"
-              style={{ width: `${averageProgress}%` }}
-            ></div>
-          </div>
+          <p className="text-3xl font-bold text-canva-purple mb-3">{totalProjects}</p>
+          <p className="text-base text-gray-500 font-medium">{fiscalYear}年度</p>
         </div>
 
-        <div className="bg-white rounded-lg border-2 border-pastel-orange shadow-pastel p-4">
-          <div className="flex items-center gap-1 mb-1">
-            <p className="text-xs text-gray-600">遅延案件数</p>
-            <span title="進捗率が50%未満の案件数を表示しています">
-              <HelpCircle size={12} className="text-gray-400 cursor-help" />
+        <div className="card-canva">
+          <div className="flex items-center gap-1 mb-2">
+            <p className="text-base text-gray-600 font-semibold">契約後案件数</p>
+            <span title="請負契約完了済み、着工未完了の案件数を表示しています">
+              <HelpCircle size={16} className="text-gray-400 cursor-help" />
             </span>
           </div>
-          <p className="text-2xl font-bold text-pastel-orange-dark">{delayedProjects}</p>
-          <p className="text-xs text-gray-500 mt-2">進捗50%未満</p>
+          <p className="text-3xl font-bold text-canva-blue mb-3">{postContractProjects}</p>
+          <p className="text-base text-gray-500 font-medium">契約済・着工前</p>
         </div>
 
-        <div className="bg-white rounded-lg border-2 border-pastel-green shadow-pastel p-4">
-          <div className="flex items-center gap-1 mb-1">
-            <p className="text-xs text-gray-600">進行中案件</p>
-            <span title="契約後または着工後の案件数を表示しています">
-              <HelpCircle size={12} className="text-gray-400 cursor-help" />
+        <div className="card-canva">
+          <div className="flex items-center gap-1 mb-2">
+            <p className="text-base text-gray-600 font-semibold">着工後案件数</p>
+            <span title="着工完了済み、引き渡し未完了の案件数を表示しています">
+              <HelpCircle size={16} className="text-gray-400 cursor-help" />
             </span>
           </div>
-          <p className="text-2xl font-bold text-pastel-green-dark">{activeProjects}</p>
-          <p className="text-xs text-gray-500 mt-2">契約後・着工後</p>
+          <p className="text-3xl font-bold text-canva-pink mb-3">{constructionProjects}</p>
+          <p className="text-base text-gray-500 font-medium">着工済・引渡前</p>
         </div>
 
-        <div className="bg-white rounded-lg border-2 border-pastel-blue shadow-pastel p-4">
-          <div className="flex items-center gap-1 mb-1">
-            <p className="text-xs text-gray-600">総案件数</p>
-            <span title={`${fiscalYear}年度の総案件数を表示しています`}>
-              <HelpCircle size={12} className="text-gray-400 cursor-help" />
+        <div className="card-canva">
+          <div className="flex items-center gap-1 mb-2">
+            <p className="text-base text-gray-600 font-semibold">引き渡し済み案件数</p>
+            <span title="引き渡し完了済みの案件数を表示しています">
+              <HelpCircle size={16} className="text-gray-400 cursor-help" />
             </span>
           </div>
-          <p className="text-2xl font-bold text-pastel-blue-dark">{totalProjects}</p>
-          <p className="text-xs text-gray-500 mt-2">{fiscalYear}年度</p>
+          <p className="text-3xl font-bold text-green-600 mb-3">{completedProjects}</p>
+          <p className="text-base text-gray-500 font-medium">完了</p>
+        </div>
+
+        <div className="card-canva">
+          <div className="flex items-center gap-1 mb-2">
+            <p className="text-base text-gray-600 font-semibold">遅延タスク数</p>
+            <span title="期限超過している未完了タスクの数を表示しています">
+              <HelpCircle size={16} className="text-gray-400 cursor-help" />
+            </span>
+          </div>
+          <p className="text-3xl font-bold text-red-600 mb-3">{delayedTasksCount}</p>
+          <p className="text-base text-gray-500 font-medium">期限超過</p>
         </div>
       </div>
 
@@ -565,17 +722,17 @@ export default function DashboardHome() {
                             <div className="flex items-start justify-between gap-4">
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-2">
-                                  <span className="px-3 py-1 bg-red-500 text-white text-xs font-bold rounded-full">
+                                  <span className="px-3 py-1 bg-red-500 text-white text-base font-bold rounded-full">
                                     {daysOverdue}日遅れ
                                   </span>
-                                  <h5 className="font-bold text-gray-900">{task.title}</h5>
+                                  <h5 className="font-bold text-lg text-gray-900">{task.title}</h5>
                                 </div>
                                 {project && (
-                                  <p className="text-sm text-gray-700 mb-1">
+                                  <p className="text-base text-gray-700 mb-1">
                                     案件: {project.customer?.names?.join('・') || '不明'}様邸
                                   </p>
                                 )}
-                                <p className="text-sm text-gray-600">
+                                <p className="text-base text-gray-600">
                                   期限: {task.due_date ? format(new Date(task.due_date), 'yyyy/MM/dd') : '未設定'}
                                 </p>
                               </div>
@@ -588,7 +745,7 @@ export default function DashboardHome() {
                                       .eq('id', task.id)
                                     await loadProjects()
                                   }}
-                                  className="px-3 py-1 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700 transition-colors"
+                                  className="px-3 py-1 bg-green-600 text-white text-base font-medium rounded hover:bg-green-700 transition-colors"
                                 >
                                   完了
                                 </button>
@@ -617,13 +774,13 @@ export default function DashboardHome() {
                           <div key={task.id} className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4 hover:shadow-md transition-all">
                             <div className="flex items-start justify-between gap-4">
                               <div className="flex-1">
-                                <h5 className="font-bold text-gray-900 mb-2">{task.title}</h5>
+                                <h5 className="font-bold text-lg text-gray-900 mb-2">{task.title}</h5>
                                 {project && (
-                                  <p className="text-sm text-gray-700 mb-1">
+                                  <p className="text-base text-gray-700 mb-1">
                                     案件: {project.customer?.names?.join('・') || '不明'}様邸
                                   </p>
                                 )}
-                                <p className="text-sm text-gray-600">
+                                <p className="text-base text-gray-600">
                                   期限: {task.due_date ? format(new Date(task.due_date), 'yyyy/MM/dd') : '未設定'}
                                 </p>
                               </div>
@@ -636,7 +793,7 @@ export default function DashboardHome() {
                                       .eq('id', task.id)
                                     await loadProjects()
                                   }}
-                                  className="px-3 py-1 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700 transition-colors"
+                                  className="px-3 py-1 bg-green-600 text-white text-base font-medium rounded hover:bg-green-700 transition-colors"
                                 >
                                   完了
                                 </button>
@@ -665,13 +822,13 @@ export default function DashboardHome() {
                           <div key={task.id} className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 hover:shadow-md transition-all">
                             <div className="flex items-start justify-between gap-4">
                               <div className="flex-1">
-                                <h5 className="font-bold text-gray-900 mb-2">{task.title}</h5>
+                                <h5 className="font-bold text-lg text-gray-900 mb-2">{task.title}</h5>
                                 {project && (
-                                  <p className="text-sm text-gray-700 mb-1">
+                                  <p className="text-base text-gray-700 mb-1">
                                     案件: {project.customer?.names?.join('・') || '不明'}様邸
                                   </p>
                                 )}
-                                <p className="text-sm text-gray-600">
+                                <p className="text-base text-gray-600">
                                   期限: {task.due_date ? format(new Date(task.due_date), 'yyyy/MM/dd') : '未設定'}
                                 </p>
                               </div>
@@ -684,7 +841,7 @@ export default function DashboardHome() {
                                       .eq('id', task.id)
                                     await loadProjects()
                                   }}
-                                  className="px-3 py-1 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700 transition-colors"
+                                  className="px-3 py-1 bg-green-600 text-white text-base font-medium rounded hover:bg-green-700 transition-colors"
                                 >
                                   完了
                                 </button>
@@ -714,31 +871,15 @@ export default function DashboardHome() {
         {departmentStatuses.map(dept => (
           <div
             key={dept.department}
-            className={`bg-white rounded-lg border-2 shadow-pastel p-3 ${
+            onClick={() => handleDepartmentClick(dept.department)}
+            className={`bg-white rounded-lg border-2 shadow-pastel p-4 cursor-pointer hover:shadow-lg transition-shadow ${
               dept.status === 'normal' ? 'border-blue-300' :
               dept.status === 'warning' ? 'border-yellow-300' :
               'border-red-300'
             }`}
           >
-            <h3 className="text-xs font-semibold text-gray-800 mb-2 text-center">{dept.department}</h3>
-            <div className="flex items-center justify-center">
-              <div className={`w-12 h-12 rounded-full shadow-md flex items-center justify-center ${
-                dept.status === 'normal' ? 'bg-blue-100 border-2 border-blue-500' :
-                dept.status === 'warning' ? 'bg-yellow-100 border-2 border-yellow-500' :
-                'bg-red-100 border-2 border-red-500'
-              }`}>
-                <span className={`text-2xl font-bold ${
-                  dept.status === 'normal' ? 'text-blue-900' :
-                  dept.status === 'warning' ? 'text-yellow-900' :
-                  'text-red-900'
-                }`}>
-                  {dept.status === 'normal' ? '✓' :
-                   dept.status === 'warning' ? '!' :
-                   '×'}
-                </span>
-              </div>
-            </div>
-            <p className={`text-center mt-2 text-xs font-bold ${
+            <h3 className="text-lg font-bold text-gray-900 mb-2 text-center">{dept.department}</h3>
+            <p className={`text-center text-base font-bold ${
               dept.status === 'normal' ? 'text-blue-900' :
               dept.status === 'warning' ? 'text-yellow-900' :
               'text-red-900'
@@ -748,7 +889,7 @@ export default function DashboardHome() {
               {dept.status === 'delayed' && '遅れ'}
             </p>
             {dept.delayedCount > 0 && (
-              <p className="text-center text-xs text-red-600 font-semibold">
+              <p className="text-center text-base text-red-600 font-bold mt-1">
                 {dept.delayedCount}件遅延
               </p>
             )}
@@ -756,11 +897,78 @@ export default function DashboardHome() {
         ))}
       </div>
 
+      {/* 月別統計 */}
+      <div className="bg-white rounded-lg border-2 border-pastel-blue shadow-pastel-lg overflow-hidden">
+        <div className="p-4 bg-gradient-pastel-blue border-b-2 border-pastel-blue">
+          <h3 className="text-xl font-semibold text-pastel-blue-dark">月別統計（{fiscalYear}年度）</h3>
+          <p className="text-base text-gray-600 mt-1">{fiscalYear}年8月 〜 {fiscalYear + 1}年7月</p>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-base">
+            <thead>
+              <tr className="bg-gray-100 border-b-2 border-gray-300">
+                <th className="px-4 py-3 text-left font-bold text-gray-900">月</th>
+                <th className="px-4 py-3 text-right font-bold text-gray-900">契約数</th>
+                <th className="px-4 py-3 text-right font-bold text-gray-900">着工数</th>
+                <th className="px-4 py-3 text-right font-bold text-gray-900">引き渡し数</th>
+                <th className="px-4 py-3 text-right font-bold text-gray-900">入金額</th>
+              </tr>
+            </thead>
+            <tbody>
+              {monthlyStats.map((stat, index) => (
+                <tr key={index} className="border-b border-gray-200 hover:bg-gray-50">
+                  <td className="px-4 py-3 font-medium text-gray-900">
+                    {stat.year}年{stat.month}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <span className="inline-block px-3 py-1 bg-blue-100 text-blue-900 rounded-full font-semibold">
+                      {stat.contractCount}件
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <span className="inline-block px-3 py-1 bg-green-100 text-green-900 rounded-full font-semibold">
+                      {stat.constructionStartCount}件
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <span className="inline-block px-3 py-1 bg-purple-100 text-purple-900 rounded-full font-semibold">
+                      {stat.handoverCount}件
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <span className="inline-block px-3 py-1 bg-yellow-100 text-yellow-900 rounded-full font-semibold">
+                      ¥{stat.paymentAmount.toLocaleString()}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="bg-gray-100 border-t-2 border-gray-300 font-bold">
+                <td className="px-4 py-3 text-gray-900">合計</td>
+                <td className="px-4 py-3 text-right text-blue-900">
+                  {monthlyStats.reduce((sum, stat) => sum + stat.contractCount, 0)}件
+                </td>
+                <td className="px-4 py-3 text-right text-green-900">
+                  {monthlyStats.reduce((sum, stat) => sum + stat.constructionStartCount, 0)}件
+                </td>
+                <td className="px-4 py-3 text-right text-purple-900">
+                  {monthlyStats.reduce((sum, stat) => sum + stat.handoverCount, 0)}件
+                </td>
+                <td className="px-4 py-3 text-right text-yellow-900">
+                  ¥{monthlyStats.reduce((sum, stat) => sum + stat.paymentAmount, 0).toLocaleString()}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
       {/* 管理者モード: スタッフ負荷状況 */}
       {mode === 'admin' && (
         <div className="bg-white rounded-lg border-2 border-pastel-blue shadow-pastel overflow-hidden">
           <div className="p-4 bg-gradient-pastel-blue border-b-2 border-pastel-blue">
-            <h3 className="text-lg font-semibold text-pastel-blue-dark">スタッフ負荷状況</h3>
+            <h3 className="text-xl font-semibold text-pastel-blue-dark">スタッフ負荷状況</h3>
           </div>
           <div className="p-4">
             <div className="grid grid-cols-4 gap-4">
@@ -812,8 +1020,8 @@ export default function DashboardHome() {
                           </span>
                         </div>
                         <div>
-                          <div className="font-bold text-gray-900">{emp.last_name} {emp.first_name}</div>
-                          <div className="text-xs text-gray-600">{emp.department}</div>
+                          <div className="font-bold text-lg text-gray-900">{emp.last_name} {emp.first_name}</div>
+                          <div className="text-base text-gray-600">{emp.department}</div>
                         </div>
                       </div>
 
@@ -821,22 +1029,22 @@ export default function DashboardHome() {
                         {/* 遅延タスク数 */}
                         {delayedTasks.length > 0 && (
                           <div className="flex items-center justify-between bg-red-100 border border-red-300 rounded px-3 py-2">
-                            <span className="text-sm font-medium text-red-900">🚨 遅延</span>
-                            <span className="text-lg font-bold text-red-900">{delayedTasks.length}</span>
+                            <span className="text-base font-medium text-red-900">🚨 遅延</span>
+                            <span className="text-xl font-bold text-red-900">{delayedTasks.length}</span>
                           </div>
                         )}
 
                         {/* 進行中タスク数 */}
                         <div className="flex items-center justify-between bg-blue-100 border border-blue-300 rounded px-3 py-2">
-                          <span className="text-sm font-medium text-blue-900">🔄 進行中</span>
-                          <span className="text-lg font-bold text-blue-900">{inProgressTasks.length}</span>
+                          <span className="text-base font-medium text-blue-900">🔄 進行中</span>
+                          <span className="text-xl font-bold text-blue-900">{inProgressTasks.length}</span>
                         </div>
 
                         {/* 完了率 */}
                         <div className="bg-gray-100 rounded px-3 py-2">
                           <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-medium text-gray-700">完了率</span>
-                            <span className="text-sm font-bold text-gray-900">
+                            <span className="text-base font-medium text-gray-700">完了率</span>
+                            <span className="text-base font-bold text-gray-900">
                               {Math.round((completedTasks / totalTasks) * 100)}%
                             </span>
                           </div>
@@ -849,7 +1057,7 @@ export default function DashboardHome() {
                         </div>
 
                         {/* 総タスク数 */}
-                        <div className="text-center text-xs text-gray-600 pt-1">
+                        <div className="text-center text-base text-gray-600 pt-1">
                           総タスク数: {totalTasks}
                         </div>
                       </div>
@@ -861,355 +1069,247 @@ export default function DashboardHome() {
         </div>
       )}
 
-      {/* 管理者モード: 進捗マトリクス表示 */}
-      {mode === 'admin' && (
-        <div className="bg-white rounded-lg border-2 border-pastel-blue shadow-pastel-lg overflow-hidden">
-          {/* ヘッダー */}
-          <div className="p-4 bg-gradient-pastel-blue border-b-2 border-pastel-blue">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-pastel-blue-dark">全案件進捗マトリクス</h3>
+      {/* 新規案件作成モーダル */}
+      {showCreateModal && (
+        <div className="modal-overlay">
+          <div className="modal-canva max-w-2xl w-full">
+            {/* ヘッダー */}
+            <div className="modal-canva-header flex items-center justify-between">
+              <h2 className="text-2xl font-bold">新規案件追加</h2>
+              <button
+                onClick={() => {
+                  setShowCreateModal(false)
+                  resetForm()
+                }}
+                className="text-white hover:text-gray-200 transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
 
-              {/* フィルタボタン */}
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setConstructionFilter('all')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    constructionFilter === 'all'
-                      ? 'bg-white text-pastel-blue-dark shadow-pastel'
-                      : 'bg-pastel-blue-light text-gray-700 hover:bg-white'
-                  }`}
-                >
-                  全て ({projects.length})
-                </button>
-                <button
-                  onClick={() => setConstructionFilter('pre')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    constructionFilter === 'pre'
-                      ? 'bg-white text-pastel-blue-dark shadow-pastel'
-                      : 'bg-pastel-blue-light text-gray-700 hover:bg-white'
-                  }`}
-                >
-                  着工前 ({projects.filter(p => p.status === 'pre_contract' || p.status === 'post_contract').length})
-                </button>
-                <button
-                  onClick={() => setConstructionFilter('post')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    constructionFilter === 'post'
-                      ? 'bg-white text-pastel-blue-dark shadow-pastel'
-                      : 'bg-pastel-blue-light text-gray-700 hover:bg-white'
-                  }`}
-                >
-                  着工後 ({projects.filter(p => p.status === 'construction' || p.status === 'completed').length})
-                </button>
+            {/* コンテンツ */}
+            <div className="modal-canva-content space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+              {/* 顧客情報 */}
+              <div>
+                <h3 className="font-bold text-gray-900 mb-2">顧客情報</h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">
+                      顧客名 <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.customerNames}
+                      onChange={(e) => setFormData({ ...formData, customerNames: e.target.value })}
+                      placeholder="例: 山田太郎・花子"
+                      className="input-canva w-full"
+                    />
+                    <p className="text-base text-gray-500 mt-1">複数名の場合は「・」で区切ってください</p>
+                  </div>
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">
+                      建設地 <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.buildingSite}
+                      onChange={(e) => setFormData({ ...formData, buildingSite: e.target.value })}
+                      placeholder="例: 東京都渋谷区〇〇1-2-3"
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 案件情報 */}
+              <div>
+                <h3 className="font-bold text-gray-900 mb-2">案件情報</h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">契約日</label>
+                    <input
+                      type="date"
+                      value={formData.contractDate}
+                      onChange={(e) => setFormData({ ...formData, contractDate: e.target.value })}
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">商品</label>
+                    <select
+                      value={formData.productId}
+                      onChange={(e) => setFormData({ ...formData, productId: e.target.value })}
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">未設定</option>
+                      {products.map(product => (
+                        <option key={product.id} value={product.id}>{product.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">ステータス</label>
+                    <select
+                      value={formData.status}
+                      onChange={(e) => setFormData({ ...formData, status: e.target.value as Project['status'] })}
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="post_contract">契約後</option>
+                      <option value="construction">着工後</option>
+                      <option value="completed">引き渡し済</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">進捗率 (%)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={formData.progressRate}
+                      onChange={(e) => setFormData({ ...formData, progressRate: parseInt(e.target.value) || 0 })}
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 担当者 */}
+              <div>
+                <h3 className="font-bold text-gray-900 mb-2">担当者</h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">営業担当</label>
+                    <select
+                      value={formData.assignedSales}
+                      onChange={(e) => setFormData({ ...formData, assignedSales: e.target.value })}
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">未設定</option>
+                      {employees.map(emp => (
+                        <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name} ({emp.department})</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">設計担当</label>
+                    <select
+                      value={formData.assignedDesign}
+                      onChange={(e) => setFormData({ ...formData, assignedDesign: e.target.value })}
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">未設定</option>
+                      {employees.map(emp => (
+                        <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name} ({emp.department})</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">工事担当</label>
+                    <select
+                      value={formData.assignedConstruction}
+                      onChange={(e) => setFormData({ ...formData, assignedConstruction: e.target.value })}
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">未設定</option>
+                      {employees.map(emp => (
+                        <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name} ({emp.department})</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* マトリクステーブル：横軸は全タスク（個別のタスクタイトル） */}
-          <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: '600px', position: 'relative' }}>
-            <table className="text-xs border-collapse" style={{ minWidth: '100%', position: 'relative' }}>
-              <thead className="sticky top-0 z-30 bg-white">
-                <tr>
-                  <th className="border-2 border-gray-300 p-2 text-left font-bold text-gray-800 sticky left-0 shadow-md" style={{ minWidth: '180px', width: '180px', backgroundColor: '#DBEAFE', zIndex: 50 }}>
-                    案件名
-                  </th>
-                  <th className="border-2 border-gray-300 p-2 text-center font-bold text-gray-800 sticky shadow-md" style={{ minWidth: '100px', width: '100px', left: '180px', backgroundColor: '#DBEAFE', zIndex: 50 }}>
-                    営業担当
-                  </th>
-                  <th className="border-2 border-gray-300 p-2 text-center font-bold text-gray-800 sticky shadow-md" style={{ minWidth: '100px', width: '100px', left: '280px', backgroundColor: '#DBEAFE', zIndex: 50 }}>
-                    設計担当
-                  </th>
-                  <th className="border-2 border-gray-300 p-2 text-center font-bold text-gray-800 sticky shadow-md" style={{ minWidth: '100px', width: '100px', left: '380px', backgroundColor: '#DBEAFE', zIndex: 50 }}>
-                    工事担当
-                  </th>
-                  {uniqueTaskTitles.map(taskTitle => (
-                    <th
-                      key={taskTitle}
-                      className="border-2 border-gray-300 p-1 bg-pastel-blue-light text-center font-bold text-gray-800"
-                      style={{ minWidth: '120px' }}
-                      title={taskTitle}
-                    >
-                      <div className="text-xs leading-tight">
-                        {taskTitle.length > 15 ? taskTitle.substring(0, 15) + '...' : taskTitle}
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filteredProjects.length === 0 ? (
-                  <tr>
-                    <td colSpan={uniqueTaskTitles.length + 4} className="border-2 border-gray-300 p-8 text-center text-gray-500">
-                      該当する案件がありません
-                    </td>
-                  </tr>
-                ) : (
-                  filteredProjects.map((project: any) => (
-                    <tr key={project.id} className="hover:bg-pastel-blue-light transition-colors">
-                      <td className="border-2 border-gray-300 p-4 sticky left-0 shadow-md" style={{ width: '180px', backgroundColor: '#EFF6FF', zIndex: 10 }}>
-                        <div className="font-black text-xl text-blue-900 mb-2 tracking-tight" style={{ fontWeight: 900 }} title={`${project.customer?.names?.join('・') || '顧客名なし'}様邸`}>
-                          {project.customer?.names?.join('・') || '顧客名なし'}様
-                        </div>
-                        {project.product && (
-                          <div className="text-blue-700 text-sm font-bold mb-1">
-                            {project.product.name}
-                          </div>
-                        )}
-                        <div className="text-gray-600 text-sm font-medium">
-                          契約: {format(new Date(project.contract_date), 'MM/dd')}
-                        </div>
-                      </td>
-                      <td className="border-2 border-gray-300 p-2 sticky shadow-md text-center" style={{ width: '100px', left: '180px', backgroundColor: '#EFF6FF', zIndex: 10 }}>
-                        {project.sales ? (
-                          <div className="flex flex-col items-center gap-1">
-                            <div className="w-6 h-6 rounded-full bg-blue-500"></div>
-                            <div className="text-xs font-bold text-gray-900 truncate" title={project.sales.name}>
-                              {project.sales.name}
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="text-sm font-bold text-gray-400">-</div>
-                        )}
-                      </td>
-                      <td className="border-2 border-gray-300 p-2 sticky shadow-md text-center" style={{ width: '100px', left: '280px', backgroundColor: '#EFF6FF', zIndex: 10 }}>
-                        {project.design ? (
-                          <div className="flex flex-col items-center gap-1">
-                            <div className="w-6 h-6 rounded-full bg-green-500"></div>
-                            <div className="text-xs font-bold text-gray-900 truncate" title={project.design.name}>
-                              {project.design.name}
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="text-sm font-bold text-gray-400">-</div>
-                        )}
-                      </td>
-                      <td className="border-2 border-gray-300 p-2 sticky shadow-md text-center" style={{ width: '100px', left: '380px', backgroundColor: '#EFF6FF', zIndex: 10 }}>
-                        {project.construction ? (
-                          <div className="flex flex-col items-center gap-1">
-                            <div className="w-6 h-6 rounded-full bg-orange-500"></div>
-                            <div className="text-xs font-bold text-gray-900 truncate" title={project.construction.name}>
-                              {project.construction.name}
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="text-sm font-bold text-gray-400">-</div>
-                        )}
-                      </td>
-                      {uniqueTaskTitles.map(taskTitle => {
-                        const task = getProjectTaskByTitle(project.id, taskTitle)
-
-                        // 遅延日数を計算
-                        const daysOverdue = task?.due_date && task.status !== 'completed' && task.status !== 'not_applicable'
-                          ? differenceInDays(new Date(), new Date(task.due_date))
-                          : 0
-
-                        return (
-                          <td key={taskTitle} className="border border-gray-300 p-1" style={{ minWidth: '120px' }}>
-                            {task ? (
-                              <div
-                                className={`px-3 py-2 rounded-xl text-center text-base font-bold shadow-sm hover:shadow-md transition-all cursor-pointer ${getTaskStatusColor(task)}`}
-                                title={`${task.title}\n期限: ${task.due_date ? format(new Date(task.due_date), 'MM/dd') : '未設定'}\nステータス: ${
-                                  task.status === 'completed' || task.status === 'not_applicable' ? '完了' :
-                                  task.status === 'delayed' ? '遅れ' :
-                                  task.status === 'requested' ? '着手中' :
-                                  '未着手'
-                                }${daysOverdue > 0 ? `\n遅延: ${daysOverdue}日` : ''}`}
-                              >
-                                {daysOverdue > 0 ? (
-                                  <div className="flex flex-col items-center">
-                                    <span className="text-lg">🚨</span>
-                                    <span className="text-xs">{daysOverdue}日遅れ</span>
-                                    <span className="text-xs">{task.due_date ? format(new Date(task.due_date), 'MM/dd') : '-'}</span>
-                                  </div>
-                                ) : (
-                                  <>{task.due_date ? format(new Date(task.due_date), 'MM/dd') : '-'}</>
-                                )}
-                              </div>
-                            ) : (
-                              <div className="h-10 flex items-center justify-center text-gray-400">
-                                -
-                              </div>
-                            )}
-                          </td>
-                        )
-                      })}
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+            {/* フッター */}
+            <div className="modal-canva-footer">
+              <button
+                onClick={() => {
+                  setShowCreateModal(false)
+                  resetForm()
+                }}
+                className="btn-canva-outline flex-1"
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={handleCreateProject}
+                className="btn-canva-primary flex-1"
+              >
+                作成
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* 新規案件作成モーダル */}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      {/* 部署遅延詳細モーダル */}
+      {showDepartmentDetailModal && selectedDepartment && (
+        <div className="modal-overlay" onClick={() => setShowDepartmentDetailModal(false)}>
+          <div className="modal-canva max-w-2xl w-full" onClick={(e) => e.stopPropagation()}>
+            {/* ヘッダー */}
+            <div className="modal-canva-header">
+              <h2 className="text-2xl font-bold">{selectedDepartment} - 遅延詳細</h2>
+              <button
+                onClick={() => setShowDepartmentDetailModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* コンテンツ */}
             <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">新規案件追加</h2>
-                <button
-                  onClick={() => {
-                    setShowCreateModal(false)
-                    resetForm()
-                  }}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <X size={24} />
-                </button>
-              </div>
+              {(() => {
+                const delayDetails = getDepartmentDelayDetails(selectedDepartment)
 
-              <div className="space-y-4">
-                {/* 顧客情報 */}
-                <div>
-                  <h3 className="font-bold text-gray-900 mb-3">顧客情報</h3>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        顧客名 <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.customerNames}
-                        onChange={(e) => setFormData({ ...formData, customerNames: e.target.value })}
-                        placeholder="例: 山田太郎・花子"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                      <p className="text-xs text-gray-500 mt-1">複数名の場合は「・」で区切ってください</p>
+                if (delayDetails.length === 0) {
+                  return (
+                    <div className="text-center py-8">
+                      <p className="text-lg text-gray-600">遅延しているタスクはありません</p>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        建設地 <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.buildingSite}
-                        onChange={(e) => setFormData({ ...formData, buildingSite: e.target.value })}
-                        placeholder="例: 東京都渋谷区〇〇1-2-3"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
+                  )
+                }
+
+                return (
+                  <div className="space-y-3">
+                    <p className="text-base text-gray-600 mb-4">
+                      {mode === 'staff' ? '自分の担当案件の遅延タスク' : '全案件の遅延タスク'}
+                    </p>
+                    <div className="bg-white rounded-lg border-2 border-gray-300 overflow-hidden">
+                      <table className="w-full text-base">
+                        <thead className="bg-gray-100">
+                          <tr>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700">職種</th>
+                            <th className="px-4 py-3 text-right font-semibold text-gray-700">遅延件数</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {delayDetails.map((detail, index) => (
+                            <tr key={detail.employeeId} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                              <td className="px-4 py-3 text-gray-900 font-bold">{detail.department}</td>
+                              <td className="px-4 py-3 text-right">
+                                <span className="inline-block px-3 py-1 bg-red-100 text-red-900 rounded-full font-bold">
+                                  {detail.delayedCount}件
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
-                </div>
+                )
+              })()}
+            </div>
 
-                {/* 案件情報 */}
-                <div>
-                  <h3 className="font-bold text-gray-900 mb-3">案件情報</h3>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">契約日</label>
-                      <input
-                        type="date"
-                        value={formData.contractDate}
-                        onChange={(e) => setFormData({ ...formData, contractDate: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">商品</label>
-                      <select
-                        value={formData.productId}
-                        onChange={(e) => setFormData({ ...formData, productId: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="">未設定</option>
-                        {products.map(product => (
-                          <option key={product.id} value={product.id}>{product.name}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">ステータス</label>
-                      <select
-                        value={formData.status}
-                        onChange={(e) => setFormData({ ...formData, status: e.target.value as Project['status'] })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="pre_contract">契約前</option>
-                        <option value="post_contract">契約後</option>
-                        <option value="construction">着工後</option>
-                        <option value="completed">完了</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">進捗率 (%)</label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        value={formData.progressRate}
-                        onChange={(e) => setFormData({ ...formData, progressRate: parseInt(e.target.value) || 0 })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* 担当者 */}
-                <div>
-                  <h3 className="font-bold text-gray-900 mb-3">担当者</h3>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">営業担当</label>
-                      <select
-                        value={formData.assignedSales}
-                        onChange={(e) => setFormData({ ...formData, assignedSales: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="">未設定</option>
-                        {employees.map(emp => (
-                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name} ({emp.department})</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">設計担当</label>
-                      <select
-                        value={formData.assignedDesign}
-                        onChange={(e) => setFormData({ ...formData, assignedDesign: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="">未設定</option>
-                        {employees.map(emp => (
-                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name} ({emp.department})</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">工事担当</label>
-                      <select
-                        value={formData.assignedConstruction}
-                        onChange={(e) => setFormData({ ...formData, assignedConstruction: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="">未設定</option>
-                        {employees.map(emp => (
-                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name} ({emp.department})</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex gap-3 mt-6">
-                <button
-                  onClick={() => {
-                    setShowCreateModal(false)
-                    resetForm()
-                  }}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-                >
-                  キャンセル
-                </button>
-                <button
-                  onClick={handleCreateProject}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                >
-                  作成
-                </button>
-              </div>
+            {/* フッター */}
+            <div className="modal-canva-footer">
+              <button
+                onClick={() => setShowDepartmentDetailModal(false)}
+                className="btn-canva-primary flex-1"
+              >
+                閉じる
+              </button>
             </div>
           </div>
         </div>

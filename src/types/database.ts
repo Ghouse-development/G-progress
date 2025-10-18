@@ -33,7 +33,7 @@ export type VendorCategory =
   | '土地家屋調査士'
   | 'その他'
 
-export type ProjectStatus = 'pre_contract' | 'post_contract' | 'construction' | 'completed'
+export type ProjectStatus = 'post_contract' | 'construction' | 'completed'
 
 export type PaymentType = 'contract' | 'construction_start' | 'roof_raising' | 'final'
 
@@ -94,8 +94,15 @@ export interface Project {
   id: string
   customer_id: string
   product_id?: string
+  contract_number?: string
   contract_date: string
+  floor_plan_confirmed_date?: string
+  final_specification_meeting_date?: string
+  construction_permission_date?: string
   construction_start_date?: string
+  roof_raising_date?: string
+  completion_inspection_date?: string
+  handover_date?: string
   scheduled_end_date?: string
   actual_end_date?: string
   status: ProjectStatus

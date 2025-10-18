@@ -2,6 +2,51 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ========================================
+   Canva Design System
+   ======================================== */
+:root {
+  /* Canva Brand Colors */
+  --canva-purple: #7D2AE8;
+  --canva-purple-light: #9D5BF0;
+  --canva-purple-dark: #5E1FB8;
+  --canva-blue: #00C4CC;
+  --canva-blue-light: #33D6DD;
+  --canva-blue-dark: #00A3AA;
+  --canva-pink: #FF5992;
+  --canva-pink-light: #FF7BA8;
+  --canva-pink-dark: #E6356F;
+  --canva-yellow: #FFD97D;
+  --canva-yellow-light: #FFE5A0;
+  --canva-yellow-dark: #FFC857;
+
+  /* Canva Gradients */
+  --canva-gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --canva-gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --canva-gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --canva-gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  --canva-gradient-5: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+
+  /* Canva UI Colors */
+  --canva-bg: #F7F5FF;
+  --canva-bg-light: #FEFCFF;
+  --canva-text: #2D3748;
+  --canva-text-light: #718096;
+  --canva-border: #E2E8F0;
+
+  /* Canva Shadows */
+  --canva-shadow-sm: 0 2px 8px rgba(125, 42, 232, 0.08);
+  --canva-shadow: 0 4px 20px rgba(125, 42, 232, 0.12);
+  --canva-shadow-lg: 0 8px 30px rgba(125, 42, 232, 0.15);
+  --canva-shadow-xl: 0 12px 40px rgba(125, 42, 232, 0.2);
+
+  /* Canva Border Radius */
+  --canva-radius-sm: 8px;
+  --canva-radius: 12px;
+  --canva-radius-lg: 16px;
+  --canva-radius-xl: 20px;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -9,12 +54,12 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f9fafb;
+  background: linear-gradient(135deg, #F7F5FF 0%, #FEFCFF 100%);
+  color: var(--canva-text);
+  min-height: 100vh;
 }
 
 #root {
@@ -1144,6 +1189,303 @@ th, td {
 
 .h-6 {
   height: 1.5rem;
+}
+
+/* ========================================
+   Canva-Style Component Classes
+   ======================================== */
+
+/* Canva Buttons */
+.btn-canva-primary {
+  background: var(--canva-gradient-1);
+  color: white;
+  padding: 12px 24px;
+  border-radius: var(--canva-radius);
+  font-weight: 600;
+  border: none;
+  box-shadow: var(--canva-shadow);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-canva-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--canva-shadow-lg);
+}
+
+.btn-canva-purple {
+  background: var(--canva-purple);
+  color: white;
+  padding: 12px 24px;
+  border-radius: var(--canva-radius);
+  font-weight: 600;
+  border: none;
+  box-shadow: var(--canva-shadow);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-canva-purple:hover {
+  background: var(--canva-purple-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--canva-shadow-lg);
+}
+
+.btn-canva-blue {
+  background: var(--canva-blue);
+  color: white;
+  padding: 12px 24px;
+  border-radius: var(--canva-radius);
+  font-weight: 600;
+  border: none;
+  box-shadow: var(--canva-shadow);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-canva-blue:hover {
+  background: var(--canva-blue-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--canva-shadow-lg);
+}
+
+.btn-canva-pink {
+  background: var(--canva-pink);
+  color: white;
+  padding: 12px 24px;
+  border-radius: var(--canva-radius);
+  font-weight: 600;
+  border: none;
+  box-shadow: var(--canva-shadow);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-canva-pink:hover {
+  background: var(--canva-pink-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--canva-shadow-lg);
+}
+
+.btn-canva-outline {
+  background: white;
+  color: var(--canva-purple);
+  padding: 12px 24px;
+  border-radius: var(--canva-radius);
+  font-weight: 600;
+  border: 2px solid var(--canva-purple);
+  box-shadow: var(--canva-shadow-sm);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-canva-outline:hover {
+  background: var(--canva-purple);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--canva-shadow);
+}
+
+/* Canva Cards */
+.card-canva {
+  background: white;
+  border-radius: var(--canva-radius-lg);
+  padding: 24px;
+  box-shadow: var(--canva-shadow);
+  border: 1px solid var(--canva-border);
+  transition: all 0.3s ease;
+}
+
+.card-canva:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--canva-shadow-lg);
+}
+
+.card-canva-gradient {
+  background: var(--canva-gradient-1);
+  color: white;
+  border-radius: var(--canva-radius-lg);
+  padding: 24px;
+  box-shadow: var(--canva-shadow-lg);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.card-canva-gradient:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--canva-shadow-xl);
+}
+
+/* Canva Inputs */
+.input-canva {
+  border: 2px solid var(--canva-border);
+  border-radius: var(--canva-radius);
+  padding: 12px 16px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.input-canva:focus {
+  outline: none;
+  border-color: var(--canva-purple);
+  box-shadow: 0 0 0 3px rgba(125, 42, 232, 0.1);
+}
+
+/* Canva Badges */
+.badge-canva-purple {
+  background: var(--canva-purple);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-canva-blue {
+  background: var(--canva-blue);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-canva-pink {
+  background: var(--canva-pink);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Canva Modal */
+.modal-canva {
+  background: white;
+  border-radius: var(--canva-radius-xl);
+  box-shadow: var(--canva-shadow-xl);
+  border: none;
+  overflow: hidden;
+}
+
+/* Modal Overlay - 白っぽい半透明背景 */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(249, 250, 251, 0.85); /* 白っぽいグレー、85%透明度 */
+  backdrop-filter: blur(4px); /* 背景をぼかす */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 1rem;
+}
+
+.modal-canva-header {
+  background: var(--canva-gradient-1);
+  color: white;
+  padding: 20px 24px;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.modal-canva-content {
+  padding: 24px;
+}
+
+.modal-canva-footer {
+  padding: 16px 24px;
+  background: #F7F9FC;
+  border-top: 1px solid var(--canva-border);
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+/* Canva Background Utilities */
+.bg-canva-purple {
+  background-color: var(--canva-purple) !important;
+}
+
+.bg-canva-blue {
+  background-color: var(--canva-blue) !important;
+}
+
+.bg-canva-pink {
+  background-color: var(--canva-pink) !important;
+}
+
+.bg-canva-yellow {
+  background-color: var(--canva-yellow) !important;
+}
+
+.bg-canva-gradient-1 {
+  background: var(--canva-gradient-1) !important;
+}
+
+.bg-canva-gradient-2 {
+  background: var(--canva-gradient-2) !important;
+}
+
+.bg-canva-gradient-3 {
+  background: var(--canva-gradient-3) !important;
+}
+
+.bg-canva-gradient-4 {
+  background: var(--canva-gradient-4) !important;
+}
+
+.bg-canva-gradient-5 {
+  background: var(--canva-gradient-5) !important;
+}
+
+/* Canva Text Colors */
+.text-canva-purple {
+  color: var(--canva-purple) !important;
+}
+
+.text-canva-blue {
+  color: var(--canva-blue) !important;
+}
+
+.text-canva-pink {
+  color: var(--canva-pink) !important;
+}
+
+/* Canva Border Radius */
+.rounded-canva {
+  border-radius: var(--canva-radius);
+}
+
+.rounded-canva-lg {
+  border-radius: var(--canva-radius-lg);
+}
+
+.rounded-canva-xl {
+  border-radius: var(--canva-radius-xl);
+}
+
+/* Canva Shadows */
+.shadow-canva {
+  box-shadow: var(--canva-shadow);
+}
+
+.shadow-canva-lg {
+  box-shadow: var(--canva-shadow-lg);
+}
+
+.shadow-canva-xl {
+  box-shadow: var(--canva-shadow-xl);
 }
 
 /* Pastel color palette for modern soft design */

@@ -4,8 +4,8 @@ import { supabase } from '../lib/supabase'
 import { Project, Customer, Employee, Task } from '../types/database'
 import { format, differenceInDays } from 'date-fns'
 import { ArrowUpDown, Filter, Edit2, Trash2, X, Plus } from 'lucide-react'
-import { Pagination } from '../components/ui/Pagination'
 import { useToast } from '../contexts/ToastContext'
+import { useMode } from '../contexts/ModeContext'
 import { SkeletonTable } from '../components/ui/Skeleton'
 import { generateProjectTasks } from '../utils/taskGenerator'
 
@@ -31,16 +31,16 @@ type FilterStatus = 'not_started' | 'requested' | 'delayed' | 'completed'
 export default function ProjectList() {
   const navigate = useNavigate()
   const toast = useToast()
+  const { mode, setMode } = useMode()
   const [projects, setProjects] = useState<ProjectWithRelations[]>([])
+  const [allTasks, setAllTasks] = useState<Task[]>([])
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
-  const [sortField, setSortField] = useState<SortField>('contract_date')
+  const [sortField, setSortField] = useState<SortField>('construction_start_date')
   const [sortAscending, setSortAscending] = useState(false)
   const [filterStatus, setFilterStatus] = useState<FilterStatus | 'all'>('all')
-
-  // ページネーション状態
-  const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize] = useState(50)
-  const [totalCount, setTotalCount] = useState(0)
+  const [constructionFilter, setConstructionFilter] = useState<'all' | 'pre' | 'post'>('all')
+  const [viewMode, setViewMode] = useState<'matrix'>('matrix')
 
   // モーダル管理
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -57,6 +57,13 @@ export default function ProjectList() {
     customerNames: '',
     buildingSite: '',
     contractDate: format(new Date(), 'yyyy-MM-dd'),
+    floorPlanConfirmedDate: '',
+    finalSpecificationMeetingDate: '',
+    constructionPermissionDate: '',
+    constructionStartDate: '',
+    roofRaisingDate: '',
+    completionInspectionDate: '',
+    handoverDate: '',
     status: 'post_contract' as Project['status'],
     progressRate: 0,
     assignedSales: '',
@@ -65,9 +72,13 @@ export default function ProjectList() {
   })
 
   useEffect(() => {
-    loadProjects()
+    loadCurrentUser()
     loadEmployees()
-  }, [currentPage]) // ページ変更時に再読み込み
+  }, []) //初回のみ読み込み
+
+  useEffect(() => {
+    loadProjects()
+  }, [mode, currentUserId]) // モードまたはユーザーIDが変更されたら再読み込み
 
   // リアルタイム更新: projects, customers, tasksテーブルの変更を監視
   useEffect(() => {
@@ -116,7 +127,36 @@ export default function ProjectList() {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [currentPage]) // currentPageが変更されたらチャンネルを再作成
+  }, []) // 初回のみチャンネルをセットアップ
+
+  const loadCurrentUser = async () => {
+    const savedUserId = localStorage.getItem('currentUserId')
+    if (savedUserId) {
+      setCurrentUserId(savedUserId)
+      return
+    }
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: employee } = await supabase
+          .from('employees')
+          .select('id')
+          .eq('email', user.email)
+          .single()
+
+        if (employee) {
+          setCurrentUserId(employee.id)
+          return
+        }
+      }
+    } catch (error) {
+      console.log('Supabase auth not configured, using default user')
+    }
+
+    setCurrentUserId('1')
+    localStorage.setItem('currentUserId', '1')
+  }
 
   const loadEmployees = async () => {
     const { data } = await supabase
@@ -133,11 +173,8 @@ export default function ProjectList() {
     try {
       setLoading(true)
 
-      // ページネーション用の範囲計算
-      const from = (currentPage - 1) * pageSize
-      const to = from + pageSize - 1
-
-      const { data: projectsData, count } = await supabase
+      // 担当者モードの場合、自分が担当する案件のみ
+      let query = supabase
         .from('projects')
         .select(`
           *,
@@ -145,9 +182,13 @@ export default function ProjectList() {
           sales:assigned_sales(id, last_name, first_name, department),
           design:assigned_design(id, last_name, first_name, department),
           construction:assigned_construction(id, last_name, first_name, department)
-        `, { count: 'exact' })
-        .range(from, to)
-        .order('contract_date', { ascending: false })
+        `)
+
+      if (mode === 'staff' && currentUserId) {
+        query = query.or(`assigned_sales.eq.${currentUserId},assigned_design.eq.${currentUserId},assigned_construction.eq.${currentUserId}`)
+      }
+
+      const { data: projectsData } = await query.order('contract_date', { ascending: false })
 
       if (projectsData) {
         const projectsWithTasks = await Promise.all(
@@ -165,7 +206,21 @@ export default function ProjectList() {
         )
 
         setProjects(projectsWithTasks)
-        setTotalCount(count || 0)
+
+        // 全タスクを取得（進捗マトリクス用）
+        const projectIds = projectsData.map(p => p.id)
+        if (projectIds.length > 0) {
+          const { data: tasksData } = await supabase
+            .from('tasks')
+            .select('*')
+            .in('project_id', projectIds)
+
+          if (tasksData) {
+            setAllTasks(tasksData as Task[])
+          }
+        } else {
+          setAllTasks([])
+        }
       }
     } catch (error) {
       console.error('Failed to fetch projects:', error)
@@ -227,17 +282,15 @@ export default function ProjectList() {
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'pre_contract': return '契約前'
       case 'post_contract': return '契約後'
       case 'construction': return '着工後'
-      case 'completed': return '完了'
+      case 'completed': return '引き渡し済'
       default: return status
     }
   }
 
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
-      case 'pre_contract': return 'bg-gray-200 text-gray-800'
       case 'post_contract': return 'bg-blue-200 text-blue-900'
       case 'construction': return 'bg-orange-200 text-orange-900'
       case 'completed': return 'bg-green-200 text-green-900'
@@ -306,6 +359,57 @@ export default function ProjectList() {
 
   const displayProjects = getSortedAndFilteredProjects()
 
+  // 進捗マトリクス用のヘルパー関数
+  const getAllUniqueTasks = () => {
+    const uniqueTitles = Array.from(new Set(allTasks.map(t => t.title)))
+    return uniqueTitles.sort()
+  }
+
+  const getProjectTaskByTitle = (projectId: string, taskTitle: string): Task | null => {
+    const task = allTasks.find(t =>
+      t.project_id === projectId &&
+      t.title === taskTitle
+    )
+    return task || null
+  }
+
+  const getTaskStatusColor = (task: Task) => {
+    if (task.status === 'not_applicable' || task.status === 'completed') {
+      return 'bg-blue-100 text-blue-900 border border-blue-300'
+    }
+
+    if (task.due_date) {
+      const daysOverdue = differenceInDays(new Date(), new Date(task.due_date))
+      if (daysOverdue > 0) {
+        return 'bg-red-400 text-white border-2 border-red-600 font-bold'
+      }
+    }
+
+    if (task.status === 'delayed') {
+      return 'bg-red-400 text-white border-2 border-red-600 font-bold'
+    }
+
+    if (task.status === 'requested') {
+      return 'bg-yellow-100 text-yellow-900 border border-yellow-300'
+    }
+
+    return 'bg-gray-100 text-gray-900 border border-gray-300'
+  }
+
+  const uniqueTaskTitles = getAllUniqueTasks()
+
+  // 着工前/後フィルタリング
+  const filteredProjectsForMatrix = displayProjects.filter(project => {
+    if (constructionFilter === 'all') return true
+    if (constructionFilter === 'pre') {
+      return project.status === 'post_contract'
+    }
+    if (constructionFilter === 'post') {
+      return project.status === 'construction' || project.status === 'completed'
+    }
+    return true
+  })
+
   // 案件作成
   const handleCreateProject = async () => {
     if (!formData.customerNames.trim() || !formData.buildingSite.trim()) {
@@ -325,11 +429,18 @@ export default function ProjectList() {
 
       if (customerError) throw customerError
 
-      const { data: project, error: projectError } = await supabase
+      const { data: project, error: projectError} = await supabase
         .from('projects')
         .insert({
           customer_id: customer.id,
           contract_date: formData.contractDate,
+          floor_plan_confirmed_date: formData.floorPlanConfirmedDate || null,
+          final_specification_meeting_date: formData.finalSpecificationMeetingDate || null,
+          construction_permission_date: formData.constructionPermissionDate || null,
+          construction_start_date: formData.constructionStartDate || null,
+          roof_raising_date: formData.roofRaisingDate || null,
+          completion_inspection_date: formData.completionInspectionDate || null,
+          handover_date: formData.handoverDate || null,
           status: formData.status,
           progress_rate: formData.progressRate,
           assigned_sales: formData.assignedSales || null,
@@ -388,6 +499,13 @@ export default function ProjectList() {
         .from('projects')
         .update({
           contract_date: formData.contractDate,
+          floor_plan_confirmed_date: formData.floorPlanConfirmedDate || null,
+          final_specification_meeting_date: formData.finalSpecificationMeetingDate || null,
+          construction_permission_date: formData.constructionPermissionDate || null,
+          construction_start_date: formData.constructionStartDate || null,
+          roof_raising_date: formData.roofRaisingDate || null,
+          completion_inspection_date: formData.completionInspectionDate || null,
+          handover_date: formData.handoverDate || null,
           status: formData.status,
           progress_rate: formData.progressRate,
           assigned_sales: formData.assignedSales || null,
@@ -437,6 +555,13 @@ export default function ProjectList() {
       customerNames: '',
       buildingSite: '',
       contractDate: format(new Date(), 'yyyy-MM-dd'),
+      floorPlanConfirmedDate: '',
+      finalSpecificationMeetingDate: '',
+      constructionPermissionDate: '',
+      constructionStartDate: '',
+      roofRaisingDate: '',
+      completionInspectionDate: '',
+      handoverDate: '',
       status: 'post_contract',
       progressRate: 0,
       assignedSales: '',
@@ -452,6 +577,13 @@ export default function ProjectList() {
       customerNames: project.customer?.names?.join('・') || '',
       buildingSite: project.customer?.building_site || '',
       contractDate: project.contract_date,
+      floorPlanConfirmedDate: project.floor_plan_confirmed_date || '',
+      finalSpecificationMeetingDate: project.final_specification_meeting_date || '',
+      constructionPermissionDate: project.construction_permission_date || '',
+      constructionStartDate: project.construction_start_date || '',
+      roofRaisingDate: project.roof_raising_date || '',
+      completionInspectionDate: project.completion_inspection_date || '',
+      handoverDate: project.handover_date || '',
       status: project.status,
       progressRate: project.progress_rate,
       assignedSales: project.assigned_sales || '',
@@ -498,31 +630,57 @@ export default function ProjectList() {
   }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6 min-h-screen">
       {/* ヘッダー */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-3xl font-bold text-gray-900">📋 案件一覧</h1>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-bold shadow-lg hover:shadow-xl"
-          >
-            <Plus size={20} />
-            新規案件追加
-          </button>
+          <h1 className="text-3xl font-bold text-canva-purple">案件一覧</h1>
+          <div className="flex items-center gap-4">
+            {/* モード切替 */}
+            <div className="flex items-center gap-2 bg-white rounded-canva p-1 shadow-canva">
+              <button
+                onClick={() => setMode('staff')}
+                className={`px-4 py-2 rounded-canva text-base font-semibold transition-all duration-300 ${
+                  mode === 'staff'
+                    ? 'bg-canva-gradient-1 text-white shadow-canva'
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                担当者モード
+              </button>
+              <button
+                onClick={() => setMode('admin')}
+                className={`px-4 py-2 rounded-canva text-base font-semibold transition-all duration-300 ${
+                  mode === 'admin'
+                    ? 'bg-canva-gradient-1 text-white shadow-canva'
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                管理者モード
+              </button>
+            </div>
+
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="btn-canva-primary flex items-center gap-2"
+            >
+              <Plus size={20} />
+              新規案件追加
+            </button>
+          </div>
         </div>
 
         {/* ツールバー */}
-        <div className="bg-white rounded-lg shadow-md p-4 mb-4">
-          <div className="flex items-center justify-between flex-wrap gap-4">
+        <div className="bg-white rounded-lg border-2 border-gray-300 shadow-sm px-4 py-2 mb-2">
+          <div className="flex items-center justify-between gap-4">
             {/* ソート */}
-            <div className="flex items-center gap-3">
-              <ArrowUpDown size={20} className="text-gray-600" />
-              <span className="font-bold text-gray-900">並び順:</span>
+            <div className="flex items-center gap-2">
+              <ArrowUpDown size={18} className="text-canva-purple" />
+              <span className="font-bold text-gray-900 text-base">並び:</span>
               <select
                 value={sortField}
                 onChange={(e) => setSortField(e.target.value as SortField)}
-                className="px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="input-canva px-3 py-1 font-medium text-base"
               >
                 <option value="contract_date">契約日順</option>
                 <option value="construction_start_date">着工日順</option>
@@ -532,56 +690,56 @@ export default function ProjectList() {
               </select>
               <button
                 onClick={() => setSortAscending(!sortAscending)}
-                className="px-4 py-2 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition-colors font-bold"
+                className="btn-canva-outline px-3 py-1 font-bold text-base"
               >
                 {sortAscending ? '昇順 ↑' : '降順 ↓'}
               </button>
             </div>
 
             {/* フィルタ */}
-            <div className="flex items-center gap-3">
-              <Filter size={20} className="text-gray-600" />
-              <span className="font-bold text-gray-900">絞り込み:</span>
+            <div className="flex items-center gap-2">
+              <Filter size={18} className="text-canva-purple" />
+              <span className="font-bold text-gray-900 text-base">絞込:</span>
               <div className="flex gap-2">
                 <button
                   onClick={() => setFilterStatus('all')}
-                  className={`px-4 py-2 rounded-lg font-bold transition-colors ${
+                  className={`px-3 py-1 rounded-canva font-bold text-base transition-all ${
                     filterStatus === 'all'
-                      ? 'bg-blue-600 text-white shadow-md'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      ? 'bg-canva-gradient-1 text-white shadow-canva'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
                   全て ({projects.length})
                 </button>
                 <button
                   onClick={() => setFilterStatus('delayed')}
-                  className={`px-4 py-2 rounded-lg font-bold transition-colors ${
+                  className={`px-3 py-1 rounded-canva font-bold text-base transition-all ${
                     filterStatus === 'delayed'
-                      ? 'bg-red-600 text-white shadow-md'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      ? 'bg-red-500 text-white shadow-canva'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  🔴 遅れ
+                  遅れ
                 </button>
                 <button
                   onClick={() => setFilterStatus('requested')}
-                  className={`px-4 py-2 rounded-lg font-bold transition-colors ${
+                  className={`px-3 py-1 rounded-canva font-bold text-base transition-all ${
                     filterStatus === 'requested'
-                      ? 'bg-yellow-500 text-gray-900 shadow-md'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      ? 'bg-canva-yellow text-gray-900 shadow-canva'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  🟡 着手中
+                  着手中
                 </button>
                 <button
                   onClick={() => setFilterStatus('completed')}
-                  className={`px-4 py-2 rounded-lg font-bold transition-colors ${
+                  className={`px-3 py-1 rounded-canva font-bold text-base transition-all ${
                     filterStatus === 'completed'
-                      ? 'bg-green-600 text-white shadow-md'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      ? 'bg-canva-blue text-white shadow-canva'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  🔵 完了
+                  完了
                 </button>
               </div>
             </div>
@@ -589,345 +747,434 @@ export default function ProjectList() {
         </div>
       </div>
 
-      {/* Excelライクなテーブル */}
-      <div className="bg-white rounded-lg shadow-xl overflow-hidden border-2 border-gray-300">
-        <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: 'calc(100vh - 320px)' }}>
-          <table className="w-full border-collapse">
-            {/* ヘッダー */}
-            <thead className="sticky top-0 z-20 bg-gray-100 border-b-2 border-gray-400">
-              <tr>
-                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900 bg-blue-50 sticky left-0 z-30" style={{ minWidth: '60px' }}>
-                  No
-                </th>
-                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900 bg-blue-50 sticky left-[60px] z-30" style={{ minWidth: '200px' }}>
-                  顧客名
-                </th>
-                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900 bg-blue-50" style={{ minWidth: '250px' }}>
-                  建設地
-                </th>
-                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900" style={{ minWidth: '120px' }}>
-                  契約日
-                </th>
-                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900" style={{ minWidth: '100px' }}>
-                  ステータス
-                </th>
-                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900" style={{ minWidth: '150px' }}>
-                  進捗率
-                </th>
-                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900" style={{ minWidth: '100px' }}>
-                  営業担当
-                </th>
-                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900" style={{ minWidth: '100px' }}>
-                  設計担当
-                </th>
-                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900" style={{ minWidth: '100px' }}>
-                  工事担当
-                </th>
-                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900" style={{ minWidth: '80px' }}>
-                  営業部
-                </th>
-                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900" style={{ minWidth: '80px' }}>
-                  設計部
-                </th>
-                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900" style={{ minWidth: '80px' }}>
-                  工事部
-                </th>
-                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900" style={{ minWidth: '80px' }}>
-                  外構
-                </th>
-                <th className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900 bg-gray-50 sticky right-0 z-30" style={{ minWidth: '120px' }}>
-                  操作
-                </th>
-              </tr>
-            </thead>
+      {/* 進捗マトリクス表示 */}
+      <div className="bg-white rounded-lg border-2 border-pastel-blue shadow-pastel-lg overflow-hidden" style={{ height: 'calc(100vh - 220px)', minHeight: '700px' }}>
+          {/* ヘッダー */}
+          <div className="px-3 py-1 bg-gradient-pastel-blue border-b-2 border-pastel-blue">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <h3 className="text-lg font-semibold text-pastel-blue-dark">全案件進捗マトリクス</h3>
+                <div className="flex items-center gap-2 text-base">
+                  <div className="bg-white px-2 py-0.5 rounded shadow-sm">
+                    <span className="font-bold text-blue-900 text-base">{filteredProjectsForMatrix.length}案件</span>
+                  </div>
+                  <div className="bg-white px-2 py-0.5 rounded shadow-sm">
+                    <span className="font-bold text-green-900 text-base">{uniqueTaskTitles.length}種類</span>
+                  </div>
+                  <div className="bg-white px-2 py-0.5 rounded shadow-sm">
+                    <span className="font-bold text-purple-900 text-base">計{allTasks.length}</span>
+                  </div>
+                </div>
+              </div>
 
-            {/* ボディ */}
-            <tbody>
-              {displayProjects.length === 0 ? (
+              {/* フィルタボタン */}
+              <div className="flex gap-1">
+                <button
+                  onClick={() => setConstructionFilter('all')}
+                  className={`px-3 py-1 rounded text-base font-medium transition-all ${
+                    constructionFilter === 'all'
+                      ? 'bg-white text-pastel-blue-dark shadow-pastel'
+                      : 'bg-pastel-blue-light text-gray-700 hover:bg-white'
+                  }`}
+                >
+                  全て ({displayProjects.length})
+                </button>
+                <button
+                  onClick={() => setConstructionFilter('pre')}
+                  className={`px-3 py-1 rounded text-base font-medium transition-all ${
+                    constructionFilter === 'pre'
+                      ? 'bg-white text-pastel-blue-dark shadow-pastel'
+                      : 'bg-pastel-blue-light text-gray-700 hover:bg-white'
+                  }`}
+                >
+                  着工前 ({displayProjects.filter(p => p.status === 'post_contract').length})
+                </button>
+                <button
+                  onClick={() => setConstructionFilter('post')}
+                  className={`px-3 py-1 rounded text-base font-medium transition-all ${
+                    constructionFilter === 'post'
+                      ? 'bg-white text-pastel-blue-dark shadow-pastel'
+                      : 'bg-pastel-blue-light text-gray-700 hover:bg-white'
+                  }`}
+                >
+                  着工後 ({displayProjects.filter(p => p.status === 'construction' || p.status === 'completed').length})
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* マトリクステーブル */}
+          <div style={{
+            height: 'calc(100vh - 420px)',
+            minHeight: '500px',
+            maxHeight: 'calc(100vh - 420px)',
+            position: 'relative',
+            overflowX: 'scroll',
+            overflowY: 'auto',
+            WebkitOverflowScrolling: 'touch'
+          }}>
+            <table className="text-base border-collapse" style={{ minWidth: '2000px', width: 'max-content', position: 'relative' }}>
+              <thead className="sticky top-0 z-30 bg-white">
                 <tr>
-                  <td colSpan={14} className="border-2 border-gray-300 p-8 text-center text-gray-500 text-lg">
-                    {filterStatus === 'all'
-                      ? '案件データがありません'
-                      : `絞り込み条件に一致する案件がありません（全${projects.length}件中0件）`}
-                  </td>
+                  <th className="p-2 text-center font-bold text-gray-800 sticky shadow-xl" style={{ minWidth: '140px', width: '140px', left: '0', backgroundColor: '#DBEAFE', zIndex: 50, border: '2px solid #d1d5db', borderRight: '3px solid #d1d5db' }}>
+                    <div className="text-lg leading-snug">契約No /<br />契約日</div>
+                  </th>
+                  <th className="p-2 text-left font-bold text-gray-800 sticky shadow-xl" style={{ minWidth: '200px', width: '200px', left: '140px', backgroundColor: '#DBEAFE', zIndex: 50, border: '2px solid #d1d5db', borderRight: '3px solid #d1d5db' }}>
+                    <div className="text-lg leading-snug">案件名</div>
+                  </th>
+                  <th className="p-2 text-center font-bold text-gray-800 sticky shadow-xl" style={{ minWidth: '110px', width: '110px', left: '340px', backgroundColor: '#DBEAFE', zIndex: 50, border: '2px solid #d1d5db', borderRight: '3px solid #d1d5db' }}>
+                    <div className="text-lg leading-snug">営業担当</div>
+                  </th>
+                  <th className="p-2 text-center font-bold text-gray-800 sticky shadow-xl" style={{ minWidth: '110px', width: '110px', left: '450px', backgroundColor: '#DBEAFE', zIndex: 50, border: '2px solid #d1d5db', borderRight: '3px solid #d1d5db' }}>
+                    <div className="text-lg leading-snug">設計担当</div>
+                  </th>
+                  <th className="p-2 text-center font-bold text-gray-800 sticky shadow-xl" style={{ minWidth: '110px', width: '110px', left: '560px', backgroundColor: '#DBEAFE', zIndex: 50, border: '2px solid #d1d5db', borderRight: '4px solid #3b82f6' }}>
+                    <div className="text-lg leading-snug">工事担当</div>
+                  </th>
+                  {uniqueTaskTitles.map(taskTitle => (
+                    <th
+                      key={taskTitle}
+                      className="border-2 border-gray-300 p-1 bg-pastel-blue-light text-center font-bold text-gray-800"
+                      style={{ minWidth: '120px' }}
+                      title={taskTitle}
+                    >
+                      <div className="text-lg leading-snug" style={{ wordBreak: 'break-word', whiteSpace: 'normal', lineHeight: '1.2' }}>
+                        {taskTitle}
+                      </div>
+                    </th>
+                  ))}
                 </tr>
-              ) : (
-                displayProjects.map((project, index) => {
-                  const deptStatuses = getDepartmentStatus(project)
-
-                  return (
+              </thead>
+              <tbody>
+                {filteredProjectsForMatrix.length === 0 ? (
+                  <tr>
+                    <td colSpan={uniqueTaskTitles.length + 5} className="border-2 border-gray-300 p-8 text-center text-gray-500">
+                      該当する案件がありません
+                    </td>
+                  </tr>
+                ) : (
+                  filteredProjectsForMatrix.map((project: any) => (
                     <tr
                       key={project.id}
-                      className="hover:bg-blue-50 transition-colors cursor-pointer"
+                      className="hover:bg-pastel-blue-light transition-colors cursor-pointer"
                       onClick={() => navigate(`/projects/${project.id}`)}
                     >
-                      {/* No */}
-                      <td className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900 bg-gray-50 sticky left-0 z-10">
-                        {index + 1}
-                      </td>
-
-                      {/* 顧客名 */}
-                      <td className="border-2 border-gray-300 p-3 font-bold text-gray-900 bg-white sticky left-[60px] z-10">
-                        {project.customer?.names?.join('・') || '-'}様
-                      </td>
-
-                      {/* 建設地 */}
-                      <td className="border-2 border-gray-300 p-3 text-gray-800 text-sm">
-                        {project.customer?.building_site || '-'}
-                      </td>
-
-                      {/* 契約日 */}
-                      <td className="border-2 border-gray-300 p-3 text-center text-gray-900 font-medium">
-                        {format(new Date(project.contract_date), 'yyyy/MM/dd')}
-                      </td>
-
-                      {/* ステータス */}
-                      <td className="border-2 border-gray-300 p-3 text-center">
-                        <span className={`px-3 py-1 rounded-full font-bold text-xs ${getStatusBadgeClass(project.status)}`}>
-                          {getStatusLabel(project.status)}
-                        </span>
-                      </td>
-
-                      {/* 進捗率 */}
-                      <td className="border-2 border-gray-300 p-3">
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 bg-gray-300 rounded-full h-6 overflow-hidden">
-                            <div
-                              className="bg-gradient-to-r from-blue-500 to-blue-600 h-6 flex items-center justify-center text-white text-xs font-bold transition-all"
-                              style={{ width: `${project.progress_rate}%` }}
-                            >
-                              {project.progress_rate >= 20 && `${project.progress_rate}%`}
-                            </div>
-                          </div>
-                          {project.progress_rate < 20 && (
-                            <span className="text-sm font-bold text-gray-900">{project.progress_rate}%</span>
-                          )}
+                      <td className="p-2 sticky shadow-xl text-center" style={{ width: '140px', left: '0', backgroundColor: '#EFF6FF', zIndex: 10, border: '2px solid #d1d5db', borderRight: '3px solid #d1d5db' }}>
+                        <div className="font-bold text-lg text-blue-900">
+                          No.{project.contract_number || '-'}
+                        </div>
+                        <div className="font-bold text-lg text-gray-900">
+                          {format(new Date(project.contract_date), 'MM/dd')}
+                        </div>
+                        <div className="text-lg text-gray-600">
+                          {format(new Date(project.contract_date), 'yyyy')}
                         </div>
                       </td>
-
-                      {/* 営業担当 */}
-                      <td className="border-2 border-gray-300 p-3 text-center text-sm text-gray-800">
-                        {project.sales ? `${project.sales.last_name}` : '-'}
+                      <td className="p-2 sticky shadow-xl" style={{ width: '200px', left: '140px', backgroundColor: '#EFF6FF', zIndex: 10, border: '2px solid #d1d5db', borderRight: '3px solid #d1d5db' }}>
+                        <div className="font-black text-xl text-blue-900 mb-1 tracking-tight" style={{ fontWeight: 900 }} title={`${project.customer?.names?.join('・') || '顧客名なし'}様邸`}>
+                          {project.customer?.names?.join('・') || '顧客名なし'}様
+                        </div>
+                        {project.product && (
+                          <div className="text-blue-700 text-lg font-bold">
+                            {project.product.name}
+                          </div>
+                        )}
                       </td>
-
-                      {/* 設計担当 */}
-                      <td className="border-2 border-gray-300 p-3 text-center text-sm text-gray-800">
-                        {project.design ? `${project.design.last_name}` : '-'}
+                      <td className="p-2 sticky shadow-xl text-center" style={{ width: '110px', left: '340px', backgroundColor: '#EFF6FF', zIndex: 10, border: '2px solid #d1d5db', borderRight: '3px solid #d1d5db' }}>
+                        {project.sales ? (
+                          <div className="text-lg font-bold text-gray-900 truncate" title={`${project.sales.last_name} ${project.sales.first_name}`}>
+                            {project.sales.last_name}
+                          </div>
+                        ) : (
+                          <div className="text-lg font-bold text-gray-400">-</div>
+                        )}
                       </td>
-
-                      {/* 工事担当 */}
-                      <td className="border-2 border-gray-300 p-3 text-center text-sm text-gray-800">
-                        {project.construction ? `${project.construction.last_name}` : '-'}
+                      <td className="p-2 sticky shadow-xl text-center" style={{ width: '110px', left: '450px', backgroundColor: '#EFF6FF', zIndex: 10, border: '2px solid #d1d5db', borderRight: '3px solid #d1d5db' }}>
+                        {project.design ? (
+                          <div className="text-lg font-bold text-gray-900 truncate" title={`${project.design.last_name} ${project.design.first_name}`}>
+                            {project.design.last_name}
+                          </div>
+                        ) : (
+                          <div className="text-lg font-bold text-gray-400">-</div>
+                        )}
                       </td>
+                      <td className="p-2 sticky shadow-xl text-center" style={{ width: '110px', left: '560px', backgroundColor: '#EFF6FF', zIndex: 10, border: '2px solid #d1d5db', borderRight: '4px solid #3b82f6' }}>
+                        {project.construction ? (
+                          <div className="text-lg font-bold text-gray-900 truncate" title={`${project.construction.last_name} ${project.construction.first_name}`}>
+                            {project.construction.last_name}
+                          </div>
+                        ) : (
+                          <div className="text-lg font-bold text-gray-400">-</div>
+                        )}
+                      </td>
+                      {uniqueTaskTitles.map(taskTitle => {
+                        const task = getProjectTaskByTitle(project.id, taskTitle)
 
-                      {/* 部署ステータス */}
-                      {deptStatuses.map((dept) => (
-                        <td key={dept.department} className="border-2 border-gray-300 p-2 text-center">
-                          <div className="flex flex-col items-center gap-1">
-                            <div className={`w-8 h-8 rounded-full ${getStatusBadgeColor(dept.status)}`}></div>
-                            {dept.delayedTasks > 0 && (
-                              <span className="text-xs font-bold text-red-600">{dept.delayedTasks}件</span>
+                        const daysOverdue = task?.due_date && task.status !== 'completed' && task.status !== 'not_applicable'
+                          ? differenceInDays(new Date(), new Date(task.due_date))
+                          : 0
+
+                        return (
+                          <td key={taskTitle} className="border border-gray-300 p-1" style={{ minWidth: '120px' }}>
+                            {task ? (
+                              <div
+                                className={`px-3 py-2 rounded-xl text-center text-base font-bold shadow-sm hover:shadow-md transition-all ${getTaskStatusColor(task)}`}
+                                title={`${task.title}\n期限: ${task.due_date ? format(new Date(task.due_date), 'MM/dd') : '未設定'}\nステータス: ${
+                                  task.status === 'completed' || task.status === 'not_applicable' ? '完了' :
+                                  task.status === 'delayed' ? '遅れ' :
+                                  task.status === 'requested' ? '着手中' :
+                                  '未着手'
+                                }${daysOverdue > 0 ? `\n遅延: ${daysOverdue}日` : ''}`}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  navigate(`/projects/${project.id}`)
+                                }}
+                              >
+                                {daysOverdue > 0 ? (
+                                  <div className="flex flex-col items-center">
+                                    <span className="text-base">{daysOverdue}日遅れ</span>
+                                    <span className="text-base">{task.due_date ? format(new Date(task.due_date), 'MM/dd') : '-'}</span>
+                                  </div>
+                                ) : (
+                                  <>{task.due_date ? format(new Date(task.due_date), 'MM/dd') : '-'}</>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="h-10 flex items-center justify-center text-gray-400">
+                                -
+                              </div>
                             )}
-                          </div>
-                        </td>
-                      ))}
-
-                      {/* 操作 */}
-                      <td className="border-2 border-gray-300 p-2 bg-gray-50 sticky right-0 z-10">
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              openEditModal(project)
-                            }}
-                            className="p-2 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors"
-                            title="編集"
-                          >
-                            <Edit2 size={16} className="text-blue-600" />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              openDeleteDialog(project.id)
-                            }}
-                            className="p-2 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"
-                            title="削除"
-                          >
-                            <Trash2 size={16} className="text-red-600" />
-                          </button>
-                        </div>
-                      </td>
+                          </td>
+                        )
+                      })}
                     </tr>
-                  )
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* ページネーション */}
-        {totalCount > pageSize && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={Math.ceil(totalCount / pageSize)}
-            onPageChange={setCurrentPage}
-            pageSize={pageSize}
-            totalItems={totalCount}
-          />
-        )}
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
       </div>
 
       {/* 新規案件作成モーダル */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">新規案件追加</h2>
-                <button
-                  onClick={() => {
-                    setShowCreateModal(false)
-                    resetForm()
-                  }}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <X size={24} />
-                </button>
-              </div>
+        <div className="modal-overlay">
+          <div className="modal-canva max-w-2xl w-full">
+            {/* ヘッダー */}
+            <div className="modal-canva-header flex items-center justify-between">
+              <h2 className="text-2xl font-bold">新規案件追加</h2>
+              <button
+                onClick={() => {
+                  setShowCreateModal(false)
+                  resetForm()
+                }}
+                className="text-white hover:text-gray-200 transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
 
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-bold text-gray-900 mb-3">顧客情報</h3>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        顧客名 <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.customerNames}
-                        onChange={(e) => setFormData({ ...formData, customerNames: e.target.value })}
-                        placeholder="例: 山田太郎・花子"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        建設地 <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.buildingSite}
-                        onChange={(e) => setFormData({ ...formData, buildingSite: e.target.value })}
-                        placeholder="例: 東京都渋谷区〇〇1-2-3"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
+            {/* コンテンツ */}
+            <div className="modal-canva-content space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+              <div>
+                <h3 className="font-bold text-gray-900 mb-2">顧客情報</h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">
+                      顧客名 <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.customerNames}
+                      onChange={(e) => setFormData({ ...formData, customerNames: e.target.value })}
+                      placeholder="例: 山田太郎・花子"
+                      className="input-canva w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">
+                      建設地 <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.buildingSite}
+                      onChange={(e) => setFormData({ ...formData, buildingSite: e.target.value })}
+                      placeholder="例: 東京都渋谷区〇〇1-2-3"
+                      className="input-canva w-full"
+                    />
                   </div>
                 </div>
+              </div>
 
-                <div>
-                  <h3 className="font-bold text-gray-900 mb-3">案件情報</h3>
-                  <div className="space-y-3">
+              <div>
+                <h3 className="font-bold text-gray-900 mb-2">案件情報</h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">契約日</label>
+                    <input
+                      type="date"
+                      value={formData.contractDate}
+                      onChange={(e) => setFormData({ ...formData, contractDate: e.target.value })}
+                      className="input-canva w-full"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">契約日</label>
+                      <label className="block text-base font-medium text-gray-700 mb-1">間取確定日</label>
                       <input
                         type="date"
-                        value={formData.contractDate}
-                        onChange={(e) => setFormData({ ...formData, contractDate: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={formData.floorPlanConfirmedDate}
+                        onChange={(e) => setFormData({ ...formData, floorPlanConfirmedDate: e.target.value })}
+                        className="input-canva w-full"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">ステータス</label>
-                      <select
-                        value={formData.status}
-                        onChange={(e) => setFormData({ ...formData, status: e.target.value as Project['status'] })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="pre_contract">契約前</option>
-                        <option value="post_contract">契約後</option>
-                        <option value="construction">着工後</option>
-                        <option value="completed">完了</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">進捗率 (%)</label>
+                      <label className="block text-base font-medium text-gray-700 mb-1">最終仕様打合せ日</label>
                       <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        value={formData.progressRate}
-                        onChange={(e) => setFormData({ ...formData, progressRate: parseInt(e.target.value) || 0 })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        type="date"
+                        value={formData.finalSpecificationMeetingDate}
+                        onChange={(e) => setFormData({ ...formData, finalSpecificationMeetingDate: e.target.value })}
+                        className="input-canva w-full"
                       />
                     </div>
                   </div>
-                </div>
-
-                <div>
-                  <h3 className="font-bold text-gray-900 mb-3">担当者</h3>
-                  <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">営業担当</label>
-                      <select
-                        value={formData.assignedSales}
-                        onChange={(e) => setFormData({ ...formData, assignedSales: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="">未設定</option>
-                        {employees.filter(e => ['営業', '営業事務', 'ローン事務'].includes(e.department)).map(emp => (
-                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name}</option>
-                        ))}
-                      </select>
+                      <label className="block text-base font-medium text-gray-700 mb-1">着工許可日</label>
+                      <input
+                        type="date"
+                        value={formData.constructionPermissionDate}
+                        onChange={(e) => setFormData({ ...formData, constructionPermissionDate: e.target.value })}
+                        className="input-canva w-full"
+                      />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">設計担当</label>
-                      <select
-                        value={formData.assignedDesign}
-                        onChange={(e) => setFormData({ ...formData, assignedDesign: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="">未設定</option>
-                        {employees.filter(e => ['実施設計', '意匠設計', '申請設計', '構造設計', 'IC'].includes(e.department)).map(emp => (
-                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name}</option>
-                        ))}
-                      </select>
+                      <label className="block text-base font-medium text-gray-700 mb-1">着工日</label>
+                      <input
+                        type="date"
+                        value={formData.constructionStartDate}
+                        onChange={(e) => setFormData({ ...formData, constructionStartDate: e.target.value })}
+                        className="input-canva w-full"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-base font-medium text-gray-700 mb-1">上棟日</label>
+                      <input
+                        type="date"
+                        value={formData.roofRaisingDate}
+                        onChange={(e) => setFormData({ ...formData, roofRaisingDate: e.target.value })}
+                        className="input-canva w-full"
+                      />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">工事担当</label>
-                      <select
-                        value={formData.assignedConstruction}
-                        onChange={(e) => setFormData({ ...formData, assignedConstruction: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="">未設定</option>
-                        {employees.filter(e => ['工事', '発注・積算', '工事事務'].includes(e.department)).map(emp => (
-                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name}</option>
-                        ))}
-                      </select>
+                      <label className="block text-base font-medium text-gray-700 mb-1">完了検査日</label>
+                      <input
+                        type="date"
+                        value={formData.completionInspectionDate}
+                        onChange={(e) => setFormData({ ...formData, completionInspectionDate: e.target.value })}
+                        className="input-canva w-full"
+                      />
                     </div>
+                  </div>
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">引き渡し日</label>
+                    <input
+                      type="date"
+                      value={formData.handoverDate}
+                      onChange={(e) => setFormData({ ...formData, handoverDate: e.target.value })}
+                      className="input-canva w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">ステータス</label>
+                    <select
+                      value={formData.status}
+                      onChange={(e) => setFormData({ ...formData, status: e.target.value as Project['status'] })}
+                      className="input-canva w-full"
+                    >
+                      <option value="post_contract">契約後</option>
+                      <option value="construction">着工後</option>
+                      <option value="completed">引き渡し済</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">進捗率 (%)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={formData.progressRate}
+                      onChange={(e) => setFormData({ ...formData, progressRate: parseInt(e.target.value) || 0 })}
+                      className="input-canva w-full"
+                    />
                   </div>
                 </div>
               </div>
 
-              <div className="flex gap-3 mt-6">
-                <button
-                  onClick={() => {
-                    setShowCreateModal(false)
-                    resetForm()
-                  }}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-                >
-                  キャンセル
-                </button>
-                <button
-                  onClick={handleCreateProject}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                >
-                  作成
-                </button>
+              <div>
+                <h3 className="font-bold text-gray-900 mb-2">担当者</h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">営業担当</label>
+                    <select
+                      value={formData.assignedSales}
+                      onChange={(e) => setFormData({ ...formData, assignedSales: e.target.value })}
+                      className="input-canva w-full"
+                    >
+                      <option value="">未設定</option>
+                      {employees.filter(e => ['営業', '営業事務', 'ローン事務'].includes(e.department)).map(emp => (
+                        <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">設計担当</label>
+                    <select
+                      value={formData.assignedDesign}
+                      onChange={(e) => setFormData({ ...formData, assignedDesign: e.target.value })}
+                      className="input-canva w-full"
+                    >
+                      <option value="">未設定</option>
+                      {employees.filter(e => ['実施設計', '意匠設計', '申請設計', '構造設計', 'IC'].includes(e.department)).map(emp => (
+                        <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">工事担当</label>
+                    <select
+                      value={formData.assignedConstruction}
+                      onChange={(e) => setFormData({ ...formData, assignedConstruction: e.target.value })}
+                      className="input-canva w-full"
+                    >
+                      <option value="">未設定</option>
+                      {employees.filter(e => ['工事', '発注・積算', '工事事務'].includes(e.department)).map(emp => (
+                        <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               </div>
+            </div>
+
+            {/* フッター */}
+            <div className="modal-canva-footer">
+              <button
+                onClick={() => {
+                  setShowCreateModal(false)
+                  resetForm()
+                }}
+                className="btn-canva-outline flex-1"
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={handleCreateProject}
+                className="btn-canva-primary flex-1"
+              >
+                作成
+              </button>
             </div>
           </div>
         </div>
@@ -935,180 +1182,258 @@ export default function ProjectList() {
 
       {/* 案件編集モーダル */}
       {showEditModal && editingProject && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">案件編集</h2>
-                <button
-                  onClick={() => {
-                    setShowEditModal(false)
-                    setEditingProject(null)
-                    resetForm()
-                  }}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <X size={24} />
-                </button>
-              </div>
+        <div className="modal-overlay">
+          <div className="modal-canva max-w-2xl w-full">
+            {/* ヘッダー */}
+            <div className="modal-canva-header flex items-center justify-between">
+              <h2 className="text-2xl font-bold">案件編集</h2>
+              <button
+                onClick={() => {
+                  setShowEditModal(false)
+                  setEditingProject(null)
+                  resetForm()
+                }}
+                className="text-white hover:text-gray-200 transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
 
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-bold text-gray-900 mb-3">顧客情報</h3>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        顧客名 <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.customerNames}
-                        onChange={(e) => setFormData({ ...formData, customerNames: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        建設地 <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.buildingSite}
-                        onChange={(e) => setFormData({ ...formData, buildingSite: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
+            {/* コンテンツ */}
+            <div className="modal-canva-content space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+              <div>
+                <h3 className="font-bold text-gray-900 mb-2">顧客情報</h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">
+                      顧客名 <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.customerNames}
+                      onChange={(e) => setFormData({ ...formData, customerNames: e.target.value })}
+                      className="input-canva w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">
+                      建設地 <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.buildingSite}
+                      onChange={(e) => setFormData({ ...formData, buildingSite: e.target.value })}
+                      className="input-canva w-full"
+                    />
                   </div>
                 </div>
+              </div>
 
-                <div>
-                  <h3 className="font-bold text-gray-900 mb-3">案件情報</h3>
-                  <div className="space-y-3">
+              <div>
+                <h3 className="font-bold text-gray-900 mb-2">案件情報</h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">契約日</label>
+                    <input
+                      type="date"
+                      value={formData.contractDate}
+                      onChange={(e) => setFormData({ ...formData, contractDate: e.target.value })}
+                      className="input-canva w-full"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">契約日</label>
+                      <label className="block text-base font-medium text-gray-700 mb-1">間取確定日</label>
                       <input
                         type="date"
-                        value={formData.contractDate}
-                        onChange={(e) => setFormData({ ...formData, contractDate: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={formData.floorPlanConfirmedDate}
+                        onChange={(e) => setFormData({ ...formData, floorPlanConfirmedDate: e.target.value })}
+                        className="input-canva w-full"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">ステータス</label>
-                      <select
-                        value={formData.status}
-                        onChange={(e) => setFormData({ ...formData, status: e.target.value as Project['status'] })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="pre_contract">契約前</option>
-                        <option value="post_contract">契約後</option>
-                        <option value="construction">着工後</option>
-                        <option value="completed">完了</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">進捗率 (%)</label>
+                      <label className="block text-base font-medium text-gray-700 mb-1">最終仕様打合せ日</label>
                       <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        value={formData.progressRate}
-                        onChange={(e) => setFormData({ ...formData, progressRate: parseInt(e.target.value) || 0 })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        type="date"
+                        value={formData.finalSpecificationMeetingDate}
+                        onChange={(e) => setFormData({ ...formData, finalSpecificationMeetingDate: e.target.value })}
+                        className="input-canva w-full"
                       />
                     </div>
                   </div>
-                </div>
-
-                <div>
-                  <h3 className="font-bold text-gray-900 mb-3">担当者</h3>
-                  <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">営業担当</label>
-                      <select
-                        value={formData.assignedSales}
-                        onChange={(e) => setFormData({ ...formData, assignedSales: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="">未設定</option>
-                        {employees.filter(e => ['営業', '営業事務', 'ローン事務'].includes(e.department)).map(emp => (
-                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name}</option>
-                        ))}
-                      </select>
+                      <label className="block text-base font-medium text-gray-700 mb-1">着工許可日</label>
+                      <input
+                        type="date"
+                        value={formData.constructionPermissionDate}
+                        onChange={(e) => setFormData({ ...formData, constructionPermissionDate: e.target.value })}
+                        className="input-canva w-full"
+                      />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">設計担当</label>
-                      <select
-                        value={formData.assignedDesign}
-                        onChange={(e) => setFormData({ ...formData, assignedDesign: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="">未設定</option>
-                        {employees.filter(e => ['実施設計', '意匠設計', '申請設計', '構造設計', 'IC'].includes(e.department)).map(emp => (
-                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name}</option>
-                        ))}
-                      </select>
+                      <label className="block text-base font-medium text-gray-700 mb-1">着工日</label>
+                      <input
+                        type="date"
+                        value={formData.constructionStartDate}
+                        onChange={(e) => setFormData({ ...formData, constructionStartDate: e.target.value })}
+                        className="input-canva w-full"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-base font-medium text-gray-700 mb-1">上棟日</label>
+                      <input
+                        type="date"
+                        value={formData.roofRaisingDate}
+                        onChange={(e) => setFormData({ ...formData, roofRaisingDate: e.target.value })}
+                        className="input-canva w-full"
+                      />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">工事担当</label>
-                      <select
-                        value={formData.assignedConstruction}
-                        onChange={(e) => setFormData({ ...formData, assignedConstruction: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="">未設定</option>
-                        {employees.filter(e => ['工事', '発注・積算', '工事事務'].includes(e.department)).map(emp => (
-                          <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name}</option>
-                        ))}
-                      </select>
+                      <label className="block text-base font-medium text-gray-700 mb-1">完了検査日</label>
+                      <input
+                        type="date"
+                        value={formData.completionInspectionDate}
+                        onChange={(e) => setFormData({ ...formData, completionInspectionDate: e.target.value })}
+                        className="input-canva w-full"
+                      />
                     </div>
+                  </div>
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">引き渡し日</label>
+                    <input
+                      type="date"
+                      value={formData.handoverDate}
+                      onChange={(e) => setFormData({ ...formData, handoverDate: e.target.value })}
+                      className="input-canva w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">ステータス</label>
+                    <select
+                      value={formData.status}
+                      onChange={(e) => setFormData({ ...formData, status: e.target.value as Project['status'] })}
+                      className="input-canva w-full"
+                    >
+                      <option value="post_contract">契約後</option>
+                      <option value="construction">着工後</option>
+                      <option value="completed">引き渡し済</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">進捗率 (%)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={formData.progressRate}
+                      onChange={(e) => setFormData({ ...formData, progressRate: parseInt(e.target.value) || 0 })}
+                      className="input-canva w-full"
+                    />
                   </div>
                 </div>
               </div>
 
-              <div className="flex gap-3 mt-6">
-                <button
-                  onClick={() => {
-                    setShowEditModal(false)
-                    setEditingProject(null)
-                    resetForm()
-                  }}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-                >
-                  キャンセル
-                </button>
-                <button
-                  onClick={handleEditProject}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                >
-                  更新
-                </button>
+              <div>
+                <h3 className="font-bold text-gray-900 mb-2">担当者</h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">営業担当</label>
+                    <select
+                      value={formData.assignedSales}
+                      onChange={(e) => setFormData({ ...formData, assignedSales: e.target.value })}
+                      className="input-canva w-full"
+                    >
+                      <option value="">未設定</option>
+                      {employees.filter(e => ['営業', '営業事務', 'ローン事務'].includes(e.department)).map(emp => (
+                        <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">設計担当</label>
+                    <select
+                      value={formData.assignedDesign}
+                      onChange={(e) => setFormData({ ...formData, assignedDesign: e.target.value })}
+                      className="input-canva w-full"
+                    >
+                      <option value="">未設定</option>
+                      {employees.filter(e => ['実施設計', '意匠設計', '申請設計', '構造設計', 'IC'].includes(e.department)).map(emp => (
+                        <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">工事担当</label>
+                    <select
+                      value={formData.assignedConstruction}
+                      onChange={(e) => setFormData({ ...formData, assignedConstruction: e.target.value })}
+                      className="input-canva w-full"
+                    >
+                      <option value="">未設定</option>
+                      {employees.filter(e => ['工事', '発注・積算', '工事事務'].includes(e.department)).map(emp => (
+                        <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               </div>
+            </div>
+
+            {/* フッター */}
+            <div className="modal-canva-footer">
+              <button
+                onClick={() => {
+                  setShowEditModal(false)
+                  setEditingProject(null)
+                  resetForm()
+                }}
+                className="btn-canva-outline flex-1"
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={handleEditProject}
+                className="btn-canva-primary flex-1"
+              >
+                更新
+              </button>
             </div>
           </div>
         </div>
       )}
 
       {showDeleteDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-3">案件を削除しますか？</h3>
-            <p className="text-gray-600 mb-6">
-              この操作は取り消せません。案件に紐づくタスクも削除される可能性があります。
-            </p>
-            <div className="flex gap-3">
+        <div className="modal-overlay">
+          <div className="modal-canva max-w-md w-full">
+            {/* ヘッダー */}
+            <div className="modal-canva-header">
+              <h3 className="text-2xl font-bold">案件を削除しますか？</h3>
+            </div>
+
+            {/* コンテンツ */}
+            <div className="modal-canva-content">
+              <p className="text-gray-600">
+                この操作は取り消せません。案件に紐づくタスクも削除される可能性があります。
+              </p>
+            </div>
+
+            {/* フッター */}
+            <div className="modal-canva-footer">
               <button
                 onClick={() => {
                   setShowDeleteDialog(false)
                   setDeletingProjectId(null)
                 }}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                className="btn-canva-outline flex-1"
               >
                 キャンセル
               </button>
               <button
                 onClick={handleDeleteProject}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                className="btn-canva-danger flex-1"
               >
                 削除
               </button>
