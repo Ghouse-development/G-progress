@@ -716,7 +716,6 @@ export default function ProjectList() {
             </div>
           </div>
         </div>
-      </div>
 
         {/* 進捗マトリクス表示 */}
         <div className="prisma-card" style={{ height: 'calc(100vh - 180px)', minHeight: '600px', overflow: 'hidden', padding: 0 }}>
@@ -772,32 +771,31 @@ export default function ProjectList() {
             overflowY: 'auto',
             WebkitOverflowScrolling: 'touch'
           }}>
-            <table className="text-base border-collapse" style={{ minWidth: '2000px', width: 'max-content', position: 'relative' }}>
-              <thead className="sticky top-0 z-30 bg-white">
+            <table className="prisma-table" style={{ minWidth: '2000px', width: 'max-content', position: 'relative', borderCollapse: 'separate', borderSpacing: 0 }}>
+              <thead className="sticky top-0 z-30" style={{ background: '#f3f4f6' }}>
                 <tr>
-                  <th className="p-2 text-center font-bold text-gray-800 sticky shadow-xl" style={{ minWidth: '140px', width: '140px', left: '0', backgroundColor: '#DBEAFE', zIndex: 50, border: '2px solid #d1d5db', borderRight: '3px solid #d1d5db' }}>
-                    <div className="text-lg leading-snug">契約No /<br />契約日</div>
+                  <th className="sticky" style={{ minWidth: '140px', width: '140px', left: '0', backgroundColor: '#f3f4f6', zIndex: 50, border: '1px solid #e5e7eb', borderRight: '2px solid #d1d5db', padding: '12px 8px', textAlign: 'center', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.3px' }}>
+                    契約No / 契約日
                   </th>
-                  <th className="p-2 text-left font-bold text-gray-800 sticky shadow-xl" style={{ minWidth: '200px', width: '200px', left: '140px', backgroundColor: '#DBEAFE', zIndex: 50, border: '2px solid #d1d5db', borderRight: '3px solid #d1d5db' }}>
-                    <div className="text-lg leading-snug">案件名</div>
+                  <th className="sticky" style={{ minWidth: '200px', width: '200px', left: '140px', backgroundColor: '#f3f4f6', zIndex: 50, border: '1px solid #e5e7eb', borderRight: '2px solid #d1d5db', padding: '12px 8px', textAlign: 'left', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.3px' }}>
+                    案件名
                   </th>
-                  <th className="p-2 text-center font-bold text-gray-800 sticky shadow-xl" style={{ minWidth: '110px', width: '110px', left: '340px', backgroundColor: '#DBEAFE', zIndex: 50, border: '2px solid #d1d5db', borderRight: '3px solid #d1d5db' }}>
-                    <div className="text-lg leading-snug">営業担当</div>
+                  <th className="sticky" style={{ minWidth: '110px', width: '110px', left: '340px', backgroundColor: '#f3f4f6', zIndex: 50, border: '1px solid #e5e7eb', borderRight: '2px solid #d1d5db', padding: '12px 8px', textAlign: 'center', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.3px' }}>
+                    営業担当
                   </th>
-                  <th className="p-2 text-center font-bold text-gray-800 sticky shadow-xl" style={{ minWidth: '110px', width: '110px', left: '450px', backgroundColor: '#DBEAFE', zIndex: 50, border: '2px solid #d1d5db', borderRight: '3px solid #d1d5db' }}>
-                    <div className="text-lg leading-snug">設計担当</div>
+                  <th className="sticky" style={{ minWidth: '110px', width: '110px', left: '450px', backgroundColor: '#f3f4f6', zIndex: 50, border: '1px solid #e5e7eb', borderRight: '2px solid #d1d5db', padding: '12px 8px', textAlign: 'center', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.3px' }}>
+                    設計担当
                   </th>
-                  <th className="p-2 text-center font-bold text-gray-800 sticky shadow-xl" style={{ minWidth: '110px', width: '110px', left: '560px', backgroundColor: '#DBEAFE', zIndex: 50, border: '2px solid #d1d5db', borderRight: '4px solid #3b82f6' }}>
-                    <div className="text-lg leading-snug">工事担当</div>
+                  <th className="sticky" style={{ minWidth: '110px', width: '110px', left: '560px', backgroundColor: '#f3f4f6', zIndex: 50, border: '1px solid #e5e7eb', borderRight: '2px solid #9ca3af', padding: '12px 8px', textAlign: 'center', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.3px' }}>
+                    工事担当
                   </th>
                   {uniqueTaskTitles.map(taskTitle => (
                     <th
                       key={taskTitle}
-                      className="border-2 border-gray-300 p-1 bg-pastel-blue-light text-center font-bold text-gray-800"
-                      style={{ minWidth: '120px' }}
+                      style={{ minWidth: '120px', border: '1px solid #e5e7eb', backgroundColor: '#f3f4f6', padding: '12px 8px', textAlign: 'center', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.3px' }}
                       title={taskTitle}
                     >
-                      <div className="text-lg leading-snug" style={{ wordBreak: 'break-word', whiteSpace: 'normal', lineHeight: '1.2' }}>
+                      <div style={{ wordBreak: 'break-word', whiteSpace: 'normal', lineHeight: '1.3' }}>
                         {taskTitle}
                       </div>
                     </th>
@@ -815,55 +813,57 @@ export default function ProjectList() {
                   filteredProjectsForMatrix.map((project: any) => (
                     <tr
                       key={project.id}
-                      className="hover:bg-pastel-blue-light transition-colors cursor-pointer"
+                      style={{ cursor: 'pointer', transition: 'background 0.15s ease' }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = '#f3f4f6'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
                       onClick={() => navigate(`/projects/${project.id}`)}
                     >
-                      <td className="p-2 sticky shadow-xl text-center" style={{ width: '140px', left: '0', backgroundColor: '#EFF6FF', zIndex: 10, border: '2px solid #d1d5db', borderRight: '3px solid #d1d5db' }}>
-                        <div className="font-bold text-lg text-blue-900">
+                      <td className="sticky" style={{ width: '140px', left: '0', backgroundColor: 'white', zIndex: 10, border: '1px solid #f3f4f6', borderRight: '2px solid #d1d5db', padding: '12px 8px', textAlign: 'center', fontSize: '14px' }}>
+                        <div style={{ fontWeight: 600, color: '#111827' }}>
                           No.{project.contract_number || '-'}
                         </div>
-                        <div className="font-bold text-lg text-gray-900">
+                        <div style={{ fontWeight: 600, color: '#111827', marginTop: '4px' }}>
                           {format(new Date(project.contract_date), 'MM/dd')}
                         </div>
-                        <div className="text-lg text-gray-600">
+                        <div style={{ fontSize: '13px', color: '#6b7280' }}>
                           {format(new Date(project.contract_date), 'yyyy')}
                         </div>
                       </td>
-                      <td className="p-2 sticky shadow-xl" style={{ width: '200px', left: '140px', backgroundColor: '#EFF6FF', zIndex: 10, border: '2px solid #d1d5db', borderRight: '3px solid #d1d5db' }}>
-                        <div className="font-black text-xl text-blue-900 mb-1 tracking-tight" style={{ fontWeight: 900 }} title={`${project.customer?.names?.join('・') || '顧客名なし'}様邸`}>
+                      <td className="sticky" style={{ width: '200px', left: '140px', backgroundColor: 'white', zIndex: 10, border: '1px solid #f3f4f6', borderRight: '2px solid #d1d5db', padding: '12px 8px', fontSize: '14px' }}>
+                        <div style={{ fontWeight: 600, color: '#111827', marginBottom: '4px' }} title={`${project.customer?.names?.join('・') || '顧客名なし'}様邸`}>
                           {project.customer?.names?.join('・') || '顧客名なし'}様
                         </div>
                         {project.product && (
-                          <div className="text-blue-700 text-lg font-bold">
+                          <div style={{ fontSize: '13px', color: '#6b7280', fontWeight: 500 }}>
                             {project.product.name}
                           </div>
                         )}
                       </td>
-                      <td className="p-2 sticky shadow-xl text-center" style={{ width: '110px', left: '340px', backgroundColor: '#EFF6FF', zIndex: 10, border: '2px solid #d1d5db', borderRight: '3px solid #d1d5db' }}>
+                      <td className="sticky" style={{ width: '110px', left: '340px', backgroundColor: 'white', zIndex: 10, border: '1px solid #f3f4f6', borderRight: '2px solid #d1d5db', padding: '12px 8px', textAlign: 'center', fontSize: '14px' }}>
                         {project.sales ? (
-                          <div className="text-lg font-bold text-gray-900 truncate" title={`${project.sales.last_name} ${project.sales.first_name}`}>
+                          <div style={{ fontWeight: 600, color: '#111827' }} title={`${project.sales.last_name} ${project.sales.first_name}`}>
                             {project.sales.last_name}
                           </div>
                         ) : (
-                          <div className="text-lg font-bold text-gray-400">-</div>
+                          <div style={{ fontWeight: 600, color: '#9ca3af' }}>-</div>
                         )}
                       </td>
-                      <td className="p-2 sticky shadow-xl text-center" style={{ width: '110px', left: '450px', backgroundColor: '#EFF6FF', zIndex: 10, border: '2px solid #d1d5db', borderRight: '3px solid #d1d5db' }}>
+                      <td className="sticky" style={{ width: '110px', left: '450px', backgroundColor: 'white', zIndex: 10, border: '1px solid #f3f4f6', borderRight: '2px solid #d1d5db', padding: '12px 8px', textAlign: 'center', fontSize: '14px' }}>
                         {project.design ? (
-                          <div className="text-lg font-bold text-gray-900 truncate" title={`${project.design.last_name} ${project.design.first_name}`}>
+                          <div style={{ fontWeight: 600, color: '#111827' }} title={`${project.design.last_name} ${project.design.first_name}`}>
                             {project.design.last_name}
                           </div>
                         ) : (
-                          <div className="text-lg font-bold text-gray-400">-</div>
+                          <div style={{ fontWeight: 600, color: '#9ca3af' }}>-</div>
                         )}
                       </td>
-                      <td className="p-2 sticky shadow-xl text-center" style={{ width: '110px', left: '560px', backgroundColor: '#EFF6FF', zIndex: 10, border: '2px solid #d1d5db', borderRight: '4px solid #3b82f6' }}>
+                      <td className="sticky" style={{ width: '110px', left: '560px', backgroundColor: 'white', zIndex: 10, border: '1px solid #f3f4f6', borderRight: '2px solid #9ca3af', padding: '12px 8px', textAlign: 'center', fontSize: '14px' }}>
                         {project.construction ? (
-                          <div className="text-lg font-bold text-gray-900 truncate" title={`${project.construction.last_name} ${project.construction.first_name}`}>
+                          <div style={{ fontWeight: 600, color: '#111827' }} title={`${project.construction.last_name} ${project.construction.first_name}`}>
                             {project.construction.last_name}
                           </div>
                         ) : (
-                          <div className="text-lg font-bold text-gray-400">-</div>
+                          <div style={{ fontWeight: 600, color: '#9ca3af' }}>-</div>
                         )}
                       </td>
                       {uniqueTaskTitles.map(taskTitle => {
@@ -873,11 +873,34 @@ export default function ProjectList() {
                           ? differenceInDays(new Date(), new Date(task.due_date))
                           : 0
 
+                        // Prismaカラースキーム
+                        let cellStyle: React.CSSProperties = {
+                          padding: '8px 12px',
+                          borderRadius: '6px',
+                          textAlign: 'center',
+                          fontSize: '14px',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease'
+                        }
+
+                        if (task) {
+                          if (task.status === 'completed' || task.status === 'not_applicable') {
+                            cellStyle = { ...cellStyle, background: '#dbeafe', color: '#1e40af', border: '1px solid #93c5fd' }
+                          } else if (daysOverdue > 0 || task.status === 'delayed') {
+                            cellStyle = { ...cellStyle, background: '#fca5a5', color: '#7f1d1d', border: '2px solid #dc2626' }
+                          } else if (task.status === 'requested') {
+                            cellStyle = { ...cellStyle, background: '#fde047', color: '#713f12', border: '1px solid #eab308' }
+                          } else {
+                            cellStyle = { ...cellStyle, background: '#f3f4f6', color: '#374151', border: '1px solid #d1d5db' }
+                          }
+                        }
+
                         return (
-                          <td key={taskTitle} className="border border-gray-300 p-1" style={{ minWidth: '120px' }}>
+                          <td key={taskTitle} style={{ border: '1px solid #f3f4f6', padding: '4px', minWidth: '120px' }}>
                             {task ? (
                               <div
-                                className={`px-3 py-2 rounded-xl text-center text-base font-bold shadow-sm hover:shadow-md transition-all ${getTaskStatusColor(task)}`}
+                                style={cellStyle}
                                 title={`${task.title}\n期限: ${task.due_date ? format(new Date(task.due_date), 'MM/dd') : '未設定'}\nステータス: ${
                                   task.status === 'completed' || task.status === 'not_applicable' ? '完了' :
                                   task.status === 'delayed' ? '遅れ' :
@@ -888,18 +911,24 @@ export default function ProjectList() {
                                   e.stopPropagation()
                                   navigate(`/projects/${project.id}`)
                                 }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)'
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.boxShadow = 'none'
+                                }}
                               >
                                 {daysOverdue > 0 ? (
-                                  <div className="flex flex-col items-center">
-                                    <span className="text-base">{daysOverdue}日遅れ</span>
-                                    <span className="text-base">{task.due_date ? format(new Date(task.due_date), 'MM/dd') : '-'}</span>
+                                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '14px' }}>{daysOverdue}日遅れ</span>
+                                    <span style={{ fontSize: '14px' }}>{task.due_date ? format(new Date(task.due_date), 'MM/dd') : '-'}</span>
                                   </div>
                                 ) : (
                                   <>{task.due_date ? format(new Date(task.due_date), 'MM/dd') : '-'}</>
                                 )}
                               </div>
                             ) : (
-                              <div className="h-10 flex items-center justify-center text-gray-400">
+                              <div style={{ height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>
                                 -
                               </div>
                             )}
@@ -912,6 +941,7 @@ export default function ProjectList() {
               </tbody>
             </table>
           </div>
+        </div>
       </div>
 
       {/* 新規案件作成モーダル */}

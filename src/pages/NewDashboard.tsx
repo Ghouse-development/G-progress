@@ -204,68 +204,72 @@ export default function NewDashboard() {
         <h1 className="prisma-header-title">ダッシュボード</h1>
       </div>
       <div className="prisma-content">
-        {/* === 数値サマリーエリア ===  */}
+        {/* === 数値サマリーエリア（グリッドレイアウト） ===  */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '16px' }}>
+          {/* 完工予定数 */}
+          <div className="prisma-card">
+            <h2 className="prisma-card-title">完工予定数</h2>
+            <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{expectedCompletionCount}件</div>
+          </div>
 
-        {/* 完工予定数 */}
-        <div className="prisma-card">
-          <h2 className="prisma-card-title">完工予定数</h2>
-          <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{expectedCompletionCount}件</div>
+          {/* 遅れタスク数 */}
+          <div className="prisma-card">
+            <h2 className="prisma-card-title">遅れタスク数</h2>
+            <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#ef4444' }}>{delayedTaskCount}件</div>
+            <button className="prisma-btn prisma-btn-primary prisma-mt-2">
+              詳細を見る
+            </button>
+          </div>
+
+          {/* 粗利益高サマリー */}
+          <div className="prisma-card">
+            <h2 className="prisma-card-title">粗利益高（税別）</h2>
+            <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>
+              {totalGrossProfit.toLocaleString()}円
+            </div>
+          </div>
         </div>
 
-        {/* 遅れタスク数 */}
-        <div className="prisma-card">
-          <h2 className="prisma-card-title">遅れタスク数</h2>
-          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#ef4444' }}>{delayedTaskCount}件</div>
-          <button className="prisma-btn prisma-btn-primary prisma-mt-2">
-            詳細を見る
-          </button>
-        </div>
-
-        {/* 入金サマリー */}
-        <div className="prisma-card">
-          <h2 className="prisma-card-title">入金サマリー</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '12px' }}>
-            <div>
-              <div className="prisma-text-sm prisma-text-secondary">予定売上高（税別）</div>
-              <div style={{ fontSize: '20px', fontWeight: 'bold', marginTop: '4px' }}>
-                {(totalScheduledPayment / 1.1).toLocaleString()}円
+        {/* === 入金・平均値エリア（2列グリッド） ===  */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px', marginBottom: '16px' }}>
+          {/* 入金サマリー */}
+          <div className="prisma-card">
+            <h2 className="prisma-card-title">入金サマリー</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '12px' }}>
+              <div>
+                <div className="prisma-text-sm prisma-text-secondary">予定売上高（税別）</div>
+                <div style={{ fontSize: '20px', fontWeight: 'bold', marginTop: '4px' }}>
+                  {(totalScheduledPayment / 1.1).toLocaleString()}円
+                </div>
+              </div>
+              <div>
+                <div className="prisma-text-sm prisma-text-secondary">実績（税込）</div>
+                <div style={{ fontSize: '20px', fontWeight: 'bold', marginTop: '4px' }}>
+                  {totalActualPayment.toLocaleString()}円
+                </div>
               </div>
             </div>
-            <div>
-              <div className="prisma-text-sm prisma-text-secondary">実績（税込）</div>
-              <div style={{ fontSize: '20px', fontWeight: 'bold', marginTop: '4px' }}>
-                {totalActualPayment.toLocaleString()}円
+          </div>
+
+          {/* 平均値 */}
+          <div className="prisma-card">
+            <h2 className="prisma-card-title">平均値</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '12px' }}>
+              <div>
+                <div className="prisma-text-sm prisma-text-secondary">平均坪数</div>
+                <div style={{ fontSize: '20px', fontWeight: 'bold', marginTop: '4px' }}>{avgFloorArea.toFixed(2)}坪</div>
+              </div>
+              <div>
+                <div className="prisma-text-sm prisma-text-secondary">平均契約金額</div>
+                <div style={{ fontSize: '20px', fontWeight: 'bold', marginTop: '4px' }}>{avgContractAmount.toLocaleString()}円</div>
+                <div className="prisma-text-sm prisma-text-secondary">（税別: {(avgContractAmount / 1.1).toLocaleString()}円）</div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* 粗利益高サマリー */}
-        <div className="prisma-card">
-          <h2 className="prisma-card-title">粗利益高（税別）</h2>
-          <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>
-            {totalGrossProfit.toLocaleString()}円
-          </div>
-        </div>
-
-        {/* 平均値 */}
-        <div className="prisma-card">
-          <h2 className="prisma-card-title">平均値</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '12px' }}>
-            <div>
-              <div className="prisma-text-sm prisma-text-secondary">平均坪数</div>
-              <div style={{ fontSize: '20px', fontWeight: 'bold', marginTop: '4px' }}>{avgFloorArea.toFixed(2)}坪</div>
-            </div>
-            <div>
-              <div className="prisma-text-sm prisma-text-secondary">平均契約金額</div>
-              <div style={{ fontSize: '20px', fontWeight: 'bold', marginTop: '4px' }}>{avgContractAmount.toLocaleString()}円</div>
-              <div className="prisma-text-sm prisma-text-secondary">（税別: {(avgContractAmount / 1.1).toLocaleString()}円）</div>
-            </div>
-          </div>
-        </div>
-
-        {/* 商品構成 */}
-        <div className="prisma-card">
+        {/* === 商品構成テーブル（全幅） ===  */}
+        <div className="prisma-card" style={{ marginBottom: '16px' }}>
           <h2 className="prisma-card-title">商品構成</h2>
           <table className="prisma-table">
             <thead>
@@ -294,97 +298,98 @@ export default function NewDashboard() {
           </table>
         </div>
 
-        {/* === グラフエリア === */}
+        {/* === グラフエリア（2列グリッドレイアウト） === */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '16px' }}>
+          {/* 請負契約数 */}
+          <div className="prisma-card">
+            <h2 className="prisma-card-title">請負契約数</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={monthlyStats}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="contracts" fill="#000000" name="契約数" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
 
-        {/* 請負契約数 */}
-        <div className="prisma-card">
-          <h2 className="prisma-card-title">請負契約数</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={monthlyStats}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="contracts" fill="#000000" name="契約数" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+          {/* 変更契約数 */}
+          <div className="prisma-card">
+            <h2 className="prisma-card-title">変更契約数</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={monthlyStats}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="changeContracts" fill="#4b5563" name="変更契約数" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
 
-        {/* 変更契約数 */}
-        <div className="prisma-card">
-          <h2 className="prisma-card-title">変更契約数</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={monthlyStats}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="changeContracts" fill="#4b5563" name="変更契約数" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+          {/* 着工数 */}
+          <div className="prisma-card">
+            <h2 className="prisma-card-title">着工数</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={monthlyStats}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="construction" fill="#000000" name="着工数" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
 
-        {/* 着工数 */}
-        <div className="prisma-card">
-          <h2 className="prisma-card-title">着工数</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={monthlyStats}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="construction" fill="#000000" name="着工数" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+          {/* 引き渡し数 */}
+          <div className="prisma-card">
+            <h2 className="prisma-card-title">引き渡し数</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={monthlyStats}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="handover" fill="#000000" name="引き渡し数" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
 
-        {/* 引き渡し数 */}
-        <div className="prisma-card">
-          <h2 className="prisma-card-title">引き渡し数</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={monthlyStats}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="handover" fill="#000000" name="引き渡し数" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+          {/* 入金予定・実績 */}
+          <div className="prisma-card">
+            <h2 className="prisma-card-title">入金予定・実績（月次推移）</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={monthlyStats}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip formatter={(value: number) => value.toLocaleString() + '円'} />
+                <Legend />
+                <Bar dataKey="scheduledPayment" fill="#2563eb" name="予定（税込）" />
+                <Bar dataKey="actualPayment" fill="#dc2626" name="実績（税込）" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
 
-        {/* 入金予定・実績 */}
-        <div className="prisma-card">
-          <h2 className="prisma-card-title">入金予定・実績（月次推移）</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={monthlyStats}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip formatter={(value: number) => value.toLocaleString() + '円'} />
-              <Legend />
-              <Bar dataKey="scheduledPayment" fill="#2563eb" name="予定（税込）" />
-              <Bar dataKey="actualPayment" fill="#dc2626" name="実績（税込）" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* 粗利益高 */}
-        <div className="prisma-card">
-          <h2 className="prisma-card-title">粗利益高（月次推移）</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={monthlyStats}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip formatter={(value: number) => value.toLocaleString() + '円'} />
-              <Legend />
-              <Bar dataKey="grossProfit" fill="#000000" name="粗利益高" />
-            </BarChart>
-          </ResponsiveContainer>
+          {/* 粗利益高 */}
+          <div className="prisma-card">
+            <h2 className="prisma-card-title">粗利益高（月次推移）</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={monthlyStats}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip formatter={(value: number) => value.toLocaleString() + '円'} />
+                <Legend />
+                <Bar dataKey="grossProfit" fill="#000000" name="粗利益高" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
     </>
