@@ -41,10 +41,10 @@ export default function PaymentManagement() {
   const loadPayments = async () => {
     setLoading(true)
 
-    // デモモードの場合はサンプルデータを使用
+    // デモモードの場合はサンプルデータを使用（モード別にデータ件数を調整）
     if (demoMode) {
-      const demoPayments = generateDemoPayments()
-      const demoProjects = generateDemoProjects()
+      const demoPayments = generateDemoPayments(mode as 'my_tasks' | 'branch' | 'admin')
+      const demoProjects = generateDemoProjects(mode as 'my_tasks' | 'branch' | 'admin')
       const demoCustomers = generateDemoCustomers()
 
       // 選択した月の支払いをフィルタ

@@ -1,10 +1,13 @@
 /**
  * デモモード用のサンプルデータ生成
  * プレゼンテーション用に豊富なデータを用意
+ * モードに応じてデータ件数を調整
  */
 
 import { Project, Task, Payment, Customer, Employee, Product } from '../types/database'
 import { addDays, format } from 'date-fns'
+
+type Mode = 'my_tasks' | 'branch' | 'admin'
 
 // サンプル商品データ
 export const generateDemoProducts = (): Product[] => {
@@ -44,13 +47,13 @@ export const generateDemoEmployees = (): Employee[] => {
   ]
 }
 
-// サンプルプロジェクトデータ（10件に拡大）
-export const generateDemoProjects = (): Project[] => {
+// サンプルプロジェクトデータ（10件、モードで絞り込み可能）
+export const generateDemoProjects = (mode: Mode = 'admin'): Project[] => {
   const baseDate = new Date()
   const customers = generateDemoCustomers()
   const employees = generateDemoEmployees()
 
-  return [
+  const allProjects: Project[] = [
     { id: 'demo-project-1', customer_id: customers[0].id, contract_number: 'K2025-001', contract_date: format(addDays(baseDate, -150), 'yyyy-MM-dd'), floor_plan_confirmed_date: format(addDays(baseDate, -135), 'yyyy-MM-dd'), final_specification_meeting_date: format(addDays(baseDate, -120), 'yyyy-MM-dd'), construction_permission_date: format(addDays(baseDate, -100), 'yyyy-MM-dd'), construction_start_date: format(addDays(baseDate, -80), 'yyyy-MM-dd'), roof_raising_date: format(addDays(baseDate, -45), 'yyyy-MM-dd'), completion_inspection_date: format(addDays(baseDate, -10), 'yyyy-MM-dd'), handover_date: format(addDays(baseDate, -2), 'yyyy-MM-dd'), status: 'completed', progress_rate: 100, assigned_sales: employees[0].id, assigned_design: employees[1].id, assigned_construction: employees[2].id, fiscal_year: '2025', contract_amount: 32000000, gross_profit: 6400000, total_floor_area: 35.5, solar_panel: true, solar_kw: 5.5, battery: true, ua_value: 0.46, bels: true, primary_energy_1: 45.2, primary_energy_2: 48.5, primary_energy_3: 52.0, c_value: 0.5, product_type: 'スタンダードプラン', exclude_from_count: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
     { id: 'demo-project-2', customer_id: customers[1].id, contract_number: 'K2025-002', contract_date: format(addDays(baseDate, -120), 'yyyy-MM-dd'), floor_plan_confirmed_date: format(addDays(baseDate, -105), 'yyyy-MM-dd'), construction_permission_date: format(addDays(baseDate, -80), 'yyyy-MM-dd'), construction_start_date: format(addDays(baseDate, -60), 'yyyy-MM-dd'), roof_raising_date: format(addDays(baseDate, -25), 'yyyy-MM-dd'), status: 'construction', progress_rate: 70, assigned_sales: employees[0].id, assigned_design: employees[1].id, assigned_construction: employees[2].id, fiscal_year: '2025', contract_amount: 28000000, gross_profit: 5600000, total_floor_area: 32.0, solar_panel: false, battery: false, ua_value: 0.52, bels: false, primary_energy_1: 58.3, primary_energy_2: 61.2, primary_energy_3: 65.0, c_value: 0.6, product_type: 'エコノミープラン', exclude_from_count: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
     { id: 'demo-project-3', customer_id: customers[2].id, contract_number: 'K2025-003', contract_date: format(addDays(baseDate, -90), 'yyyy-MM-dd'), floor_plan_confirmed_date: format(addDays(baseDate, -75), 'yyyy-MM-dd'), construction_permission_date: format(addDays(baseDate, -50), 'yyyy-MM-dd'), construction_start_date: format(addDays(baseDate, -30), 'yyyy-MM-dd'), status: 'construction', progress_rate: 40, assigned_sales: employees[0].id, assigned_design: employees[1].id, assigned_construction: employees[2].id, fiscal_year: '2025', contract_amount: 38000000, gross_profit: 7600000, total_floor_area: 40.0, solar_panel: true, solar_kw: 6.5, battery: true, ua_value: 0.42, bels: true, primary_energy_1: 40.8, primary_energy_2: 43.2, primary_energy_3: 46.5, c_value: 0.4, product_type: 'プレミアムプラン', exclude_from_count: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
@@ -62,12 +65,30 @@ export const generateDemoProjects = (): Project[] => {
     { id: 'demo-project-9', customer_id: customers[8].id, contract_number: 'K2025-009', contract_date: format(addDays(baseDate, -5), 'yyyy-MM-dd'), status: 'post_contract', progress_rate: 1, assigned_sales: employees[0].id, fiscal_year: '2025', contract_amount: 36000000, gross_profit: 7200000, total_floor_area: 39.0, solar_panel: true, solar_kw: 6.2, battery: true, ua_value: 0.45, c_value: 0.50, product_type: 'スタンダードプラン', exclude_from_count: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
     { id: 'demo-project-10', customer_id: customers[9].id, contract_number: 'K2025-010', contract_date: format(addDays(baseDate, -2), 'yyyy-MM-dd'), status: 'post_contract', progress_rate: 1, assigned_sales: employees[0].id, fiscal_year: '2025', contract_amount: 31000000, gross_profit: 6200000, total_floor_area: 34.0, solar_panel: false, battery: false, ua_value: 0.51, c_value: 0.62, product_type: 'コンパクトプラン', exclude_from_count: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
   ]
+
+  // モード別にプロジェクト数を調整
+  if (mode === 'my_tasks') {
+    // 担当者モード: 2-3件のみ（自分が担当している案件）
+    return allProjects.slice(0, 3)
+  } else if (mode === 'branch') {
+    // 拠点モード: 6件（自分の拠点の案件）
+    return allProjects.slice(0, 6)
+  } else {
+    // 全社モード: 全10件
+    return allProjects
+  }
 }
 
-// 豊富なサンプルタスクデータ（35個以上）
-export const generateDemoTasks = (): Task[] => {
+// 豊富なサンプルタスクデータ（35個以上、モードで絞り込み）
+export const generateDemoTasks = (mode: Mode = 'admin'): Task[] => {
   const baseDate = new Date()
-  return [
+  const validProjectIds = mode === 'my_tasks'
+    ? ['demo-project-1', 'demo-project-2', 'demo-project-3']
+    : mode === 'branch'
+    ? ['demo-project-1', 'demo-project-2', 'demo-project-3', 'demo-project-4', 'demo-project-5', 'demo-project-6']
+    : null // adminは全件
+
+  const allTasks: Task[] = [
     // プロジェクト1（完成）- 10タスク
     { id: 'demo-task-1-1', project_id: 'demo-project-1', title: '契約書作成', description: '営業事務: 請負契約書作成', assigned_to: 'demo-emp-1', due_date: format(addDays(baseDate, -148), 'yyyy-MM-dd'), actual_completion_date: format(addDays(baseDate, -148), 'yyyy-MM-dd'), status: 'completed', priority: 'high', dos: '印紙準備・顧客確認', donts: '内容変更時は必ず同意取得', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
     { id: 'demo-task-1-2', project_id: 'demo-project-1', title: 'ローン仮審査', description: 'ローン事務: 住宅ローン仮審査申込', assigned_to: 'demo-emp-1', due_date: format(addDays(baseDate, -145), 'yyyy-MM-dd'), actual_completion_date: format(addDays(baseDate, -146), 'yyyy-MM-dd'), status: 'completed', priority: 'high', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
@@ -113,12 +134,24 @@ export const generateDemoTasks = (): Task[] => {
     { id: 'demo-task-5-4', project_id: 'demo-project-5', title: '実施設計', description: '実施設計: 詳細設計', assigned_to: 'demo-emp-2', due_date: format(addDays(baseDate, 10), 'yyyy-MM-dd'), status: 'not_started', priority: 'high', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
     { id: 'demo-task-5-5', project_id: 'demo-project-5', title: '構造設計', description: '構造設計: 構造計算', assigned_to: 'demo-emp-2', due_date: format(addDays(baseDate, 20), 'yyyy-MM-dd'), status: 'not_started', priority: 'high', created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
   ]
+
+  // モード別にフィルタリング
+  if (validProjectIds) {
+    return allTasks.filter(task => validProjectIds.includes(task.project_id))
+  }
+  return allTasks
 }
 
-// 豊富なサンプル入金データ（30件以上）
-export const generateDemoPayments = (): Payment[] => {
+// 豊富なサンプル入金データ（30件以上、モードで絞り込み）
+export const generateDemoPayments = (mode: Mode = 'admin'): Payment[] => {
   const baseDate = new Date()
-  return [
+  const validProjectIds = mode === 'my_tasks'
+    ? ['demo-project-1', 'demo-project-2', 'demo-project-3']
+    : mode === 'branch'
+    ? ['demo-project-1', 'demo-project-2', 'demo-project-3', 'demo-project-4', 'demo-project-5', 'demo-project-6']
+    : null // adminは全件
+
+  const allPayments: Payment[] = [
     // プロジェクト1（完済）- 4件
     { id: 'demo-payment-1-1', project_id: 'demo-project-1', payment_type: '契約金', amount: 3200000, scheduled_date: format(addDays(baseDate, -150), 'yyyy-MM-dd'), actual_date: format(addDays(baseDate, -150), 'yyyy-MM-dd'), scheduled_amount: 3200000, actual_amount: 3200000, status: 'completed', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
     { id: 'demo-payment-1-2', project_id: 'demo-project-1', payment_type: '着工金', amount: 9600000, scheduled_date: format(addDays(baseDate, -80), 'yyyy-MM-dd'), actual_date: format(addDays(baseDate, -80), 'yyyy-MM-dd'), scheduled_amount: 9600000, actual_amount: 9600000, status: 'completed', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
@@ -161,4 +194,10 @@ export const generateDemoPayments = (): Payment[] => {
     { id: 'demo-payment-10-1', project_id: 'demo-project-10', payment_type: '契約金', amount: 3100000, scheduled_date: format(addDays(baseDate, -2), 'yyyy-MM-dd'), actual_date: format(addDays(baseDate, -2), 'yyyy-MM-dd'), scheduled_amount: 3100000, actual_amount: 3100000, status: 'completed', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
     { id: 'demo-payment-10-2', project_id: 'demo-project-10', payment_type: '着工金', amount: 9300000, scheduled_date: format(addDays(baseDate, 70), 'yyyy-MM-dd'), scheduled_amount: 9300000, actual_amount: 0, status: 'pending', created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
   ]
+
+  // モード別にフィルタリング
+  if (validProjectIds) {
+    return allPayments.filter(payment => validProjectIds.includes(payment.project_id))
+  }
+  return allPayments
 }

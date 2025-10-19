@@ -50,8 +50,8 @@ export default function PerformanceManagement() {
     setLoading(true)
 
     if (demoMode) {
-      // デモモード：サンプルデータを使用
-      const demoProjects = generateDemoProjects()
+      // デモモード：サンプルデータを使用（モード別にデータ件数を調整）
+      const demoProjects = generateDemoProjects(mode as 'my_tasks' | 'branch' | 'admin')
       const demoCustomers = generateDemoCustomers()
 
       const projectsWithCustomers = demoProjects.map(project => ({
@@ -270,7 +270,7 @@ export default function PerformanceManagement() {
         </div>
       </div>
 
-      <div className="prisma-content">
+      <div className="prisma-content" style={{ paddingLeft: '24px', paddingRight: '24px' }}>
         {stats && (
           <>
             {/* 統計サマリー */}

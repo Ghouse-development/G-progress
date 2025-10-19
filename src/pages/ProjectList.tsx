@@ -188,10 +188,10 @@ export default function ProjectList() {
 
       // デモモードの場合はサンプルデータを使用
       if (demoMode) {
-        const demoProjects = generateDemoProjects()
+        const demoProjects = generateDemoProjects(mode as 'my_tasks' | 'branch' | 'admin')
         const demoCustomers = generateDemoCustomers()
         const demoEmployees = generateDemoEmployees()
-        const demoTasks = generateDemoTasks()
+        const demoTasks = generateDemoTasks(mode as 'my_tasks' | 'branch' | 'admin')
 
         // プロジェクトにリレーションデータを結合
         const projectsWithRelations: ProjectWithRelations[] = demoProjects.map(project => {

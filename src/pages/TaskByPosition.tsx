@@ -11,6 +11,7 @@ import { differenceInDays, format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { X } from 'lucide-react'
 import { useSettings } from '../contexts/SettingsContext'
+import { useMode } from '../contexts/ModeContext'
 import { generateDemoTasks, generateDemoProjects, generateDemoCustomers } from '../utils/demoData'
 
 interface TaskWithProject extends Task {
@@ -29,6 +30,7 @@ const ALL_POSITIONS = DEPARTMENTS.flatMap(d => d.positions)
 
 export default function TaskByPosition() {
   const { demoMode } = useSettings()
+  const { mode } = useMode()
   const [tasks, setTasks] = useState<TaskWithProject[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedTask, setSelectedTask] = useState<TaskWithProject | null>(null)
@@ -36,15 +38,15 @@ export default function TaskByPosition() {
 
   useEffect(() => {
     loadTasks()
-  }, [demoMode])
+  }, [demoMode, mode])
 
   const loadTasks = async () => {
     setLoading(true)
 
     if (demoMode) {
-      // デモモード：サンプルデータを使用
-      const demoTasks = generateDemoTasks()
-      const demoProjects = generateDemoProjects()
+      // デモモード：サンプルデータを使用（モード別にデータ件数を調整）
+      const demoTasks = generateDemoTasks(mode as 'my_tasks' | 'branch' | 'admin')
+      const demoProjects = generateDemoProjects(mode as 'my_tasks' | 'branch' | 'admin')
       const demoCustomers = generateDemoCustomers()
 
       const tasksWithProjects = demoTasks.map(task => {

@@ -105,9 +105,9 @@ export default function NewDashboard() {
 
     // デモモードの場合はサンプルデータを使用
     if (demoMode) {
-      const demoProjects = generateDemoProjects()
-      const demoPayments = generateDemoPayments()
-      const demoTasks = generateDemoTasks()
+      const demoProjects = generateDemoProjects(mode as 'my_tasks' | 'branch' | 'admin')
+      const demoPayments = generateDemoPayments(mode as 'my_tasks' | 'branch' | 'admin')
+      const demoTasks = generateDemoTasks(mode as 'my_tasks' | 'branch' | 'admin')
       const demoEmployees = generateDemoEmployees()
 
       setProjects(demoProjects)
