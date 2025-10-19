@@ -3,47 +3,41 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Plus, Edit2, Trash2, X, ArrowLeft } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
+import { Branch } from '../types/database'
 
-interface Department {
-  id: string
-  name: string
-  created_at?: string
-  updated_at?: string
-}
-
-export default function DepartmentMaster() {
+export default function BranchMaster() {
   const navigate = useNavigate()
   const toast = useToast()
-  const [departments, setDepartments] = useState<Department[]>([])
+  const [branches, setBranches] = useState<Branch[]>([])
   const [showModal, setShowModal] = useState(false)
-  const [editingDepartment, setEditingDepartment] = useState<Department | null>(null)
+  const [editingBranch, setEditingBranch] = useState<Branch | null>(null)
   const [formData, setFormData] = useState({
     name: ''
   })
 
   useEffect(() => {
-    loadDepartments()
+    loadBranches()
   }, [])
 
-  const loadDepartments = async () => {
+  const loadBranches = async () => {
     const { data, error } = await supabase
-      .from('departments')
+      .from('branches')
       .select('*')
       .order('name')
 
     if (!error && data) {
-      setDepartments(data as Department[])
+      setBranches(data as Branch[])
     }
   }
 
-  const handleOpenModal = (department?: Department) => {
-    if (department) {
-      setEditingDepartment(department)
+  const handleOpenModal = (branch?: Branch) => {
+    if (branch) {
+      setEditingBranch(branch)
       setFormData({
-        name: department.name
+        name: branch.name
       })
     } else {
-      setEditingDepartment(null)
+      setEditingBranch(null)
       setFormData({
         name: ''
       })
@@ -53,7 +47,7 @@ export default function DepartmentMaster() {
 
   const handleCloseModal = () => {
     setShowModal(false)
-    setEditingDepartment(null)
+    setEditingBranch(null)
     setFormData({
       name: ''
     })
@@ -61,61 +55,61 @@ export default function DepartmentMaster() {
 
   const handleSubmit = async () => {
     if (!formData.name.trim()) {
-      toast.warning('部門名は必須です')
+      toast.warning('拠点名は必須です')
       return
     }
 
     try {
-      if (editingDepartment) {
+      if (editingBranch) {
         // 更新
         const { error } = await supabase
-          .from('departments')
+          .from('branches')
           .update({
             name: formData.name,
             updated_at: new Date().toISOString()
           })
-          .eq('id', editingDepartment.id)
+          .eq('id', editingBranch.id)
 
         if (error) throw error
-        toast.success('部門を更新しました')
+        toast.success('拠点を更新しました')
       } else {
         // 新規作成
         const { error } = await supabase
-          .from('departments')
+          .from('branches')
           .insert({
             name: formData.name
           })
 
         if (error) throw error
-        toast.success('部門を追加しました')
+        toast.success('拠点を追加しました')
       }
 
-      await loadDepartments()
+      await loadBranches()
       handleCloseModal()
     } catch (error) {
-      console.error('Failed to save department:', error)
-      toast.error('部門の保存に失敗しました')
+      console.error('Failed to save branch:', error)
+      toast.error('拠点の保存に失敗しました')
     }
   }
 
-  const handleDelete = async (department: Department) => {
-    if (!confirm(`「${department.name}」を削除してもよろしいですか？`)) {
+  const handleDelete = async (branch: Branch) => {
+    if (!confirm(`「${branch.name}」を削除してもよろしいですか？`)) {
       return
     }
 
     try {
       const { error } = await supabase
-        .from('departments')
+        .from('branches')
         .delete()
-        .eq('id', department.id)
+        .eq('id', branch.id)
 
       if (error) throw error
 
-      toast.success('部門を削除しました')
-      await loadDepartments()
+      toast.success('拠点を削除しました')
+      await loadBranches()
     } catch (error) {
-      console.error('Failed to delete department:', error)
-      toast.error('部門の削除に失敗しました')
+      console.error('Failed to delete branch:', error)
+      toast.error('拠点の削除に失敗しました')
     }
   }
 
@@ -132,25 +126,25 @@ export default function DepartmentMaster() {
             <ArrowLeft size={20} />
             戻る
           </button>
-          <h2 className="text-2xl font-light text-black">部門マスタ管理</h2>
+          <h2 className="text-2xl font-light text-black">拠点マスタ管理</h2>
         </div>
         <button
           onClick={() => handleOpenModal()}
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
         >
           <Plus size={20} />
-          新規部門追加
+          新規拠点追加
         </button>
       </div>
 
-      {/* 部門一覧テーブル */}
+      {/* 拠点一覧テーブル */}
       <div className="bg-white rounded-lg border-2 border-pastel-blue shadow-pastel-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-pastel-blue-light">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
-                  部門名
+                  拠点名
                 </th>
                 <th className="px-6 py-3 text-center text-xs font-bold text-gray-800 uppercase tracking-wider">
                   操作
@@ -158,29 +152,29 @@ export default function DepartmentMaster() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {departments.length === 0 ? (
+              {branches.length === 0 ? (
                 <tr>
                   <td colSpan={2} className="px-6 py-8 text-center text-gray-500">
-                    部門が登録されていません
+                    拠点が登録されていません
                   </td>
                 </tr>
               ) : (
-                departments.map((department) => (
-                  <tr key={department.id} className="hover:bg-pastel-blue-light transition-colors">
+                branches.map((branch) => (
+                  <tr key={branch.id} className="hover:bg-pastel-blue-light transition-colors">
                     <td className="px-6 py-4 text-sm font-bold text-gray-900">
-                      {department.name}
+                      {branch.name}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="flex items-center justify-center gap-2">
                         <button
-                          onClick={() => handleOpenModal(department)}
+                          onClick={() => handleOpenModal(branch)}
                           className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                           title="編集"
                         >
                           <Edit2 size={18} />
                         </button>
                         <button
-                          onClick={() => handleDelete(department)}
+                          onClick={() => handleDelete(branch)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                           title="削除"
                         >
@@ -196,7 +190,7 @@ export default function DepartmentMaster() {
         </div>
       </div>
 
-      {/* 部門追加/編集モーダル */}
+      {/* 拠点追加/編集モーダル */}
       {showModal && (
         <div className="prisma-modal-overlay">
           <div className="prisma-modal" style={{ maxWidth: '450px' }}>
@@ -204,7 +198,7 @@ export default function DepartmentMaster() {
             <div className="prisma-modal-header">
               <div className="flex items-center justify-between">
                 <h2 className="prisma-modal-title">
-                  {editingDepartment ? '部門編集' : '新規部門追加'}
+                  {editingBranch ? '拠点編集' : '新規拠点追加'}
                 </h2>
                 <button
                   onClick={handleCloseModal}
@@ -219,13 +213,13 @@ export default function DepartmentMaster() {
             <div className="prisma-modal-content">
               <div>
                 <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
-                  部門名 <span className="text-red-500">*</span>
+                  拠点名 <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="例: 営業部"
+                  placeholder="例: 東京本社"
                   className="prisma-input"
                 />
               </div>
@@ -243,7 +237,7 @@ export default function DepartmentMaster() {
                 onClick={handleSubmit}
                 className="prisma-btn prisma-btn-primary"
               >
-                {editingDepartment ? '更新' : '作成'}
+                {editingBranch ? '更新' : '作成'}
               </button>
             </div>
           </div>

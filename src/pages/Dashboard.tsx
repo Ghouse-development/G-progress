@@ -12,6 +12,7 @@ import ProductMaster from '../components/ProductMaster'
 import EmployeeMaster from '../components/EmployeeMaster'
 import DepartmentMaster from '../components/DepartmentMaster'
 import RoleMaster from '../components/RoleMaster'
+import BranchMaster from '../components/BranchMaster'
 import NewDashboard from './NewDashboard'
 import PaymentManagement from './PaymentManagement'
 import PerformanceManagement from './PerformanceManagement'
@@ -40,6 +41,7 @@ export default function Dashboard() {
           <Route path="/master/employees" element={<EmployeeMaster />} />
           <Route path="/master/departments" element={<DepartmentMaster />} />
           <Route path="/master/roles" element={<RoleMaster />} />
+          <Route path="/master/branches" element={<BranchMaster />} />
           <Route path="/settings" element={<div className="prisma-content">設定ページ（今後実装）</div>} />
         </Routes>
       </LayoutPrisma>

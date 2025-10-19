@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Employee, Department, Role, Branch } from '../types/database'
-import { Plus, Edit2, Trash2, X, ArrowLeft, Building2, Shield } from 'lucide-react'
+import { Plus, Edit2, Trash2, X, ArrowLeft, Building2, Shield, MapPin } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
 
 // Role表示名マッピング
@@ -248,6 +248,14 @@ export default function EmployeeMaster() {
           >
             <Shield size={20} />
             役職マスタ
+          </button>
+          <button
+            onClick={() => navigate('/master/branches')}
+            className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium"
+            title="拠点マスタ管理"
+          >
+            <MapPin size={20} />
+            拠点マスタ
           </button>
           <button
             onClick={() => handleOpenModal()}
