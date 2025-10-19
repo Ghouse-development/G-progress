@@ -185,7 +185,11 @@ export default function ProjectList() {
           design:assigned_design(id, last_name, first_name, department),
           construction:assigned_construction(id, last_name, first_name, department)
         `)
-        .eq('fiscal_year', selectedYear)
+
+      // 年度フィルタ（fiscal_yearがnullの場合も含める）
+      if (selectedYear) {
+        query = query.or(`fiscal_year.eq.${selectedYear},fiscal_year.is.null`)
+      }
 
       if (mode === 'staff' && currentUserId) {
         query = query.or(`assigned_sales.eq.${currentUserId},assigned_design.eq.${currentUserId},assigned_construction.eq.${currentUserId}`)
