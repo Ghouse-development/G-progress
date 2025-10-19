@@ -54,7 +54,9 @@ export default function ProjectList() {
   const [editingProject, setEditingProject] = useState<ProjectWithRelations | null>(null)
   const [deletingProjectId, setDeletingProjectId] = useState<string | null>(null)
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
+  const [selectedTaskProject, setSelectedTaskProject] = useState<ProjectWithRelations | null>(null)
   const [showTaskDetailModal, setShowTaskDetailModal] = useState(false)
+  const [editingDueDate, setEditingDueDate] = useState(false)
 
   // 従業員データ
   const [employees, setEmployees] = useState<Employee[]>([])
@@ -276,6 +278,53 @@ export default function ProjectList() {
       console.error('Failed to fetch projects:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  // タスクステータス更新
+  const handleUpdateTaskStatus = async (taskId: string, newStatus: 'not_started' | 'requested' | 'delayed' | 'completed') => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ status: newStatus })
+        .eq('id', taskId)
+
+      if (error) throw error
+
+      toast.success('ステータスを更新しました')
+
+      // selectedTaskを更新
+      if (selectedTask && selectedTask.id === taskId) {
+        setSelectedTask({ ...selectedTask, status: newStatus })
+      }
+
+      // プロジェクトリストを再読み込み
+      loadProjects()
+    } catch (error) {
+      console.error('Failed to update task status:', error)
+      toast.error('ステータスの更新に失敗しました')
+    }
+  }
+
+  // 期限日更新
+  const handleUpdateDueDate = async (newDueDate: string) => {
+    if (!selectedTask) return
+
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ due_date: newDueDate })
+        .eq('id', selectedTask.id)
+
+      if (error) throw error
+
+      toast.success('期限日を更新しました')
+      setSelectedTask({ ...selectedTask, due_date: newDueDate })
+      setEditingDueDate(false)
+      loadProjects()
+    } catch (error) {
+      console.error('Failed to update due date:', error)
+      toast.error('期限日の更新に失敗しました')
     }
   }
 
@@ -967,6 +1016,7 @@ export default function ProjectList() {
                                 onClick={(e) => {
                                   e.stopPropagation()
                                   setSelectedTask(task)
+                                  setSelectedTaskProject(project)
                                   setShowTaskDetailModal(true)
                                 }}
                                 onMouseEnter={(e) => {
@@ -1490,133 +1540,195 @@ export default function ProjectList() {
       )}
 
       {/* タスク詳細モーダル */}
-      {showTaskDetailModal && selectedTask && (
+      {showTaskDetailModal && selectedTask && selectedTaskProject && (
         <div className="prisma-modal-overlay">
-          <div className="prisma-modal" style={{ maxWidth: '600px' }}>
+          <div className="prisma-modal" style={{ maxWidth: '800px' }}>
+            {/* ヘッダー */}
             <div className="prisma-modal-header">
               <div className="flex items-center justify-between">
-                <h2 className="prisma-modal-title">タスク詳細</h2>
+                <h2 className="prisma-modal-title">{selectedTask.title}</h2>
                 <button
                   onClick={() => {
                     setShowTaskDetailModal(false)
                     setSelectedTask(null)
+                    setSelectedTaskProject(null)
+                    setEditingDueDate(false)
                   }}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  className="text-gray-400 hover:text-gray-600 dark:text-gray-300 transition-colors"
                 >
                   <X size={20} />
                 </button>
               </div>
             </div>
 
+            {/* コンテンツ */}
             <div className="prisma-modal-content space-y-4">
+              {/* ステータス変更ボタン */}
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
-                  タスク名
+                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                  ステータス
                 </label>
-                <div className="prisma-text-base text-gray-900">{selectedTask.title}</div>
+                <div className="grid grid-cols-4 gap-2">
+                  <button
+                    onClick={() => handleUpdateTaskStatus(selectedTask.id, 'not_started')}
+                    className={`px-3 py-2 rounded-lg font-bold text-sm transition-all ${
+                      selectedTask.status === 'not_started'
+                        ? 'task-not-started'
+                        : 'bg-white text-gray-900 hover:bg-gray-50 border-2 border-gray-300'
+                    }`}
+                  >
+                    未着手
+                  </button>
+                  <button
+                    onClick={() => handleUpdateTaskStatus(selectedTask.id, 'requested')}
+                    className={`px-3 py-2 rounded-lg font-bold text-sm transition-all ${
+                      selectedTask.status === 'requested'
+                        ? 'task-in-progress'
+                        : 'bg-white text-yellow-900 hover:bg-yellow-50 border-2 border-yellow-300'
+                    }`}
+                  >
+                    着手中
+                  </button>
+                  <button
+                    onClick={() => handleUpdateTaskStatus(selectedTask.id, 'delayed')}
+                    className={`px-3 py-2 rounded-lg font-bold text-sm transition-all ${
+                      selectedTask.status === 'delayed'
+                        ? 'task-delayed'
+                        : 'bg-white text-red-900 hover:bg-red-50 border-2 border-red-300'
+                    }`}
+                  >
+                    遅延
+                  </button>
+                  <button
+                    onClick={() => handleUpdateTaskStatus(selectedTask.id, 'completed')}
+                    className={`px-3 py-2 rounded-lg font-bold text-sm transition-all ${
+                      selectedTask.status === 'completed'
+                        ? 'task-completed'
+                        : 'bg-white text-blue-900 hover:bg-blue-50 border-2 border-blue-300'
+                    }`}
+                  >
+                    完了
+                  </button>
+                </div>
               </div>
 
+              {/* 期限日 */}
+              <div>
+                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                  期限日
+                </label>
+                {editingDueDate ? (
+                  <input
+                    type="date"
+                    value={selectedTask.due_date || ''}
+                    onChange={(e) => handleUpdateDueDate(e.target.value)}
+                    onBlur={() => setEditingDueDate(false)}
+                    autoFocus
+                    className="prisma-input"
+                  />
+                ) : (
+                  <div
+                    onClick={() => setEditingDueDate(true)}
+                    className="prisma-input cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                  >
+                    <div className="font-medium text-gray-900 dark:text-gray-100">
+                      {selectedTask.due_date ? format(new Date(selectedTask.due_date), 'yyyy年MM月dd日 (E)', { locale: ja }) : '未設定'}
+                    </div>
+                    {selectedTask.due_date && selectedTaskProject.contract_date && (
+                      <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        契約日から {differenceInDays(new Date(selectedTask.due_date), new Date(selectedTaskProject.contract_date))}日目
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* 作業内容 */}
               {selectedTask.description && (
                 <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
-                    説明
+                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                    作業内容
                   </label>
-                  <div className="prisma-text-base text-gray-900">{selectedTask.description}</div>
+                  <div className="prisma-input bg-gray-50 dark:bg-gray-700 whitespace-pre-wrap" style={{ minHeight: '60px' }}>
+                    {selectedTask.description}
+                  </div>
                 </div>
               )}
 
+              {/* Do's & Don'ts */}
+              {(selectedTask.dos || selectedTask.donts) && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {selectedTask.dos && (
+                    <div>
+                      <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                        Do's（推奨事項）
+                      </label>
+                      <div className="prisma-input bg-gray-50 dark:bg-gray-700 whitespace-pre-wrap" style={{ minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                        {selectedTask.dos}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedTask.donts && (
+                    <div>
+                      <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                        Don'ts（禁止事項）
+                      </label>
+                      <div className="prisma-input bg-gray-50 dark:bg-gray-700 whitespace-pre-wrap" style={{ minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                        {selectedTask.donts}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* マニュアル・動画 */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
-                    期限日
-                  </label>
-                  <div className="prisma-text-base text-gray-900">
-                    {selectedTask.due_date ? format(new Date(selectedTask.due_date), 'yyyy年MM月dd日') : '未設定'}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
-                    ステータス
-                  </label>
-                  <div>
-                    <span className={`prisma-badge ${
-                      selectedTask.status === 'completed' ? 'prisma-badge-blue' :
-                      selectedTask.status === 'requested' ? 'prisma-badge-yellow' :
-                      selectedTask.status === 'delayed' ? 'prisma-badge-red' :
-                      'prisma-badge-gray'
-                    }`}>
-                      {selectedTask.status === 'completed' ? '完了' :
-                       selectedTask.status === 'requested' ? '着手中' :
-                       selectedTask.status === 'delayed' ? '遅延' :
-                       '未着手'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {selectedTask.dos && (
-                <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
-                    Do's（推奨事項）
-                  </label>
-                  <div className="prisma-text-base text-gray-900 whitespace-pre-wrap">{selectedTask.dos}</div>
-                </div>
-              )}
-
-              {selectedTask.donts && (
-                <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
-                    Don'ts（禁止事項）
-                  </label>
-                  <div className="prisma-text-base text-gray-900 whitespace-pre-wrap">{selectedTask.donts}</div>
-                </div>
-              )}
-
-              {selectedTask.manual_url && (
-                <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                     マニュアル
                   </label>
-                  <a
-                    href={selectedTask.manual_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline"
-                  >
-                    マニュアルを開く
-                  </a>
+                  {selectedTask.manual_url ? (
+                    <a
+                      href={selectedTask.manual_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="prisma-btn prisma-btn-secondary w-full"
+                    >
+                      開く
+                    </a>
+                  ) : (
+                    <div className="text-gray-500 dark:text-gray-400 text-sm">未設定</div>
+                  )}
                 </div>
-              )}
 
-              {selectedTask.video_url && (
                 <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                     動画
                   </label>
-                  <a
-                    href={selectedTask.video_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline"
-                  >
-                    動画を開く
-                  </a>
+                  {selectedTask.video_url ? (
+                    <a
+                      href={selectedTask.video_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="prisma-btn prisma-btn-secondary w-full"
+                    >
+                      再生
+                    </a>
+                  ) : (
+                    <div className="text-gray-500 dark:text-gray-400 text-sm">未設定</div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
 
             <div className="prisma-modal-footer">
               <button
-                onClick={() => navigate(`/projects/${selectedTask.project_id}`)}
-                className="prisma-btn prisma-btn-primary"
-              >
-                案件詳細へ
-              </button>
-              <button
                 onClick={() => {
                   setShowTaskDetailModal(false)
                   setSelectedTask(null)
+                  setSelectedTaskProject(null)
+                  setEditingDueDate(false)
                 }}
                 className="prisma-btn prisma-btn-secondary"
               >

@@ -56,6 +56,7 @@ export default function Calendar() {
   const [selectedPayment, setSelectedPayment] = useState<PaymentWithProject | null>(null)
   const [showTaskModal, setShowTaskModal] = useState(false)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [editingDueDate, setEditingDueDate] = useState(false)
   const { showToast } = useToast()
 
   useEffect(() => {
@@ -279,6 +280,28 @@ export default function Calendar() {
     } catch (error) {
       console.error('ステータス更新エラー:', error)
       showToast('ステータスの更新に失敗しました', 'error')
+    }
+  }
+
+  // 期限日更新
+  const handleUpdateDueDate = async (newDueDate: string) => {
+    if (!selectedTask) return
+
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ due_date: newDueDate })
+        .eq('id', selectedTask.id)
+
+      if (error) throw error
+
+      showToast('期限日を更新しました', 'success')
+      setSelectedTask({ ...selectedTask, due_date: newDueDate })
+      setEditingDueDate(false)
+      loadTasks()
+    } catch (error) {
+      console.error('期限日の更新エラー:', error)
+      showToast('期限日の更新に失敗しました', 'error')
     }
   }
 
@@ -689,6 +712,7 @@ export default function Calendar() {
                   onClick={() => {
                     setSelectedTask(null)
                     setShowTaskModal(false)
+                    setEditingDueDate(false)
                   }}
                   className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                 >
@@ -749,11 +773,30 @@ export default function Calendar() {
               {/* 期限日 */}
               <div>
                 <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">期限日</label>
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-3 border-2 border-blue-300 dark:border-blue-700 rounded-lg text-center">
-                  <div className="text-lg font-bold text-blue-900 dark:text-blue-100">
-                    {selectedTask.due_date ? format(new Date(selectedTask.due_date), 'yyyy/MM/dd (E)', { locale: ja }) : '未設定'}
+                {editingDueDate ? (
+                  <input
+                    type="date"
+                    value={selectedTask.due_date || ''}
+                    onChange={(e) => handleUpdateDueDate(e.target.value)}
+                    onBlur={() => setEditingDueDate(false)}
+                    autoFocus
+                    className="prisma-input"
+                  />
+                ) : (
+                  <div
+                    onClick={() => setEditingDueDate(true)}
+                    className="prisma-input cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                  >
+                    <div className="font-medium text-gray-900 dark:text-gray-100">
+                      {selectedTask.due_date ? format(new Date(selectedTask.due_date), 'yyyy年MM月dd日 (E)', { locale: ja }) : '未設定'}
+                    </div>
+                    {selectedTask.due_date && selectedTask.project?.contract_date && (
+                      <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        契約日から {differenceInDays(new Date(selectedTask.due_date), new Date(selectedTask.project.contract_date))}日目
+                      </div>
+                    )}
                   </div>
-                </div>
+                )}
               </div>
 
               {/* 作業内容 */}
@@ -836,6 +879,7 @@ export default function Calendar() {
                 onClick={() => {
                   setSelectedTask(null)
                   setShowTaskModal(false)
+                  setEditingDueDate(false)
                 }}
                 className="prisma-btn-primary flex-1"
               >
