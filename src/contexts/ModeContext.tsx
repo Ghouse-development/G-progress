@@ -11,9 +11,18 @@ const ModeContext = createContext<ModeContextType | undefined>(undefined)
 
 export function ModeProvider({ children }: { children: ReactNode }) {
   const [mode, setMode] = useState<Mode>(() => {
+    // デフォルトは担当者モード
     const savedMode = localStorage.getItem('dashboardMode')
     return (savedMode === 'admin' ? 'admin' : 'staff') as Mode
   })
+
+  // 初回マウント時に担当者モードに設定
+  useEffect(() => {
+    if (!localStorage.getItem('dashboardMode')) {
+      setMode('staff')
+      localStorage.setItem('dashboardMode', 'staff')
+    }
+  }, [])
 
   useEffect(() => {
     localStorage.setItem('dashboardMode', mode)

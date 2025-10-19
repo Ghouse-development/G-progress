@@ -22,32 +22,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // セッションを取得
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        loadEmployee(session.user.id)
-      } else {
+    // 開発モード：佐古祐太さんでデフォルトログイン
+    const loadDefaultEmployee = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('employees')
+          .select('*')
+          .eq('id', '4e2b13ad-198c-4be0-a563-9e5b90f20261') // 佐古祐太さんのID
+          .single()
+
+        if (!error && data) {
+          setEmployee(data as Employee)
+          // ダミーユーザーオブジェクトを作成
+          setUser({ id: data.id, email: data.email } as User)
+          localStorage.setItem('auth', 'true')
+          localStorage.setItem('selectedEmployeeId', data.id)
+          localStorage.setItem('currentUserId', data.id)
+        }
+      } catch (error) {
+        console.error('従業員情報の取得エラー:', error)
+      } finally {
         setLoading(false)
       }
-    })
+    }
 
-    // 認証状態変更のリスナー
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        loadEmployee(session.user.id)
-      } else {
-        setEmployee(null)
-        setLoading(false)
-      }
-    })
-
-    return () => subscription.unsubscribe()
+    loadDefaultEmployee()
   }, [])
 
   const loadEmployee = async (userId: string) => {

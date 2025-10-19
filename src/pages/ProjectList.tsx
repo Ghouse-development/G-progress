@@ -630,57 +630,60 @@ export default function ProjectList() {
   }
 
   return (
-    <div className="p-6 min-h-screen">
-      {/* ヘッダー */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-3xl font-bold text-canva-purple">案件一覧</h1>
-          <div className="flex items-center gap-4">
-            {/* モード切替 */}
-            <div className="flex items-center gap-2 bg-white rounded-canva p-1 shadow-canva">
+    <div className="p-2 min-h-screen">
+      {/* ヘッダー + ツールバー統合カード */}
+      <div className="bg-white rounded-lg border-2 border-gray-300 shadow-sm mb-2 overflow-hidden">
+        {/* ヘッダー */}
+        <div className="px-3 py-2 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-gray-300">
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-bold text-gray-900">案件一覧</h1>
+            <div className="flex items-center gap-2">
+              {/* モード切替 */}
+              <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-0.5">
+                <button
+                  onClick={() => setMode('staff')}
+                  className={`px-3 py-1.5 rounded-lg text-base font-semibold transition-all duration-200 ${
+                    mode === 'staff'
+                      ? 'bg-white text-blue-600 shadow'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  担当者モード
+                </button>
+                <button
+                  onClick={() => setMode('admin')}
+                  className={`px-3 py-1.5 rounded-lg text-base font-semibold transition-all duration-200 ${
+                    mode === 'admin'
+                      ? 'bg-white text-blue-600 shadow'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  管理者モード
+                </button>
+              </div>
+
               <button
-                onClick={() => setMode('staff')}
-                className={`px-4 py-2 rounded-canva text-base font-semibold transition-all duration-300 ${
-                  mode === 'staff'
-                    ? 'bg-canva-gradient-1 text-white shadow-canva'
-                    : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                onClick={() => setShowCreateModal(true)}
+                className="px-3 py-1.5 bg-green-600 text-white rounded-lg font-bold text-base hover:bg-green-700 transition-colors flex items-center gap-1"
               >
-                担当者モード
-              </button>
-              <button
-                onClick={() => setMode('admin')}
-                className={`px-4 py-2 rounded-canva text-base font-semibold transition-all duration-300 ${
-                  mode === 'admin'
-                    ? 'bg-canva-gradient-1 text-white shadow-canva'
-                    : 'text-gray-600 hover:bg-gray-100'
-                }`}
-              >
-                管理者モード
+                <Plus size={18} />
+                新規案件追加
               </button>
             </div>
-
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="btn-canva-primary flex items-center gap-2"
-            >
-              <Plus size={20} />
-              新規案件追加
-            </button>
           </div>
         </div>
 
         {/* ツールバー */}
-        <div className="bg-white rounded-lg border-2 border-gray-300 shadow-sm px-4 py-2 mb-2">
-          <div className="flex items-center justify-between gap-4">
+        <div className="px-3 py-2 bg-white">
+          <div className="flex items-center justify-between gap-3">
             {/* ソート */}
             <div className="flex items-center gap-2">
-              <ArrowUpDown size={18} className="text-canva-purple" />
-              <span className="font-bold text-gray-900 text-base">並び:</span>
+              <ArrowUpDown size={16} className="text-gray-600" />
+              <span className="text-gray-700 text-base">並び:</span>
               <select
                 value={sortField}
                 onChange={(e) => setSortField(e.target.value as SortField)}
-                className="input-canva px-3 py-1 font-medium text-base"
+                className="px-2 py-1 border border-gray-300 rounded-lg bg-white text-base font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="contract_date">契約日順</option>
                 <option value="construction_start_date">着工日順</option>
@@ -690,7 +693,7 @@ export default function ProjectList() {
               </select>
               <button
                 onClick={() => setSortAscending(!sortAscending)}
-                className="btn-canva-outline px-3 py-1 font-bold text-base"
+                className="px-2 py-1 bg-gray-100 text-gray-700 rounded-lg font-bold text-base hover:bg-gray-200 transition-colors"
               >
                 {sortAscending ? '昇順 ↑' : '降順 ↓'}
               </button>
@@ -698,14 +701,14 @@ export default function ProjectList() {
 
             {/* フィルタ */}
             <div className="flex items-center gap-2">
-              <Filter size={18} className="text-canva-purple" />
-              <span className="font-bold text-gray-900 text-base">絞込:</span>
-              <div className="flex gap-2">
+              <Filter size={16} className="text-gray-600" />
+              <span className="text-gray-700 text-base">絞込:</span>
+              <div className="flex gap-1">
                 <button
                   onClick={() => setFilterStatus('all')}
-                  className={`px-3 py-1 rounded-canva font-bold text-base transition-all ${
+                  className={`px-2 py-1 rounded-lg font-bold text-base transition-colors ${
                     filterStatus === 'all'
-                      ? 'bg-canva-gradient-1 text-white shadow-canva'
+                      ? 'bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
@@ -713,9 +716,9 @@ export default function ProjectList() {
                 </button>
                 <button
                   onClick={() => setFilterStatus('delayed')}
-                  className={`px-3 py-1 rounded-canva font-bold text-base transition-all ${
+                  className={`px-2 py-1 rounded-lg font-bold text-base transition-colors ${
                     filterStatus === 'delayed'
-                      ? 'bg-red-500 text-white shadow-canva'
+                      ? 'bg-red-500 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
@@ -723,9 +726,9 @@ export default function ProjectList() {
                 </button>
                 <button
                   onClick={() => setFilterStatus('requested')}
-                  className={`px-3 py-1 rounded-canva font-bold text-base transition-all ${
+                  className={`px-2 py-1 rounded-lg font-bold text-base transition-colors ${
                     filterStatus === 'requested'
-                      ? 'bg-canva-yellow text-gray-900 shadow-canva'
+                      ? 'bg-yellow-400 text-gray-900'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
@@ -733,9 +736,9 @@ export default function ProjectList() {
                 </button>
                 <button
                   onClick={() => setFilterStatus('completed')}
-                  className={`px-3 py-1 rounded-canva font-bold text-base transition-all ${
+                  className={`px-2 py-1 rounded-lg font-bold text-base transition-colors ${
                     filterStatus === 'completed'
-                      ? 'bg-canva-blue text-white shadow-canva'
+                      ? 'bg-blue-400 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
@@ -748,12 +751,12 @@ export default function ProjectList() {
       </div>
 
       {/* 進捗マトリクス表示 */}
-      <div className="bg-white rounded-lg border-2 border-pastel-blue shadow-pastel-lg overflow-hidden" style={{ height: 'calc(100vh - 220px)', minHeight: '700px' }}>
+      <div className="bg-white rounded-lg border-2 border-gray-300 shadow-sm overflow-hidden" style={{ height: 'calc(100vh - 140px)', minHeight: '600px' }}>
           {/* ヘッダー */}
-          <div className="px-3 py-1 bg-gradient-pastel-blue border-b-2 border-pastel-blue">
+          <div className="px-3 py-1.5 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-gray-300">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <h3 className="text-lg font-semibold text-pastel-blue-dark">全案件進捗マトリクス</h3>
+                <h3 className="text-base font-bold text-gray-900">全案件進捗マトリクス</h3>
                 <div className="flex items-center gap-2 text-base">
                   <div className="bg-white px-2 py-0.5 rounded shadow-sm">
                     <span className="font-bold text-blue-900 text-base">{filteredProjectsForMatrix.length}案件</span>

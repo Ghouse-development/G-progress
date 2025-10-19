@@ -4,11 +4,10 @@ import { ToastProvider } from './contexts/ToastContext'
 import { NotificationProvider } from './contexts/NotificationContext'
 import { PermissionsProvider } from './contexts/PermissionsContext'
 import Dashboard from './pages/Dashboard'
-import Login from './pages/Login'
 
 // プロテクトされたルートコンポーネント
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth()
+  const { loading } = useAuth()
 
   if (loading) {
     return (
@@ -21,20 +20,12 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     )
   }
 
-  // 開発モード用の後方互換性
-  const devAuth = localStorage.getItem('auth') === 'true'
-
-  if (!user && !devAuth) {
-    return <Navigate to="/login" replace />
-  }
-
   return <>{children}</>
 }
 
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
       <Route
         path="/*"
         element={

@@ -359,7 +359,7 @@ export default function ProjectDetail() {
     switch (status) {
       case 'not_started': return 'bg-gray-200 text-gray-800'
       case 'requested': return 'bg-yellow-200 text-yellow-900'
-      case 'delayed': return 'bg-red-200 text-red-900'
+      case 'delayed': return 'bg-red-500 text-white border-2 border-red-700'
       case 'completed': return 'bg-blue-200 text-blue-900'
       case 'not_applicable': return 'bg-gray-100 text-gray-600'
       default: return 'bg-gray-200 text-gray-800'
@@ -635,19 +635,20 @@ export default function ProjectDetail() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto p-6">
+      <div className="container mx-auto p-2">
         {/* 戻るボタン */}
         <button
           onClick={() => navigate('/projects')}
-          className="mb-4 px-4 py-2 bg-white text-gray-700 rounded-lg shadow-md border-2 border-gray-300 hover:bg-gray-50 transition-all duration-200 font-bold"
+          className="mb-2 px-3 py-1.5 bg-white text-gray-700 rounded-lg shadow-md border-2 border-gray-300 hover:bg-gray-50 transition-all duration-200 font-bold text-base"
         >
           ← 案件一覧に戻る
         </button>
 
-        {/* プロジェクト情報カード */}
+        {/* 統合カード：プロジェクト情報 + ツールバー */}
         <div className="bg-white rounded-lg shadow-xl border-2 border-gray-300 overflow-hidden mb-2">
-          <div className="p-2 bg-gradient-to-r from-blue-50 to-blue-100 border-b-2 border-gray-300">
-            <div className="flex items-center justify-between flex-wrap gap-2">
+          {/* プロジェクト情報 */}
+          <div className="px-3 py-2 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-gray-300">
+            <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-3 flex-wrap">
                 <h1 className="text-lg font-bold text-gray-900">
                   {project.customer?.names?.join('・') || '顧客名なし'}様邸
@@ -655,11 +656,11 @@ export default function ProjectDetail() {
                 <span className="text-base font-bold text-gray-700">
                   契約日: {format(new Date(project.contract_date), 'yyyy/MM/dd (E)', { locale: ja })}
                 </span>
-                <span className="text-base font-bold text-gray-700">
+                <span className="text-base text-gray-700">
                   {project.customer?.building_site || '-'}
                 </span>
               </div>
-              <span className={`px-3 py-1 rounded-lg text-base font-bold ${
+              <span className={`px-2 py-1 rounded-lg text-base font-bold ${
                 project.status === 'post_contract' ? 'bg-blue-100 text-blue-800 border-2 border-blue-300' :
                 project.status === 'construction' ? 'bg-orange-100 text-orange-800 border-2 border-orange-300' :
                 'bg-green-100 text-green-800 border-2 border-green-300'
@@ -670,142 +671,115 @@ export default function ProjectDetail() {
             </div>
           </div>
 
-          <div className="px-3 py-1.5 bg-white border-b-2 border-gray-300">
-            <div className="flex items-center justify-between flex-wrap gap-2 text-base">
-              <div className="flex items-center gap-3">
-                <span className="text-gray-700 font-bold">
-                  総タスク数: <span className="text-blue-600 text-base">{tasks.length}</span>
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded bg-gray-200 border border-gray-400"></span>
-                  <strong>{tasks.filter(t => t.status === 'not_started').length}</strong>
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded bg-yellow-200 border border-yellow-400"></span>
-                  <strong>{tasks.filter(t => t.status === 'requested').length}</strong>
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded bg-red-200 border border-red-400"></span>
-                  <strong>{tasks.filter(t => t.status === 'delayed').length}</strong>
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded bg-blue-200 border border-blue-400"></span>
-                  <strong>{tasks.filter(t => t.status === 'completed').length}</strong>
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="px-3 py-1.5 bg-gray-50">
-            <div className="flex items-center gap-4 text-base">
-              <div>
-                <span className="text-gray-600 font-medium">営業: </span>
+          {/* 担当者情報 */}
+          <div className="px-3 py-1.5 bg-gray-50 border-b border-gray-200">
+            <div className="flex items-center gap-6 text-base">
+              <div className="flex items-center gap-1">
+                <span className="text-gray-600">営業:</span>
                 <span className="font-bold text-gray-900">
                   {project.sales ? `${project.sales.last_name} ${project.sales.first_name}` : '未割当'}
                 </span>
               </div>
-              <div>
-                <span className="text-gray-600 font-medium">設計: </span>
+              <div className="flex items-center gap-1">
+                <span className="text-gray-600">設計:</span>
                 <span className="font-bold text-gray-900">
                   {project.design ? `${project.design.last_name} ${project.design.first_name}` : '未割当'}
                 </span>
               </div>
-              <div>
-                <span className="text-gray-600 font-medium">工事: </span>
+              <div className="flex items-center gap-1">
+                <span className="text-gray-600">工事:</span>
                 <span className="font-bold text-gray-900">
                   {project.construction ? `${project.construction.last_name} ${project.construction.first_name}` : '未割当'}
                 </span>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* ツールバー - シンプル版 */}
-        <div className="bg-white rounded-lg shadow-md p-3 mb-2 border-2 border-gray-300">
-          <div className="flex items-center justify-between gap-4">
-            {/* 左側：ソートと並び順 */}
-            <div className="flex items-center gap-2">
-              <select
-                value={sortField}
-                onChange={(e) => setSortField(e.target.value as SortField)}
-                className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-base text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="business_no">業務フロー順</option>
-                <option value="dayFromContract">契約日からの日数</option>
-                <option value="due_date">期限日順</option>
-                <option value="status">ステータス順</option>
-              </select>
-              <button
-                onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-base font-medium hover:bg-gray-200 transition-colors"
-                title={sortOrder === 'asc' ? '昇順' : '降順'}
-              >
-                <ArrowUpDown size={16} />
-              </button>
-            </div>
+          {/* ツールバー */}
+          <div className="px-3 py-2 bg-white">
+            <div className="flex items-center justify-between gap-3">
+              {/* 左側：ソート */}
+              <div className="flex items-center gap-2">
+                <select
+                  value={sortField}
+                  onChange={(e) => setSortField(e.target.value as SortField)}
+                  className="px-2 py-1.5 border border-gray-300 rounded-lg bg-white text-base text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="business_no">業務フロー順</option>
+                  <option value="dayFromContract">契約日からの日数</option>
+                  <option value="due_date">期限日順</option>
+                  <option value="status">ステータス順</option>
+                </select>
+                <button
+                  onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                  className="px-2 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-base font-medium hover:bg-gray-200 transition-colors"
+                  title={sortOrder === 'asc' ? '昇順' : '降順'}
+                >
+                  <ArrowUpDown size={16} />
+                </button>
+              </div>
 
-            {/* 中央：表示モード切り替え */}
-            <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`px-4 py-2 rounded-lg transition-colors ${
-                  viewMode === 'grid'
-                    ? 'bg-white text-blue-600 shadow font-bold'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-                title="グリッドビュー"
-              >
-                <div className="flex items-center gap-2">
-                  <Grid size={18} />
-                  <span className="text-base">グリッド</span>
-                </div>
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`px-4 py-2 rounded-lg transition-colors ${
-                  viewMode === 'list'
-                    ? 'bg-white text-blue-600 shadow font-bold'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-                title="職種別一覧"
-              >
-                <div className="flex items-center gap-2">
-                  <List size={18} />
-                  <span className="text-base">職種別一覧</span>
-                </div>
-              </button>
-            </div>
+              {/* 中央：表示モード */}
+              <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-0.5">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`px-3 py-1.5 rounded-lg transition-colors ${
+                    viewMode === 'grid'
+                      ? 'bg-white text-blue-600 shadow font-bold'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                  title="グリッドビュー"
+                >
+                  <div className="flex items-center gap-1">
+                    <Grid size={16} />
+                    <span className="text-base">グリッド</span>
+                  </div>
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`px-3 py-1.5 rounded-lg transition-colors ${
+                    viewMode === 'list'
+                      ? 'bg-white text-blue-600 shadow font-bold'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                  title="職種別一覧"
+                >
+                  <div className="flex items-center gap-1">
+                    <List size={16} />
+                    <span className="text-base">職種別一覧</span>
+                  </div>
+                </button>
+              </div>
 
-            {/* 右側：フィルタとアクション */}
-            <div className="flex items-center gap-3">
-              {/* フィルタ */}
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
-                className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-base text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">全て ({tasks.length})</option>
-                <option value="not_started">未着手 ({tasks.filter(t => t.status === 'not_started').length})</option>
-                <option value="requested">着手中 ({tasks.filter(t => t.status === 'requested').length})</option>
-                <option value="delayed">遅延 ({tasks.filter(t => t.status === 'delayed').length})</option>
-                <option value="completed">完了 ({tasks.filter(t => t.status === 'completed').length})</option>
-              </select>
+              {/* 右側：フィルタとアクション */}
+              <div className="flex items-center gap-2">
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
+                  className="px-2 py-1.5 border border-gray-300 rounded-lg bg-white text-base text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="all">全て ({tasks.length})</option>
+                  <option value="not_started">未着手 ({tasks.filter(t => t.status === 'not_started').length})</option>
+                  <option value="requested">着手中 ({tasks.filter(t => t.status === 'requested').length})</option>
+                  <option value="delayed">遅延 ({tasks.filter(t => t.status === 'delayed').length})</option>
+                  <option value="completed">完了 ({tasks.filter(t => t.status === 'completed').length})</option>
+                </select>
 
-              {/* アクションボタン */}
-              <button
-                onClick={handleRegenerateTasks}
-                className="px-3 py-2 bg-purple-600 text-white rounded-lg text-base font-medium hover:bg-purple-700 transition-colors flex items-center gap-1"
-                title="タスク一括生成"
-              >
-                <RefreshCw size={16} />
-              </button>
-              <button
-                onClick={() => setShowTaskModal(true)}
-                className="px-3 py-2 bg-green-600 text-white rounded-lg text-base font-medium hover:bg-green-700 transition-colors flex items-center gap-1"
-              >
-                <Plus size={16} />
-                新規
-              </button>
+                <button
+                  onClick={handleRegenerateTasks}
+                  className="px-2 py-1.5 bg-purple-600 text-white rounded-lg text-base font-medium hover:bg-purple-700 transition-colors flex items-center gap-1"
+                  title="タスク一括生成"
+                >
+                  <RefreshCw size={16} />
+                </button>
+                <button
+                  onClick={() => setShowTaskModal(true)}
+                  className="px-2 py-1.5 bg-green-600 text-white rounded-lg text-base font-medium hover:bg-green-700 transition-colors flex items-center gap-1"
+                >
+                  <Plus size={16} />
+                  新規
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -903,7 +877,7 @@ export default function ProjectDetail() {
                       {/* ステータス */}
                       <td className="border-2 border-gray-300 p-3 text-center">
                         <span className={`px-3 py-1 rounded-lg font-bold text-base border-2 ${
-                          isDelayed ? 'bg-red-200 text-red-900' : getStatusBadgeColor(task.status)
+                          isDelayed ? 'bg-red-500 text-white border-red-700' : getStatusBadgeColor(task.status)
                         }`}>
                           {isDelayed ? '遅延' : getStatusText(task.status)}
                         </span>
@@ -1011,8 +985,8 @@ export default function ProjectDetail() {
                                       <div className="flex-1">
                                         <div className="flex items-center gap-3 mb-2">
                                           <h5 className="text-base font-bold text-gray-900">{task.title}</h5>
-                                          <span className={`px-2 py-1 rounded-lg font-bold text-base border ${
-                                            isDelayed ? 'bg-red-200 text-red-900' : getStatusBadgeColor(task.status)
+                                          <span className={`px-2 py-1 rounded-lg font-bold text-base border-2 ${
+                                            isDelayed ? 'bg-red-500 text-white border-red-700' : getStatusBadgeColor(task.status)
                                           }`}>
                                             {isDelayed ? '遅延' : getStatusText(task.status)}
                                           </span>
