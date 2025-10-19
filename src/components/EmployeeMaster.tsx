@@ -122,6 +122,7 @@ export default function EmployeeMaster() {
       first_name: '',
       department: '営業',
       role: 'member',
+      branch_id: '',
       avatar_url: ''
     })
   }
