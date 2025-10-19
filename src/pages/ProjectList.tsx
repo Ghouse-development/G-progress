@@ -880,26 +880,30 @@ export default function ProjectList() {
                           ? differenceInDays(new Date(), new Date(task.due_date))
                           : 0
 
-                        // Prismaカラースキーム
+                        // デザインコード統一：index.cssの定義に合わせる
                         let cellStyle: React.CSSProperties = {
                           padding: '8px 12px',
                           borderRadius: '6px',
                           textAlign: 'center',
                           fontSize: '14px',
-                          fontWeight: 600,
+                          fontWeight: 700,
                           cursor: 'pointer',
                           transition: 'all 0.15s ease'
                         }
 
                         if (task) {
                           if (task.status === 'completed' || task.status === 'not_applicable') {
-                            cellStyle = { ...cellStyle, background: '#dbeafe', color: '#1e40af', border: '1px solid #93c5fd' }
+                            // 完了：青
+                            cellStyle = { ...cellStyle, background: '#93C5FD', color: '#1E3A8A', border: '3px solid #2563EB', boxShadow: '0 2px 4px rgba(37, 99, 235, 0.3)' }
                           } else if (daysOverdue > 0 || task.status === 'delayed') {
-                            cellStyle = { ...cellStyle, background: '#fca5a5', color: '#7f1d1d', border: '2px solid #dc2626' }
+                            // 遅延：赤
+                            cellStyle = { ...cellStyle, background: '#FCA5A5', color: '#7F1D1D', border: '3px solid #DC2626', boxShadow: '0 2px 4px rgba(220, 38, 38, 0.3)' }
                           } else if (task.status === 'requested') {
-                            cellStyle = { ...cellStyle, background: '#fde047', color: '#713f12', border: '1px solid #eab308' }
+                            // 着手中：黄色
+                            cellStyle = { ...cellStyle, background: '#FDE047', color: '#713F12', border: '3px solid #EAB308', boxShadow: '0 2px 4px rgba(234, 179, 8, 0.3)' }
                           } else {
-                            cellStyle = { ...cellStyle, background: '#f3f4f6', color: '#374151', border: '1px solid #d1d5db' }
+                            // 未着手：グレー
+                            cellStyle = { ...cellStyle, background: '#D1D5DB', color: '#1F2937', border: '3px solid #6B7280', boxShadow: '0 2px 4px rgba(107, 114, 128, 0.3)' }
                           }
                         }
 

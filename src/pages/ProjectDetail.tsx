@@ -356,13 +356,14 @@ export default function ProjectDetail() {
   }
 
   const getStatusBadgeColor = (status: string) => {
+    // index.cssのデザインコードに統一
     switch (status) {
-      case 'not_started': return 'bg-gray-200 text-gray-800'
-      case 'requested': return 'bg-yellow-200 text-yellow-900'
-      case 'delayed': return 'bg-red-500 text-white border-2 border-red-700'
-      case 'completed': return 'bg-blue-200 text-blue-900'
-      case 'not_applicable': return 'bg-gray-100 text-gray-600'
-      default: return 'bg-gray-200 text-gray-800'
+      case 'not_started': return 'task-not-started'
+      case 'requested': return 'task-in-progress'
+      case 'delayed': return 'task-delayed'
+      case 'completed': return 'task-completed'
+      case 'not_applicable': return 'task-completed' // 対象外も完了扱い
+      default: return 'task-not-started'
     }
   }
 
@@ -985,8 +986,8 @@ export default function ProjectDetail() {
                                       <div className="flex-1">
                                         <div className="flex items-center gap-3 mb-2">
                                           <h5 className="text-base font-bold text-gray-900">{task.title}</h5>
-                                          <span className={`px-2 py-1 rounded-lg font-bold text-base border-2 ${
-                                            isDelayed ? 'bg-red-500 text-white border-red-700' : getStatusBadgeColor(task.status)
+                                          <span className={`px-2 py-1 rounded-lg ${
+                                            isDelayed ? 'task-delayed' : getStatusBadgeColor(task.status)
                                           }`}>
                                             {isDelayed ? '遅延' : getStatusText(task.status)}
                                           </span>
@@ -1195,11 +1196,11 @@ export default function ProjectDetail() {
                                       setSelectedTask(task)
                                       setShowDetailModal(true)
                                     }}
-                                    className={`text-base px-2 py-1 rounded truncate cursor-pointer mb-1 border-2 ${
-                                      isDelayed ? 'bg-red-200 text-red-900 font-bold border-red-600' :
-                                      task.status === 'completed' ? 'bg-blue-200 text-blue-900 font-bold border-blue-600' :
-                                      task.status === 'requested' ? 'bg-yellow-200 text-yellow-900 font-semibold border-yellow-600' :
-                                      'bg-gray-200 text-gray-800 border-gray-400'
+                                    className={`text-base px-2 py-1 rounded truncate cursor-pointer mb-1 ${
+                                      isDelayed ? 'task-delayed' :
+                                      task.status === 'completed' ? 'task-completed' :
+                                      task.status === 'requested' ? 'task-in-progress' :
+                                      'task-not-started'
                                     }`}
                                     title={task.title}
                                   >

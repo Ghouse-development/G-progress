@@ -47,7 +47,8 @@
       "Bash(awk -F',' '{print \"\"\"\"Total fields:\"\"\"\", NF}')",
       "Bash(awk -F'\\t' '{print \"\"\"\"Total fields:\"\"\"\", NF}')",
       "Bash(head -1 \"sankoushiryou\\●進捗管理表_オペレーション会議　村上さん用 (2).csv\")",
-      "Bash(awk -F',' '{for(i=1; i<=NF; i++) print i-1 \"\"\"\": \"\"\"\" $i}')"
+      "Bash(awk -F',' '{for(i=1; i<=NF; i++) print i-1 \"\"\"\": \"\"\"\" $i}')",
+      "Bash(lsof -ti:5174)"
     ],
     "deny": [],
     "ask": []
