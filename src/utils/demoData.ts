@@ -4,8 +4,8 @@
  * モードに応じてデータ件数を調整
  */
 
-import { Project, Task, Payment, Customer, Employee, Product } from '../types/database'
-import { addDays, format } from 'date-fns'
+import { Project, Task, Payment, Customer, Employee, Product, AuditLog } from '../types/database'
+import { addDays, subDays, subHours, subMinutes, format } from 'date-fns'
 
 type Mode = 'my_tasks' | 'branch' | 'admin'
 
@@ -200,4 +200,45 @@ export const generateDemoPayments = (mode: Mode = 'admin'): Payment[] => {
     return allPayments.filter(payment => validProjectIds.includes(payment.project_id))
   }
   return allPayments
+}
+
+// 豊富なサンプル監査ログデータ（様々なアクションを含む）
+export const generateDemoAuditLogs = (): AuditLog[] => {
+  const baseDate = new Date()
+  const employees = generateDemoEmployees()
+
+  return [
+    // 最近のログ（過去24時間）
+    { id: 'demo-audit-1', user_id: employees[0].id, action: 'update', table_name: 'projects', record_id: 'demo-project-2', changes: { progress_rate: { old: 65, new: 70 } }, ip_address: '192.168.1.10', created_at: subMinutes(baseDate, 15).toISOString(), user: employees[0] },
+    { id: 'demo-audit-2', user_id: employees[1].id, action: 'create', table_name: 'tasks', record_id: 'demo-task-new-1', changes: { title: '新規タスク', status: 'not_started' }, ip_address: '192.168.1.11', created_at: subMinutes(baseDate, 45).toISOString(), user: employees[1] },
+    { id: 'demo-audit-3', user_id: employees[2].id, action: 'update', table_name: 'tasks', record_id: 'demo-task-2-7', changes: { status: { old: 'not_started', new: 'requested' } }, ip_address: '192.168.1.12', created_at: subHours(baseDate, 2).toISOString(), user: employees[2] },
+    { id: 'demo-audit-4', user_id: employees[0].id, action: 'login', ip_address: '192.168.1.10', created_at: subHours(baseDate, 3).toISOString(), user: employees[0] },
+    { id: 'demo-audit-5', user_id: employees[1].id, action: 'update', table_name: 'projects', record_id: 'demo-project-3', changes: { status: { old: 'post_contract', new: 'construction' } }, ip_address: '192.168.1.11', created_at: subHours(baseDate, 5).toISOString(), user: employees[1] },
+
+    // 過去数日のログ
+    { id: 'demo-audit-6', user_id: employees[2].id, action: 'create', table_name: 'payments', record_id: 'demo-payment-new-1', changes: { payment_type: '契約金', amount: 3000000 }, ip_address: '192.168.1.12', created_at: subDays(baseDate, 1).toISOString(), user: employees[2] },
+    { id: 'demo-audit-7', user_id: employees[0].id, action: 'update', table_name: 'customers', record_id: 'demo-customer-1', changes: { phone: { old: '03-1234-5678', new: '03-1234-9999' } }, ip_address: '192.168.1.10', created_at: subDays(baseDate, 1).toISOString(), user: employees[0] },
+    { id: 'demo-audit-8', user_id: employees[1].id, action: 'delete', table_name: 'tasks', record_id: 'demo-task-old-1', changes: { title: '不要なタスク' }, ip_address: '192.168.1.11', created_at: subDays(baseDate, 2).toISOString(), user: employees[1] },
+    { id: 'demo-audit-9', user_id: employees[2].id, action: 'login', ip_address: '192.168.1.12', created_at: subDays(baseDate, 2).toISOString(), user: employees[2] },
+    { id: 'demo-audit-10', user_id: employees[0].id, action: 'create', table_name: 'projects', record_id: 'demo-project-10', changes: { contract_number: 'K2025-010', status: 'post_contract' }, ip_address: '192.168.1.10', created_at: subDays(baseDate, 2).toISOString(), user: employees[0] },
+
+    // 過去1週間のログ
+    { id: 'demo-audit-11', user_id: employees[1].id, action: 'update', table_name: 'tasks', record_id: 'demo-task-1-10', changes: { status: { old: 'requested', new: 'completed' }, actual_completion_date: format(subDays(baseDate, 3), 'yyyy-MM-dd') }, ip_address: '192.168.1.11', created_at: subDays(baseDate, 3).toISOString(), user: employees[1] },
+    { id: 'demo-audit-12', user_id: employees[2].id, action: 'update', table_name: 'payments', record_id: 'demo-payment-1-4', changes: { status: { old: 'pending', new: 'completed' }, actual_date: format(subDays(baseDate, 3), 'yyyy-MM-dd') }, ip_address: '192.168.1.12', created_at: subDays(baseDate, 3).toISOString(), user: employees[2] },
+    { id: 'demo-audit-13', user_id: employees[0].id, action: 'login', ip_address: '192.168.1.10', created_at: subDays(baseDate, 4).toISOString(), user: employees[0] },
+    { id: 'demo-audit-14', user_id: employees[1].id, action: 'create', table_name: 'customers', record_id: 'demo-customer-10', changes: { names: ['加藤剛'], building_site: '東京都目黒区自由が丘10-10-10' }, ip_address: '192.168.1.11', created_at: subDays(baseDate, 5).toISOString(), user: employees[1] },
+    { id: 'demo-audit-15', user_id: employees[2].id, action: 'update', table_name: 'projects', record_id: 'demo-project-1', changes: { status: { old: 'construction', new: 'completed' }, handover_date: format(subDays(baseDate, 5), 'yyyy-MM-dd') }, ip_address: '192.168.1.12', created_at: subDays(baseDate, 5).toISOString(), user: employees[2] },
+    { id: 'demo-audit-16', user_id: employees[0].id, action: 'update', table_name: 'tasks', record_id: 'demo-task-2-6', changes: { status: { old: 'requested', new: 'completed' } }, ip_address: '192.168.1.10', created_at: subDays(baseDate, 6).toISOString(), user: employees[0] },
+    { id: 'demo-audit-17', user_id: employees[1].id, action: 'logout', ip_address: '192.168.1.11', created_at: subDays(baseDate, 6).toISOString(), user: employees[1] },
+    { id: 'demo-audit-18', user_id: employees[2].id, action: 'create', table_name: 'tasks', record_id: 'demo-task-3-7', changes: { title: '設備工事', description: '工事: 設備取付', status: 'not_started' }, ip_address: '192.168.1.12', created_at: subDays(baseDate, 7).toISOString(), user: employees[2] },
+    { id: 'demo-audit-19', user_id: employees[0].id, action: 'update', table_name: 'projects', record_id: 'demo-project-4', changes: { progress_rate: { old: 20, new: 25 } }, ip_address: '192.168.1.10', created_at: subDays(baseDate, 7).toISOString(), user: employees[0] },
+    { id: 'demo-audit-20', user_id: employees[1].id, action: 'login', ip_address: '192.168.1.11', created_at: subDays(baseDate, 7).toISOString(), user: employees[1] },
+
+    // 過去2週間のログ
+    { id: 'demo-audit-21', user_id: employees[2].id, action: 'delete', table_name: 'payments', record_id: 'demo-payment-old-1', changes: { payment_type: '誤入力', amount: 1000000 }, ip_address: '192.168.1.12', created_at: subDays(baseDate, 10).toISOString(), user: employees[2] },
+    { id: 'demo-audit-22', user_id: employees[0].id, action: 'create', table_name: 'projects', record_id: 'demo-project-9', changes: { contract_number: 'K2025-009', status: 'post_contract' }, ip_address: '192.168.1.10', created_at: subDays(baseDate, 12).toISOString(), user: employees[0] },
+    { id: 'demo-audit-23', user_id: employees[1].id, action: 'update', table_name: 'customers', record_id: 'demo-customer-8', changes: { email: { old: 'old@example.com', new: 'nakamura@example.com' } }, ip_address: '192.168.1.11', created_at: subDays(baseDate, 13).toISOString(), user: employees[1] },
+    { id: 'demo-audit-24', user_id: employees[2].id, action: 'login', ip_address: '192.168.1.12', created_at: subDays(baseDate, 14).toISOString(), user: employees[2] },
+    { id: 'demo-audit-25', user_id: employees[0].id, action: 'create', table_name: 'tasks', record_id: 'demo-task-5-5', changes: { title: '構造設計', status: 'not_started' }, ip_address: '192.168.1.10', created_at: subDays(baseDate, 14).toISOString(), user: employees[0] }
+  ]
 }

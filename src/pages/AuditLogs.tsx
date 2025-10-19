@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { usePermissions } from '../contexts/PermissionsContext'
+import { useSettings } from '../contexts/SettingsContext'
+import { generateDemoAuditLogs } from '../utils/demoData'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { Shield, Search, RefreshCw, Download } from 'lucide-react'
@@ -8,12 +10,13 @@ import { exportToCSV, exportToExcel } from '../lib/exportUtils'
 
 interface AuditLog {
   id: string
-  user_id: string
+  user_id?: string
   action: string
-  table_name: string
-  record_id: string
-  old_values: any
-  new_values: any
+  table_name?: string
+  record_id?: string
+  old_values?: any
+  new_values?: any
+  changes?: any
   created_at: string
   employee?: {
     last_name: string
@@ -24,6 +27,7 @@ interface AuditLog {
 
 export default function AuditLogs() {
   const { hasPermission, userPermissions } = usePermissions()
+  const { demoMode } = useSettings()
   const [logs, setLogs] = useState<AuditLog[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
@@ -51,6 +55,15 @@ export default function AuditLogs() {
   const loadAuditLogs = async () => {
     setLoading(true)
     try {
+      // デモモードの場合はサンプルデータを使用
+      if (demoMode) {
+        const demoLogs = generateDemoAuditLogs()
+        setLogs(demoLogs as any)
+        setLoading(false)
+        return
+      }
+
+      // 通常モード：Supabaseからデータを取得
       let query = supabase
         .from('audit_logs')
         .select(`
@@ -74,7 +87,7 @@ export default function AuditLogs() {
 
   useEffect(() => {
     loadAuditLogs()
-  }, [])
+  }, [demoMode])
 
   // フィルタリング
   const filteredLogs = logs.filter(log => {
@@ -84,7 +97,7 @@ export default function AuditLogs() {
     }
 
     // テーブルフィルター
-    if (filterTable !== 'all' && log.table_name !== filterTable) {
+    if (filterTable !== 'all' && log.table_name && log.table_name !== filterTable) {
       return false
     }
 
@@ -95,7 +108,7 @@ export default function AuditLogs() {
         ? `${log.employee.last_name} ${log.employee.first_name}`.toLowerCase()
         : ''
       const action = log.action.toLowerCase()
-      const tableName = log.table_name.toLowerCase()
+      const tableName = log.table_name?.toLowerCase() || ''
 
       return userName.includes(query) || action.includes(query) || tableName.includes(query)
     }
@@ -119,13 +132,19 @@ export default function AuditLogs() {
     const labels: Record<string, string> = {
       'INSERT': '作成',
       'UPDATE': '更新',
-      'DELETE': '削除'
+      'DELETE': '削除',
+      'create': '作成',
+      'update': '更新',
+      'delete': '削除',
+      'login': 'ログイン',
+      'logout': 'ログアウト'
     }
     return labels[action] || action
   }
 
   // テーブル名の日本語化
-  const getTableLabel = (table: string): string => {
+  const getTableLabel = (table?: string): string => {
+    if (!table) return '-'
     const labels: Record<string, string> = {
       'projects': 'プロジェクト',
       'tasks': 'タスク',
@@ -355,14 +374,18 @@ export default function AuditLogs() {
                       fontSize: '12px',
                       fontWeight: 'bold',
                       background:
-                        log.action === 'INSERT' ? '#D1FAE5' :
-                        log.action === 'UPDATE' ? '#FEF3C7' :
-                        log.action === 'DELETE' ? '#FEE2E2' :
+                        (log.action === 'INSERT' || log.action === 'create') ? '#D1FAE5' :
+                        (log.action === 'UPDATE' || log.action === 'update') ? '#FEF3C7' :
+                        (log.action === 'DELETE' || log.action === 'delete') ? '#FEE2E2' :
+                        (log.action === 'login') ? '#DBEAFE' :
+                        (log.action === 'logout') ? '#E0E7FF' :
                         '#E5E7EB',
                       color:
-                        log.action === 'INSERT' ? '#065F46' :
-                        log.action === 'UPDATE' ? '#92400E' :
-                        log.action === 'DELETE' ? '#991B1B' :
+                        (log.action === 'INSERT' || log.action === 'create') ? '#065F46' :
+                        (log.action === 'UPDATE' || log.action === 'update') ? '#92400E' :
+                        (log.action === 'DELETE' || log.action === 'delete') ? '#991B1B' :
+                        (log.action === 'login') ? '#1E40AF' :
+                        (log.action === 'logout') ? '#4338CA' :
                         '#1F2937'
                     }}>
                       {getActionLabel(log.action)}
@@ -372,7 +395,7 @@ export default function AuditLogs() {
                     {getTableLabel(log.table_name)}
                   </td>
                   <td style={{ padding: '12px', fontSize: '12px', fontFamily: 'monospace', color: '#666' }}>
-                    {log.record_id.substring(0, 8)}...
+                    {log.record_id ? `${log.record_id.substring(0, 8)}...` : '-'}
                   </td>
                 </tr>
               ))}
