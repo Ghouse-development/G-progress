@@ -57,6 +57,7 @@ export default function ProjectList() {
   const [selectedTaskProject, setSelectedTaskProject] = useState<ProjectWithRelations | null>(null)
   const [showTaskDetailModal, setShowTaskDetailModal] = useState(false)
   const [editingDueDate, setEditingDueDate] = useState(false)
+  const [taskAuditLogs, setTaskAuditLogs] = useState<any[]>([])
 
   // 従業員データ
   const [employees, setEmployees] = useState<Employee[]>([])
@@ -284,9 +285,16 @@ export default function ProjectList() {
   // タスクステータス更新
   const handleUpdateTaskStatus = async (taskId: string, newStatus: 'not_started' | 'requested' | 'delayed' | 'completed') => {
     try {
+      const updateData: any = { status: newStatus }
+
+      // 完了に変更する場合、実績完了日を自動記録
+      if (newStatus === 'completed') {
+        updateData.actual_completion_date = format(new Date(), 'yyyy-MM-dd')
+      }
+
       const { error } = await supabase
         .from('tasks')
-        .update({ status: newStatus })
+        .update(updateData)
         .eq('id', taskId)
 
       if (error) throw error
@@ -295,7 +303,7 @@ export default function ProjectList() {
 
       // selectedTaskを更新
       if (selectedTask && selectedTask.id === taskId) {
-        setSelectedTask({ ...selectedTask, status: newStatus })
+        setSelectedTask({ ...selectedTask, status: newStatus, actual_completion_date: updateData.actual_completion_date })
       }
 
       // プロジェクトリストを再読み込み
@@ -303,6 +311,28 @@ export default function ProjectList() {
     } catch (error) {
       console.error('Failed to update task status:', error)
       toast.error('ステータスの更新に失敗しました')
+    }
+  }
+
+  // タスクの変更履歴を取得
+  const loadTaskAuditLogs = async (taskId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('audit_logs')
+        .select(`
+          *,
+          user:employees(id, last_name, first_name, department)
+        `)
+        .eq('table_name', 'tasks')
+        .eq('record_id', taskId)
+        .order('created_at', { ascending: false })
+        .limit(5)
+
+      if (error) throw error
+      setTaskAuditLogs(data || [])
+    } catch (error) {
+      console.error('Failed to load audit logs:', error)
+      setTaskAuditLogs([])
     }
   }
 
@@ -1013,11 +1043,13 @@ export default function ProjectList() {
                                   task.status === 'requested' ? '着手中' :
                                   '未着手'
                                 }${daysOverdue > 0 ? `\n遅延: ${daysOverdue}日` : ''}`}
-                                onClick={(e) => {
+                                onClick={async (e) => {
                                   e.stopPropagation()
                                   setSelectedTask(task)
                                   setSelectedTaskProject(project)
                                   setShowTaskDetailModal(true)
+                                  // 変更履歴を取得
+                                  await loadTaskAuditLogs(task.id)
                                 }}
                                 onMouseEnter={(e) => {
                                   e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)'
@@ -1563,6 +1595,18 @@ export default function ProjectList() {
 
             {/* コンテンツ */}
             <div className="prisma-modal-content space-y-4">
+              {/* 責任者 */}
+              {selectedTask.assigned_employee && (
+                <div>
+                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                    責任者
+                  </label>
+                  <div className="prisma-input bg-gray-50 dark:bg-gray-700">
+                    {selectedTask.assigned_employee.last_name} {selectedTask.assigned_employee.first_name}（{selectedTask.assigned_employee.department}）
+                  </div>
+                </div>
+              )}
+
               {/* ステータス変更ボタン */}
               <div>
                 <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
@@ -1717,6 +1761,57 @@ export default function ProjectList() {
                     </a>
                   ) : (
                     <div className="text-gray-500 dark:text-gray-400 text-sm">未設定</div>
+                  )}
+                </div>
+              </div>
+
+              {/* 変更履歴 */}
+              <div className="mt-4 pt-4 border-t-2 border-gray-200 dark:border-gray-700">
+                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-2">
+                  変更履歴（最新5件）
+                </label>
+                <div className="prisma-input bg-gray-50 dark:bg-gray-800" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                  {taskAuditLogs.length > 0 ? (
+                    <div className="space-y-2">
+                      {taskAuditLogs.map((log) => (
+                        <div key={log.id} className="pb-2 border-b border-gray-200 dark:border-gray-700 last:border-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1">
+                              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {log.action === 'update' ? '更新' : log.action === 'create' ? '作成' : log.action}
+                              </div>
+                              {log.changes && (
+                                <div className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                                  {Object.keys(log.changes).map(key => {
+                                    const change = log.changes[key]
+                                    return (
+                                      <div key={key}>
+                                        {key === 'status' ? 'ステータス' :
+                                         key === 'due_date' ? '期限日' :
+                                         key === 'actual_completion_date' ? '完了日' : key}
+                                        : {String(change.old || '未設定')} → {String(change.new)}
+                                      </div>
+                                    )
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-500 whitespace-nowrap">
+                              {format(new Date(log.created_at), 'MM/dd HH:mm')}
+                            </div>
+                          </div>
+                          {log.user && (
+                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                              {log.user.last_name} {log.user.first_name}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center text-gray-500 dark:text-gray-500 py-4 text-sm">
+                      変更履歴がありません
+                    </div>
                   )}
                 </div>
               </div>

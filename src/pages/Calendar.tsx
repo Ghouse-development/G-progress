@@ -57,6 +57,7 @@ export default function Calendar() {
   const [showTaskModal, setShowTaskModal] = useState(false)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [editingDueDate, setEditingDueDate] = useState(false)
+  const [taskAuditLogs, setTaskAuditLogs] = useState<any[]>([])
   const { showToast } = useToast()
 
   useEffect(() => {
@@ -261,9 +262,16 @@ export default function Calendar() {
   // タスクステータス更新
   const handleUpdateTaskStatus = async (taskId: string, newStatus: 'not_started' | 'requested' | 'delayed' | 'completed') => {
     try {
+      const updateData: any = { status: newStatus, updated_at: new Date().toISOString() }
+
+      // 完了に変更する場合、実績完了日を自動記録
+      if (newStatus === 'completed') {
+        updateData.actual_completion_date = format(new Date(), 'yyyy-MM-dd')
+      }
+
       const { error } = await supabase
         .from('tasks')
-        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .update(updateData)
         .eq('id', taskId)
 
       if (error) throw error
@@ -272,7 +280,7 @@ export default function Calendar() {
 
       // 選択中のタスクを更新
       if (selectedTask && selectedTask.id === taskId) {
-        setSelectedTask({ ...selectedTask, status: newStatus })
+        setSelectedTask({ ...selectedTask, status: newStatus, actual_completion_date: updateData.actual_completion_date })
       }
 
       // タスクリストを再読み込み
@@ -280,6 +288,28 @@ export default function Calendar() {
     } catch (error) {
       console.error('ステータス更新エラー:', error)
       showToast('ステータスの更新に失敗しました', 'error')
+    }
+  }
+
+  // タスクの変更履歴を取得
+  const loadTaskAuditLogs = async (taskId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('audit_logs')
+        .select(`
+          *,
+          user:employees(id, last_name, first_name, department)
+        `)
+        .eq('table_name', 'tasks')
+        .eq('record_id', taskId)
+        .order('created_at', { ascending: false })
+        .limit(5)
+
+      if (error) throw error
+      setTaskAuditLogs(data || [])
+    } catch (error) {
+      console.error('Failed to load audit logs:', error)
+      setTaskAuditLogs([])
     }
   }
 
@@ -579,10 +609,12 @@ export default function Calendar() {
                           key={task.id}
                           draggable
                           onDragStart={() => handleDragStart(task)}
-                          onClick={(e) => {
+                          onClick={async (e) => {
                             e.stopPropagation()
                             setSelectedTask(task)
                             setShowTaskModal(true)
+                            // 変更履歴を取得
+                            await loadTaskAuditLogs(task.id)
                           }}
                           className={`text-base lg:text-lg px-2 py-2 rounded cursor-pointer mb-1 ${
                             isMilestone ? 'bg-red-600 text-white font-bold shadow-lg hover:bg-red-700' :
@@ -723,6 +755,23 @@ export default function Calendar() {
 
             {/* コンテンツ */}
             <div className="prisma-modal-content space-y-4">
+              {/* 責任者 */}
+              {(selectedTask.assigned_employee || selectedTask.project?.sales) && (
+                <div>
+                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                    責任者
+                  </label>
+                  <div className="prisma-input bg-gray-50 dark:bg-gray-700">
+                    {selectedTask.assigned_employee ?
+                      `${selectedTask.assigned_employee.last_name} ${selectedTask.assigned_employee.first_name}（${selectedTask.assigned_employee.department}）` :
+                      selectedTask.project?.sales ?
+                      `${selectedTask.project.sales.last_name} ${selectedTask.project.sales.first_name}（${selectedTask.project.sales.department}）` :
+                      '未設定'
+                    }
+                  </div>
+                </div>
+              )}
+
               {/* ステータス変更ボタン */}
               <div>
                 <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">ステータス</label>
@@ -839,25 +888,46 @@ export default function Calendar() {
                   <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300">変更履歴（最新5件）</label>
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-lg p-3 max-h-48 overflow-y-auto">
-                  <div className="space-y-2 text-sm">
-                    {/* サンプル履歴 - 実装時にSupabaseから取得 */}
-                    <div className="flex items-start gap-2 pb-2 border-b border-gray-200 dark:border-gray-700">
-                      <div className="text-gray-500 dark:text-gray-500 whitespace-nowrap">
-                        {format(new Date(), 'yyyy/MM/dd HH:mm')}
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-medium text-gray-800 dark:text-gray-200">
-                          タスクのステータスを更新
+                  {taskAuditLogs.length > 0 ? (
+                    <div className="space-y-2 text-sm">
+                      {taskAuditLogs.map((log) => (
+                        <div key={log.id} className="flex items-start gap-2 pb-2 border-b border-gray-200 dark:border-gray-700 last:border-0">
+                          <div className="text-gray-500 dark:text-gray-500 whitespace-nowrap">
+                            {format(new Date(log.created_at), 'yyyy/MM/dd HH:mm')}
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-medium text-gray-800 dark:text-gray-200">
+                              {log.action === 'update' ? '更新' : log.action === 'create' ? '作成' : log.action}
+                            </div>
+                            {log.changes && (
+                              <div className="text-gray-600 dark:text-gray-400 text-xs mt-0.5">
+                                {Object.keys(log.changes).map(key => {
+                                  const change = log.changes[key]
+                                  return (
+                                    <div key={key}>
+                                      {key === 'status' ? 'ステータス' :
+                                       key === 'due_date' ? '期限日' :
+                                       key === 'actual_completion_date' ? '完了日' : key}
+                                      : {String(change.old || '未設定')} → {String(change.new)}
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            )}
+                            {log.user && (
+                              <div className="text-gray-500 dark:text-gray-400 text-xs mt-1">
+                                {log.user.last_name} {log.user.first_name}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        <div className="text-gray-600 dark:text-gray-400 text-xs mt-0.5">
-                          未着手 → 着手中
-                        </div>
-                      </div>
+                      ))}
                     </div>
+                  ) : (
                     <div className="text-center text-gray-500 dark:text-gray-500 py-2 text-xs">
-                      変更履歴はSupabase連携後に表示されます
+                      変更履歴がありません
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>
