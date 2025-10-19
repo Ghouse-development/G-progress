@@ -1329,81 +1329,81 @@ html, body {
 }
 
 .dark body {
-  background-color: #111827;
-  color: #f9fafb;
+  background-color: #0a0a0a;
+  color: #f5f5f5;
 }
 
 .dark .bg-white {
-  background-color: #1f2937;
+  background-color: #1a1a1a;
 }
 
 .dark .bg-gray-50 {
-  background-color: #111827;
+  background-color: #0a0a0a;
 }
 
 .dark .bg-gray-100 {
-  background-color: #1f2937;
+  background-color: #1a1a1a;
 }
 
 .dark .bg-gray-200 {
-  background-color: #374151;
+  background-color: #2d2d2d;
 }
 
 .dark .text-gray-900 {
-  color: #f9fafb;
+  color: #ffffff;
 }
 
 .dark .text-gray-800 {
-  color: #e5e7eb;
+  color: #f5f5f5;
 }
 
 .dark .text-gray-700 {
-  color: #d1d5db;
+  color: #e5e5e5;
 }
 
 .dark .text-gray-600 {
-  color: #9ca3af;
+  color: #d0d0d0;
 }
 
 .dark .border-gray-200 {
-  border-color: #374151;
+  border-color: #3a3a3a;
 }
 
 .dark .border-gray-300 {
-  border-color: #4b5563;
+  border-color: #4a4a4a;
 }
 
 .dark .hover\:bg-gray-50:hover {
-  background-color: #374151;
+  background-color: #2d2d2d;
 }
 
 .dark .hover\:bg-gray-100:hover {
-  background-color: #4b5563;
+  background-color: #3a3a3a;
 }
 
 /* ダークモードでのステータスカラー調整 */
 .dark .task-not-started {
-  background: #4b5563 !important;
-  border-color: #6b7280 !important;
-  color: #e5e7eb !important;
+  background: #6b7280 !important;
+  border-color: #9ca3af !important;
+  color: #ffffff !important;
 }
 
 .dark .task-in-progress {
-  background: #854d0e !important;
-  border-color: #ca8a04 !important;
-  color: #fef3c7 !important;
+  background: #f59e0b !important;
+  border-color: #fbbf24 !important;
+  color: #1a1a1a !important;
 }
 
 .dark .task-delayed {
-  background: #7f1d1d !important;
-  border-color: #991b1b !important;
-  color: #fecaca !important;
+  background: #dc2626 !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
 }
 
 .dark .task-completed {
-  background: #1e3a8a !important;
-  border-color: #1e40af !important;
-  color: #bfdbfe !important;
+  background: #3b82f6 !important;
+  border-color: #60a5fa !important;
+  color: #ffffff !important;
 }
 
 /* ダークモードでのグラデーション調整 */
@@ -1425,17 +1425,18 @@ html, body {
 
 /* ダークモードでのカレンダー */
 .dark .calendar-day {
-  border-color: #374151;
+  border-color: #3a3a3a;
+  background-color: #1a1a1a;
 }
 
 .dark .calendar-day:hover {
-  background-color: #374151;
+  background-color: #2d2d2d;
 }
 
 /* ダークモードでのモーダル */
 .dark .modal-section {
-  background-color: #1f2937;
-  border-color: #374151;
+  background-color: #1a1a1a;
+  border-color: #3a3a3a;
 }
 
 /* ダークモードでのシャドウ軽減 */
@@ -1450,12 +1451,95 @@ html, body {
 .dark input,
 .dark textarea,
 .dark select {
-  background-color: #374151;
-  border-color: #4b5563;
-  color: #f9fafb;
+  background-color: #2d2d2d;
+  border-color: #4a4a4a;
+  color: #ffffff;
 }
 
 .dark input::placeholder,
 .dark textarea::placeholder {
-  color: #9ca3af;
+  color: #808080;
+}
+
+/* ダークモードでのボタンとインタラクティブ要素 */
+.dark button {
+  color: inherit;
+}
+
+/* ダークモードでのテーブル行 */
+.dark tbody tr {
+  border-color: #3a3a3a;
+}
+
+.dark tbody tr:hover {
+  background-color: #2d2d2d;
+}
+
+/* ダークモードでの薄いグレー背景 */
+.dark .bg-gray-50 {
+  background-color: #1a1a1a;
+}
+
+.dark .bg-gray-100 {
+  background-color: #2d2d2d;
+}
+
+.dark .bg-gray-200 {
+  background-color: #3a3a3a;
+}
+
+/* ダークモードでの黄色系背景 */
+.dark .bg-yellow-100 {
+  background-color: #92400e !important;
+}
+
+.dark .bg-yellow-200 {
+  background-color: #b45309 !important;
+}
+
+.dark .bg-yellow-300 {
+  background-color: #d97706 !important;
+}
+
+.dark .text-yellow-900 {
+  color: #fef3c7 !important;
+}
+
+/* ダークモードでの青色系背景 */
+.dark .bg-blue-100 {
+  background-color: #1e3a8a !important;
+}
+
+.dark .bg-blue-200 {
+  background-color: #1e40af !important;
+}
+
+.dark .text-blue-900 {
+  color: #dbeafe !important;
+}
+
+/* ダークモードでの緑色系背景 */
+.dark .bg-green-100 {
+  background-color: #14532d !important;
+}
+
+.dark .bg-green-200 {
+  background-color: #166534 !important;
+}
+
+.dark .text-green-900 {
+  color: #d1fae5 !important;
+}
+
+/* ダークモードでの赤色系背景 */
+.dark .bg-red-100 {
+  background-color: #7f1d1d !important;
+}
+
+.dark .bg-red-200 {
+  background-color: #991b1b !important;
+}
+
+.dark .text-red-900 {
+  color: #fecaca !important;
 }

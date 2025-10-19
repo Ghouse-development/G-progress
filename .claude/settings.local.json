@@ -48,7 +48,10 @@
       "Bash(awk -F'\\t' '{print \"\"\"\"Total fields:\"\"\"\", NF}')",
       "Bash(head -1 \"sankoushiryou\\●進捗管理表_オペレーション会議　村上さん用 (2).csv\")",
       "Bash(awk -F',' '{for(i=1; i<=NF; i++) print i-1 \"\"\"\": \"\"\"\" $i}')",
-      "Bash(lsof -ti:5174)"
+      "Bash(lsof -ti:5174)",
+      "WebFetch(domain:supabase.com)",
+      "Bash(for file in \"C:\\claudecode\\G-progress\\src\\components\\ProductMaster.tsx\" \"C:\\claudecode\\G-progress\\src\\components\\RoleMaster.tsx\" \"C:\\claudecode\\G-progress\\src\\components\\DepartmentMaster.tsx\" \"C:\\claudecode\\G-progress\\src\\components\\TriggerMaster.tsx\")",
+      "Bash(do echo \"Processing: $file\")"
     ],
     "deny": [],
     "ask": []

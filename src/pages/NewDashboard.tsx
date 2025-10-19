@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { Project, Payment, Task, Employee } from '../types/database'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
+import { differenceInDays } from 'date-fns'
 import { useMode } from '../contexts/ModeContext'
 import { useFiscalYear } from '../contexts/FiscalYearContext'
 import { useSettings } from '../contexts/SettingsContext'
@@ -42,6 +43,14 @@ export default function NewDashboard() {
   const [avgFloorArea, setAvgFloorArea] = useState(0)
   const [avgContractAmount, setAvgContractAmount] = useState(0)
   const [currentEmployee, setCurrentEmployee] = useState<Employee | null>(null)
+
+  // 平均日数統計
+  const [avgDaysContractToPermission, setAvgDaysContractToPermission] = useState(0)
+  const [avgDaysConstructionToInspection, setAvgDaysConstructionToInspection] = useState(0)
+  const [avgDaysContractToHandover, setAvgDaysContractToHandover] = useState(0)
+  const [countContractToPermission, setCountContractToPermission] = useState(0)
+  const [countConstructionToInspection, setCountConstructionToInspection] = useState(0)
+  const [countContractToHandover, setCountContractToHandover] = useState(0)
 
   // 目標値
   const [targetRevenue, setTargetRevenue] = useState(0)
@@ -261,6 +270,33 @@ export default function NewDashboard() {
     // 平均契約金額
     const totalContractAmount = projects.reduce((sum, p) => sum + (p.contract_amount || 0), 0)
     setAvgContractAmount(projects.length > 0 ? totalContractAmount / projects.length : 0)
+
+    // 契約～着工許可までの平均日数
+    const projectsWithPermission = projects.filter(p => p.contract_date && p.construction_permission_date)
+    const totalDaysToPermission = projectsWithPermission.reduce((sum, p) => {
+      const days = differenceInDays(new Date(p.construction_permission_date!), new Date(p.contract_date))
+      return sum + days
+    }, 0)
+    setAvgDaysContractToPermission(projectsWithPermission.length > 0 ? totalDaysToPermission / projectsWithPermission.length : 0)
+    setCountContractToPermission(projectsWithPermission.length)
+
+    // 着工～完了検査までの平均日数
+    const projectsWithInspection = projects.filter(p => p.construction_start_date && p.completion_inspection_date)
+    const totalDaysToInspection = projectsWithInspection.reduce((sum, p) => {
+      const days = differenceInDays(new Date(p.completion_inspection_date!), new Date(p.construction_start_date!))
+      return sum + days
+    }, 0)
+    setAvgDaysConstructionToInspection(projectsWithInspection.length > 0 ? totalDaysToInspection / projectsWithInspection.length : 0)
+    setCountConstructionToInspection(projectsWithInspection.length)
+
+    // 契約～引き渡しまでの平均日数
+    const projectsWithHandover = projects.filter(p => p.contract_date && p.handover_date)
+    const totalDaysToHandover = projectsWithHandover.reduce((sum, p) => {
+      const days = differenceInDays(new Date(p.handover_date!), new Date(p.contract_date))
+      return sum + days
+    }, 0)
+    setAvgDaysContractToHandover(projectsWithHandover.length > 0 ? totalDaysToHandover / projectsWithHandover.length : 0)
+    setCountContractToHandover(projectsWithHandover.length)
   }
 
   if (loading) {
@@ -314,7 +350,7 @@ export default function NewDashboard() {
               </div>
               {targetRevenue > 0 && (
                 <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '8px' }}>
-                  達成率: {(((totalScheduledPayment / 1.1) / targetRevenue) * 100).toFixed(1)}%
+                  達成率: {Math.floor(((totalScheduledPayment / 1.1) / targetRevenue) * 100)}%
                 </div>
               )}
             </div>
@@ -334,11 +370,11 @@ export default function NewDashboard() {
             <div className="prisma-card">
               <h2 className="prisma-card-title">粗利益高（税別）</h2>
               <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>
-                {totalGrossProfit.toLocaleString()}円
+                {Math.floor(totalGrossProfit).toLocaleString()}円
               </div>
               {targetGrossProfit > 0 && (
                 <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '8px' }}>
-                  達成率: {((totalGrossProfit / targetGrossProfit) * 100).toFixed(1)}%
+                  達成率: {Math.floor((totalGrossProfit / targetGrossProfit) * 100)}%
                 </div>
               )}
             </div>
@@ -358,7 +394,7 @@ export default function NewDashboard() {
               <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>{expectedCompletionCount}棟</div>
               {targetUnits > 0 && (
                 <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '8px' }}>
-                  達成率: {((expectedCompletionCount / targetUnits) * 100).toFixed(1)}%
+                  達成率: {Math.floor((expectedCompletionCount / targetUnits) * 100)}%
                 </div>
               )}
             </div>
@@ -371,7 +407,7 @@ export default function NewDashboard() {
           <div className="prisma-card">
             <h2 className="prisma-card-title">入金予定（税込）</h2>
             <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>
-              {totalScheduledPayment.toLocaleString()}円
+              {Math.floor(totalScheduledPayment).toLocaleString()}円
             </div>
             <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '4px' }}>
               税別: {Math.floor(totalScheduledPayment / 1.1).toLocaleString()}円
@@ -382,7 +418,7 @@ export default function NewDashboard() {
           <div className="prisma-card">
             <h2 className="prisma-card-title">入金実績（税込）</h2>
             <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>
-              {totalActualPayment.toLocaleString()}円
+              {Math.floor(totalActualPayment).toLocaleString()}円
             </div>
             <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '4px' }}>
               税別: {Math.floor(totalActualPayment / 1.1).toLocaleString()}円
@@ -418,8 +454,44 @@ export default function NewDashboard() {
           {/* 平均契約金額 */}
           <div className="prisma-card">
             <h2 className="prisma-card-title">平均契約金額</h2>
-            <div style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '8px' }}>{avgContractAmount.toLocaleString()}円</div>
-            <div className="prisma-text-sm prisma-text-secondary" style={{ marginTop: '4px' }}>（税別: {(avgContractAmount / 1.1).toLocaleString()}円）</div>
+            <div style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '8px' }}>{Math.floor(avgContractAmount).toLocaleString()}円</div>
+            <div className="prisma-text-sm prisma-text-secondary" style={{ marginTop: '4px' }}>（税別: {Math.floor(avgContractAmount / 1.1).toLocaleString()}円）</div>
+          </div>
+        </div>
+
+        {/* === 平均日数統計エリア === */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '16px' }}>
+          {/* 契約～着工許可までの平均日数 */}
+          <div className="prisma-card">
+            <h2 className="prisma-card-title">契約～着工許可</h2>
+            <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px', color: '#2563EB' }}>
+              {countContractToPermission > 0 ? Math.round(avgDaysContractToPermission) : '-'}日
+            </div>
+            <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '8px' }}>
+              平均日数 (N={countContractToPermission})
+            </div>
+          </div>
+
+          {/* 着工～完了検査までの平均日数 */}
+          <div className="prisma-card">
+            <h2 className="prisma-card-title">着工～完了検査</h2>
+            <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px', color: '#2563EB' }}>
+              {countConstructionToInspection > 0 ? Math.round(avgDaysConstructionToInspection) : '-'}日
+            </div>
+            <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '8px' }}>
+              平均日数 (N={countConstructionToInspection})
+            </div>
+          </div>
+
+          {/* 契約～引き渡しまでの平均日数 */}
+          <div className="prisma-card">
+            <h2 className="prisma-card-title">契約～引き渡し</h2>
+            <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px', color: '#2563EB' }}>
+              {countContractToHandover > 0 ? Math.round(avgDaysContractToHandover) : '-'}日
+            </div>
+            <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '8px' }}>
+              平均日数 (N={countContractToHandover})
+            </div>
           </div>
         </div>
 
@@ -561,16 +633,11 @@ export default function NewDashboard() {
 
           {/* 引き渡し数 */}
           <div className="prisma-card">
-            <h2 className="prisma-card-title">引き渡し数（四半期別）</h2>
+            <h2 className="prisma-card-title">引き渡し数</h2>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={[
-                { quarter: 'Q1 (8-10月)', handover: monthlyStats.slice(0, 3).reduce((sum, s) => sum + s.handover, 0) },
-                { quarter: 'Q2 (11-1月)', handover: monthlyStats.slice(3, 6).reduce((sum, s) => sum + s.handover, 0) },
-                { quarter: 'Q3 (2-4月)', handover: monthlyStats.slice(6, 9).reduce((sum, s) => sum + s.handover, 0) },
-                { quarter: 'Q4 (5-7月)', handover: monthlyStats.slice(9, 12).reduce((sum, s) => sum + s.handover, 0) }
-              ]}>
+              <BarChart data={monthlyStats}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="quarter" />
+                <XAxis dataKey="month" />
                 <YAxis />
                 <Tooltip />
                 <Legend />
@@ -619,7 +686,7 @@ export default function NewDashboard() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis />
-                <Tooltip formatter={(value: number) => value.toLocaleString() + '円'} />
+                <Tooltip formatter={(value: number) => Math.floor(value).toLocaleString() + '円'} />
                 <Legend />
                 <Bar dataKey="scheduledPayment" fill="#2563eb" name="予定（税込）" />
                 <Bar dataKey="actualPayment" fill="#dc2626" name="実績（税込）" />
@@ -629,25 +696,25 @@ export default function NewDashboard() {
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>年度累計（予定）</div>
                 <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#2563eb' }}>
-                  {monthlyStats.reduce((sum, s) => sum + s.scheduledPayment, 0).toLocaleString()}円
+                  {Math.floor(monthlyStats.reduce((sum, s) => sum + s.scheduledPayment, 0)).toLocaleString()}円
                 </div>
               </div>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>年度累計（実績）</div>
                 <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#dc2626' }}>
-                  {monthlyStats.reduce((sum, s) => sum + s.actualPayment, 0).toLocaleString()}円
+                  {Math.floor(monthlyStats.reduce((sum, s) => sum + s.actualPayment, 0)).toLocaleString()}円
                 </div>
               </div>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>当月（予定）</div>
                 <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#2563eb' }}>
-                  {monthlyStats.length > 0 ? monthlyStats[monthlyStats.length - 1].scheduledPayment.toLocaleString() : '0'}円
+                  {monthlyStats.length > 0 ? Math.floor(monthlyStats[monthlyStats.length - 1].scheduledPayment).toLocaleString() : '0'}円
                 </div>
               </div>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>当月（実績）</div>
                 <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#dc2626' }}>
-                  {monthlyStats.length > 0 ? monthlyStats[monthlyStats.length - 1].actualPayment.toLocaleString() : '0'}円
+                  {monthlyStats.length > 0 ? Math.floor(monthlyStats[monthlyStats.length - 1].actualPayment).toLocaleString() : '0'}円
                 </div>
               </div>
             </div>
@@ -661,7 +728,7 @@ export default function NewDashboard() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis />
-                <Tooltip formatter={(value: number) => value.toLocaleString() + '円'} />
+                <Tooltip formatter={(value: number) => Math.floor(value).toLocaleString() + '円'} />
                 <Legend />
                 <Bar dataKey="grossProfit" fill="#000000" name="粗利益高" />
               </BarChart>
@@ -670,13 +737,13 @@ export default function NewDashboard() {
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>年度累計</div>
                 <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
-                  {monthlyStats.reduce((sum, s) => sum + s.grossProfit, 0).toLocaleString()}円
+                  {Math.floor(monthlyStats.reduce((sum, s) => sum + s.grossProfit, 0)).toLocaleString()}円
                 </div>
               </div>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>当月</div>
                 <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
-                  {monthlyStats.length > 0 ? monthlyStats[monthlyStats.length - 1].grossProfit.toLocaleString() : '0'}円
+                  {monthlyStats.length > 0 ? Math.floor(monthlyStats[monthlyStats.length - 1].grossProfit).toLocaleString() : '0'}円
                 </div>
               </div>
             </div>

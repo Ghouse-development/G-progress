@@ -125,7 +125,7 @@ export default function AuditLogs() {
 
   // ユニークなアクションとテーブルのリストを取得
   const uniqueActions = Array.from(new Set(logs.map(log => log.action)))
-  const uniqueTables = Array.from(new Set(logs.map(log => log.table_name)))
+  const uniqueTables = Array.from(new Set(logs.map(log => log.table_name).filter(Boolean)))
 
   // アクション名の日本語化
   const getActionLabel = (action: string): string => {
@@ -162,6 +162,7 @@ export default function AuditLogs() {
       '日時': format(new Date(log.created_at), 'yyyy/MM/dd HH:mm:ss', { locale: ja }),
       'ユーザー': log.employee ? `${log.employee.last_name} ${log.employee.first_name}` : '不明',
       '部門': log.employee?.department || '',
+      '案件': log.changes?.project_name || '-',
       'アクション': getActionLabel(log.action),
       '変更内容': log.changes?.description || (log.old_values || log.new_values ? 'データを変更' : '-')
     }))
@@ -343,8 +344,9 @@ export default function AuditLogs() {
                 <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>日時</th>
                 <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>ユーザー</th>
                 <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>部門</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>案件</th>
                 <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>アクション</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', minWidth: '400px' }}>変更内容</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', minWidth: '300px' }}>変更内容</th>
               </tr>
             </thead>
             <tbody>
@@ -364,6 +366,9 @@ export default function AuditLogs() {
                   </td>
                   <td style={{ padding: '12px', fontSize: '14px' }}>
                     {log.employee?.department || '-'}
+                  </td>
+                  <td style={{ padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>
+                    {log.changes?.project_name || '-'}
                   </td>
                   <td style={{ padding: '12px', fontSize: '14px' }}>
                     <span style={{

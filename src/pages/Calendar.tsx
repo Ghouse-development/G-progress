@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { Task, Project, Employee, Payment } from '../types/database'
+import { Task, Project, Employee, Payment, AuditLog } from '../types/database'
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, isSameMonth, addMonths, subMonths } from 'date-fns'
 import { ja } from 'date-fns/locale'
-import { ChevronLeft, ChevronRight, Download, ExternalLink, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Download, ExternalLink, X, History } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
 import Papa from 'papaparse'
 import jsPDF from 'jspdf'
@@ -184,7 +184,20 @@ export default function Calendar() {
   const getTasksForDay = (day: Date) => {
     return tasks.filter(task =>
       task.due_date && isSameDay(new Date(task.due_date), day)
-    ).slice(0, 3) // 最大3件（1画面に収めるため）
+    ).slice(0, 2) // 最大2件（見やすさのため）
+  }
+
+  // タスク名を短縮表示
+  const truncateTaskName = (name: string, maxLength: number = 15) => {
+    if (name.length <= maxLength) return name
+    return name.slice(0, maxLength) + '...'
+  }
+
+  // その日の全タスク数を取得
+  const getTotalTasksForDay = (day: Date) => {
+    return tasks.filter(task =>
+      task.due_date && isSameDay(new Date(task.due_date), day)
+    ).length
   }
 
   const getPaymentsForDay = (day: Date) => {
@@ -192,7 +205,16 @@ export default function Calendar() {
       const scheduledMatch = payment.scheduled_date && isSameDay(new Date(payment.scheduled_date), day)
       const actualMatch = payment.actual_date && isSameDay(new Date(payment.actual_date), day)
       return scheduledMatch || actualMatch
-    }).slice(0, 3) // 最大3件（1画面に収めるため）
+    }).slice(0, 2) // 最大2件（見やすさのため）
+  }
+
+  // その日の全入金数を取得
+  const getTotalPaymentsForDay = (day: Date) => {
+    return payments.filter(payment => {
+      const scheduledMatch = payment.scheduled_date && isSameDay(new Date(payment.scheduled_date), day)
+      const actualMatch = payment.actual_date && isSameDay(new Date(payment.actual_date), day)
+      return scheduledMatch || actualMatch
+    }).length
   }
 
   const previousMonth = () => {
@@ -415,20 +437,20 @@ export default function Calendar() {
           <div className="flex items-center justify-center gap-2 mb-3">
             <button
               onClick={() => setCalendarMode('tasks')}
-              className={`px-4 py-2 text-sm lg:text-base font-bold border-2 transition-colors ${
+              className={`px-4 py-2 text-sm lg:text-base font-bold border-2 transition-colors shadow-sm ${
                 calendarMode === 'tasks'
-                  ? 'bg-canva-purple text-white border-canva-purple'
-                  : 'bg-white text-canva-purple border-gray-300 hover:bg-gray-50'
+                  ? 'bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700'
+                  : 'bg-white text-gray-800 border-gray-400 hover:bg-gray-100'
               }`}
             >
               通常カレンダー
             </button>
             <button
               onClick={() => setCalendarMode('payments')}
-              className={`px-4 py-2 text-sm lg:text-base font-bold border-2 transition-colors ${
+              className={`px-4 py-2 text-sm lg:text-base font-bold border-2 transition-colors shadow-sm ${
                 calendarMode === 'payments'
-                  ? 'bg-canva-green text-white border-canva-green'
-                  : 'bg-white text-canva-green border-gray-300 hover:bg-gray-50'
+                  ? 'bg-green-600 text-white border-green-600 hover:bg-green-700'
+                  : 'bg-white text-gray-800 border-gray-400 hover:bg-gray-100'
               }`}
             >
               入金カレンダー
@@ -527,6 +549,8 @@ export default function Calendar() {
                     {/* タスクモードの表示 */}
                     {calendarMode === 'tasks' && dayTasks.map((task) => {
                       const isMilestone = MILESTONE_EVENTS.some(event => task.title.includes(event))
+                      const customerName = task.project?.customer?.names?.join('・') || ''
+                      const displayTaskName = truncateTaskName(task.title, 12)
                       return (
                         <div
                           key={task.id}
@@ -537,26 +561,28 @@ export default function Calendar() {
                             setSelectedTask(task)
                             setShowTaskModal(true)
                           }}
-                          className={`text-sm lg:text-base px-2 py-1.5 rounded truncate cursor-pointer mb-1 ${
+                          className={`text-base lg:text-lg px-2 py-2 rounded cursor-pointer mb-1 ${
                             isMilestone ? 'bg-red-600 text-white font-bold shadow-lg hover:bg-red-700' :
-                            task.status === 'completed' ? 'bg-blue-200 text-blue-900 font-semibold hover:bg-blue-300' :
-                            task.status === 'requested' ? 'bg-yellow-200 text-yellow-900 font-semibold hover:bg-yellow-300' :
-                            'bg-gray-200 text-gray-800 font-medium hover:bg-gray-300'
+                            task.status === 'completed' ? 'bg-blue-200 text-blue-900 font-bold hover:bg-blue-300' :
+                            task.status === 'requested' ? 'bg-yellow-200 text-yellow-900 font-bold hover:bg-yellow-300' :
+                            'bg-gray-200 text-gray-800 font-bold hover:bg-gray-300'
                           }`}
-                          title={`${task.title}${task.project?.customer?.names ? ' - ' + task.project.customer.names.join('・') + '様' : ''}`}
+                          title={`${task.title}${customerName ? ' - ' + customerName + '様' : ''}`}
                         >
-                          <div className="font-semibold">{task.project?.customer?.names ? `【${task.project.customer.names.join('・')}様】` : ''}</div>
-                          <div>{task.title}</div>
+                          {customerName && <div className="text-xs font-semibold mb-0.5">【{truncateTaskName(customerName, 8)}様】</div>}
+                          <div className="leading-tight">{displayTaskName}</div>
                         </div>
                       )
                     })}
-                    {calendarMode === 'tasks' && tasks.filter(task =>
-                      task.due_date && isSameDay(new Date(task.due_date), day)
-                    ).length > 3 && (
-                      <div className="text-sm lg:text-base text-gray-600 font-semibold">
-                        +{tasks.filter(task =>
-                          task.due_date && isSameDay(new Date(task.due_date), day)
-                        ).length - 3}件
+                    {calendarMode === 'tasks' && getTotalTasksForDay(day) > 2 && (
+                      <div className="text-base lg:text-lg text-gray-600 dark:text-gray-400 font-bold bg-gray-100 dark:bg-gray-700 px-2 py-1.5 rounded cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          // TODO: その日の全タスクを表示するモーダルを開く
+                        }}
+                        title="クリックして全タスクを表示"
+                      >
+                        +{getTotalTasksForDay(day) - 2}件
                       </div>
                     )}
 
@@ -565,6 +591,7 @@ export default function Calendar() {
                       const isScheduled = payment.scheduled_date && isSameDay(new Date(payment.scheduled_date), day)
                       const isActual = payment.actual_date && isSameDay(new Date(payment.actual_date), day)
                       const amount = isActual ? payment.actual_amount : payment.scheduled_amount
+                      const customerName = payment.project?.customer?.names?.join('・') || ''
                       return (
                         <div
                           key={payment.id}
@@ -573,32 +600,28 @@ export default function Calendar() {
                             setSelectedPayment(payment)
                             setShowPaymentModal(true)
                           }}
-                          className={`text-xs lg:text-sm px-1 lg:px-2 py-1 rounded cursor-pointer mb-1 ${
+                          className={`text-base lg:text-lg px-2 py-2 rounded cursor-pointer mb-1 ${
                             isActual
-                              ? 'bg-green-200 text-green-900 font-bold hover:bg-green-300 border border-green-400'
-                              : 'bg-yellow-100 text-yellow-900 font-semibold hover:bg-yellow-200 border border-yellow-300'
+                              ? 'bg-green-200 text-green-900 font-bold hover:bg-green-300 border-2 border-green-400'
+                              : 'bg-yellow-100 text-yellow-900 font-bold hover:bg-yellow-200 border-2 border-yellow-300'
                           }`}
-                          title={`${payment.project?.customer?.names ? payment.project.customer.names.join('・') + '様 - ' : ''}${payment.payment_type} ${amount?.toLocaleString()}円`}
+                          title={`${customerName ? customerName + '様 - ' : ''}${payment.payment_type} ${amount?.toLocaleString()}円`}
                         >
-                          <div className="truncate">
-                            {payment.project?.customer?.names ? `【${payment.project.customer.names.join('・')}様】` : ''}
-                          </div>
-                          <div className="font-bold">{payment.payment_type}</div>
-                          <div className="text-xs">{amount?.toLocaleString()}円</div>
+                          {customerName && <div className="text-xs font-semibold mb-0.5">【{truncateTaskName(customerName, 8)}様】</div>}
+                          <div className="font-bold leading-tight">{payment.payment_type}</div>
+                          <div className="text-sm font-bold">{Math.floor(amount || 0).toLocaleString()}円</div>
                         </div>
                       )
                     })}
-                    {calendarMode === 'payments' && payments.filter(payment => {
-                      const scheduledMatch = payment.scheduled_date && isSameDay(new Date(payment.scheduled_date), day)
-                      const actualMatch = payment.actual_date && isSameDay(new Date(payment.actual_date), day)
-                      return scheduledMatch || actualMatch
-                    }).length > 3 && (
-                      <div className="text-xs lg:text-base text-gray-600 font-semibold">
-                        +{payments.filter(payment => {
-                          const scheduledMatch = payment.scheduled_date && isSameDay(new Date(payment.scheduled_date), day)
-                          const actualMatch = payment.actual_date && isSameDay(new Date(payment.actual_date), day)
-                          return scheduledMatch || actualMatch
-                        }).length - 3}件
+                    {calendarMode === 'payments' && getTotalPaymentsForDay(day) > 2 && (
+                      <div className="text-base lg:text-lg text-gray-600 dark:text-gray-400 font-bold bg-gray-100 dark:bg-gray-700 px-2 py-1.5 rounded cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          // TODO: その日の全入金を表示するモーダルを開く
+                        }}
+                        title="クリックして全入金を表示"
+                      >
+                        +{getTotalPaymentsForDay(day) - 2}件
                       </div>
                     )}
                   </div>
@@ -765,6 +788,35 @@ export default function Calendar() {
                   )}
                 </div>
               )}
+
+              {/* 変更履歴 */}
+              <div className="mt-4 pt-4 border-t-2 border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-2 mb-3">
+                  <History size={20} className="text-gray-600 dark:text-gray-400" />
+                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300">変更履歴（最新5件）</label>
+                </div>
+                <div className="bg-gray-50 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-lg p-3 max-h-48 overflow-y-auto">
+                  <div className="space-y-2 text-sm">
+                    {/* サンプル履歴 - 実装時にSupabaseから取得 */}
+                    <div className="flex items-start gap-2 pb-2 border-b border-gray-200 dark:border-gray-700">
+                      <div className="text-gray-500 dark:text-gray-500 whitespace-nowrap">
+                        {format(new Date(), 'yyyy/MM/dd HH:mm')}
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-medium text-gray-800 dark:text-gray-200">
+                          タスクのステータスを更新
+                        </div>
+                        <div className="text-gray-600 dark:text-gray-400 text-xs mt-0.5">
+                          未着手 → 着手中
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-center text-gray-500 dark:text-gray-500 py-2 text-xs">
+                      変更履歴はSupabase連携後に表示されます
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* フッター */}

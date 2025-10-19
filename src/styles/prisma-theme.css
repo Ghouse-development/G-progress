@@ -453,3 +453,89 @@ body {
 .prisma-gap-2 { gap: 8px; }
 .prisma-gap-3 { gap: 12px; }
 .prisma-gap-4 { gap: 16px; }
+
+/* ========================================
+   ダークモード対応
+   ======================================== */
+
+.dark {
+  --main-bg: #0a0a0a;
+  --main-text: #ffffff;
+  --border-color: #3a3a3a;
+  --border-color-light: #2d2d2d;
+
+  --sidebar-bg: #1a1a1a;
+  --sidebar-hover: #2d2d2d;
+  --sidebar-active: #3a3a3a;
+  --sidebar-text: #ffffff;
+  --sidebar-text-secondary: #d0d0d0;
+}
+
+.dark .prisma-main {
+  background: var(--main-bg);
+}
+
+.dark .prisma-header {
+  background: var(--main-bg);
+  border-bottom-color: var(--border-color);
+}
+
+.dark .prisma-content {
+  background: var(--main-bg);
+}
+
+.dark .prisma-card {
+  background: #1a1a1a;
+  border-color: var(--border-color);
+}
+
+.dark .prisma-table {
+  background: #1a1a1a;
+  border-color: var(--border-color);
+}
+
+.dark .prisma-table thead {
+  background: #2d2d2d;
+}
+
+.dark .prisma-table tbody tr:hover {
+  background: #2d2d2d;
+}
+
+.dark .prisma-btn-secondary {
+  background: #3a3a3a;
+  color: #ffffff;
+  border: 2px solid #6b7280;
+}
+
+.dark .prisma-btn-secondary:hover {
+  background: #4a4a4a;
+  border-color: #9ca3af;
+}
+
+.dark .prisma-btn-primary {
+  background: #3b82f6;
+  color: #ffffff;
+  border: 2px solid #2563eb;
+}
+
+.dark .prisma-btn-primary:hover {
+  background: #2563eb;
+  border-color: #1d4ed8;
+}
+
+.dark .prisma-select,
+.dark .prisma-input {
+  background: #2d2d2d;
+  border-color: var(--border-color);
+  color: var(--main-text);
+}
+
+.dark .prisma-modal {
+  background: #1a1a1a;
+}
+
+.dark .prisma-modal-header,
+.dark .prisma-modal-footer {
+  border-color: var(--border-color);
+}

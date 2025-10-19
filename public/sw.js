@@ -37,19 +37,31 @@ self.addEventListener('activate', (event) => {
 
 // フェッチ時にキャッシュを利用（Network First戦略）
 self.addEventListener('fetch', (event) => {
+  // Cache APIはGETとHEADリクエストのみサポート
+  // PATCH, POST, DELETE等のメソッドや、chrome-extension等のスキームはスキップ
+  const request = event.request
+  const isHttpRequest = request.url.startsWith('http://') || request.url.startsWith('https://')
+  const isGetOrHead = request.method === 'GET' || request.method === 'HEAD'
+
+  if (!isHttpRequest || !isGetOrHead) {
+    // キャッシュ不可能なリクエストはそのまま通す
+    event.respondWith(fetch(request))
+    return
+  }
+
   event.respondWith(
-    fetch(event.request)
+    fetch(request)
       .then((response) => {
         // レスポンスをクローンしてキャッシュに保存
         const responseToCache = response.clone()
         caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache)
+          cache.put(request, responseToCache)
         })
         return response
       })
       .catch(() => {
         // ネットワークが利用できない場合はキャッシュから取得
-        return caches.match(event.request).then((cachedResponse) => {
+        return caches.match(request).then((cachedResponse) => {
           if (cachedResponse) {
             return cachedResponse
           }

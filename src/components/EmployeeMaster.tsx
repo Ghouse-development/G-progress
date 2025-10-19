@@ -145,8 +145,7 @@ export default function EmployeeMaster() {
             department: formData.department,
             role: formData.role,
             branch_id: formData.branch_id || null,
-            avatar_url: formData.avatar_url || null,
-            updated_at: new Date().toISOString()
+            avatar_url: formData.avatar_url || null
           })
           .eq('id', editingEmployee.id)
 
@@ -211,9 +210,9 @@ export default function EmployeeMaster() {
       case 'leader':
         return 'bg-green-100 text-green-900 border-green-500'
       case 'member':
-        return 'bg-gray-100 text-gray-900 border-gray-500'
+        return 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-500'
       default:
-        return 'bg-gray-100 text-gray-900 border-gray-500'
+        return 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-500'
     }
   }
 
@@ -224,7 +223,7 @@ export default function EmployeeMaster() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+            className="flex items-center gap-2 px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors font-medium"
             title="前の画面に戻る"
           >
             <ArrowLeft size={20} />
@@ -235,7 +234,7 @@ export default function EmployeeMaster() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate('/master/departments')}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+            className="flex items-center gap-2 px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 transition-colors font-medium shadow-sm"
             title="部門マスタ管理"
           >
             <Building2 size={20} />
@@ -243,7 +242,7 @@ export default function EmployeeMaster() {
           </button>
           <button
             onClick={() => navigate('/master/roles')}
-            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
+            className="flex items-center gap-2 px-4 py-2 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-colors font-medium shadow-sm"
             title="役職マスタ管理"
           >
             <Shield size={20} />
@@ -251,7 +250,7 @@ export default function EmployeeMaster() {
           </button>
           <button
             onClick={() => navigate('/master/branches')}
-            className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium"
+            className="flex items-center gap-2 px-4 py-2 bg-orange-700 text-white rounded-lg hover:bg-orange-800 transition-colors font-medium shadow-sm"
             title="拠点マスタ管理"
           >
             <MapPin size={20} />
@@ -268,35 +267,35 @@ export default function EmployeeMaster() {
       </div>
 
       {/* 従業員一覧テーブル */}
-      <div className="bg-white rounded-lg border-2 border-pastel-blue shadow-pastel-lg overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border-2 border-pastel-blue dark:border-gray-600 shadow-pastel-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-pastel-blue-light">
+            <thead className="bg-pastel-blue-light dark:bg-gray-700">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
                   氏名
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
                   メールアドレス
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
                   部門
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
                   拠点
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
                   役職
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-bold text-gray-800 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
                   操作
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {employees.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                     従業員が登録されていません
                   </td>
                 </tr>
@@ -304,16 +303,16 @@ export default function EmployeeMaster() {
                 employees.map((employee) => (
                   <tr key={employee.id} className="hover:bg-pastel-blue-light transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-bold text-gray-900">{employee.last_name} {employee.first_name}</div>
+                      <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{employee.last_name} {employee.first_name}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-600">{employee.email}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-300">{employee.email}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{employee.department}</div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{employee.department}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-gray-600 dark:text-gray-300">
                         {employee.branch?.name || '未設定'}
                       </div>
                     </td>
@@ -360,7 +359,7 @@ export default function EmployeeMaster() {
                 </h2>
                 <button
                   onClick={handleCloseModal}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  className="text-gray-400 hover:text-gray-600 dark:text-gray-300 transition-colors"
                 >
                   <X size={20} />
                 </button>
@@ -371,7 +370,7 @@ export default function EmployeeMaster() {
             <div className="prisma-modal-content space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                     姓 <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -383,7 +382,7 @@ export default function EmployeeMaster() {
                   />
                 </div>
                 <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                     名 <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -397,7 +396,7 @@ export default function EmployeeMaster() {
               </div>
 
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                   メールアドレス <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -410,7 +409,7 @@ export default function EmployeeMaster() {
               </div>
 
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                   部門 <span className="text-red-500">*</span>
                 </label>
                 <select
@@ -427,7 +426,7 @@ export default function EmployeeMaster() {
               </div>
 
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                   役職 <span className="text-red-500">*</span>
                 </label>
                 <select
@@ -444,7 +443,7 @@ export default function EmployeeMaster() {
               </div>
 
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                   拠点
                 </label>
                 <select
@@ -462,7 +461,7 @@ export default function EmployeeMaster() {
               </div>
 
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                   アバターURL
                 </label>
                 <input
@@ -478,12 +477,14 @@ export default function EmployeeMaster() {
             {/* フッター */}
             <div className="prisma-modal-footer">
               <button
+                type="button"
                 onClick={handleCloseModal}
                 className="prisma-btn prisma-btn-secondary"
               >
                 キャンセル
               </button>
               <button
+                type="button"
                 onClick={handleSubmit}
                 className="prisma-btn prisma-btn-primary"
               >

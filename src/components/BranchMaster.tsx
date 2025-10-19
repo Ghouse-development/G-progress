@@ -138,15 +138,15 @@ export default function BranchMaster() {
       </div>
 
       {/* 拠点一覧テーブル */}
-      <div className="bg-white rounded-lg border-2 border-pastel-blue shadow-pastel-lg overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border-2 border-pastel-blue shadow-pastel-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-pastel-blue-light">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
                   拠点名
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-bold text-gray-800 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
                   操作
                 </th>
               </tr>
