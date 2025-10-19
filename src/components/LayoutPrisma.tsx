@@ -100,22 +100,22 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
 
         {/* メニュー */}
         <div className="prisma-sidebar-section">
-          <div className="prisma-sidebar-section-title">メイン</div>
-          <Link to="/" className={`prisma-sidebar-item ${location.pathname === '/' ? 'active' : ''}`}>
-            ダッシュボード
-          </Link>
-        </div>
-
-        <div className="prisma-sidebar-section">
-          <div className="prisma-sidebar-section-title">案件管理</div>
-          <Link to="/projects" className={`prisma-sidebar-item ${location.pathname.startsWith('/projects') ? 'active' : ''}`}>
-            案件一覧
-          </Link>
+          <div className="prisma-sidebar-section-title">重要管理</div>
           <Link to="/payments" className={`prisma-sidebar-item ${location.pathname === '/payments' ? 'active' : ''}`}>
             入金管理
           </Link>
           <Link to="/performance" className={`prisma-sidebar-item ${location.pathname === '/performance' ? 'active' : ''}`}>
             性能管理
+          </Link>
+        </div>
+
+        <div className="prisma-sidebar-section">
+          <div className="prisma-sidebar-section-title">メイン</div>
+          <Link to="/" className={`prisma-sidebar-item ${location.pathname === '/' ? 'active' : ''}`}>
+            ダッシュボード
+          </Link>
+          <Link to="/projects" className={`prisma-sidebar-item ${location.pathname.startsWith('/projects') ? 'active' : ''}`}>
+            案件一覧
           </Link>
           <Link to="/calendar" className={`prisma-sidebar-item ${location.pathname === '/calendar' ? 'active' : ''}`}>
             カレンダー
