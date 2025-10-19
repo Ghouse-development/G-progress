@@ -5,6 +5,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useMode } from '../contexts/ModeContext'
+import { useFiscalYear } from '../contexts/FiscalYearContext'
 import { supabase } from '../lib/supabase'
 import { FiscalYear, Employee } from '../types/database'
 import '../styles/prisma-theme.css'
@@ -12,8 +13,8 @@ import '../styles/prisma-theme.css'
 export default function LayoutPrisma({ children }: { children: React.ReactNode }) {
   const location = useLocation()
   const { mode, setMode } = useMode()
+  const { selectedYear, setSelectedYear } = useFiscalYear()
   const [fiscalYears, setFiscalYears] = useState<FiscalYear[]>([])
-  const [selectedYear, setSelectedYear] = useState<string>('2025')
   const [currentEmployee, setCurrentEmployee] = useState<Employee | null>(null)
 
   useEffect(() => {
@@ -77,7 +78,7 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
           >
             <option value="my_tasks">担当者モード</option>
             <option value="branch">拠点モード</option>
-            {isAdmin && <option value="admin">全社モード</option>}
+            <option value="admin">全社モード</option>
           </select>
         </div>
 
@@ -100,19 +101,15 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
 
         {/* メニュー */}
         <div className="prisma-sidebar-section">
-          <div className="prisma-sidebar-section-title">重要管理</div>
+          <div className="prisma-sidebar-section-title">メイン</div>
+          <Link to="/" className={`prisma-sidebar-item ${location.pathname === '/' ? 'active' : ''}`}>
+            ダッシュボード
+          </Link>
           <Link to="/payments" className={`prisma-sidebar-item ${location.pathname === '/payments' ? 'active' : ''}`}>
             入金管理
           </Link>
           <Link to="/performance" className={`prisma-sidebar-item ${location.pathname === '/performance' ? 'active' : ''}`}>
             性能管理
-          </Link>
-        </div>
-
-        <div className="prisma-sidebar-section">
-          <div className="prisma-sidebar-section-title">メイン</div>
-          <Link to="/" className={`prisma-sidebar-item ${location.pathname === '/' ? 'active' : ''}`}>
-            ダッシュボード
           </Link>
           <Link to="/projects" className={`prisma-sidebar-item ${location.pathname.startsWith('/projects') ? 'active' : ''}`}>
             案件一覧

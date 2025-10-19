@@ -7,6 +7,8 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { Project } from '../types/database'
+import { useFiscalYear } from '../contexts/FiscalYearContext'
+import { useMode } from '../contexts/ModeContext'
 
 interface PerformanceStats {
   totalProjects: number
@@ -24,13 +26,15 @@ interface PerformanceStats {
 }
 
 export default function PerformanceManagement() {
+  const { selectedYear } = useFiscalYear()
+  const { mode } = useMode()
   const [projects, setProjects] = useState<Project[]>([])
   const [stats, setStats] = useState<PerformanceStats | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     loadProjects()
-  }, [])
+  }, [selectedYear, mode])
 
   const loadProjects = async () => {
     setLoading(true)
@@ -38,6 +42,7 @@ export default function PerformanceManagement() {
     const { data } = await supabase
       .from('projects')
       .select('*, customer:customers(*)')
+      .eq('fiscal_year', selectedYear)
       .order('contract_date', { ascending: false })
 
     if (data) {

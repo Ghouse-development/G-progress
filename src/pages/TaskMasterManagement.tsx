@@ -5,10 +5,15 @@
  */
 
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { TaskMaster } from '../types/database'
+import { Plus, Edit2, Trash2, X, ArrowLeft } from 'lucide-react'
+import { useToast } from '../contexts/ToastContext'
 
 export default function TaskMasterManagement() {
+  const navigate = useNavigate()
+  const toast = useToast()
   const [taskMasters, setTaskMasters] = useState<TaskMaster[]>([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
@@ -71,16 +76,33 @@ export default function TaskMasterManagement() {
   }
 
   const handleSave = async () => {
-    if (!formData.title) {
-      alert('タスク名を入力してください')
+    if (!formData.title.trim()) {
+      toast.warning('タスク名を入力してください')
       return
     }
 
-    if (editingTask) {
-      // 更新
-      await supabase
-        .from('task_masters')
-        .update({
+    try {
+      if (editingTask) {
+        // 更新
+        const { error } = await supabase
+          .from('task_masters')
+          .update({
+            title: formData.title,
+            responsible_department: formData.responsible_department,
+            days_from_contract: formData.days_from_contract,
+            purpose: formData.purpose,
+            manual_url: formData.manual_url,
+            dos: formData.dos,
+            donts: formData.donts,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', editingTask.id)
+
+        if (error) throw error
+        toast.success('タスクマスタを更新しました')
+      } else {
+        // 新規作成
+        const { error } = await supabase.from('task_masters').insert({
           title: formData.title,
           responsible_department: formData.responsible_department,
           days_from_contract: formData.days_from_contract,
@@ -88,34 +110,42 @@ export default function TaskMasterManagement() {
           manual_url: formData.manual_url,
           dos: formData.dos,
           donts: formData.donts,
-          updated_at: new Date().toISOString()
+          phase: '未設定',
+          business_no: 0,
+          task_order: 0
         })
-        .eq('id', editingTask.id)
-    } else {
-      // 新規作成
-      await supabase.from('task_masters').insert({
-        title: formData.title,
-        responsible_department: formData.responsible_department,
-        days_from_contract: formData.days_from_contract,
-        purpose: formData.purpose,
-        manual_url: formData.manual_url,
-        dos: formData.dos,
-        donts: formData.donts,
-        phase: '未設定',
-        business_no: 0,
-        task_order: 0
-      })
-    }
 
-    setShowModal(false)
-    loadTaskMasters()
+        if (error) throw error
+        toast.success('タスクマスタを追加しました')
+      }
+
+      setShowModal(false)
+      await loadTaskMasters()
+    } catch (error) {
+      console.error('Failed to save task master:', error)
+      toast.error('タスクマスタの保存に失敗しました')
+    }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('このタスクマスタを削除しますか？')) return
+  const handleDelete = async (id: string, title: string) => {
+    if (!confirm(`「${title}」を削除してもよろしいですか？`)) {
+      return
+    }
 
-    await supabase.from('task_masters').delete().eq('id', id)
-    loadTaskMasters()
+    try {
+      const { error } = await supabase
+        .from('task_masters')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+
+      toast.success('タスクマスタを削除しました')
+      await loadTaskMasters()
+    } catch (error) {
+      console.error('Failed to delete task master:', error)
+      toast.error('タスクマスタの削除に失敗しました')
+    }
   }
 
   if (loading) {
@@ -123,107 +153,172 @@ export default function TaskMasterManagement() {
   }
 
   return (
-    <div className="p-4">
-      <div className="bg-white border p-4">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-bold">タスクマスタ管理</h1>
+    <div className="space-y-6">
+      {/* ヘッダー */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
           <button
-            onClick={() => handleOpenModal()}
-            className="px-4 py-2 bg-black text-white text-sm hover:bg-gray-800"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+            title="前の画面に戻る"
           >
-            新規作成
+            <ArrowLeft size={20} />
+            戻る
           </button>
+          <h2 className="text-2xl font-light text-black">タスクマスタ管理</h2>
         </div>
+        <button
+          onClick={() => handleOpenModal()}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+        >
+          <Plus size={20} />
+          新規タスク追加
+        </button>
+      </div>
 
-        <table className="w-full border">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border p-2 text-left">タスク名</th>
-              <th className="border p-2 text-left">責任部署</th>
-              <th className="border p-2 text-right">契約日からの日数</th>
-              <th className="border p-2 text-left">目的</th>
-              <th className="border p-2 text-center">操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            {taskMasters.map(task => (
-              <tr key={task.id}>
-                <td className="border p-2">{task.title}</td>
-                <td className="border p-2">{task.responsible_department}</td>
-                <td className="border p-2 text-right">{task.days_from_contract}日</td>
-                <td className="border p-2">{task.purpose}</td>
-                <td className="border p-2 text-center">
-                  <button
-                    onClick={() => handleOpenModal(task)}
-                    className="px-3 py-1 bg-white border text-sm hover:bg-gray-50 mr-2"
-                  >
-                    編集
-                  </button>
-                  <button
-                    onClick={() => handleDelete(task.id)}
-                    className="px-3 py-1 bg-red-600 text-white text-sm hover:bg-red-700"
-                  >
-                    削除
-                  </button>
-                </td>
+      {/* タスク一覧テーブル */}
+      <div className="bg-white rounded-lg border-2 border-pastel-blue shadow-pastel-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-pastel-blue-light">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
+                  タスク名
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
+                  責任部署
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-bold text-gray-800 uppercase tracking-wider">
+                  契約日からの日数
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
+                  目的
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-bold text-gray-800 uppercase tracking-wider">
+                  操作
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {taskMasters.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                    タスクマスタが登録されていません
+                  </td>
+                </tr>
+              ) : (
+                taskMasters.map((task) => (
+                  <tr key={task.id} className="hover:bg-pastel-blue-light transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-bold text-gray-900">{task.title}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-600">{task.responsible_department || '未設定'}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <div className="text-sm font-medium text-gray-900">{task.days_from_contract}日</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-600 max-w-md truncate">{task.purpose || '未設定'}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => handleOpenModal(task)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="編集"
+                        >
+                          <Edit2 size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(task.id, task.title)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          title="削除"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* 編集モーダル */}
       {showModal && (
-        <div className="modal-overlay">
-          <div className="bg-white border p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">
-              {editingTask ? 'タスクマスタ編集' : 'タスクマスタ新規作成'}
-            </h2>
+        <div className="prisma-modal-overlay">
+          <div className="prisma-modal" style={{ maxWidth: '700px' }}>
+            {/* ヘッダー */}
+            <div className="prisma-modal-header">
+              <div className="flex items-center justify-between">
+                <h2 className="prisma-modal-title">
+                  {editingTask ? 'タスクマスタ編集' : 'タスクマスタ新規作成'}
+                </h2>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
 
-            <div className="space-y-4">
+            {/* コンテンツ */}
+            <div className="prisma-modal-content space-y-4">
               {/* タスク名 */}
               <div>
-                <label className="block text-sm font-bold mb-1">タスク名 *</label>
+                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                  タスク名 <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full p-2 border"
+                  className="prisma-input"
                   placeholder="例: 契約書作成"
                 />
               </div>
 
               {/* 責任部署 */}
               <div>
-                <label className="block text-sm font-bold mb-1">責任部署</label>
+                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                  責任部署
+                </label>
                 <input
                   type="text"
                   value={formData.responsible_department}
                   onChange={(e) => setFormData({ ...formData, responsible_department: e.target.value })}
-                  className="w-full p-2 border"
+                  className="prisma-input"
                   placeholder="例: 営業部"
                 />
               </div>
 
               {/* 期日（契約日からの日数） */}
               <div>
-                <label className="block text-sm font-bold mb-1">契約日からの日数</label>
+                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                  契約日からの日数
+                </label>
                 <input
                   type="number"
                   value={formData.days_from_contract}
                   onChange={(e) => setFormData({ ...formData, days_from_contract: parseInt(e.target.value) || 0 })}
-                  className="w-full p-2 border"
+                  className="prisma-input"
                   placeholder="例: 3"
                 />
               </div>
 
               {/* 目的 */}
               <div>
-                <label className="block text-sm font-bold mb-1">目的</label>
+                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                  目的
+                </label>
                 <textarea
                   value={formData.purpose}
                   onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
-                  className="w-full p-2 border"
+                  className="prisma-textarea"
                   rows={3}
                   placeholder="このタスクの目的を記述"
                 />
@@ -231,35 +326,41 @@ export default function TaskMasterManagement() {
 
               {/* マニュアルURL */}
               <div>
-                <label className="block text-sm font-bold mb-1">マニュアルURL</label>
+                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                  マニュアルURL
+                </label>
                 <input
                   type="url"
                   value={formData.manual_url}
                   onChange={(e) => setFormData({ ...formData, manual_url: e.target.value })}
-                  className="w-full p-2 border"
+                  className="prisma-input"
                   placeholder="https://..."
                 />
               </div>
 
               {/* 動画URL */}
               <div>
-                <label className="block text-sm font-bold mb-1">動画URL</label>
+                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                  動画URL
+                </label>
                 <input
                   type="url"
                   value={formData.video_url}
                   onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
-                  className="w-full p-2 border"
+                  className="prisma-input"
                   placeholder="https://..."
                 />
               </div>
 
               {/* Do's */}
               <div>
-                <label className="block text-sm font-bold mb-1">Do's（推奨事項）</label>
+                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                  Do's（推奨事項）
+                </label>
                 <textarea
                   value={formData.dos}
                   onChange={(e) => setFormData({ ...formData, dos: e.target.value })}
-                  className="w-full p-2 border"
+                  className="prisma-textarea"
                   rows={3}
                   placeholder="推奨される作業方法"
                 />
@@ -267,29 +368,32 @@ export default function TaskMasterManagement() {
 
               {/* Don'ts */}
               <div>
-                <label className="block text-sm font-bold mb-1">Don'ts（禁止事項）</label>
+                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                  Don'ts（禁止事項）
+                </label>
                 <textarea
                   value={formData.donts}
                   onChange={(e) => setFormData({ ...formData, donts: e.target.value })}
-                  className="w-full p-2 border"
+                  className="prisma-textarea"
                   rows={3}
                   placeholder="避けるべき作業方法"
                 />
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 mt-6">
+            {/* フッター */}
+            <div className="prisma-modal-footer">
               <button
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 bg-white border text-sm hover:bg-gray-50"
+                className="prisma-btn prisma-btn-secondary"
               >
                 キャンセル
               </button>
               <button
                 onClick={handleSave}
-                className="px-4 py-2 bg-black text-white text-sm hover:bg-gray-800"
+                className="prisma-btn prisma-btn-primary"
               >
-                保存
+                {editingTask ? '更新' : '作成'}
               </button>
             </div>
           </div>

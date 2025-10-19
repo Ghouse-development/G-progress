@@ -7,6 +7,8 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { Payment, Project } from '../types/database'
+import { useFiscalYear } from '../contexts/FiscalYearContext'
+import { useMode } from '../contexts/ModeContext'
 import Papa from 'papaparse'
 import jsPDF from 'jspdf'
 
@@ -19,6 +21,8 @@ interface PaymentRow {
 }
 
 export default function PaymentManagement() {
+  const { selectedYear } = useFiscalYear()
+  const { mode } = useMode()
   const [selectedMonth, setSelectedMonth] = useState<string>(() => {
     const now = new Date()
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
@@ -29,19 +33,34 @@ export default function PaymentManagement() {
 
   useEffect(() => {
     loadPayments()
-  }, [selectedMonth])
+  }, [selectedMonth, selectedYear, mode])
 
   const loadPayments = async () => {
     setLoading(true)
 
-    // 選択した月の支払いを取得
+    // 選択した月の支払いを取得（選択した年度のプロジェクトのみ）
     const [year, month] = selectedMonth.split('-')
     const startDate = `${year}-${month}-01`
     const endDate = `${year}-${month}-31`
 
+    // First get projects for the selected fiscal year
+    const { data: fiscalYearProjects } = await supabase
+      .from('projects')
+      .select('id')
+      .eq('fiscal_year', selectedYear)
+
+    const projectIds = fiscalYearProjects?.map(p => p.id) || []
+
+    if (projectIds.length === 0) {
+      setPayments([])
+      setLoading(false)
+      return
+    }
+
     const { data: paymentsData } = await supabase
       .from('payments')
       .select('*, project:projects(*, customer:customers(*))')
+      .in('project_id', projectIds)
       .or(`scheduled_date.gte.${startDate},actual_date.gte.${startDate}`)
       .or(`scheduled_date.lte.${endDate},actual_date.lte.${endDate}`)
 

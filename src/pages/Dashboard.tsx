@@ -17,11 +17,13 @@ import PaymentManagement from './PaymentManagement'
 import PerformanceManagement from './PerformanceManagement'
 import TaskMasterManagement from './TaskMasterManagement'
 import { ModeProvider } from '../contexts/ModeContext'
+import { FiscalYearProvider } from '../contexts/FiscalYearContext'
 
 export default function Dashboard() {
   return (
     <ModeProvider>
-      <LayoutPrisma>
+      <FiscalYearProvider>
+        <LayoutPrisma>
         <Routes>
           <Route path="/" element={<NewDashboard />} />
           <Route path="/projects" element={<ProjectList />} />
@@ -41,6 +43,7 @@ export default function Dashboard() {
           <Route path="/settings" element={<div className="prisma-content">設定ページ（今後実装）</div>} />
         </Routes>
       </LayoutPrisma>
+      </FiscalYearProvider>
     </ModeProvider>
   )
 }

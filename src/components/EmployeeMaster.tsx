@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { Employee, Department, Role } from '../types/database'
+import { Employee, Department, Role, Branch } from '../types/database'
 import { Plus, Edit2, Trash2, X, ArrowLeft, Building2, Shield } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
 
@@ -44,6 +44,7 @@ export default function EmployeeMaster() {
   const navigate = useNavigate()
   const toast = useToast()
   const [employees, setEmployees] = useState<Employee[]>([])
+  const [branches, setBranches] = useState<Branch[]>([])
   const [showModal, setShowModal] = useState(false)
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null)
   const [formData, setFormData] = useState({
@@ -52,23 +53,36 @@ export default function EmployeeMaster() {
     first_name: '',
     department: '' as Department,
     role: 'member' as Role,
+    branch_id: '',
     avatar_url: ''
   })
 
   useEffect(() => {
     loadEmployees()
+    loadBranches()
   }, [])
 
   const loadEmployees = async () => {
     const { data, error } = await supabase
       .from('employees')
-      .select('*')
+      .select('*, branch:branches(*)')
       .order('role')
       .order('department')
       .order('last_name')
 
     if (!error && data) {
       setEmployees(data as Employee[])
+    }
+  }
+
+  const loadBranches = async () => {
+    const { data, error } = await supabase
+      .from('branches')
+      .select('*')
+      .order('name')
+
+    if (!error && data) {
+      setBranches(data as Branch[])
     }
   }
 
@@ -81,6 +95,7 @@ export default function EmployeeMaster() {
         first_name: employee.first_name,
         department: employee.department,
         role: employee.role,
+        branch_id: employee.branch_id || '',
         avatar_url: employee.avatar_url || ''
       })
     } else {
@@ -91,6 +106,7 @@ export default function EmployeeMaster() {
         first_name: '',
         department: '営業',
         role: 'member',
+        branch_id: '',
         avatar_url: ''
       })
     }
@@ -127,6 +143,7 @@ export default function EmployeeMaster() {
             first_name: formData.first_name,
             department: formData.department,
             role: formData.role,
+            branch_id: formData.branch_id || null,
             avatar_url: formData.avatar_url || null,
             updated_at: new Date().toISOString()
           })
@@ -144,6 +161,7 @@ export default function EmployeeMaster() {
             first_name: formData.first_name,
             department: formData.department,
             role: formData.role,
+            branch_id: formData.branch_id || null,
             avatar_url: formData.avatar_url || null
           })
 
@@ -256,6 +274,9 @@ export default function EmployeeMaster() {
                   部門
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
+                  拠点
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
                   役職
                 </th>
                 <th className="px-6 py-3 text-center text-xs font-bold text-gray-800 uppercase tracking-wider">
@@ -266,7 +287,7 @@ export default function EmployeeMaster() {
             <tbody className="divide-y divide-gray-200">
               {employees.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
                     従業員が登録されていません
                   </td>
                 </tr>
@@ -281,6 +302,11 @@ export default function EmployeeMaster() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{employee.department}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-600">
+                        {employee.branch?.name || '未設定'}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-3 py-1 text-xs font-bold rounded-full border-2 ${getRoleBadgeClass(employee.role)}`}>
@@ -315,26 +341,28 @@ export default function EmployeeMaster() {
 
       {/* 従業員追加/編集モーダル */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-2xl max-w-md w-full border-2 border-gray-300">
+        <div className="prisma-modal-overlay">
+          <div className="prisma-modal" style={{ maxWidth: '500px' }}>
             {/* ヘッダー */}
-            <div className="flex items-center justify-between px-5 py-4 border-b-2 border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">
-                {editingEmployee ? '従業員編集' : '新規従業員追加'}
-              </h2>
-              <button
-                onClick={handleCloseModal}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <X size={22} />
-              </button>
+            <div className="prisma-modal-header">
+              <div className="flex items-center justify-between">
+                <h2 className="prisma-modal-title">
+                  {editingEmployee ? '従業員編集' : '新規従業員追加'}
+                </h2>
+                <button
+                  onClick={handleCloseModal}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
             </div>
 
             {/* コンテンツ */}
-            <div className="px-5 py-4 space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
-              <div className="grid grid-cols-2 gap-2">
+            <div className="prisma-modal-content space-y-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
                     姓 <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -342,11 +370,11 @@ export default function EmployeeMaster() {
                     value={formData.last_name}
                     onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
                     placeholder="山田"
-                    className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="prisma-input"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
                     名 <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -354,13 +382,13 @@ export default function EmployeeMaster() {
                     value={formData.first_name}
                     onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
                     placeholder="太郎"
-                    className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="prisma-input"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
                   メールアドレス <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -368,18 +396,18 @@ export default function EmployeeMaster() {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   placeholder="yamada@example.com"
-                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="prisma-input"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
                   部門 <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={formData.department}
                   onChange={(e) => setFormData({ ...formData, department: e.target.value as Department })}
-                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="prisma-select"
                 >
                   {departments.map((dept) => (
                     <option key={dept} value={dept}>
@@ -390,13 +418,13 @@ export default function EmployeeMaster() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
                   役職 <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={formData.role}
                   onChange={(e) => setFormData({ ...formData, role: e.target.value as Role })}
-                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="prisma-select"
                 >
                   <option value="president">社長</option>
                   <option value="executive">役員</option>
@@ -407,7 +435,25 @@ export default function EmployeeMaster() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                  拠点
+                </label>
+                <select
+                  value={formData.branch_id}
+                  onChange={(e) => setFormData({ ...formData, branch_id: e.target.value })}
+                  className="prisma-select"
+                >
+                  <option value="">未設定</option>
+                  {branches.map((branch) => (
+                    <option key={branch.id} value={branch.id}>
+                      {branch.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
                   アバターURL
                 </label>
                 <input
@@ -415,22 +461,22 @@ export default function EmployeeMaster() {
                   value={formData.avatar_url}
                   onChange={(e) => setFormData({ ...formData, avatar_url: e.target.value })}
                   placeholder="https://example.com/avatar.jpg"
-                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="prisma-input"
                 />
               </div>
             </div>
 
             {/* フッター */}
-            <div className="flex gap-2 px-5 py-3 border-t-2 border-gray-200 bg-gray-50">
+            <div className="prisma-modal-footer">
               <button
                 onClick={handleCloseModal}
-                className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-100 transition-colors font-medium"
+                className="prisma-btn prisma-btn-secondary"
               >
                 キャンセル
               </button>
               <button
                 onClick={handleSubmit}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                className="prisma-btn prisma-btn-primary"
               >
                 {editingEmployee ? '更新' : '作成'}
               </button>

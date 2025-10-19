@@ -6,6 +6,7 @@ import { format, differenceInDays } from 'date-fns'
 import { ArrowUpDown, Filter, Edit2, Trash2, X, Plus } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
 import { useMode } from '../contexts/ModeContext'
+import { useFiscalYear } from '../contexts/FiscalYearContext'
 import { SkeletonTable } from '../components/ui/Skeleton'
 import { generateProjectTasks } from '../utils/taskGenerator'
 
@@ -32,6 +33,7 @@ export default function ProjectList() {
   const navigate = useNavigate()
   const toast = useToast()
   const { mode, setMode } = useMode()
+  const { selectedYear } = useFiscalYear()
   const [projects, setProjects] = useState<ProjectWithRelations[]>([])
   const [allTasks, setAllTasks] = useState<Task[]>([])
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
@@ -78,7 +80,7 @@ export default function ProjectList() {
 
   useEffect(() => {
     loadProjects()
-  }, [mode, currentUserId]) // モードまたはユーザーIDが変更されたら再読み込み
+  }, [mode, currentUserId, selectedYear]) // モード、ユーザーID、年度が変更されたら再読み込み
 
   // リアルタイム更新: projects, customers, tasksテーブルの変更を監視
   useEffect(() => {
@@ -183,12 +185,13 @@ export default function ProjectList() {
           design:assigned_design(id, last_name, first_name, department),
           construction:assigned_construction(id, last_name, first_name, department)
         `)
+        .eq('fiscal_year', selectedYear)
 
       if (mode === 'staff' && currentUserId) {
         query = query.or(`assigned_sales.eq.${currentUserId},assigned_design.eq.${currentUserId},assigned_construction.eq.${currentUserId}`)
       }
 
-      const { data: projectsData } = await query.order('contract_date', { ascending: false })
+      const { data: projectsData} = await query.order('contract_date', { ascending: false })
 
       if (projectsData) {
         const projectsWithTasks = await Promise.all(

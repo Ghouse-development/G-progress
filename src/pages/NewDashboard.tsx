@@ -9,6 +9,7 @@ import { supabase } from '../lib/supabase'
 import { Project, Payment, Task, Employee } from '../types/database'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 import { useMode } from '../contexts/ModeContext'
+import { useFiscalYear } from '../contexts/FiscalYearContext'
 import { Settings } from 'lucide-react'
 
 interface MonthlyStats {
@@ -24,7 +25,7 @@ interface MonthlyStats {
 
 export default function NewDashboard() {
   const { mode } = useMode()
-  const [selectedYear, setSelectedYear] = useState<string>('2025')
+  const { selectedYear } = useFiscalYear()
   const [projects, setProjects] = useState<Project[]>([])
   const [payments, setPayments] = useState<Payment[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
@@ -242,6 +243,7 @@ export default function NewDashboard() {
   const totalScheduledPayment = monthlyStats.reduce((sum, s) => sum + s.scheduledPayment, 0)
   const totalActualPayment = monthlyStats.reduce((sum, s) => sum + s.actualPayment, 0)
   const totalGrossProfit = monthlyStats.reduce((sum, s) => sum + s.grossProfit, 0)
+  const totalChangeContracts = monthlyStats.reduce((sum, s) => sum + s.changeContracts, 0)
 
   // 円グラフのカラーパレット
   const PIE_COLORS = ['#000000', '#4b5563', '#6b7280', '#9ca3af', '#d1d5db']
@@ -261,68 +263,88 @@ export default function NewDashboard() {
         </div>
       </div>
       <div className="prisma-content">
-        {/* === 目標値と完工予定数エリア ===  */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginBottom: '16px' }}>
-          {/* 目標売上高 */}
-          <div className="prisma-card">
-            <h2 className="prisma-card-title">目標売上高（税別）</h2>
-            <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>
-              {targetRevenue.toLocaleString()}円
-            </div>
-          </div>
-
-          {/* 目標粗利益高 */}
-          <div className="prisma-card">
-            <h2 className="prisma-card-title">目標粗利益高（税別）</h2>
-            <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>
-              {targetGrossProfit.toLocaleString()}円
-            </div>
-          </div>
-
-          {/* 目標棟数 */}
-          <div className="prisma-card">
-            <h2 className="prisma-card-title">目標棟数</h2>
-            <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>{targetUnits}棟</div>
-          </div>
-
-          {/* 完工予定数 */}
-          <div className="prisma-card">
-            <h2 className="prisma-card-title">完工予定数</h2>
-            <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{expectedCompletionCount}件</div>
-            {targetUnits > 0 && (
-              <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '8px' }}>
-                達成率: {((expectedCompletionCount / targetUnits) * 100).toFixed(1)}%
+        {/* === 目標と実績を上下で比較しやすいレイアウト（3列グリッド） ===  */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '16px' }}>
+          {/* 第1列：売上高 */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {/* 目標売上高 */}
+            <div className="prisma-card">
+              <h2 className="prisma-card-title">目標売上高（税別）</h2>
+              <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>
+                {targetRevenue.toLocaleString()}円
               </div>
-            )}
+            </div>
+
+            {/* 予定売上高 */}
+            <div className="prisma-card">
+              <h2 className="prisma-card-title">予定売上高（税別）</h2>
+              <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>
+                {(totalScheduledPayment / 1.1).toLocaleString()}円
+              </div>
+              {targetRevenue > 0 && (
+                <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '8px' }}>
+                  達成率: {(((totalScheduledPayment / 1.1) / targetRevenue) * 100).toFixed(1)}%
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 第2列：粗利益高 */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {/* 目標粗利益高 */}
+            <div className="prisma-card">
+              <h2 className="prisma-card-title">目標粗利益高（税別）</h2>
+              <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>
+                {targetGrossProfit.toLocaleString()}円
+              </div>
+            </div>
+
+            {/* 粗利益高 */}
+            <div className="prisma-card">
+              <h2 className="prisma-card-title">粗利益高（税別）</h2>
+              <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>
+                {totalGrossProfit.toLocaleString()}円
+              </div>
+              {targetGrossProfit > 0 && (
+                <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '8px' }}>
+                  達成率: {((totalGrossProfit / targetGrossProfit) * 100).toFixed(1)}%
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 第3列：棟数 */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {/* 目標棟数 */}
+            <div className="prisma-card">
+              <h2 className="prisma-card-title">目標棟数</h2>
+              <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>{targetUnits}棟</div>
+            </div>
+
+            {/* 完工棟数 */}
+            <div className="prisma-card">
+              <h2 className="prisma-card-title">完工棟数</h2>
+              <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>{expectedCompletionCount}棟</div>
+              {targetUnits > 0 && (
+                <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '8px' }}>
+                  達成率: {((expectedCompletionCount / targetUnits) * 100).toFixed(1)}%
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* === 売上高・粗利益高・入金サマリーエリア（近くに配置） ===  */}
+        {/* === 入金実績エリア ===  */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px', marginBottom: '16px' }}>
-          {/* 予定売上高サマリー */}
+          {/* 入金予定 */}
           <div className="prisma-card">
-            <h2 className="prisma-card-title">予定売上高（税別）</h2>
+            <h2 className="prisma-card-title">入金予定（税込）</h2>
             <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>
-              {(totalScheduledPayment / 1.1).toLocaleString()}円
+              {totalScheduledPayment.toLocaleString()}円
             </div>
-            {targetRevenue > 0 && (
-              <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '8px' }}>
-                目標達成率: {(((totalScheduledPayment / 1.1) / targetRevenue) * 100).toFixed(1)}%
-              </div>
-            )}
-          </div>
-
-          {/* 粗利益高サマリー */}
-          <div className="prisma-card">
-            <h2 className="prisma-card-title">粗利益高（税別）</h2>
-            <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>
-              {totalGrossProfit.toLocaleString()}円
+            <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '4px' }}>
+              税別: {(totalScheduledPayment / 1.1).toLocaleString()}円
             </div>
-            {targetGrossProfit > 0 && (
-              <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '8px' }}>
-                目標達成率: {((totalGrossProfit / targetGrossProfit) * 100).toFixed(1)}%
-              </div>
-            )}
           </div>
 
           {/* 入金実績 */}
@@ -331,11 +353,20 @@ export default function NewDashboard() {
             <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>
               {totalActualPayment.toLocaleString()}円
             </div>
+            <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '4px' }}>
+              税別: {(totalActualPayment / 1.1).toLocaleString()}円
+            </div>
           </div>
         </div>
 
         {/* === その他サマリーエリア ===  */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginBottom: '16px' }}>
+          {/* 変更契約完了数 */}
+          <div className="prisma-card">
+            <h2 className="prisma-card-title">変更契約完了数</h2>
+            <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>{totalChangeContracts}件</div>
+          </div>
+
           {/* 遅れタスク数 */}
           <div className="prisma-card">
             <h2 className="prisma-card-title">遅れタスク数</h2>
