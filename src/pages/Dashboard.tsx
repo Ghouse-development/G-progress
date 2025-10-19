@@ -12,6 +12,7 @@ import ProductMaster from '../components/ProductMaster'
 import EmployeeMaster from '../components/EmployeeMaster'
 import DepartmentMaster from '../components/DepartmentMaster'
 import RoleMaster from '../components/RoleMaster'
+import TaskMasterManagement from '../components/TaskMasterManagement'
 import { ModeProvider } from '../contexts/ModeContext'
 
 export default function Dashboard() {
@@ -31,6 +32,7 @@ export default function Dashboard() {
           <Route path="/master/employees" element={<EmployeeMaster />} />
           <Route path="/master/departments" element={<DepartmentMaster />} />
           <Route path="/master/roles" element={<RoleMaster />} />
+          <Route path="/master/tasks" element={<TaskMasterManagement />} />
         </Routes>
       </Layout>
     </ModeProvider>

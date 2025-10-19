@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
+import { supabase } from '../lib/supabase'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -12,10 +13,34 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState('1')
+  const [employees, setEmployees] = useState<any[]>([])
+
+  // 開発モード：従業員リストを取得
+  useEffect(() => {
+    const loadEmployees = async () => {
+      const { data } = await supabase
+        .from('employees')
+        .select('id, last_name, first_name, department')
+        .order('last_name')
+
+      if (data) {
+        setEmployees(data)
+        if (data.length > 0) {
+          setSelectedEmployeeId(data[0].id)
+        }
+      }
+    }
+
+    if (process.env.NODE_ENV === 'development') {
+      loadEmployees()
+    }
+  }, [])
+
   // 開発モード用クイックログイン
   const handleDevLogin = () => {
     localStorage.setItem('auth', 'true')
-    localStorage.setItem('currentUserId', '1')
+    localStorage.setItem('currentUserId', selectedEmployeeId)
     navigate('/')
   }
 
@@ -104,6 +129,22 @@ export default function Login() {
               <p className="text-xs text-gray-500 mb-3 text-center font-medium">
                 開発モード専用
               </p>
+              <div className="mb-3">
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  ログインするユーザーを選択
+                </label>
+                <select
+                  value={selectedEmployeeId}
+                  onChange={(e) => setSelectedEmployeeId(e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-medium text-gray-900"
+                >
+                  {employees.map((emp) => (
+                    <option key={emp.id} value={emp.id}>
+                      {emp.last_name} {emp.first_name} ({emp.department})
+                    </option>
+                  ))}
+                </select>
+              </div>
               <button
                 onClick={handleDevLogin}
                 className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-xl hover:bg-gray-200 transition font-bold text-sm border-2 border-gray-300"
