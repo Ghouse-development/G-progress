@@ -17,35 +17,41 @@ import NewDashboard from './NewDashboard'
 import PaymentManagement from './PaymentManagement'
 import PerformanceManagement from './PerformanceManagement'
 import TaskMasterManagement from './TaskMasterManagement'
+import TaskByPosition from './TaskByPosition'
+import Settings from './Settings'
 import { ModeProvider } from '../contexts/ModeContext'
 import { FiscalYearProvider } from '../contexts/FiscalYearContext'
+import { SettingsProvider } from '../contexts/SettingsContext'
 
 export default function Dashboard() {
   return (
-    <ModeProvider>
-      <FiscalYearProvider>
-        <LayoutPrisma>
-        <Routes>
-          <Route path="/" element={<NewDashboard />} />
-          <Route path="/projects" element={<ProjectList />} />
-          <Route path="/projects/:id" element={<ProjectDetail />} />
-          <Route path="/payments" element={<PaymentManagement />} />
-          <Route path="/performance" element={<PerformanceManagement />} />
-          <Route path="/calendar" element={<Calendar />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/audit-logs" element={<AuditLogs />} />
-          <Route path="/import-csv" element={<ImportCSV />} />
-          <Route path="/sample" element={<SamplePage />} />
-          <Route path="/master/products" element={<ProductMaster />} />
-          <Route path="/master/tasks" element={<TaskMasterManagement />} />
-          <Route path="/master/employees" element={<EmployeeMaster />} />
-          <Route path="/master/departments" element={<DepartmentMaster />} />
-          <Route path="/master/roles" element={<RoleMaster />} />
-          <Route path="/master/branches" element={<BranchMaster />} />
-          <Route path="/settings" element={<div className="prisma-content">設定ページ（今後実装）</div>} />
-        </Routes>
-      </LayoutPrisma>
-      </FiscalYearProvider>
-    </ModeProvider>
+    <SettingsProvider>
+      <ModeProvider>
+        <FiscalYearProvider>
+          <LayoutPrisma>
+            <Routes>
+              <Route path="/" element={<NewDashboard />} />
+              <Route path="/projects" element={<ProjectList />} />
+              <Route path="/projects/:id" element={<ProjectDetail />} />
+              <Route path="/payments" element={<PaymentManagement />} />
+              <Route path="/performance" element={<PerformanceManagement />} />
+              <Route path="/calendar" element={<Calendar />} />
+              <Route path="/tasks-by-position" element={<TaskByPosition />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/audit-logs" element={<AuditLogs />} />
+              <Route path="/import-csv" element={<ImportCSV />} />
+              <Route path="/sample" element={<SamplePage />} />
+              <Route path="/master/products" element={<ProductMaster />} />
+              <Route path="/master/tasks" element={<TaskMasterManagement />} />
+              <Route path="/master/employees" element={<EmployeeMaster />} />
+              <Route path="/master/departments" element={<DepartmentMaster />} />
+              <Route path="/master/roles" element={<RoleMaster />} />
+              <Route path="/master/branches" element={<BranchMaster />} />
+              <Route path="/settings" element={<Settings />} />
+            </Routes>
+          </LayoutPrisma>
+        </FiscalYearProvider>
+      </ModeProvider>
+    </SettingsProvider>
   )
 }

@@ -555,7 +555,7 @@ export default function DashboardHome() {
           {/* 新規案件追加ボタン */}
           <button
             onClick={() => setShowCreateModal(true)}
-            className="btn-canva-primary flex items-center gap-2"
+            className="prisma-btn prisma-btn-primary flex items-center gap-2"
           >
             <Plus size={20} />
             新規案件追加
@@ -617,7 +617,7 @@ export default function DashboardHome() {
 
       {/* 統計情報 */}
       <div className="grid grid-cols-5 gap-3">
-        <div className="card-canva">
+        <div className="prisma-card">
           <div className="flex items-center gap-1 mb-2">
             <p className="text-base text-gray-600 font-semibold">全案件数</p>
             <span title={`${fiscalYear}年度の全案件数を表示しています`}>
@@ -628,7 +628,7 @@ export default function DashboardHome() {
           <p className="text-base text-gray-500 font-medium">{fiscalYear}年度</p>
         </div>
 
-        <div className="card-canva">
+        <div className="prisma-card">
           <div className="flex items-center gap-1 mb-2">
             <p className="text-base text-gray-600 font-semibold">契約後案件数</p>
             <span title="請負契約完了済み、着工未完了の案件数を表示しています">
@@ -639,7 +639,7 @@ export default function DashboardHome() {
           <p className="text-base text-gray-500 font-medium">契約済・着工前</p>
         </div>
 
-        <div className="card-canva">
+        <div className="prisma-card">
           <div className="flex items-center gap-1 mb-2">
             <p className="text-base text-gray-600 font-semibold">着工後案件数</p>
             <span title="着工完了済み、引き渡し未完了の案件数を表示しています">
@@ -650,7 +650,7 @@ export default function DashboardHome() {
           <p className="text-base text-gray-500 font-medium">着工済・引渡前</p>
         </div>
 
-        <div className="card-canva">
+        <div className="prisma-card">
           <div className="flex items-center gap-1 mb-2">
             <p className="text-base text-gray-600 font-semibold">引き渡し済み案件数</p>
             <span title="引き渡し完了済みの案件数を表示しています">
@@ -661,7 +661,7 @@ export default function DashboardHome() {
           <p className="text-base text-gray-500 font-medium">完了</p>
         </div>
 
-        <div className="card-canva">
+        <div className="prisma-card">
           <div className="flex items-center gap-1 mb-2">
             <p className="text-base text-gray-600 font-semibold">遅延タスク数</p>
             <span title="期限超過している未完了タスクの数を表示しています">
@@ -1227,13 +1227,13 @@ export default function DashboardHome() {
                   setShowCreateModal(false)
                   resetForm()
                 }}
-                className="btn-canva-outline flex-1"
+                className="prisma-btn prisma-btn-secondary flex-1"
               >
                 キャンセル
               </button>
               <button
                 onClick={handleCreateProject}
-                className="btn-canva-primary flex-1"
+                className="prisma-btn prisma-btn-primary flex-1"
               >
                 作成
               </button>
@@ -1306,7 +1306,7 @@ export default function DashboardHome() {
             <div className="modal-canva-footer">
               <button
                 onClick={() => setShowDepartmentDetailModal(false)}
-                className="btn-canva-primary flex-1"
+                className="prisma-btn prisma-btn-primary flex-1"
               >
                 閉じる
               </button>

@@ -10,6 +10,8 @@ import { Project, Payment, Task, Employee } from '../types/database'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 import { useMode } from '../contexts/ModeContext'
 import { useFiscalYear } from '../contexts/FiscalYearContext'
+import { useSettings } from '../contexts/SettingsContext'
+import { generateDemoProjects, generateDemoPayments, generateDemoTasks, generateDemoEmployees } from '../utils/demoData'
 import { Settings } from 'lucide-react'
 
 interface MonthlyStats {
@@ -26,6 +28,7 @@ interface MonthlyStats {
 export default function NewDashboard() {
   const { mode } = useMode()
   const { selectedYear } = useFiscalYear()
+  const { demoMode } = useSettings()
   const [projects, setProjects] = useState<Project[]>([])
   const [payments, setPayments] = useState<Payment[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
@@ -54,9 +57,18 @@ export default function NewDashboard() {
   useEffect(() => {
     loadData()
     loadTargets()
-  }, [selectedYear, mode])
+  }, [selectedYear, mode, demoMode])
 
   const loadTargets = () => {
+    if (demoMode) {
+      // デモモード：デフォルト目標値を設定
+      setTargetRevenue(7500000000) // 75億円
+      setTargetUnits(250) // 250棟
+      setTargetGrossProfit(1500000000) // 15億円（粗利率20%想定）
+      return
+    }
+
+    // 通常モード：LocalStorageから読み込み
     const savedTargetRevenue = localStorage.getItem(`target_revenue_${selectedYear}`)
     const savedTargetUnits = localStorage.getItem(`target_units_${selectedYear}`)
     const savedTargetGrossProfit = localStorage.getItem(`target_gross_profit_${selectedYear}`)
@@ -91,6 +103,25 @@ export default function NewDashboard() {
   const loadData = async () => {
     setLoading(true)
 
+    // デモモードの場合はサンプルデータを使用
+    if (demoMode) {
+      const demoProjects = generateDemoProjects()
+      const demoPayments = generateDemoPayments()
+      const demoTasks = generateDemoTasks()
+      const demoEmployees = generateDemoEmployees()
+
+      setProjects(demoProjects)
+      setPayments(demoPayments)
+      setTasks(demoTasks)
+      setCurrentEmployee(demoEmployees[0]) // 最初の従業員をカレントユーザーとして使用
+
+      // 統計を計算
+      calculateStats(demoProjects, demoPayments, demoTasks)
+      setLoading(false)
+      return
+    }
+
+    // 通常モード：Supabaseからデータを取得
     // 現在の従業員を取得
     const employeeId = localStorage.getItem('selectedEmployeeId')
     if (employeeId) {
@@ -279,7 +310,7 @@ export default function NewDashboard() {
             <div className="prisma-card">
               <h2 className="prisma-card-title">予定売上高（税別）</h2>
               <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>
-                {(totalScheduledPayment / 1.1).toLocaleString()}円
+                {Math.floor(totalScheduledPayment / 1.1).toLocaleString()}円
               </div>
               {targetRevenue > 0 && (
                 <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '8px' }}>
@@ -313,11 +344,11 @@ export default function NewDashboard() {
             </div>
           </div>
 
-          {/* 第3列：棟数 */}
+          {/* 第3列：完工棟数 */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {/* 目標棟数 */}
+            {/* 目標完工棟数 */}
             <div className="prisma-card">
-              <h2 className="prisma-card-title">目標棟数</h2>
+              <h2 className="prisma-card-title">目標完工棟数</h2>
               <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>{targetUnits}棟</div>
             </div>
 
@@ -343,7 +374,7 @@ export default function NewDashboard() {
               {totalScheduledPayment.toLocaleString()}円
             </div>
             <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '4px' }}>
-              税別: {(totalScheduledPayment / 1.1).toLocaleString()}円
+              税別: {Math.floor(totalScheduledPayment / 1.1).toLocaleString()}円
             </div>
           </div>
 
@@ -354,7 +385,7 @@ export default function NewDashboard() {
               {totalActualPayment.toLocaleString()}円
             </div>
             <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '4px' }}>
-              税別: {(totalActualPayment / 1.1).toLocaleString()}円
+              税別: {Math.floor(totalActualPayment / 1.1).toLocaleString()}円
             </div>
           </div>
         </div>
@@ -370,10 +401,12 @@ export default function NewDashboard() {
           {/* 遅れタスク数 */}
           <div className="prisma-card">
             <h2 className="prisma-card-title">遅れタスク数</h2>
-            <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#ef4444' }}>{delayedTaskCount}件</div>
-            <button className="prisma-btn prisma-btn-primary prisma-mt-2">
-              詳細を見る
-            </button>
+            <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>{delayedTaskCount}件</div>
+            {delayedTaskCount > 0 && (
+              <div style={{ fontSize: '14px', color: '#ef4444', marginTop: '8px' }}>
+                期限超過タスクがあります
+              </div>
+            )}
           </div>
 
           {/* 平均坪数 */}
@@ -449,9 +482,23 @@ export default function NewDashboard() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="contracts" fill="#000000" name="契約数" />
+                <Bar dataKey="contracts" fill="#000000" name="請負契約数" />
               </BarChart>
             </ResponsiveContainer>
+            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '2px solid #e5e7eb', display: 'flex', gap: '24px', justifyContent: 'center' }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>年度累計</div>
+                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                  {monthlyStats.reduce((sum, s) => sum + s.contracts, 0)}件
+                </div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>当月</div>
+                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                  {monthlyStats.length > 0 ? monthlyStats[monthlyStats.length - 1].contracts : 0}件
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* 変更契約数 */}
@@ -467,6 +514,20 @@ export default function NewDashboard() {
                 <Bar dataKey="changeContracts" fill="#4b5563" name="変更契約数" />
               </BarChart>
             </ResponsiveContainer>
+            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '2px solid #e5e7eb', display: 'flex', gap: '24px', justifyContent: 'center' }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>年度累計</div>
+                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                  {monthlyStats.reduce((sum, s) => sum + s.changeContracts, 0)}件
+                </div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>当月</div>
+                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                  {monthlyStats.length > 0 ? monthlyStats[monthlyStats.length - 1].changeContracts : 0}件
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* 着工数 */}
@@ -482,21 +543,72 @@ export default function NewDashboard() {
                 <Bar dataKey="construction" fill="#000000" name="着工数" />
               </BarChart>
             </ResponsiveContainer>
+            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '2px solid #e5e7eb', display: 'flex', gap: '24px', justifyContent: 'center' }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>年度累計</div>
+                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                  {monthlyStats.reduce((sum, s) => sum + s.construction, 0)}件
+                </div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>当月</div>
+                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                  {monthlyStats.length > 0 ? monthlyStats[monthlyStats.length - 1].construction : 0}件
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* 引き渡し数 */}
           <div className="prisma-card">
-            <h2 className="prisma-card-title">引き渡し数</h2>
+            <h2 className="prisma-card-title">引き渡し数（四半期別）</h2>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={monthlyStats}>
+              <BarChart data={[
+                { quarter: 'Q1 (8-10月)', handover: monthlyStats.slice(0, 3).reduce((sum, s) => sum + s.handover, 0) },
+                { quarter: 'Q2 (11-1月)', handover: monthlyStats.slice(3, 6).reduce((sum, s) => sum + s.handover, 0) },
+                { quarter: 'Q3 (2-4月)', handover: monthlyStats.slice(6, 9).reduce((sum, s) => sum + s.handover, 0) },
+                { quarter: 'Q4 (5-7月)', handover: monthlyStats.slice(9, 12).reduce((sum, s) => sum + s.handover, 0) }
+              ]}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
+                <XAxis dataKey="quarter" />
                 <YAxis />
                 <Tooltip />
                 <Legend />
                 <Bar dataKey="handover" fill="#000000" name="引き渡し数" />
               </BarChart>
             </ResponsiveContainer>
+            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '2px solid #e5e7eb', display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Q1 (8-10月)</div>
+                <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
+                  {monthlyStats.slice(0, 3).reduce((sum, s) => sum + s.handover, 0)}棟
+                </div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Q2 (11-1月)</div>
+                <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
+                  {monthlyStats.slice(3, 6).reduce((sum, s) => sum + s.handover, 0)}棟
+                </div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Q3 (2-4月)</div>
+                <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
+                  {monthlyStats.slice(6, 9).reduce((sum, s) => sum + s.handover, 0)}棟
+                </div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Q4 (5-7月)</div>
+                <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
+                  {monthlyStats.slice(9, 12).reduce((sum, s) => sum + s.handover, 0)}棟
+                </div>
+              </div>
+              <div style={{ textAlign: 'center', width: '100%', paddingTop: '8px', borderTop: '1px solid #d1d5db' }}>
+                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>年度累計</div>
+                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                  {monthlyStats.reduce((sum, s) => sum + s.handover, 0)}棟
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* 入金予定・実績 */}
@@ -513,6 +625,32 @@ export default function NewDashboard() {
                 <Bar dataKey="actualPayment" fill="#dc2626" name="実績（税込）" />
               </BarChart>
             </ResponsiveContainer>
+            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '2px solid #e5e7eb', display: 'flex', gap: '24px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>年度累計（予定）</div>
+                <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#2563eb' }}>
+                  {monthlyStats.reduce((sum, s) => sum + s.scheduledPayment, 0).toLocaleString()}円
+                </div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>年度累計（実績）</div>
+                <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#dc2626' }}>
+                  {monthlyStats.reduce((sum, s) => sum + s.actualPayment, 0).toLocaleString()}円
+                </div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>当月（予定）</div>
+                <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#2563eb' }}>
+                  {monthlyStats.length > 0 ? monthlyStats[monthlyStats.length - 1].scheduledPayment.toLocaleString() : '0'}円
+                </div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>当月（実績）</div>
+                <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#dc2626' }}>
+                  {monthlyStats.length > 0 ? monthlyStats[monthlyStats.length - 1].actualPayment.toLocaleString() : '0'}円
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* 粗利益高 */}
@@ -528,6 +666,20 @@ export default function NewDashboard() {
                 <Bar dataKey="grossProfit" fill="#000000" name="粗利益高" />
               </BarChart>
             </ResponsiveContainer>
+            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '2px solid #e5e7eb', display: 'flex', gap: '24px', justifyContent: 'center' }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>年度累計</div>
+                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                  {monthlyStats.reduce((sum, s) => sum + s.grossProfit, 0).toLocaleString()}円
+                </div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>当月</div>
+                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                  {monthlyStats.length > 0 ? monthlyStats[monthlyStats.length - 1].grossProfit.toLocaleString() : '0'}円
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -571,13 +723,13 @@ export default function NewDashboard() {
 
               <div>
                 <label className="block text-base font-medium text-gray-700 mb-1">
-                  目標棟数
+                  目標完工棟数
                 </label>
                 <input
                   type="number"
                   value={editTargetUnits}
                   onChange={(e) => setEditTargetUnits(e.target.value)}
-                  placeholder="例: 50"
+                  placeholder="例: 250"
                   className="input-canva w-full"
                 />
               </div>
@@ -587,13 +739,13 @@ export default function NewDashboard() {
             <div className="modal-canva-footer">
               <button
                 onClick={() => setShowSettingsModal(false)}
-                className="btn-canva-outline flex-1"
+                className="prisma-btn prisma-btn-secondary flex-1"
               >
                 キャンセル
               </button>
               <button
                 onClick={saveTargets}
-                className="btn-canva-primary flex-1"
+                className="prisma-btn prisma-btn-primary flex-1"
               >
                 保存
               </button>

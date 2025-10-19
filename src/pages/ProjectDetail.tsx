@@ -1358,178 +1358,191 @@ export default function ProjectDetail() {
 
         {/* タスク詳細モーダル */}
         {showDetailModal && selectedTask && (
-          <div className="modal-overlay">
-            <div className="bg-white rounded-lg shadow-2xl p-6 w-full max-w-4xl max-h-[95vh] overflow-y-auto border-2 border-gray-300">
-              <div className="flex items-center justify-between mb-4 pb-3 border-b-2 border-blue-300">
-                <h2 className="text-2xl font-bold text-gray-900">{selectedTask.title}</h2>
-                <button
-                  onClick={() => {
-                    setSelectedTask(null)
-                    setShowDetailModal(false)
-                    setEditingDueDate(false)
-                  }}
-                  className="text-gray-500 hover:text-gray-700 text-3xl leading-none"
-                >
-                  ×
-                </button>
-              </div>
-
-              {/* ステータス変更ボタン */}
-              <div className="mb-6">
-                <h3 className="text-lg font-bold text-gray-800 mb-3">ステータス</h3>
-                <div className="grid grid-cols-4 gap-3">
+          <div className="prisma-modal-overlay">
+            <div className="prisma-modal" style={{ maxWidth: '800px' }}>
+              {/* ヘッダー */}
+              <div className="prisma-modal-header">
+                <div className="flex items-center justify-between">
+                  <h2 className="prisma-modal-title">{selectedTask.title}</h2>
                   <button
-                    onClick={() => handleUpdateTaskStatus(selectedTask.id, 'not_started')}
-                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all duration-200 border-2 ${
-                      selectedTask.status === 'not_started'
-                        ? 'bg-gray-500 text-white shadow-lg border-gray-700'
-                        : 'bg-white text-gray-900 hover:bg-gray-50 border-gray-400'
-                    }`}
+                    onClick={() => {
+                      setSelectedTask(null)
+                      setShowDetailModal(false)
+                      setEditingDueDate(false)
+                    }}
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
                   >
-                    ⚫ 未着手
-                  </button>
-                  <button
-                    onClick={() => handleUpdateTaskStatus(selectedTask.id, 'requested')}
-                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all duration-200 border-2 ${
-                      selectedTask.status === 'requested'
-                        ? 'bg-yellow-400 text-gray-900 shadow-lg border-yellow-600'
-                        : 'bg-white text-yellow-900 hover:bg-yellow-50 border-yellow-400'
-                    }`}
-                  >
-                    🟡 着手中
-                  </button>
-                  <button
-                    onClick={() => handleUpdateTaskStatus(selectedTask.id, 'delayed')}
-                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all duration-200 border-2 ${
-                      selectedTask.status === 'delayed'
-                        ? 'bg-red-500 text-white shadow-lg border-red-700'
-                        : 'bg-white text-red-900 hover:bg-red-50 border-red-400'
-                    }`}
-                  >
-                    🔴 遅延
-                  </button>
-                  <button
-                    onClick={() => handleUpdateTaskStatus(selectedTask.id, 'completed')}
-                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all duration-200 border-2 ${
-                      selectedTask.status === 'completed'
-                        ? 'bg-blue-500 text-white shadow-lg border-blue-700'
-                        : 'bg-white text-blue-900 hover:bg-blue-50 border-blue-400'
-                    }`}
-                  >
-                    🔵 完了
+                    <X size={20} />
                   </button>
                 </div>
               </div>
 
-              {/* 期限日カード */}
-              <div className="mb-6">
-                <div
-                  onClick={() => setEditingDueDate(true)}
-                  className="bg-gradient-to-br from-blue-100 to-blue-200 p-6 border-2 border-blue-500 shadow-md hover:shadow-lg transition-all cursor-pointer rounded-lg"
-                >
-                  <div className="text-center">
-                    <div className="text-base font-bold text-blue-900 mb-2">期限日</div>
-                    {editingDueDate ? (
-                      <input
-                        type="date"
-                        value={selectedTask.due_date || ''}
-                        onChange={(e) => handleUpdateDueDate(e.target.value)}
-                        onBlur={() => setEditingDueDate(false)}
-                        autoFocus
-                        className="w-full text-center text-lg font-bold border-2 border-blue-500 rounded p-2"
-                      />
-                    ) : (
-                      <>
-                        <div className="text-2xl font-black text-blue-900">
-                          {selectedTask.due_date ? format(new Date(selectedTask.due_date), 'yyyy/MM/dd (E)', { locale: ja }) : '未設定'}
-                        </div>
-                        <div className="text-base text-blue-700 mt-2">
-                          契約日から {selectedTask.dayFromContract || 0}日目
-                        </div>
-                      </>
-                    )}
+              {/* コンテンツ */}
+              <div className="prisma-modal-content space-y-4">
+                {/* ステータス変更ボタン */}
+                <div>
+                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                    ステータス
+                  </label>
+                  <div className="grid grid-cols-4 gap-2">
+                    <button
+                      onClick={() => handleUpdateTaskStatus(selectedTask.id, 'not_started')}
+                      className={`px-3 py-2 rounded-lg font-bold text-sm transition-all ${
+                        selectedTask.status === 'not_started'
+                          ? 'task-not-started'
+                          : 'bg-white text-gray-900 hover:bg-gray-50 border-2 border-gray-300'
+                      }`}
+                    >
+                      未着手
+                    </button>
+                    <button
+                      onClick={() => handleUpdateTaskStatus(selectedTask.id, 'requested')}
+                      className={`px-3 py-2 rounded-lg font-bold text-sm transition-all ${
+                        selectedTask.status === 'requested'
+                          ? 'task-in-progress'
+                          : 'bg-white text-yellow-900 hover:bg-yellow-50 border-2 border-yellow-300'
+                      }`}
+                    >
+                      着手中
+                    </button>
+                    <button
+                      onClick={() => handleUpdateTaskStatus(selectedTask.id, 'delayed')}
+                      className={`px-3 py-2 rounded-lg font-bold text-sm transition-all ${
+                        selectedTask.status === 'delayed'
+                          ? 'task-delayed'
+                          : 'bg-white text-red-900 hover:bg-red-50 border-2 border-red-300'
+                      }`}
+                    >
+                      遅延
+                    </button>
+                    <button
+                      onClick={() => handleUpdateTaskStatus(selectedTask.id, 'completed')}
+                      className={`px-3 py-2 rounded-lg font-bold text-sm transition-all ${
+                        selectedTask.status === 'completed'
+                          ? 'task-completed'
+                          : 'bg-white text-blue-900 hover:bg-blue-50 border-2 border-blue-300'
+                      }`}
+                    >
+                      完了
+                    </button>
                   </div>
                 </div>
-              </div>
 
-              {/* マニュアル・動画カード */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-gradient-to-br from-purple-100 to-purple-200 p-6 border-2 border-purple-500 shadow-md rounded-lg">
-                  <div className="text-center">
-                    <div className="text-base font-bold text-purple-900 mb-3">マニュアル</div>
+                {/* 期限日 */}
+                <div>
+                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                    期限日
+                  </label>
+                  {editingDueDate ? (
+                    <input
+                      type="date"
+                      value={selectedTask.due_date || ''}
+                      onChange={(e) => handleUpdateDueDate(e.target.value)}
+                      onBlur={() => setEditingDueDate(false)}
+                      autoFocus
+                      className="prisma-input"
+                    />
+                  ) : (
+                    <div
+                      onClick={() => setEditingDueDate(true)}
+                      className="prisma-input cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
+                    >
+                      <div className="font-medium text-gray-900">
+                        {selectedTask.due_date ? format(new Date(selectedTask.due_date), 'yyyy年MM月dd日 (E)', { locale: ja }) : '未設定'}
+                      </div>
+                      <div className="text-sm text-gray-600 mt-1">
+                        契約日から {selectedTask.dayFromContract || 0}日目
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* 作業内容 */}
+                {selectedTask.description && (
+                  <div>
+                    <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                      作業内容
+                    </label>
+                    <div className="prisma-textarea bg-gray-50" style={{ minHeight: '80px' }}>
+                      {selectedTask.description}
+                    </div>
+                  </div>
+                )}
+
+                {/* Do's & Don'ts */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {selectedTask.dos && (
+                    <div>
+                      <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                        Do's（推奨事項）
+                      </label>
+                      <div className="prisma-textarea bg-gray-50 whitespace-pre-wrap" style={{ minHeight: '120px', maxHeight: '200px', overflowY: 'auto' }}>
+                        {selectedTask.dos}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedTask.donts && (
+                    <div>
+                      <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                        Don'ts（禁止事項）
+                      </label>
+                      <div className="prisma-textarea bg-gray-50 whitespace-pre-wrap" style={{ minHeight: '120px', maxHeight: '200px', overflowY: 'auto' }}>
+                        {selectedTask.donts}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* マニュアル・動画 */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                      マニュアル
+                    </label>
                     {selectedTask.manual_url ? (
                       <a
                         href={selectedTask.manual_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-block px-6 py-2 bg-purple-600 text-white hover:bg-purple-700 transition-all font-bold text-base shadow-md rounded-lg"
+                        className="prisma-btn prisma-btn-secondary w-full"
                       >
                         開く
                       </a>
                     ) : (
-                      <div className="text-gray-500 text-base">未設定</div>
+                      <div className="text-gray-500 text-sm">未設定</div>
                     )}
                   </div>
-                </div>
 
-                <div className="bg-gradient-to-br from-pink-100 to-pink-200 p-6 border-2 border-pink-500 shadow-md rounded-lg">
-                  <div className="text-center">
-                    <div className="text-base font-bold text-pink-900 mb-3">動画</div>
+                  <div>
+                    <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                      動画
+                    </label>
                     {selectedTask.video_url ? (
                       <a
                         href={selectedTask.video_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-block px-6 py-2 bg-pink-600 text-white hover:bg-pink-700 transition-all font-bold text-base shadow-md rounded-lg"
+                        className="prisma-btn prisma-btn-secondary w-full"
                       >
                         再生
                       </a>
                     ) : (
-                      <div className="text-gray-500 text-base">未設定</div>
+                      <div className="text-gray-500 text-sm">未設定</div>
                     )}
                   </div>
                 </div>
               </div>
 
-              {/* 作業内容 */}
-              <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-6 border-2 border-blue-300 shadow-md mb-6">
-                <div className="mb-3">
-                  <span className="text-lg font-bold text-blue-900">作業内容</span>
-                </div>
-                <div className="text-base leading-relaxed text-gray-800 bg-white p-4 rounded-lg border border-gray-300">
-                  {selectedTask.description || 'なし'}
-                </div>
-              </div>
-
-              {/* Do's & Don'ts */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-                <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-6 border-2 border-green-400 shadow-md">
-                  <div className="mb-3">
-                    <span className="text-lg font-bold text-green-900">Do's (推奨事項)</span>
-                  </div>
-                  <div className="text-base leading-relaxed text-gray-800 whitespace-pre-wrap bg-white p-4 rounded-lg max-h-48 overflow-y-auto border border-gray-300">
-                    {selectedTask.dos || '設定されていません'}
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-r from-red-50 to-red-100 rounded-lg p-6 border-2 border-red-400 shadow-md">
-                  <div className="mb-3">
-                    <span className="text-lg font-bold text-red-900">Don'ts (禁止事項)</span>
-                  </div>
-                  <div className="text-base leading-relaxed text-gray-800 whitespace-pre-wrap bg-white p-4 rounded-lg max-h-48 overflow-y-auto border border-gray-300">
-                    {selectedTask.donts || '設定されていません'}
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t-2 border-gray-300">
+              {/* フッター */}
+              <div className="prisma-modal-footer">
                 <button
                   onClick={() => {
                     setSelectedTask(null)
                     setShowDetailModal(false)
                     setEditingDueDate(false)
                   }}
-                  className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-bold text-lg shadow-md border-2 border-blue-700"
+                  className="prisma-btn prisma-btn-secondary"
                 >
                   閉じる
                 </button>

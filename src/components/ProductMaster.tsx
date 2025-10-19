@@ -4,10 +4,13 @@ import { supabase } from '../lib/supabase'
 import { Product } from '../types/database'
 import { Plus, Edit2, Trash2, X, ArrowLeft } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
+import { useSettings } from '../contexts/SettingsContext'
+import { generateDemoProducts } from '../utils/demoData'
 
 export default function ProductMaster() {
   const navigate = useNavigate()
   const toast = useToast()
+  const { demoMode } = useSettings()
   const [products, setProducts] = useState<Product[]>([])
   const [showModal, setShowModal] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
@@ -19,9 +22,16 @@ export default function ProductMaster() {
 
   useEffect(() => {
     loadProducts()
-  }, [])
+  }, [demoMode])
 
   const loadProducts = async () => {
+    if (demoMode) {
+      // デモモード：サンプルデータを使用
+      setProducts(generateDemoProducts())
+      return
+    }
+
+    // 通常モード：Supabaseからデータを取得
     const { data, error } = await supabase
       .from('products')
       .select('*')
@@ -68,8 +78,35 @@ export default function ProductMaster() {
     }
 
     try {
+      if (demoMode) {
+        // デモモード：ローカルステートのみ更新
+        if (editingProduct) {
+          setProducts(prevProducts =>
+            prevProducts.map(p =>
+              p.id === editingProduct.id
+                ? { ...p, name: formData.name, code: formData.code || undefined, description: formData.description || undefined, updated_at: new Date().toISOString() }
+                : p
+            )
+          )
+          toast.success('商品を更新しました（デモモード）')
+        } else {
+          const newProduct: Product = {
+            id: `demo-product-${Date.now()}`,
+            name: formData.name,
+            code: formData.code || undefined,
+            description: formData.description || undefined,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+          setProducts(prevProducts => [...prevProducts, newProduct])
+          toast.success('商品を追加しました（デモモード）')
+        }
+        handleCloseModal()
+        return
+      }
+
+      // 通常モード：Supabaseを更新
       if (editingProduct) {
-        // 更新
         const { error } = await supabase
           .from('products')
           .update({
@@ -83,7 +120,6 @@ export default function ProductMaster() {
         if (error) throw error
         toast.success('商品を更新しました')
       } else {
-        // 新規作成
         const { error } = await supabase
           .from('products')
           .insert({
@@ -110,6 +146,14 @@ export default function ProductMaster() {
     }
 
     try {
+      if (demoMode) {
+        // デモモード：ローカルステートのみ更新
+        setProducts(prevProducts => prevProducts.filter(p => p.id !== product.id))
+        toast.success('商品を削除しました（デモモード）')
+        return
+      }
+
+      // 通常モード：Supabaseを更新
       const { error } = await supabase
         .from('products')
         .delete()

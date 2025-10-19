@@ -192,6 +192,17 @@ body {
   background: var(--border-color-light);
 }
 
+.prisma-btn-danger {
+  background: #FEE2E2;
+  color: #DC2626;
+  border: 1px solid #FCA5A5;
+}
+
+.prisma-btn-danger:hover {
+  background: #FCA5A5;
+  border-color: #DC2626;
+}
+
 .prisma-btn-sm {
   padding: 6px 12px;
   font-size: 13px;

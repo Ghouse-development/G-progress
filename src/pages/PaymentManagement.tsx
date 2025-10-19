@@ -9,6 +9,8 @@ import { supabase } from '../lib/supabase'
 import { Payment, Project } from '../types/database'
 import { useFiscalYear } from '../contexts/FiscalYearContext'
 import { useMode } from '../contexts/ModeContext'
+import { useSettings } from '../contexts/SettingsContext'
+import { generateDemoPayments, generateDemoProjects, generateDemoCustomers } from '../utils/demoData'
 import Papa from 'papaparse'
 import jsPDF from 'jspdf'
 
@@ -23,6 +25,7 @@ interface PaymentRow {
 export default function PaymentManagement() {
   const { selectedYear } = useFiscalYear()
   const { mode } = useMode()
+  const { demoMode } = useSettings()
   const [selectedMonth, setSelectedMonth] = useState<string>(() => {
     const now = new Date()
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
@@ -38,6 +41,44 @@ export default function PaymentManagement() {
   const loadPayments = async () => {
     setLoading(true)
 
+    // デモモードの場合はサンプルデータを使用
+    if (demoMode) {
+      const demoPayments = generateDemoPayments()
+      const demoProjects = generateDemoProjects()
+      const demoCustomers = generateDemoCustomers()
+
+      // 選択した月の支払いをフィルタ
+      const [year, month] = selectedMonth.split('-')
+      const startDate = new Date(`${year}-${month}-01`)
+      const endDate = new Date(`${year}-${month}-31`)
+
+      const filteredPayments = demoPayments
+        .filter(payment => {
+          const scheduledDate = payment.scheduled_date ? new Date(payment.scheduled_date) : null
+          const actualDate = payment.actual_date ? new Date(payment.actual_date) : null
+          return (
+            (scheduledDate && scheduledDate >= startDate && scheduledDate <= endDate) ||
+            (actualDate && actualDate >= startDate && actualDate <= endDate)
+          )
+        })
+        .map(payment => {
+          const project = demoProjects.find(p => p.id === payment.project_id)
+          const customer = project ? demoCustomers.find(c => c.id === project.customer_id) : null
+          return {
+            ...payment,
+            project: project ? {
+              ...project,
+              customer
+            } : null
+          }
+        })
+
+      setPayments(filteredPayments as any)
+      setLoading(false)
+      return
+    }
+
+    // 通常モード：Supabaseからデータを取得
     // 選択した月の支払いを取得（選択した年度のプロジェクトのみ）
     const [year, month] = selectedMonth.split('-')
     const startDate = `${year}-${month}-01`

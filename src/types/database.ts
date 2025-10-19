@@ -133,6 +133,10 @@ export interface Project {
   solar_kw?: number // 太陽光kW数
   battery?: boolean // 蓄電池有無
   ua_value?: number // UA値
+  bels?: boolean // BELS有無
+  primary_energy_1?: number // 一次消費エネルギー①
+  primary_energy_2?: number // 一次消費エネルギー②
+  primary_energy_3?: number // 一次消費エネルギー③
   c_value?: number // C値
   total_floor_area?: number // 延床面積（坪）
   gross_profit?: number // 粗利益（税別）

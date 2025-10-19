@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { Task, Project, Employee } from '../types/database'
+import { Task, Project, Employee, Payment } from '../types/database'
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, isSameMonth, addMonths, subMonths } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { ChevronLeft, ChevronRight, Download, ExternalLink, X } from 'lucide-react'
@@ -12,6 +12,12 @@ import jsPDF from 'jspdf'
 interface TaskWithProject extends Task {
   project?: Project
 }
+
+interface PaymentWithProject extends Payment {
+  project?: Project
+}
+
+type CalendarMode = 'tasks' | 'payments'
 
 // マイルストーンイベントの種類
 const MILESTONE_EVENTS = [
@@ -40,22 +46,34 @@ const getRokuyo = (date: Date): string => {
 export default function Calendar() {
   const navigate = useNavigate()
   const [currentMonth, setCurrentMonth] = useState(new Date(2024, 7, 1)) // 2024年8月から表示
+  const [calendarMode, setCalendarMode] = useState<CalendarMode>('tasks')
   const [tasks, setTasks] = useState<TaskWithProject[]>([])
+  const [payments, setPayments] = useState<PaymentWithProject[]>([])
   const [currentUser, setCurrentUser] = useState<Employee | null>(null)
   const [loading, setLoading] = useState(true)
   const [draggedTask, setDraggedTask] = useState<TaskWithProject | null>(null)
   const [selectedTask, setSelectedTask] = useState<TaskWithProject | null>(null)
+  const [selectedPayment, setSelectedPayment] = useState<PaymentWithProject | null>(null)
   const [showTaskModal, setShowTaskModal] = useState(false)
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
   const { showToast } = useToast()
 
   useEffect(() => {
     loadCurrentUser()
-    loadTasks() // 初回ロード時にタスクも取得
+    if (calendarMode === 'tasks') {
+      loadTasks()
+    } else {
+      loadPayments()
+    }
   }, [])
 
   useEffect(() => {
-    loadTasks() // 月が変更されたらタスクを再取得
-  }, [currentMonth])
+    if (calendarMode === 'tasks') {
+      loadTasks()
+    } else {
+      loadPayments()
+    }
+  }, [currentMonth, calendarMode])
 
   const loadCurrentUser = async () => {
     // 開発モード: localStorageまたはデフォルトユーザーIDを使用
@@ -121,6 +139,39 @@ export default function Calendar() {
     }
   }
 
+  const loadPayments = async () => {
+    const start = startOfMonth(currentMonth)
+    const end = endOfMonth(currentMonth)
+
+    console.log(`カレンダー: ${format(start, 'yyyy-MM-dd')} ～ ${format(end, 'yyyy-MM-dd')} の範囲で入金を取得します`)
+
+    // 入金を取得（プロジェクトと顧客情報も含む）
+    const { data: paymentsData, error } = await supabase
+      .from('payments')
+      .select(`
+        *,
+        project:projects(
+          *,
+          customer:customers(*)
+        )
+      `)
+      .or(`scheduled_date.gte.${format(start, 'yyyy-MM-dd')},actual_date.gte.${format(start, 'yyyy-MM-dd')}`)
+      .or(`scheduled_date.lte.${format(end, 'yyyy-MM-dd')},actual_date.lte.${format(end, 'yyyy-MM-dd')}`)
+
+    if (error) {
+      console.error('カレンダー: 入金の取得に失敗:', error)
+      return
+    }
+
+    console.log(`カレンダー: ${paymentsData?.length || 0}件の入金を取得しました`, paymentsData)
+
+    if (paymentsData) {
+      setPayments(paymentsData as PaymentWithProject[])
+    } else {
+      setPayments([])
+    }
+  }
+
   const getCalendarDays = () => {
     const monthStart = startOfMonth(currentMonth)
     const monthEnd = endOfMonth(currentMonth)
@@ -134,6 +185,14 @@ export default function Calendar() {
     return tasks.filter(task =>
       task.due_date && isSameDay(new Date(task.due_date), day)
     ).slice(0, 3) // 最大3件（1画面に収めるため）
+  }
+
+  const getPaymentsForDay = (day: Date) => {
+    return payments.filter(payment => {
+      const scheduledMatch = payment.scheduled_date && isSameDay(new Date(payment.scheduled_date), day)
+      const actualMatch = payment.actual_date && isSameDay(new Date(payment.actual_date), day)
+      return scheduledMatch || actualMatch
+    }).slice(0, 3) // 最大3件（1画面に収めるため）
   }
 
   const previousMonth = () => {
@@ -327,29 +386,53 @@ export default function Calendar() {
     <div className="h-full w-full flex flex-col overflow-hidden" style={{ margin: '-24px' }}>
       <div className="w-full h-full flex flex-col px-4 py-3">
         {/* ヘッダー */}
-        <div className="card-canva mb-3 flex-shrink-0">
+        <div className="prisma-card mb-3 flex-shrink-0">
           <div className="flex items-center justify-between mb-3">
-            <h1 className="text-2xl font-bold text-canva-purple">カレンダー</h1>
+            <h1 className="text-xl lg:text-2xl font-bold text-canva-purple">カレンダー</h1>
             <div className="flex items-center gap-2">
               <button
                 onClick={exportToCSV}
-                className="px-3 py-2 bg-white border text-sm hover:bg-gray-50"
+                className="px-2 py-1 lg:px-3 lg:py-2 bg-white border text-xs lg:text-sm hover:bg-gray-50"
               >
                 CSV出力
               </button>
               <button
                 onClick={exportToPDF}
-                className="px-3 py-2 bg-white border text-sm hover:bg-gray-50"
+                className="px-2 py-1 lg:px-3 lg:py-2 bg-white border text-xs lg:text-sm hover:bg-gray-50"
               >
                 PDF出力
               </button>
               <button
                 onClick={exportToICal}
-                className="px-3 py-2 bg-white border text-sm hover:bg-gray-50"
+                className="px-2 py-1 lg:px-3 lg:py-2 bg-white border text-xs lg:text-sm hover:bg-gray-50"
               >
                 iCal出力
               </button>
             </div>
+          </div>
+
+          {/* モード切替 */}
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <button
+              onClick={() => setCalendarMode('tasks')}
+              className={`px-4 py-2 text-sm lg:text-base font-bold border-2 transition-colors ${
+                calendarMode === 'tasks'
+                  ? 'bg-canva-purple text-white border-canva-purple'
+                  : 'bg-white text-canva-purple border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              通常カレンダー
+            </button>
+            <button
+              onClick={() => setCalendarMode('payments')}
+              className={`px-4 py-2 text-sm lg:text-base font-bold border-2 transition-colors ${
+                calendarMode === 'payments'
+                  ? 'bg-canva-green text-white border-canva-green'
+                  : 'bg-white text-canva-green border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              入金カレンダー
+            </button>
           </div>
 
           <div className="flex items-center justify-center gap-4">
@@ -357,10 +440,11 @@ export default function Calendar() {
               onClick={previousMonth}
               className="p-2 rounded-full hover:bg-canva-purple-light hover:text-white transition"
             >
-              <ChevronLeft size={24} />
+              <ChevronLeft size={20} className="lg:hidden" />
+              <ChevronLeft size={24} className="hidden lg:block" />
             </button>
 
-            <h2 className="text-3xl font-black text-canva-purple min-w-60 text-center">
+            <h2 className="text-2xl lg:text-3xl font-black text-canva-purple min-w-48 lg:min-w-60 text-center">
               {format(currentMonth, 'yyyy年 M月', { locale: ja })}
             </h2>
 
@@ -368,7 +452,8 @@ export default function Calendar() {
               onClick={nextMonth}
               className="p-2 rounded-full hover:bg-canva-purple-light hover:text-white transition"
             >
-              <ChevronRight size={24} />
+              <ChevronRight size={20} className="lg:hidden" />
+              <ChevronRight size={24} className="hidden lg:block" />
             </button>
           </div>
         </div>
@@ -379,7 +464,7 @@ export default function Calendar() {
             {weekdays.map((day, index) => (
               <div
                 key={day}
-                className={`p-2 text-center text-lg font-bold border-r border-gray-100 ${
+                className={`p-1 lg:p-2 text-center text-sm lg:text-lg font-bold border-r border-gray-100 ${
                   index === 5 ? 'text-blue-700 bg-blue-50' : // 土曜
                   index === 6 ? 'text-red-700 bg-red-50' : // 日曜
                   'text-gray-900 bg-gray-100'
@@ -399,7 +484,8 @@ export default function Calendar() {
           {/* カレンダーグリッド：全ての日を1つのグリッドに配置 */}
           <div className="calendar-grid flex-1" style={{ minHeight: 0 }}>
             {days.map(day => {
-              const dayTasks = getTasksForDay(day)
+              const dayTasks = calendarMode === 'tasks' ? getTasksForDay(day) : []
+              const dayPayments = calendarMode === 'payments' ? getPaymentsForDay(day) : []
               const isToday = isSameDay(day, new Date())
               const isCurrentMonth = isSameMonth(day, currentMonth)
               const dayOfWeek = day.getDay() // 日曜=0, 月曜=1, ..., 土曜=6
@@ -419,8 +505,8 @@ export default function Calendar() {
                   onDrop={() => handleDrop(day)}
                 >
                   <div className="flex items-start justify-between mb-1">
-                    <div className={`date text-3xl font-black ${
-                      isToday ? 'bg-blue-500 text-white rounded-full w-16 h-16 flex items-center justify-center' :
+                    <div className={`date text-xl lg:text-3xl font-black ${
+                      isToday ? 'bg-blue-500 text-white rounded-full w-10 h-10 lg:w-16 lg:h-16 flex items-center justify-center' :
                       !isCurrentMonth ? 'text-gray-400' :
                       dayOfWeek === 0 ? 'text-red-600' :
                       dayOfWeek === 6 ? 'text-blue-600' :
@@ -428,7 +514,7 @@ export default function Calendar() {
                     }`}>
                       {format(day, 'd')}
                     </div>
-                    <div className={`text-base font-semibold ${
+                    <div className={`text-xs lg:text-base font-semibold ${
                       rokuyo === '大安' ? 'text-red-600' :
                       rokuyo === '仏滅' ? 'text-gray-600' :
                       'text-gray-500'
@@ -438,7 +524,8 @@ export default function Calendar() {
                   </div>
 
                   <div className="events">
-                    {dayTasks.map((task) => {
+                    {/* タスクモードの表示 */}
+                    {calendarMode === 'tasks' && dayTasks.map((task) => {
                       const isMilestone = MILESTONE_EVENTS.some(event => task.title.includes(event))
                       return (
                         <div
@@ -450,7 +537,7 @@ export default function Calendar() {
                             setSelectedTask(task)
                             setShowTaskModal(true)
                           }}
-                          className={`text-base px-2 py-1 rounded truncate cursor-pointer ${
+                          className={`text-sm lg:text-base px-2 py-1.5 rounded truncate cursor-pointer mb-1 ${
                             isMilestone ? 'bg-red-600 text-white font-bold shadow-lg hover:bg-red-700' :
                             task.status === 'completed' ? 'bg-blue-200 text-blue-900 font-semibold hover:bg-blue-300' :
                             task.status === 'requested' ? 'bg-yellow-200 text-yellow-900 font-semibold hover:bg-yellow-300' :
@@ -458,17 +545,60 @@ export default function Calendar() {
                           }`}
                           title={`${task.title}${task.project?.customer?.names ? ' - ' + task.project.customer.names.join('・') + '様' : ''}`}
                         >
-                          {task.project?.customer?.names ? `【${task.project.customer.names.join('・')}様】` : ''}{task.title}
+                          <div className="font-semibold">{task.project?.customer?.names ? `【${task.project.customer.names.join('・')}様】` : ''}</div>
+                          <div>{task.title}</div>
                         </div>
                       )
                     })}
-                    {tasks.filter(task =>
+                    {calendarMode === 'tasks' && tasks.filter(task =>
                       task.due_date && isSameDay(new Date(task.due_date), day)
                     ).length > 3 && (
-                      <div className="text-base text-gray-600 font-semibold">
+                      <div className="text-sm lg:text-base text-gray-600 font-semibold">
                         +{tasks.filter(task =>
                           task.due_date && isSameDay(new Date(task.due_date), day)
                         ).length - 3}件
+                      </div>
+                    )}
+
+                    {/* 入金モードの表示 */}
+                    {calendarMode === 'payments' && dayPayments.map((payment) => {
+                      const isScheduled = payment.scheduled_date && isSameDay(new Date(payment.scheduled_date), day)
+                      const isActual = payment.actual_date && isSameDay(new Date(payment.actual_date), day)
+                      const amount = isActual ? payment.actual_amount : payment.scheduled_amount
+                      return (
+                        <div
+                          key={payment.id}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSelectedPayment(payment)
+                            setShowPaymentModal(true)
+                          }}
+                          className={`text-xs lg:text-sm px-1 lg:px-2 py-1 rounded cursor-pointer mb-1 ${
+                            isActual
+                              ? 'bg-green-200 text-green-900 font-bold hover:bg-green-300 border border-green-400'
+                              : 'bg-yellow-100 text-yellow-900 font-semibold hover:bg-yellow-200 border border-yellow-300'
+                          }`}
+                          title={`${payment.project?.customer?.names ? payment.project.customer.names.join('・') + '様 - ' : ''}${payment.payment_type} ${amount?.toLocaleString()}円`}
+                        >
+                          <div className="truncate">
+                            {payment.project?.customer?.names ? `【${payment.project.customer.names.join('・')}様】` : ''}
+                          </div>
+                          <div className="font-bold">{payment.payment_type}</div>
+                          <div className="text-xs">{amount?.toLocaleString()}円</div>
+                        </div>
+                      )
+                    })}
+                    {calendarMode === 'payments' && payments.filter(payment => {
+                      const scheduledMatch = payment.scheduled_date && isSameDay(new Date(payment.scheduled_date), day)
+                      const actualMatch = payment.actual_date && isSameDay(new Date(payment.actual_date), day)
+                      return scheduledMatch || actualMatch
+                    }).length > 3 && (
+                      <div className="text-xs lg:text-base text-gray-600 font-semibold">
+                        +{payments.filter(payment => {
+                          const scheduledMatch = payment.scheduled_date && isSameDay(new Date(payment.scheduled_date), day)
+                          const actualMatch = payment.actual_date && isSameDay(new Date(payment.actual_date), day)
+                          return scheduledMatch || actualMatch
+                        }).length - 3}件
                       </div>
                     )}
                   </div>
@@ -480,96 +610,112 @@ export default function Calendar() {
         </div>
 
         {/* 凡例 */}
-        <div className="card-canva mt-2 flex-shrink-0 py-2">
-          <div className="flex items-center justify-center gap-4 text-base">
-            <span className="font-bold text-canva-purple">凡例:</span>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-red-600 rounded"></div>
-              <span>マイルストーン</span>
+        <div className="prisma-card mt-2 flex-shrink-0 py-2">
+          {calendarMode === 'tasks' ? (
+            <div className="flex items-center justify-center gap-2 lg:gap-4 text-xs lg:text-base flex-wrap">
+              <span className="font-bold text-canva-purple">凡例:</span>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 bg-red-600 rounded"></div>
+                <span>マイルストーン</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 bg-blue-200 border border-blue-300 rounded"></div>
+                <span>完了</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 bg-yellow-200 border border-yellow-300 rounded"></div>
+                <span>着手中</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 bg-gray-200 border border-gray-300 rounded"></div>
+                <span>未着手</span>
+              </div>
             </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-blue-200 border border-blue-300 rounded"></div>
-              <span>完了</span>
+          ) : (
+            <div className="flex items-center justify-center gap-2 lg:gap-4 text-xs lg:text-base flex-wrap">
+              <span className="font-bold text-canva-green">凡例:</span>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 bg-green-200 border border-green-400 rounded"></div>
+                <span>入金実績</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 bg-yellow-100 border border-yellow-300 rounded"></div>
+                <span>入金予定</span>
+              </div>
             </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-yellow-200 border border-yellow-300 rounded"></div>
-              <span>着手中</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-gray-200 border border-gray-300 rounded"></div>
-              <span>未着手</span>
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
       {/* タスク詳細モーダル */}
       {showTaskModal && selectedTask && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="modal-canva w-full max-w-2xl">
+        <div className="prisma-modal-overlay">
+          <div className="prisma-modal" style={{ maxWidth: '800px' }}>
             {/* ヘッダー */}
-            <div className="modal-canva-header flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold">{selectedTask.title}</h2>
-                {selectedTask.project?.customer?.names && (
-                  <p className="text-base text-white opacity-90 mt-1">
-                    {selectedTask.project.customer.names.join('・')}様邸
-                  </p>
-                )}
+            <div className="prisma-modal-header">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="prisma-modal-title">{selectedTask.title}</h2>
+                  {selectedTask.project?.customer?.names && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      {selectedTask.project.customer.names.join('・')}様邸
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={() => {
+                    setSelectedTask(null)
+                    setShowTaskModal(false)
+                  }}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                >
+                  <X size={20} />
+                </button>
               </div>
-              <button
-                onClick={() => {
-                  setSelectedTask(null)
-                  setShowTaskModal(false)
-                }}
-                className="text-white hover:text-gray-200 transition-colors"
-              >
-                <X size={24} />
-              </button>
             </div>
 
             {/* コンテンツ */}
-            <div className="modal-canva-content space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+            <div className="prisma-modal-content space-y-4">
               {/* ステータス変更ボタン */}
               <div>
-                <label className="block text-base font-medium text-gray-700 mb-2">ステータス</label>
+                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">ステータス</label>
                 <div className="grid grid-cols-4 gap-2">
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'not_started')}
-                    className={`px-3 py-2 rounded-lg font-bold text-base transition-colors border-2 ${
+                    className={`py-2 px-3 rounded text-base font-medium transition-all ${
                       selectedTask.status === 'not_started'
-                        ? 'bg-gray-500 text-white border-gray-700'
-                        : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'
+                        ? 'task-not-started'
+                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-gray-300 dark:border-gray-600 hover:border-red-400'
                     }`}
                   >
                     未着手
                   </button>
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'requested')}
-                    className={`px-3 py-2 rounded-lg font-bold text-base transition-colors border-2 ${
+                    className={`py-2 px-3 rounded text-base font-medium transition-all ${
                       selectedTask.status === 'requested'
-                        ? 'bg-yellow-400 text-gray-900 border-yellow-600'
-                        : 'bg-white text-yellow-700 hover:bg-yellow-50 border-yellow-300'
+                        ? 'task-in-progress'
+                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-gray-300 dark:border-gray-600 hover:border-yellow-400'
                     }`}
                   >
                     着手中
                   </button>
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'delayed')}
-                    className={`px-3 py-2 rounded-lg font-bold text-base transition-colors border-2 ${
+                    className={`py-2 px-3 rounded text-base font-medium transition-all ${
                       selectedTask.status === 'delayed'
-                        ? 'bg-red-500 text-white border-red-700'
-                        : 'bg-white text-red-700 hover:bg-red-50 border-red-300'
+                        ? 'task-delayed'
+                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-gray-300 dark:border-gray-600 hover:border-red-400'
                     }`}
                   >
                     遅延
                   </button>
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'completed')}
-                    className={`px-3 py-2 rounded-lg font-bold text-base transition-colors border-2 ${
+                    className={`py-2 px-3 rounded text-base font-medium transition-all ${
                       selectedTask.status === 'completed'
-                        ? 'bg-blue-500 text-white border-blue-700'
-                        : 'bg-white text-blue-700 hover:bg-blue-50 border-blue-300'
+                        ? 'task-completed'
+                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-gray-300 dark:border-gray-600 hover:border-blue-400'
                     }`}
                   >
                     完了
@@ -579,9 +725,9 @@ export default function Calendar() {
 
               {/* 期限日 */}
               <div>
-                <label className="block text-base font-medium text-gray-700 mb-2">期限日</label>
-                <div className="bg-blue-50 p-3 border-2 border-blue-300 rounded-lg text-center">
-                  <div className="text-lg font-bold text-blue-900">
+                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">期限日</label>
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-3 border-2 border-blue-300 dark:border-blue-700 rounded-lg text-center">
+                  <div className="text-lg font-bold text-blue-900 dark:text-blue-100">
                     {selectedTask.due_date ? format(new Date(selectedTask.due_date), 'yyyy/MM/dd (E)', { locale: ja }) : '未設定'}
                   </div>
                 </div>
@@ -590,8 +736,8 @@ export default function Calendar() {
               {/* 作業内容 */}
               {selectedTask.description && (
                 <div>
-                  <label className="block text-base font-medium text-gray-700 mb-2">作業内容</label>
-                  <div className="bg-gray-50 p-3 border-2 border-gray-300 rounded-lg text-base leading-relaxed text-gray-800">
+                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">作業内容</label>
+                  <div className="bg-gray-50 dark:bg-gray-800 p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg text-base leading-relaxed text-gray-800 dark:text-gray-200">
                     {selectedTask.description}
                   </div>
                 </div>
@@ -602,8 +748,8 @@ export default function Calendar() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                   {selectedTask.dos && (
                     <div>
-                      <label className="block text-base font-medium text-gray-700 mb-2">Do's (推奨事項)</label>
-                      <div className="bg-green-50 p-3 border-2 border-green-300 rounded-lg text-base leading-relaxed text-gray-800 whitespace-pre-wrap max-h-32 overflow-y-auto">
+                      <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">Do's (推奨事項)</label>
+                      <div className="bg-green-50 dark:bg-green-900/20 p-3 border-2 border-green-300 dark:border-green-700 rounded-lg text-base leading-relaxed text-gray-800 dark:text-gray-200 whitespace-pre-wrap max-h-32 overflow-y-auto">
                         {selectedTask.dos}
                       </div>
                     </div>
@@ -611,8 +757,8 @@ export default function Calendar() {
 
                   {selectedTask.donts && (
                     <div>
-                      <label className="block text-base font-medium text-gray-700 mb-2">Don'ts (禁止事項)</label>
-                      <div className="bg-red-50 p-3 border-2 border-red-300 rounded-lg text-base leading-relaxed text-gray-800 whitespace-pre-wrap max-h-32 overflow-y-auto">
+                      <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">Don'ts (禁止事項)</label>
+                      <div className="bg-red-50 dark:bg-red-900/20 p-3 border-2 border-red-300 dark:border-red-700 rounded-lg text-base leading-relaxed text-gray-800 dark:text-gray-200 whitespace-pre-wrap max-h-32 overflow-y-auto">
                         {selectedTask.donts}
                       </div>
                     </div>
@@ -622,13 +768,13 @@ export default function Calendar() {
             </div>
 
             {/* フッター */}
-            <div className="modal-canva-footer">
+            <div className="prisma-modal-footer">
               {selectedTask.project?.id && (
                 <button
                   onClick={() => {
                     navigate(`/projects/${selectedTask.project?.id}`)
                   }}
-                  className="btn-canva-secondary flex-1 flex items-center justify-center gap-2"
+                  className="prisma-btn-secondary flex-1 flex items-center justify-center gap-2"
                 >
                   <ExternalLink size={18} />
                   案件詳細を開く
@@ -639,7 +785,117 @@ export default function Calendar() {
                   setSelectedTask(null)
                   setShowTaskModal(false)
                 }}
-                className="btn-canva-primary flex-1"
+                className="prisma-btn-primary flex-1"
+              >
+                閉じる
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 入金詳細モーダル */}
+      {showPaymentModal && selectedPayment && (
+        <div className="prisma-modal-overlay">
+          <div className="prisma-modal" style={{ maxWidth: '600px' }}>
+            {/* ヘッダー */}
+            <div className="prisma-modal-header">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="prisma-modal-title">入金詳細</h2>
+                  {selectedPayment.project?.customer?.names && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      {selectedPayment.project.customer.names.join('・')}様邸
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={() => {
+                    setSelectedPayment(null)
+                    setShowPaymentModal(false)
+                  }}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            {/* コンテンツ */}
+            <div className="prisma-modal-content space-y-4">
+              {/* 名目 */}
+              <div>
+                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">名目</label>
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-3 border-2 border-blue-300 dark:border-blue-700 rounded-lg text-center">
+                  <div className="text-lg font-bold text-blue-900 dark:text-blue-100">
+                    {selectedPayment.payment_type}
+                  </div>
+                </div>
+              </div>
+
+              {/* 金額情報 */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                {/* 予定 */}
+                <div>
+                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">予定額</label>
+                  <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 border-2 border-yellow-300 dark:border-yellow-700 rounded-lg text-center">
+                    <div className="text-xl font-bold text-yellow-900 dark:text-yellow-100">
+                      {selectedPayment.scheduled_amount?.toLocaleString() || '0'}円
+                    </div>
+                    {selectedPayment.scheduled_date && (
+                      <div className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+                        {format(new Date(selectedPayment.scheduled_date), 'yyyy/MM/dd (E)', { locale: ja })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* 実績 */}
+                <div>
+                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">入金実績</label>
+                  <div className="bg-green-50 dark:bg-green-900/20 p-3 border-2 border-green-300 dark:border-green-700 rounded-lg text-center">
+                    <div className="text-xl font-bold text-green-900 dark:text-green-100">
+                      {selectedPayment.actual_amount?.toLocaleString() || '0'}円
+                    </div>
+                    {selectedPayment.actual_date && (
+                      <div className="text-sm text-green-700 dark:text-green-300 mt-1">
+                        {format(new Date(selectedPayment.actual_date), 'yyyy/MM/dd (E)', { locale: ja })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* 合計金額 */}
+              <div>
+                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">合計金額</label>
+                <div className="bg-gray-100 dark:bg-gray-800 p-3 border-2 border-gray-400 dark:border-gray-600 rounded-lg text-center">
+                  <div className="text-2xl font-black text-gray-900 dark:text-gray-100">
+                    {selectedPayment.amount?.toLocaleString() || '0'}円
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* フッター */}
+            <div className="prisma-modal-footer">
+              {selectedPayment.project?.id && (
+                <button
+                  onClick={() => {
+                    navigate(`/projects/${selectedPayment.project?.id}`)
+                  }}
+                  className="prisma-btn-secondary flex-1 flex items-center justify-center gap-2"
+                >
+                  <ExternalLink size={18} />
+                  案件詳細を開く
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  setSelectedPayment(null)
+                  setShowPaymentModal(false)
+                }}
+                className="prisma-btn-primary flex-1"
               >
                 閉じる
               </button>

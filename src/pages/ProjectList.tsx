@@ -7,8 +7,10 @@ import { ArrowUpDown, Filter, Edit2, Trash2, X, Plus } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
 import { useMode } from '../contexts/ModeContext'
 import { useFiscalYear } from '../contexts/FiscalYearContext'
+import { useSettings } from '../contexts/SettingsContext'
 import { SkeletonTable } from '../components/ui/Skeleton'
 import { generateProjectTasks } from '../utils/taskGenerator'
+import { generateDemoProjects, generateDemoEmployees, generateDemoCustomers, generateDemoTasks } from '../utils/demoData'
 
 interface ProjectWithRelations extends Project {
   customer: Customer
@@ -34,6 +36,7 @@ export default function ProjectList() {
   const toast = useToast()
   const { mode, setMode } = useMode()
   const { selectedYear } = useFiscalYear()
+  const { demoMode } = useSettings()
   const [projects, setProjects] = useState<ProjectWithRelations[]>([])
   const [allTasks, setAllTasks] = useState<Task[]>([])
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
@@ -163,6 +166,12 @@ export default function ProjectList() {
   }
 
   const loadEmployees = async () => {
+    // デモモードの場合はサンプルデータを使用
+    if (demoMode) {
+      setEmployees(generateDemoEmployees())
+      return
+    }
+
     const { data } = await supabase
       .from('employees')
       .select('*')
@@ -177,6 +186,38 @@ export default function ProjectList() {
     try {
       setLoading(true)
 
+      // デモモードの場合はサンプルデータを使用
+      if (demoMode) {
+        const demoProjects = generateDemoProjects()
+        const demoCustomers = generateDemoCustomers()
+        const demoEmployees = generateDemoEmployees()
+        const demoTasks = generateDemoTasks()
+
+        // プロジェクトにリレーションデータを結合
+        const projectsWithRelations: ProjectWithRelations[] = demoProjects.map(project => {
+          const customer = demoCustomers.find(c => c.id === project.customer_id)!
+          const sales = demoEmployees.find(e => e.id === project.assigned_sales)!
+          const design = demoEmployees.find(e => e.id === project.assigned_design)!
+          const construction = demoEmployees.find(e => e.id === project.assigned_construction)!
+          const tasks = demoTasks.filter(t => t.project_id === project.id)
+
+          return {
+            ...project,
+            customer,
+            sales,
+            design,
+            construction,
+            tasks
+          }
+        })
+
+        setProjects(projectsWithRelations)
+        setAllTasks(demoTasks)
+        setLoading(false)
+        return
+      }
+
+      // 通常モード：Supabaseからデータを取得
       // 担当者モードの場合、自分が担当する案件のみ
       let query = supabase
         .from('projects')
@@ -1171,13 +1212,13 @@ export default function ProjectList() {
                   setShowCreateModal(false)
                   resetForm()
                 }}
-                className="btn-canva-outline flex-1"
+                className="prisma-btn prisma-btn-secondary flex-1"
               >
                 キャンセル
               </button>
               <button
                 onClick={handleCreateProject}
-                className="btn-canva-primary flex-1"
+                className="prisma-btn prisma-btn-primary flex-1"
               >
                 作成
               </button>
@@ -1396,13 +1437,13 @@ export default function ProjectList() {
                   setEditingProject(null)
                   resetForm()
                 }}
-                className="btn-canva-outline flex-1"
+                className="prisma-btn prisma-btn-secondary flex-1"
               >
                 キャンセル
               </button>
               <button
                 onClick={handleEditProject}
-                className="btn-canva-primary flex-1"
+                className="prisma-btn prisma-btn-primary flex-1"
               >
                 更新
               </button>
@@ -1433,13 +1474,13 @@ export default function ProjectList() {
                   setShowDeleteDialog(false)
                   setDeletingProjectId(null)
                 }}
-                className="btn-canva-outline flex-1"
+                className="prisma-btn prisma-btn-secondary flex-1"
               >
                 キャンセル
               </button>
               <button
                 onClick={handleDeleteProject}
-                className="btn-canva-danger flex-1"
+                className="prisma-btn prisma-btn-danger flex-1"
               >
                 削除
               </button>
