@@ -105,14 +105,14 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
           <Link to="/" className={`prisma-sidebar-item ${location.pathname === '/' ? 'active' : ''}`}>
             ダッシュボード
           </Link>
+          <Link to="/projects" className={`prisma-sidebar-item ${location.pathname.startsWith('/projects') ? 'active' : ''}`}>
+            案件一覧
+          </Link>
           <Link to="/payments" className={`prisma-sidebar-item ${location.pathname === '/payments' ? 'active' : ''}`}>
             入金管理
           </Link>
           <Link to="/performance" className={`prisma-sidebar-item ${location.pathname === '/performance' ? 'active' : ''}`}>
             性能管理
-          </Link>
-          <Link to="/projects" className={`prisma-sidebar-item ${location.pathname.startsWith('/projects') ? 'active' : ''}`}>
-            案件一覧
           </Link>
           <Link to="/calendar" className={`prisma-sidebar-item ${location.pathname === '/calendar' ? 'active' : ''}`}>
             カレンダー
