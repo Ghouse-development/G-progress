@@ -35,7 +35,18 @@ export type VendorCategory =
 
 export type ProjectStatus = 'post_contract' | 'construction' | 'completed'
 
-export type PaymentType = 'contract' | 'construction_start' | 'roof_raising' | 'final'
+export type PaymentType =
+  | '建築申込金'
+  | '契約金'
+  | '着工金'
+  | '上棟金'
+  | '最終金'
+  | '追加工事金'
+  | '外構'
+  | '土地仲介手数料'
+  | '土地手付金'
+  | '土地残代金'
+  | 'その他'
 
 export type PaymentStatus = 'pending' | 'completed' | 'overdue'
 
@@ -54,9 +65,11 @@ export interface Employee {
   first_name: string
   department: Department
   role: Role
+  branch_id?: string
   avatar_url?: string
   created_at: string
   updated_at: string
+  branch?: Branch
 }
 
 export interface Vendor {
@@ -105,6 +118,7 @@ export interface Project {
   handover_date?: string
   scheduled_end_date?: string
   actual_end_date?: string
+  expected_completion_date?: string
   status: ProjectStatus
   progress_rate: number
   assigned_sales?: string
@@ -112,6 +126,20 @@ export interface Project {
   assigned_construction?: string
   created_at: string
   updated_at: string
+  version?: number // 同時編集対応用バージョン番号
+  // サイドバー設計追加フィールド
+  exclude_from_count?: boolean // 完工予定数カウント除外
+  solar_panel?: boolean // 太陽光有無
+  solar_kw?: number // 太陽光kW数
+  battery?: boolean // 蓄電池有無
+  ua_value?: number // UA値
+  c_value?: number // C値
+  total_floor_area?: number // 延床面積（坪）
+  gross_profit?: number // 粗利益（税別）
+  fiscal_year?: string // 年度（例: "2025"）
+  product_type?: string // 商品種別
+  contract_amount?: number // 契約金額（税込）
+  // リレーション
   customer?: Customer
   product?: Product
   sales?: Employee
@@ -126,6 +154,8 @@ export interface Payment {
   amount: number
   scheduled_date?: string
   actual_date?: string
+  scheduled_amount?: number // 予定額
+  actual_amount?: number // 実績額
   status: PaymentStatus
   created_at: string
   updated_at: string
@@ -143,6 +173,7 @@ export interface Task {
   priority: TaskPriority
   created_at: string
   updated_at: string
+  version?: number // 同時編集対応用バージョン番号
   assigned_employee?: Employee
   dos?: string
   donts?: string
@@ -230,4 +261,20 @@ export interface Comment {
   edited: boolean
   user?: Employee
   replies?: Comment[]
+}
+
+// サイドバー設計追加インターフェース
+export interface Branch {
+  id: string
+  name: string
+  created_at: string
+  updated_at: string
+}
+
+export interface FiscalYear {
+  id: string
+  year: string // 例: "2025"
+  start_date: string // 例: "2025-08-01"
+  end_date: string // 例: "2026-07-31"
+  created_at: string
 }

@@ -315,124 +315,125 @@ export default function EmployeeMaster() {
 
       {/* 従業員追加/編集モーダル */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto border-2 border-black">
-            <div className="p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-xl font-bold text-gray-900">
-                  {editingEmployee ? '従業員編集' : '新規従業員追加'}
-                </h2>
-                <button
-                  onClick={handleCloseModal}
-                  className="p-1 hover:bg-gray-100 rounded transition-colors"
-                >
-                  <X size={20} />
-                </button>
-              </div>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-2xl max-w-md w-full border-2 border-gray-300">
+            {/* ヘッダー */}
+            <div className="flex items-center justify-between px-5 py-4 border-b-2 border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900">
+                {editingEmployee ? '従業員編集' : '新規従業員追加'}
+              </h2>
+              <button
+                onClick={handleCloseModal}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X size={22} />
+              </button>
+            </div>
 
-              <div className="space-y-2.5">
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-0.5">
-                      姓 <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.last_name}
-                      onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                      placeholder="山田"
-                      className="w-full px-2.5 py-1.5 text-base border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-0.5">
-                      名 <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.first_name}
-                      onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                      placeholder="太郎"
-                      className="w-full px-2.5 py-1.5 text-base border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
-
+            {/* コンテンツ */}
+            <div className="px-5 py-4 space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-0.5">
-                    メールアドレス <span className="text-red-500">*</span>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    姓 <span className="text-red-500">*</span>
                   </label>
                   <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="yamada@example.com"
-                    className="w-full px-2.5 py-1.5 text-base border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    type="text"
+                    value={formData.last_name}
+                    onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                    placeholder="山田"
+                    className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-0.5">
-                    部門 <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    value={formData.department}
-                    onChange={(e) => setFormData({ ...formData, department: e.target.value as Department })}
-                    className="w-full px-2.5 py-1.5 text-base border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    {departments.map((dept) => (
-                      <option key={dept} value={dept}>
-                        {dept}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-0.5">
-                    役職 <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    value={formData.role}
-                    onChange={(e) => setFormData({ ...formData, role: e.target.value as Role })}
-                    className="w-full px-2.5 py-1.5 text-base border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="president">社長</option>
-                    <option value="executive">役員</option>
-                    <option value="department_head">部門長</option>
-                    <option value="leader">リーダー</option>
-                    <option value="member">メンバー</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-0.5">
-                    アバターURL
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    名 <span className="text-red-500">*</span>
                   </label>
                   <input
-                    type="url"
-                    value={formData.avatar_url}
-                    onChange={(e) => setFormData({ ...formData, avatar_url: e.target.value })}
-                    placeholder="https://example.com/avatar.jpg"
-                    className="w-full px-2.5 py-1.5 text-base border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    type="text"
+                    value={formData.first_name}
+                    onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                    placeholder="太郎"
+                    className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
 
-              <div className="flex gap-2 mt-4">
-                <button
-                  onClick={handleCloseModal}
-                  className="flex-1 px-3 py-2 text-base border border-gray-300 rounded hover:bg-gray-50 transition-colors font-medium"
-                >
-                  キャンセル
-                </button>
-                <button
-                  onClick={handleSubmit}
-                  className="flex-1 px-3 py-2 text-base bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors font-medium"
-                >
-                  {editingEmployee ? '更新' : '作成'}
-                </button>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  メールアドレス <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder="yamada@example.com"
+                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  部門 <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={formData.department}
+                  onChange={(e) => setFormData({ ...formData, department: e.target.value as Department })}
+                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {departments.map((dept) => (
+                    <option key={dept} value={dept}>
+                      {dept}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  役職 <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={formData.role}
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value as Role })}
+                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="president">社長</option>
+                  <option value="executive">役員</option>
+                  <option value="department_head">部門長</option>
+                  <option value="leader">リーダー</option>
+                  <option value="member">メンバー</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  アバターURL
+                </label>
+                <input
+                  type="url"
+                  value={formData.avatar_url}
+                  onChange={(e) => setFormData({ ...formData, avatar_url: e.target.value })}
+                  placeholder="https://example.com/avatar.jpg"
+                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            {/* フッター */}
+            <div className="flex gap-2 px-5 py-3 border-t-2 border-gray-200 bg-gray-50">
+              <button
+                onClick={handleCloseModal}
+                className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-100 transition-colors font-medium"
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={handleSubmit}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                {editingEmployee ? '更新' : '作成'}
+              </button>
             </div>
           </div>
         </div>

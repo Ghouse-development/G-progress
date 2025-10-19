@@ -3,49 +3,8 @@
 @tailwind utilities;
 
 /* ========================================
-   Canva Design System
+   Simple Monochrome Design
    ======================================== */
-:root {
-  /* Canva Brand Colors */
-  --canva-purple: #7D2AE8;
-  --canva-purple-light: #9D5BF0;
-  --canva-purple-dark: #5E1FB8;
-  --canva-blue: #00C4CC;
-  --canva-blue-light: #33D6DD;
-  --canva-blue-dark: #00A3AA;
-  --canva-pink: #FF5992;
-  --canva-pink-light: #FF7BA8;
-  --canva-pink-dark: #E6356F;
-  --canva-yellow: #FFD97D;
-  --canva-yellow-light: #FFE5A0;
-  --canva-yellow-dark: #FFC857;
-
-  /* Canva Gradients */
-  --canva-gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --canva-gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  --canva-gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  --canva-gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-  --canva-gradient-5: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-
-  /* Canva UI Colors */
-  --canva-bg: #F7F5FF;
-  --canva-bg-light: #FEFCFF;
-  --canva-text: #2D3748;
-  --canva-text-light: #718096;
-  --canva-border: #E2E8F0;
-
-  /* Canva Shadows */
-  --canva-shadow-sm: 0 2px 8px rgba(125, 42, 232, 0.08);
-  --canva-shadow: 0 4px 20px rgba(125, 42, 232, 0.12);
-  --canva-shadow-lg: 0 8px 30px rgba(125, 42, 232, 0.15);
-  --canva-shadow-xl: 0 12px 40px rgba(125, 42, 232, 0.2);
-
-  /* Canva Border Radius */
-  --canva-radius-sm: 8px;
-  --canva-radius: 12px;
-  --canva-radius-lg: 16px;
-  --canva-radius-xl: 20px;
-}
 
 * {
   margin: 0;
@@ -54,11 +13,11 @@
 }
 
 body {
-  font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #F7F5FF 0%, #FEFCFF 100%);
-  color: var(--canva-text);
+  background: #ffffff;
+  color: #1a1a1a;
   min-height: 100vh;
 }
 
@@ -131,13 +90,6 @@ body {
   background-color: #dc2626;
 }
 
-.bg-purple-600 {
-  background-color: #9333ea;
-}
-
-.bg-pink-600 {
-  background-color: #db2777;
-}
 
 .text-gray-600 {
   color: #4b5563;
@@ -196,13 +148,6 @@ body {
   border-color: #e5e7eb;
 }
 
-.rounded-lg {
-  border-radius: 0.5rem;
-}
-
-.rounded-full {
-  border-radius: 9999px;
-}
 
 .p-4 {
   padding: 1rem;
@@ -556,9 +501,6 @@ th, td {
   gap: 0.75rem;
 }
 
-.rounded-md {
-  border-radius: 0.375rem;
-}
 
 .items-start {
   align-items: flex-start;
@@ -647,13 +589,6 @@ th, td {
   color: #15803d;
 }
 
-.text-purple-900 {
-  color: #581c87;
-}
-
-.text-pink-900 {
-  color: #831843;
-}
 
 .border-green-300 {
   border-color: #86efac;
@@ -675,13 +610,6 @@ th, td {
   border-color: #eab308;
 }
 
-.border-purple-400 {
-  border-color: #c084fc;
-}
-
-.border-pink-400 {
-  border-color: #f472b6;
-}
 
 .text-green-800 {
   color: #166534;
@@ -705,10 +633,6 @@ th, td {
 
 .flex-1 {
   flex: 1 1 0%;
-}
-
-.rounded-full {
-  border-radius: 9999px;
 }
 
 .pt-4 {
@@ -794,13 +718,6 @@ th, td {
   background-color: #15803d;
 }
 
-.hover\:bg-purple-700:hover {
-  background-color: #7e22ce;
-}
-
-.hover\:bg-pink-700:hover {
-  background-color: #be185d;
-}
 
 .bg-black {
   background-color: #000000;
@@ -920,9 +837,6 @@ th, td {
   border-top-width: 2px;
 }
 
-.rounded-xl {
-  border-radius: 0.75rem;
-}
 
 .text-4xl {
   font-size: 2.25rem;
@@ -946,98 +860,6 @@ th, td {
   flex-wrap: wrap;
 }
 
-.from-blue-600 {
-  --tw-gradient-from: #2563eb;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(37, 99, 235, 0));
-}
-
-.to-blue-700 {
-  --tw-gradient-to: #1d4ed8;
-}
-
-.from-blue-500 {
-  --tw-gradient-from: #3b82f6;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(59, 130, 246, 0));
-}
-
-.to-blue-600 {
-  --tw-gradient-to: #2563eb;
-}
-
-.from-green-500 {
-  --tw-gradient-from: #22c55e;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(34, 197, 94, 0));
-}
-
-.to-green-600 {
-  --tw-gradient-to: #16a34a;
-}
-
-.from-orange-500 {
-  --tw-gradient-from: #f97316;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(249, 115, 22, 0));
-}
-
-.to-orange-600 {
-  --tw-gradient-to: #ea580c;
-}
-
-.from-blue-100 {
-  --tw-gradient-from: #dbeafe;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(219, 234, 254, 0));
-}
-
-.to-blue-200 {
-  --tw-gradient-to: #bfdbfe;
-}
-
-.from-green-100 {
-  --tw-gradient-from: #dcfce7;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(220, 252, 231, 0));
-}
-
-.to-green-200 {
-  --tw-gradient-to: #bbf7d0;
-}
-
-.from-gray-100 {
-  --tw-gradient-from: #f3f4f6;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(243, 244, 246, 0));
-}
-
-.to-gray-200 {
-  --tw-gradient-to: #e5e7eb;
-}
-
-.via-gray-50 {
-  --tw-gradient-stops: var(--tw-gradient-from), #f9fafb, var(--tw-gradient-to, rgba(249, 250, 251, 0));
-}
-
-.bg-gradient-to-r {
-  background-image: linear-gradient(to right, var(--tw-gradient-stops));
-}
-
-.bg-gradient-to-br {
-  background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
-}
-
-.from-purple-100 {
-  --tw-gradient-from: #f3e8ff;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(243, 232, 255, 0));
-}
-
-.to-purple-200 {
-  --tw-gradient-to: #e9d5ff;
-}
-
-.from-pink-100 {
-  --tw-gradient-from: #fce7f3;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(252, 231, 243, 0));
-}
-
-.to-pink-200 {
-  --tw-gradient-to: #fbcfe8;
-}
 
 .text-blue-50 {
   color: #eff6ff;
@@ -1103,13 +925,6 @@ th, td {
   border-color: #6b7280;
 }
 
-.border-purple-500 {
-  border-color: #a855f7;
-}
-
-.border-pink-500 {
-  border-color: #ec4899;
-}
 
 .border-red-700 {
   border-color: #b91c1c;
@@ -1127,21 +942,6 @@ th, td {
   border-color: #374151;
 }
 
-.scale-105 {
-  transform: scale(1.05);
-}
-
-.hover\:scale-105:hover {
-  transform: scale(1.05);
-}
-
-.hover\:from-blue-700:hover {
-  --tw-gradient-from: #1d4ed8;
-}
-
-.hover\:to-blue-800:hover {
-  --tw-gradient-to: #1e40af;
-}
 
 .shadow-lg {
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -1191,386 +991,16 @@ th, td {
   height: 1.5rem;
 }
 
-/* ========================================
-   Canva-Style Component Classes
-   ======================================== */
-
-/* Canva Buttons */
-.btn-canva-primary {
-  background: var(--canva-gradient-1);
-  color: white;
-  padding: 12px 24px;
-  border-radius: var(--canva-radius);
-  font-weight: 600;
-  border: none;
-  box-shadow: var(--canva-shadow);
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.btn-canva-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--canva-shadow-lg);
-}
-
-.btn-canva-purple {
-  background: var(--canva-purple);
-  color: white;
-  padding: 12px 24px;
-  border-radius: var(--canva-radius);
-  font-weight: 600;
-  border: none;
-  box-shadow: var(--canva-shadow);
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.btn-canva-purple:hover {
-  background: var(--canva-purple-dark);
-  transform: translateY(-2px);
-  box-shadow: var(--canva-shadow-lg);
-}
-
-.btn-canva-blue {
-  background: var(--canva-blue);
-  color: white;
-  padding: 12px 24px;
-  border-radius: var(--canva-radius);
-  font-weight: 600;
-  border: none;
-  box-shadow: var(--canva-shadow);
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.btn-canva-blue:hover {
-  background: var(--canva-blue-dark);
-  transform: translateY(-2px);
-  box-shadow: var(--canva-shadow-lg);
-}
-
-.btn-canva-pink {
-  background: var(--canva-pink);
-  color: white;
-  padding: 12px 24px;
-  border-radius: var(--canva-radius);
-  font-weight: 600;
-  border: none;
-  box-shadow: var(--canva-shadow);
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.btn-canva-pink:hover {
-  background: var(--canva-pink-dark);
-  transform: translateY(-2px);
-  box-shadow: var(--canva-shadow-lg);
-}
-
-.btn-canva-outline {
-  background: white;
-  color: var(--canva-purple);
-  padding: 12px 24px;
-  border-radius: var(--canva-radius);
-  font-weight: 600;
-  border: 2px solid var(--canva-purple);
-  box-shadow: var(--canva-shadow-sm);
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.btn-canva-outline:hover {
-  background: var(--canva-purple);
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: var(--canva-shadow);
-}
-
-/* Canva Cards */
-.card-canva {
-  background: white;
-  border-radius: var(--canva-radius-lg);
-  padding: 24px;
-  box-shadow: var(--canva-shadow);
-  border: 1px solid var(--canva-border);
-  transition: all 0.3s ease;
-}
-
-.card-canva:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--canva-shadow-lg);
-}
-
-.card-canva-gradient {
-  background: var(--canva-gradient-1);
-  color: white;
-  border-radius: var(--canva-radius-lg);
-  padding: 24px;
-  box-shadow: var(--canva-shadow-lg);
-  border: none;
-  transition: all 0.3s ease;
-}
-
-.card-canva-gradient:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--canva-shadow-xl);
-}
-
-/* Canva Inputs */
-.input-canva {
-  border: 2px solid var(--canva-border);
-  border-radius: var(--canva-radius);
-  padding: 12px 16px;
-  font-size: 1rem;
-  transition: all 0.2s ease;
-  background: white;
-}
-
-.input-canva:focus {
-  outline: none;
-  border-color: var(--canva-purple);
-  box-shadow: 0 0 0 3px rgba(125, 42, 232, 0.1);
-}
-
-/* Canva Badges */
-.badge-canva-purple {
-  background: var(--canva-purple);
-  color: white;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.badge-canva-blue {
-  background: var(--canva-blue);
-  color: white;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.badge-canva-pink {
-  background: var(--canva-pink);
-  color: white;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-/* Canva Modal */
-.modal-canva {
-  background: white;
-  border-radius: var(--canva-radius-xl);
-  box-shadow: var(--canva-shadow-xl);
-  border: none;
-  overflow: hidden;
-}
-
-/* Modal Overlay - 白っぽい半透明背景 */
+/* Modal Overlay - Simple */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(249, 250, 251, 0.85); /* 白っぽいグレー、85%透明度 */
-  backdrop-filter: blur(4px); /* 背景をぼかす */
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 50;
   padding: 1rem;
-}
-
-.modal-canva-header {
-  background: var(--canva-gradient-1);
-  color: white;
-  padding: 20px 24px;
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.modal-canva-content {
-  padding: 24px;
-}
-
-.modal-canva-footer {
-  padding: 16px 24px;
-  background: #F7F9FC;
-  border-top: 1px solid var(--canva-border);
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-}
-
-/* Canva Background Utilities */
-.bg-canva-purple {
-  background-color: var(--canva-purple) !important;
-}
-
-.bg-canva-blue {
-  background-color: var(--canva-blue) !important;
-}
-
-.bg-canva-pink {
-  background-color: var(--canva-pink) !important;
-}
-
-.bg-canva-yellow {
-  background-color: var(--canva-yellow) !important;
-}
-
-.bg-canva-gradient-1 {
-  background: var(--canva-gradient-1) !important;
-}
-
-.bg-canva-gradient-2 {
-  background: var(--canva-gradient-2) !important;
-}
-
-.bg-canva-gradient-3 {
-  background: var(--canva-gradient-3) !important;
-}
-
-.bg-canva-gradient-4 {
-  background: var(--canva-gradient-4) !important;
-}
-
-.bg-canva-gradient-5 {
-  background: var(--canva-gradient-5) !important;
-}
-
-/* Canva Text Colors */
-.text-canva-purple {
-  color: var(--canva-purple) !important;
-}
-
-.text-canva-blue {
-  color: var(--canva-blue) !important;
-}
-
-.text-canva-pink {
-  color: var(--canva-pink) !important;
-}
-
-/* Canva Border Radius */
-.rounded-canva {
-  border-radius: var(--canva-radius);
-}
-
-.rounded-canva-lg {
-  border-radius: var(--canva-radius-lg);
-}
-
-.rounded-canva-xl {
-  border-radius: var(--canva-radius-xl);
-}
-
-/* Canva Shadows */
-.shadow-canva {
-  box-shadow: var(--canva-shadow);
-}
-
-.shadow-canva-lg {
-  box-shadow: var(--canva-shadow-lg);
-}
-
-.shadow-canva-xl {
-  box-shadow: var(--canva-shadow-xl);
-}
-
-/* Pastel color palette for modern soft design */
-.bg-pastel-blue {
-  background-color: #E3F2FD;
-}
-
-.bg-pastel-blue-light {
-  background-color: #F3F9FF;
-}
-
-.bg-pastel-green {
-  background-color: #E8F5E9;
-}
-
-.bg-pastel-green-light {
-  background-color: #F1F8F4;
-}
-
-.bg-pastel-orange {
-  background-color: #FFF3E0;
-}
-
-.bg-pastel-orange-light {
-  background-color: #FFF9F0;
-}
-
-.bg-pastel-pink {
-  background-color: #FCE4EC;
-}
-
-.bg-pastel-purple {
-  background-color: #F3E5F5;
-}
-
-.bg-pastel-teal {
-  background-color: #E0F2F1;
-}
-
-/* Pastel gradients */
-.bg-gradient-pastel-blue {
-  background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
-}
-
-.bg-gradient-pastel-green {
-  background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
-}
-
-.bg-gradient-pastel-orange {
-  background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
-}
-
-/* Pastel text colors */
-.text-pastel-blue-dark {
-  color: #1565C0;
-}
-
-.text-pastel-green-dark {
-  color: #2E7D32;
-}
-
-.text-pastel-orange-dark {
-  color: #E65100;
-}
-
-/* Pastel borders */
-.border-pastel-blue {
-  border-color: #90CAF9;
-}
-
-.border-pastel-green {
-  border-color: #A5D6A7;
-}
-
-.border-pastel-orange {
-  border-color: #FFCC80;
-}
-
-/* Modern shadows */
-.shadow-pastel {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.shadow-pastel-lg {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 /* レスポンシブ対応とモバイル最適化 */

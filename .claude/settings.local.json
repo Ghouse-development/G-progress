@@ -39,7 +39,13 @@
       "Bash(npx supabase:*)",
       "Bash(dir:*)",
       "Bash(git rm:*)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(for file in \"C:\\claudecode\\G-progress\\src\\components\\Layout.tsx\" \"C:\\claudecode\\G-progress\\src\\pages\\ProjectList.tsx\" \"C:\\claudecode\\G-progress\\src\\pages\\ProjectDetail.tsx\" \"C:\\claudecode\\G-progress\\src\\pages\\Calendar.tsx\")",
+      "Bash(do sed -i 's/text-xs/text-base/g; s/text-sm/text-base/g; s/text-4xl/text-3xl/g; s/text-5xl/text-3xl/g' \"$file\")",
+      "Bash(done)",
+      "Bash(head -1 \"C:\\claudecode\\G-progress\\sankoushiryou\\●進捗管理表_オペレーション会議　村上さん用 (2).csv\")",
+      "Bash(awk -F',' '{print \"\"\"\"Total fields:\"\"\"\", NF}')",
+      "Bash(awk -F'\\t' '{print \"\"\"\"Total fields:\"\"\"\", NF}')"
     ],
     "deny": [],
     "ask": []

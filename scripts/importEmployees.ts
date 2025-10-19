@@ -205,6 +205,7 @@ async function importEmployees() {
       const { error } = await supabase
         .from('employees')
         .insert({
+          name: employee.name,  // フルネーム
           last_name: lastName,
           first_name: firstName,
           email: employee.email,

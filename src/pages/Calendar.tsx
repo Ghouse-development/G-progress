@@ -6,6 +6,8 @@ import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInte
 import { ja } from 'date-fns/locale'
 import { ChevronLeft, ChevronRight, Download, ExternalLink, X } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
+import Papa from 'papaparse'
+import jsPDF from 'jspdf'
 
 interface TaskWithProject extends Task {
   project?: Project
@@ -199,6 +201,64 @@ export default function Calendar() {
     }
   }
 
+  // CSV出力
+  const exportToCSV = () => {
+    const csvData = tasks.map(task => ({
+      '案件': task.project?.customer?.names?.[0] || '不明',
+      'タスク名': task.title,
+      '期限日': task.due_date ? format(new Date(task.due_date), 'yyyy/MM/dd') : '',
+      'ステータス': task.status === 'completed' ? '完了' :
+        task.status === 'requested' ? '着手中' :
+        task.status === 'delayed' ? '遅延' : '未着手',
+      '作業内容': task.description || ''
+    }))
+
+    const csv = Papa.unparse(csvData)
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = `カレンダー_${format(currentMonth, 'yyyyMM')}.csv`
+    link.click()
+
+    showToast('CSVを出力しました', 'success')
+  }
+
+  // PDF出力
+  const exportToPDF = () => {
+    const doc = new jsPDF()
+    doc.setFont('helvetica')
+    doc.setFontSize(16)
+    doc.text(`カレンダー ${format(currentMonth, 'yyyy年M月')}`, 20, 20)
+
+    let y = 40
+    doc.setFontSize(10)
+    doc.text('期限日', 20, y)
+    doc.text('案件', 50, y)
+    doc.text('タスク名', 100, y)
+    doc.text('ステータス', 150, y)
+
+    y += 10
+    tasks.forEach(task => {
+      if (y > 280) {
+        doc.addPage()
+        y = 20
+      }
+
+      const statusText = task.status === 'completed' ? '完了' :
+        task.status === 'requested' ? '着手中' :
+        task.status === 'delayed' ? '遅延' : '未着手'
+
+      doc.text(task.due_date ? format(new Date(task.due_date), 'MM/dd') : '', 20, y)
+      doc.text(task.project?.customer?.names?.[0] || '不明', 50, y)
+      doc.text(task.title.substring(0, 20), 100, y)
+      doc.text(statusText, 150, y)
+      y += 10
+    })
+
+    doc.save(`カレンダー_${format(currentMonth, 'yyyyMM')}.pdf`)
+    showToast('PDFを出力しました', 'success')
+  }
+
   // iCalエクスポート
   const exportToICal = () => {
     const icalLines = [
@@ -270,17 +330,25 @@ export default function Calendar() {
         <div className="card-canva mb-3 flex-shrink-0">
           <div className="flex items-center justify-between mb-3">
             <h1 className="text-2xl font-bold text-canva-purple">カレンダー</h1>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={exportToCSV}
+                className="px-3 py-2 bg-white border text-sm hover:bg-gray-50"
+              >
+                CSV出力
+              </button>
+              <button
+                onClick={exportToPDF}
+                className="px-3 py-2 bg-white border text-sm hover:bg-gray-50"
+              >
+                PDF出力
+              </button>
               <button
                 onClick={exportToICal}
-                className="btn-canva-outline flex items-center gap-2 px-4 py-2 text-base"
+                className="px-3 py-2 bg-white border text-sm hover:bg-gray-50"
               >
-                <Download size={16} />
-                iCalエクスポート
+                iCal出力
               </button>
-              <div className="text-base text-gray-600">
-                {currentUser && `${currentUser.last_name} ${currentUser.first_name} (${currentUser.department})`}
-              </div>
             </div>
           </div>
 

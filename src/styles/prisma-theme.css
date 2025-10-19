@@ -1,0 +1,444 @@
+/* ========================================
+   Prisma Studio風デザインシステム
+   ======================================== */
+
+:root {
+  /* カラーパレット */
+  --sidebar-bg: #1f2937;
+  --sidebar-hover: #374151;
+  --sidebar-active: #4b5563;
+  --sidebar-text: #f9fafb;
+  --sidebar-text-secondary: #9ca3af;
+
+  --main-bg: #ffffff;
+  --main-text: #111827;
+  --border-color: #e5e7eb;
+  --border-color-light: #f3f4f6;
+
+  --primary-blue: #3b82f6;
+  --primary-blue-hover: #2563eb;
+  --primary-blue-light: #dbeafe;
+
+  --success-green: #10b981;
+  --warning-yellow: #f59e0b;
+  --danger-red: #ef4444;
+
+  /* スペーシング */
+  --sidebar-width: 240px;
+  --header-height: 60px;
+
+  /* シャドウ */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* リセット */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--main-bg);
+  color: var(--main-text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* レイアウト */
+.prisma-layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* サイドバー */
+.prisma-sidebar {
+  width: var(--sidebar-width);
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.prisma-sidebar-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.prisma-sidebar-logo {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--sidebar-text);
+}
+
+.prisma-sidebar-section {
+  padding: 12px 0;
+}
+
+.prisma-sidebar-section-title {
+  padding: 8px 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sidebar-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.prisma-sidebar-item {
+  padding: 8px 20px;
+  color: var(--sidebar-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.prisma-sidebar-item:hover {
+  background: var(--sidebar-hover);
+  color: var(--sidebar-text);
+}
+
+.prisma-sidebar-item.active {
+  background: var(--sidebar-active);
+  color: var(--sidebar-text);
+  font-weight: 500;
+}
+
+.prisma-sidebar-item-count {
+  font-size: 12px;
+  color: var(--sidebar-text-secondary);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+/* メインコンテンツ */
+.prisma-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--main-bg);
+}
+
+.prisma-header {
+  height: var(--header-height);
+  background: var(--main-bg);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  flex-shrink: 0;
+}
+
+.prisma-header-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--main-text);
+  flex: 1;
+}
+
+.prisma-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.prisma-content {
+  flex: 1;
+  overflow: auto;
+  padding: 24px;
+}
+
+/* ボタン */
+.prisma-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.prisma-btn-primary {
+  background: var(--primary-blue);
+  color: white;
+}
+
+.prisma-btn-primary:hover {
+  background: var(--primary-blue-hover);
+}
+
+.prisma-btn-secondary {
+  background: var(--main-bg);
+  color: var(--main-text);
+  border: 1px solid var(--border-color);
+}
+
+.prisma-btn-secondary:hover {
+  background: var(--border-color-light);
+}
+
+.prisma-btn-sm {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+/* テーブル */
+.prisma-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.prisma-table thead {
+  background: var(--border-color-light);
+}
+
+.prisma-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--main-text);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.prisma-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color-light);
+  color: var(--main-text);
+  font-size: 14px;
+}
+
+.prisma-table tr:last-child td {
+  border-bottom: none;
+}
+
+.prisma-table tbody tr:hover {
+  background: var(--border-color-light);
+}
+
+/* カード */
+.prisma-card {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.prisma-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--main-text);
+  margin-bottom: 16px;
+}
+
+/* セレクト */
+.prisma-select {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: white;
+  color: var(--main-text);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.prisma-select:hover {
+  border-color: var(--primary-blue);
+}
+
+.prisma-select:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px var(--primary-blue-light);
+}
+
+/* インプット */
+.prisma-input {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: white;
+  color: var(--main-text);
+  font-size: 14px;
+  transition: all 0.15s ease;
+  width: 100%;
+}
+
+.prisma-input:hover {
+  border-color: var(--primary-blue);
+}
+
+.prisma-input:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px var(--primary-blue-light);
+}
+
+/* バッジ */
+.prisma-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.prisma-badge-blue {
+  background: var(--primary-blue-light);
+  color: var(--primary-blue);
+}
+
+.prisma-badge-green {
+  background: #d1fae5;
+  color: var(--success-green);
+}
+
+.prisma-badge-yellow {
+  background: #fef3c7;
+  color: var(--warning-yellow);
+}
+
+.prisma-badge-red {
+  background: #fee2e2;
+  color: var(--danger-red);
+}
+
+.prisma-badge-gray {
+  background: var(--border-color-light);
+  color: #6b7280;
+}
+
+/* 空状態 */
+.prisma-empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--sidebar-text-secondary);
+}
+
+.prisma-empty-text {
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+/* モーダル */
+.prisma-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 20px;
+}
+
+.prisma-modal {
+  background: white;
+  border-radius: 8px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.prisma-modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.prisma-modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--main-text);
+}
+
+.prisma-modal-content {
+  padding: 24px;
+}
+
+.prisma-modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* ユーティリティ */
+.prisma-divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 16px 0;
+}
+
+.prisma-text-secondary {
+  color: var(--sidebar-text-secondary);
+}
+
+.prisma-text-sm {
+  font-size: 13px;
+}
+
+.prisma-text-xs {
+  font-size: 12px;
+}
+
+.prisma-font-semibold {
+  font-weight: 600;
+}
+
+.prisma-font-bold {
+  font-weight: 700;
+}
+
+.prisma-mt-1 { margin-top: 4px; }
+.prisma-mt-2 { margin-top: 8px; }
+.prisma-mt-3 { margin-top: 12px; }
+.prisma-mt-4 { margin-top: 16px; }
+
+.prisma-mb-1 { margin-bottom: 4px; }
+.prisma-mb-2 { margin-bottom: 8px; }
+.prisma-mb-3 { margin-bottom: 12px; }
+.prisma-mb-4 { margin-bottom: 16px; }
+
+.prisma-flex {
+  display: flex;
+}
+
+.prisma-items-center {
+  align-items: center;
+}
+
+.prisma-justify-between {
+  justify-content: space-between;
+}
+
+.prisma-gap-2 { gap: 8px; }
+.prisma-gap-3 { gap: 12px; }
+.prisma-gap-4 { gap: 16px; }

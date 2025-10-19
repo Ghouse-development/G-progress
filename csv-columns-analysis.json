@@ -1,0 +1,1370 @@
+[
+  {
+    "index": 0,
+    "name": "契約番号",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 1,
+    "name": "お客様名",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 2,
+    "name": "建設地（住所）",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 3,
+    "name": "商品",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 4,
+    "name": "営\n業",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 5,
+    "name": "設\n計",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 6,
+    "name": "I\nC",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 7,
+    "name": "工\n事",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 8,
+    "name": "外\n構",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 9,
+    "name": "実施\n図者",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 10,
+    "name": "構\n造\n設\n計",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 11,
+    "name": "設計\n事務所 \n図面作成",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 12,
+    "name": "階数",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 13,
+    "name": "坪数\n施工",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 14,
+    "name": "請負契約",
+    "isTaskRelated": true,
+    "hasDateData": true
+  },
+  {
+    "index": 15,
+    "name": "列15",
+    "isTaskRelated": false,
+    "hasDateData": true
+  },
+  {
+    "index": 16,
+    "name": "設計ヒアリング",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 17,
+    "name": "列17",
+    "isTaskRelated": false,
+    "hasDateData": true
+  },
+  {
+    "index": 18,
+    "name": "列18",
+    "isTaskRelated": false,
+    "hasDateData": true
+  },
+  {
+    "index": 19,
+    "name": "プラン 確定",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 20,
+    "name": "列20",
+    "isTaskRelated": false,
+    "hasDateData": true
+  },
+  {
+    "index": 21,
+    "name": "列21",
+    "isTaskRelated": false,
+    "hasDateData": true
+  },
+  {
+    "index": 22,
+    "name": "設\n計\n事\n務\n所\n発\n注",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 23,
+    "name": "プラン\n確定時\n資金\n計画書\nお客様\n送付",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 24,
+    "name": "構造 GO",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 25,
+    "name": "列25",
+    "isTaskRelated": false,
+    "hasDateData": true
+  },
+  {
+    "index": 26,
+    "name": "列26",
+    "isTaskRelated": false,
+    "hasDateData": true
+  },
+  {
+    "index": 27,
+    "name": "申請 GO",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 28,
+    "name": "列28",
+    "isTaskRelated": false,
+    "hasDateData": true
+  },
+  {
+    "index": 29,
+    "name": "列29",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 30,
+    "name": "構造1回目CB",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 31,
+    "name": "列31",
+    "isTaskRelated": false,
+    "hasDateData": true
+  },
+  {
+    "index": 32,
+    "name": "列32",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 33,
+    "name": "構造2回目CB",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 34,
+    "name": "列34",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 35,
+    "name": "列35",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 36,
+    "name": "長期GO",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 37,
+    "name": "列37",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 38,
+    "name": "打合せ\n可能日",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 39,
+    "name": "平日・WEB\n打合せ\nｷｬﾝﾍﾟｰﾝ",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 40,
+    "name": "特典内容",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 41,
+    "name": "オリジナル\nキッチン",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 42,
+    "name": "オリジナル\nアイアン\n階段",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 43,
+    "name": "家具家電CP",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 44,
+    "name": "IC 特典内容",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 45,
+    "name": "列45",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 46,
+    "name": "打合回数",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 47,
+    "name": "YouTubeおすすめ",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 48,
+    "name": "列48",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 49,
+    "name": "列49",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 50,
+    "name": "最終打合",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 51,
+    "name": "列51",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 52,
+    "name": "列52",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 53,
+    "name": "会議図面渡し日",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 54,
+    "name": "列54",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 55,
+    "name": "列55",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 56,
+    "name": "変更契約前会議",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 57,
+    "name": "列57",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 58,
+    "name": "列58",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 59,
+    "name": "図面UP",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 60,
+    "name": "列60",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 61,
+    "name": "列61",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 62,
+    "name": "構造図UP",
+    "isTaskRelated": false,
+    "hasDateData": true
+  },
+  {
+    "index": 63,
+    "name": "列63",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 64,
+    "name": "列64",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 65,
+    "name": "着工許可",
+    "isTaskRelated": true,
+    "hasDateData": true
+  },
+  {
+    "index": 66,
+    "name": "列66",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 67,
+    "name": "列67",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 68,
+    "name": "長期",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 69,
+    "name": "列69",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 70,
+    "name": "フラット\n有無",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 71,
+    "name": "フラット\n設計に\n関する\n通知書\n（必要日）",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 72,
+    "name": "建築確認済証",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 73,
+    "name": "列73",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 74,
+    "name": "中間検査合格証",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 75,
+    "name": "列75",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 76,
+    "name": "列76",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 77,
+    "name": "列77",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 78,
+    "name": "列78",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 79,
+    "name": "検査済証",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 80,
+    "name": "列80",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 81,
+    "name": "列81",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 82,
+    "name": "列82",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 83,
+    "name": "列83",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 84,
+    "name": "解体",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 85,
+    "name": "解体\n業者",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 86,
+    "name": "解体\n 補助金",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 87,
+    "name": "鎮め物\n棟札",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 88,
+    "name": "埋蔵文化財",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 89,
+    "name": "列89",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 90,
+    "name": "解体開始日",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 91,
+    "name": "列91",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 92,
+    "name": "列92",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 93,
+    "name": "解体完了日",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 94,
+    "name": "列94",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 95,
+    "name": "列95",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 96,
+    "name": "解体後\nダン\nドリ\nへ\n写真\nUP",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 97,
+    "name": "変更契約日",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 98,
+    "name": "列98",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 99,
+    "name": "列99",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 100,
+    "name": "土地決済",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 101,
+    "name": "列101",
+    "isTaskRelated": false,
+    "hasDateData": true
+  },
+  {
+    "index": 102,
+    "name": "列102",
+    "isTaskRelated": false,
+    "hasDateData": true
+  },
+  {
+    "index": 103,
+    "name": "分筆",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 104,
+    "name": "列104",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 105,
+    "name": "列105",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 106,
+    "name": "新規水道\n引き込み工事",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 107,
+    "name": "請負\n契約\n着工日",
+    "isTaskRelated": true,
+    "hasDateData": true
+  },
+  {
+    "index": 108,
+    "name": "変更\n契約\n 着工日",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 109,
+    "name": "着工前\n先行工事",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 110,
+    "name": "地盤補強",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 111,
+    "name": "列111",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 112,
+    "name": "列112",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 113,
+    "name": "列113",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 114,
+    "name": "基礎着工日",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 115,
+    "name": "列115",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 116,
+    "name": "列116",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 117,
+    "name": "実行予算完成",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 118,
+    "name": "列118",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 119,
+    "name": "上棟日",
+    "isTaskRelated": true,
+    "hasDateData": true
+  },
+  {
+    "index": 120,
+    "name": "列120",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 121,
+    "name": "列121",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 122,
+    "name": "列122",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 123,
+    "name": "中間検査",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 124,
+    "name": "列124",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 125,
+    "name": "列125",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 126,
+    "name": "完了検査前\n先行工事",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 127,
+    "name": "軽微\n変更",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 128,
+    "name": "完了検査",
+    "isTaskRelated": true,
+    "hasDateData": true
+  },
+  {
+    "index": 129,
+    "name": "列129",
+    "isTaskRelated": false,
+    "hasDateData": true
+  },
+  {
+    "index": 130,
+    "name": "列130",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 131,
+    "name": "列131",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 132,
+    "name": "列132",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 133,
+    "name": "列133",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 134,
+    "name": "引渡日",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 135,
+    "name": "列135",
+    "isTaskRelated": false,
+    "hasDateData": true
+  },
+  {
+    "index": 136,
+    "name": "列136",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 137,
+    "name": "列137",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 138,
+    "name": "施主希望カギ渡し日",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 139,
+    "name": "列139",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 140,
+    "name": "列140",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 141,
+    "name": "外構工事",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 142,
+    "name": "列142",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 143,
+    "name": "進捗状況 （問題点・アクションプラン）",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 144,
+    "name": "備考 （お客様個別情報・注意点）",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 145,
+    "name": "補助金",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 146,
+    "name": "長期要件",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 147,
+    "name": "GX要件",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 148,
+    "name": "銀行名",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 149,
+    "name": "事前申込許可",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 150,
+    "name": "列150",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 151,
+    "name": "ローン本申込許可",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 152,
+    "name": "列152",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 153,
+    "name": "請負契約\nー\n変更契約\nー\n変更合意書",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 154,
+    "name": "請負契約\n金額",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 155,
+    "name": "申込金",
+    "isTaskRelated": true,
+    "hasDateData": true
+  },
+  {
+    "index": 156,
+    "name": "列156",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 157,
+    "name": "契約金",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 158,
+    "name": "列158",
+    "isTaskRelated": false,
+    "hasDateData": true
+  },
+  {
+    "index": 159,
+    "name": "列159",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 160,
+    "name": "列160",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 161,
+    "name": "着工金",
+    "isTaskRelated": true,
+    "hasDateData": true
+  },
+  {
+    "index": 162,
+    "name": "列162",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 163,
+    "name": "列163",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 164,
+    "name": "列164",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 165,
+    "name": "列165",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 166,
+    "name": "列166",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 167,
+    "name": "着工金（コメント）",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 168,
+    "name": "上棟金",
+    "isTaskRelated": true,
+    "hasDateData": true
+  },
+  {
+    "index": 169,
+    "name": "列169",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 170,
+    "name": "列170",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 171,
+    "name": "列171",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 172,
+    "name": "列172",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 173,
+    "name": "列173",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 174,
+    "name": "上棟金（コメント）",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 175,
+    "name": "最終金",
+    "isTaskRelated": true,
+    "hasDateData": true
+  },
+  {
+    "index": 176,
+    "name": "列176",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 177,
+    "name": "列177",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 178,
+    "name": "列178",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 179,
+    "name": "列179",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 180,
+    "name": "列180",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 181,
+    "name": "最終金（コメント）",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 182,
+    "name": "火災保険",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 183,
+    "name": "列183",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 184,
+    "name": "造作工事 紹介料",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 185,
+    "name": "列185",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 186,
+    "name": "表題登記 紹介料",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 187,
+    "name": "列187",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 188,
+    "name": "司法書士紹介料",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 189,
+    "name": "列189",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 190,
+    "name": "C値",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 191,
+    "name": "UA値",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 192,
+    "name": "ηAC値",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 193,
+    "name": "再エネ無",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 194,
+    "name": "列194",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 195,
+    "name": "再エネ有\n自家消費",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 196,
+    "name": "列196",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 197,
+    "name": "再エネ有\n自家消費\n売電",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 198,
+    "name": "列198",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 199,
+    "name": "GX要件.",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 200,
+    "name": "ZEH",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 201,
+    "name": "チェックボックス",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 202,
+    "name": "施工面積（坪）",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 203,
+    "name": "坪単価",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 204,
+    "name": "売価（建物）",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 205,
+    "name": "仮原価",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 206,
+    "name": "仮利益額",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 207,
+    "name": "利益率",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 208,
+    "name": "施工面積（坪）",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 209,
+    "name": "坪単価",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 210,
+    "name": "見積漏サービス",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 211,
+    "name": "売価（建物）",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 212,
+    "name": "原価",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 213,
+    "name": "仮利益額",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 214,
+    "name": "利益率",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 215,
+    "name": "備考",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 216,
+    "name": "売価",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 217,
+    "name": "原価",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 218,
+    "name": "仮利益額",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 219,
+    "name": "利益率",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 220,
+    "name": "予算外UP",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 221,
+    "name": "完成後補修",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 222,
+    "name": "備考",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 223,
+    "name": "請負金額（太陽光）",
+    "isTaskRelated": true,
+    "hasDateData": false
+  },
+  {
+    "index": 224,
+    "name": "実行予算（太陽光）",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 225,
+    "name": "B粗利益（太陽光）",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 226,
+    "name": "B利益率",
+    "isTaskRelated": false,
+    "hasDateData": false
+  },
+  {
+    "index": 227,
+    "name": "A＋B 総利益",
+    "isTaskRelated": false,
+    "hasDateData": false
+  }
+]

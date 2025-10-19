@@ -1,18 +1,24 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Home, FolderKanban, Calendar, BarChart3, Shield, LogOut, Menu, X, Package, Users, Upload, CheckSquare } from 'lucide-react'
 import { useMode } from '../contexts/ModeContext'
-import { usePermissions } from '../contexts/PermissionsContext'
-import GlobalSearch from './GlobalSearch'
-import NotificationCenter from './NotificationCenter'
+import { supabase } from '../lib/supabase'
+import { FiscalYear, Employee } from '../types/database'
 import './Layout.css'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation()
-  const { mode } = useMode()
-  const { hasPermission } = usePermissions()
+  const { mode, setMode } = useMode()
+  const [fiscalYears, setFiscalYears] = useState<FiscalYear[]>([])
+  const [selectedYear, setSelectedYear] = useState<string>('2025')
+  const [currentEmployee, setCurrentEmployee] = useState<Employee | null>(null)
   // モバイルではデフォルトでサイドバーを閉じる
   const [sidebarCollapsed, setSidebarCollapsed] = useState(window.innerWidth <= 768)
+
+  // データ読み込み
+  useEffect(() => {
+    loadFiscalYears()
+    loadCurrentEmployee()
+  }, [])
 
   // ウィンドウリサイズ時にサイドバーの状態を更新
   useEffect(() => {
@@ -26,17 +32,40 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
+  const loadFiscalYears = async () => {
+    const { data } = await supabase
+      .from('fiscal_years')
+      .select('*')
+      .order('year', { ascending: false })
+
+    if (data) {
+      setFiscalYears(data)
+    }
+  }
+
+  const loadCurrentEmployee = async () => {
+    const employeeId = localStorage.getItem('selectedEmployeeId')
+    if (!employeeId) return
+
+    const { data } = await supabase
+      .from('employees')
+      .select('*')
+      .eq('id', employeeId)
+      .single()
+
+    if (data) {
+      setCurrentEmployee(data)
+    }
+  }
+
   const handleLogout = () => {
     // 開発モード: localStorageをクリアしてログイン画面へ
     localStorage.removeItem('auth')
     window.location.href = '/login'
   }
 
-  const navItems = [
-    { path: '/', label: 'ダッシュボード', icon: Home },
-    { path: '/projects', label: '案件一覧', icon: FolderKanban },
-    { path: '/calendar', label: 'カレンダー', icon: Calendar },
-  ]
+  // 管理者権限チェック
+  const isAdmin = currentEmployee?.role === 'department_head' || currentEmployee?.role === 'president' || currentEmployee?.role === 'executive'
 
   return (
     <div className="layout-container">
@@ -58,115 +87,164 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       )}
 
       <aside className={`layout-sidebar ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
-        <div className="layout-logo">
-          <h1 className="layout-title">{!sidebarCollapsed && 'G-progress'}</h1>
-        </div>
+        {!sidebarCollapsed && (
+          <>
+            {/* ロゴ */}
+            <div className="p-4 border-b">
+              <h1 className="text-xl font-bold text-gray-900">G-progress</h1>
+            </div>
 
-        <nav className="layout-nav">
-          {navItems.map((item) => {
-            const Icon = item.icon
-            const isActive = location.pathname === item.path
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`nav-item ${isActive ? 'nav-item-active' : ''}`}
-                title={sidebarCollapsed ? item.label : ''}
+            {/* ⓪ モード切替 */}
+            <div className="p-3 border-b">
+              <div className="text-xs text-gray-600 mb-2">表示モード</div>
+              <select
+                value={mode}
+                onChange={(e) => setMode(e.target.value as any)}
+                className="w-full p-2 border text-sm bg-white"
               >
-                <Icon size={20} />
-                {!sidebarCollapsed && <span>{item.label}</span>}
-              </Link>
-            )
-          })}
+                <option value="my_tasks">担当者モード</option>
+                <option value="branch">拠点モード</option>
+                {isAdmin && <option value="admin">全社モード</option>}
+              </select>
+            </div>
 
-          {/* 監査ログ（権限のあるユーザーのみ） */}
-          {hasPermission('audit_logs:view') && (
-            <Link
-              to="/audit-logs"
-              className={`nav-item ${location.pathname === '/audit-logs' ? 'nav-item-active' : ''}`}
-              title={sidebarCollapsed ? '監査ログ' : ''}
-            >
-              <Shield size={20} />
-              {!sidebarCollapsed && <span>監査ログ</span>}
-            </Link>
-          )}
-
-          {/* マスタ管理（管理者モードのみ） */}
-          {mode === 'admin' && (
-            <>
-              <Link
-                to="/import-csv"
-                className={`nav-item ${location.pathname === '/import-csv' ? 'nav-item-active' : ''}`}
-                title={sidebarCollapsed ? 'CSVインポート' : ''}
+            {/* ① 年度選択 */}
+            <div className="p-3 border-b">
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+                className="w-full p-2 border text-sm bg-white font-bold"
               >
-                <Upload size={20} />
-                {!sidebarCollapsed && <span>CSVインポート</span>}
-              </Link>
+                {fiscalYears.map((fy) => (
+                  <option key={fy.id} value={fy.year}>
+                    {fy.year}年度（{fy.start_date.substring(0, 7)}～{fy.end_date.substring(0, 7)}完工）
+                  </option>
+                ))}
+              </select>
+            </div>
 
+            {/* ② ダッシュボード */}
+            <nav className="p-2">
               <Link
-                to="/master/products"
-                className={`nav-item ${location.pathname === '/master/products' ? 'nav-item-active' : ''}`}
-                title={sidebarCollapsed ? '商品マスタ管理' : ''}
+                to="/"
+                className={`block p-2 text-sm font-bold ${
+                  location.pathname === '/' ? 'bg-black text-white' : 'text-gray-900 hover:bg-gray-50'
+                }`}
               >
-                <Package size={20} />
-                {!sidebarCollapsed && <span>商品マスタ管理</span>}
+                ダッシュボード
               </Link>
+            </nav>
 
+            {/* 区切り */}
+            <div className="border-t my-2"></div>
+
+            {/* ③④⑤⑥ 案件管理系 */}
+            <nav className="p-2">
               <Link
-                to="/master/employees"
-                className={`nav-item ${location.pathname === '/master/employees' ? 'nav-item-active' : ''}`}
-                title={sidebarCollapsed ? '従業員マスタ管理' : ''}
+                to="/projects"
+                className={`block p-2 text-sm ${
+                  location.pathname.startsWith('/projects') ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-50'
+                }`}
               >
-                <Users size={20} />
-                {!sidebarCollapsed && <span>従業員マスタ管理</span>}
+                案件管理
               </Link>
+              <Link
+                to="/payments"
+                className={`block p-2 text-sm ${
+                  location.pathname === '/payments' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                入金管理
+              </Link>
+              <Link
+                to="/performance"
+                className={`block p-2 text-sm ${
+                  location.pathname === '/performance' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                性能管理
+              </Link>
+              <Link
+                to="/calendar"
+                className={`block p-2 text-sm ${
+                  location.pathname === '/calendar' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                カレンダー
+              </Link>
+            </nav>
 
+            {/* 区切り */}
+            <div className="border-t my-2"></div>
+
+            {/* ⑦⑧⑨⑩⑪ マスタ・設定系 */}
+            <nav className="p-2">
+              <Link
+                to="/master/projects"
+                className={`block p-2 text-sm ${
+                  location.pathname === '/master/projects' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                案件マスタ
+              </Link>
               <Link
                 to="/master/tasks"
-                className={`nav-item ${location.pathname === '/master/tasks' ? 'nav-item-active' : ''}`}
-                title={sidebarCollapsed ? 'タスク管理マスタ' : ''}
+                className={`block p-2 text-sm ${
+                  location.pathname === '/master/tasks' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-50'
+                }`}
               >
-                <CheckSquare size={20} />
-                {!sidebarCollapsed && <span>タスク管理マスタ</span>}
+                タスクマスタ
               </Link>
-            </>
-          )}
-        </nav>
+              <Link
+                to="/master/employees"
+                className={`block p-2 text-sm ${
+                  location.pathname === '/master/employees' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                従業員マスタ
+              </Link>
+              <Link
+                to="/audit-logs"
+                className={`block p-2 text-sm ${
+                  location.pathname === '/audit-logs' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                履歴ログ
+              </Link>
+              <Link
+                to="/settings"
+                className={`block p-2 text-sm ${
+                  location.pathname === '/settings' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                設定
+              </Link>
+            </nav>
 
-        <div className="layout-footer">
-          <button
-            onClick={handleLogout}
-            className="logout-button"
-            title={sidebarCollapsed ? 'ログアウト' : ''}
-          >
-            <LogOut size={20} />
-            {!sidebarCollapsed && <span>ログアウト</span>}
-          </button>
-        </div>
+            {/* ログアウト */}
+            <div className="mt-auto p-3 border-t">
+              <button
+                onClick={handleLogout}
+                className="w-full p-2 text-sm bg-white border text-gray-700 hover:bg-gray-50"
+              >
+                ログアウト
+              </button>
+            </div>
+          </>
+        )}
       </aside>
 
       {/* サイドバー切り替えボタン */}
       <button
         onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-        className={`sidebar-toggle-button ${sidebarCollapsed ? 'sidebar-toggle-collapsed' : ''}`}
+        className="fixed top-4 left-4 z-50 p-2 bg-white border"
         title={sidebarCollapsed ? 'サイドバーを表示' : 'サイドバーを隠す'}
       >
-        {sidebarCollapsed ? <Menu size={20} /> : <X size={20} />}
+        {sidebarCollapsed ? '☰' : '×'}
       </button>
 
       <div className="layout-main">
-        <header className="layout-header">
-          <div className="flex items-center justify-between p-4 bg-white border-b-2 border-gray-300">
-            <div className="flex-1 mr-4">
-              {/* Left side - could add breadcrumbs or page title here */}
-            </div>
-            <div className="flex items-center gap-3">
-              <NotificationCenter />
-              <GlobalSearch />
-            </div>
-          </div>
-        </header>
-
+        {/* シンプルなメインコンテンツ（ヘッダーなし） */}
         <main className="layout-content">
           {children}
         </main>
