@@ -203,10 +203,13 @@ export interface TaskMaster {
   storage_location?: string
   manual_url?: string
   notes?: string
-  days_from_contract?: number // 契約日からの日数
+  days_from_contract?: number // 契約日からの日数（廃止予定）
+  days_from_trigger?: number // トリガーからの日数
+  trigger_id?: string // トリガーID
   duration_days?: number // 作業期間
   created_at: string
   updated_at: string
+  trigger?: Trigger // リレーション
 }
 
 export interface Attachment {
@@ -277,4 +280,11 @@ export interface FiscalYear {
   start_date: string // 例: "2025-08-01"
   end_date: string // 例: "2026-07-31"
   created_at: string
+}
+
+export interface Trigger {
+  id: string
+  name: string // 請負契約日、間取確定日、最終打合せ日、長期GO、変更契約、着工、上棟、完了検査、引き渡し
+  created_at: string
+  updated_at: string
 }

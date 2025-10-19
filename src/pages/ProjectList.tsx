@@ -50,6 +50,8 @@ export default function ProjectList() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [editingProject, setEditingProject] = useState<ProjectWithRelations | null>(null)
   const [deletingProjectId, setDeletingProjectId] = useState<string | null>(null)
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null)
+  const [showTaskDetailModal, setShowTaskDetailModal] = useState(false)
 
   // 従業員データ
   const [employees, setEmployees] = useState<Employee[]>([])
@@ -820,10 +822,9 @@ export default function ProjectList() {
                   filteredProjectsForMatrix.map((project: any) => (
                     <tr
                       key={project.id}
-                      style={{ cursor: 'pointer', transition: 'background 0.15s ease' }}
+                      style={{ transition: 'background 0.15s ease' }}
                       onMouseEnter={(e) => e.currentTarget.style.background = '#f3f4f6'}
                       onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
-                      onClick={() => navigate(`/projects/${project.id}`)}
                     >
                       <td className="sticky" style={{ width: '140px', left: '0', backgroundColor: 'white', zIndex: 10, border: '1px solid #f3f4f6', borderRight: '2px solid #d1d5db', padding: '12px 8px', textAlign: 'center', fontSize: '14px' }}>
                         <div style={{ fontWeight: 600, color: '#111827' }}>
@@ -836,7 +837,11 @@ export default function ProjectList() {
                           {format(new Date(project.contract_date), 'yyyy')}
                         </div>
                       </td>
-                      <td className="sticky" style={{ width: '200px', left: '140px', backgroundColor: 'white', zIndex: 10, border: '1px solid #f3f4f6', borderRight: '2px solid #d1d5db', padding: '12px 8px', fontSize: '14px' }}>
+                      <td
+                        className="sticky"
+                        style={{ width: '200px', left: '140px', backgroundColor: 'white', zIndex: 10, border: '1px solid #f3f4f6', borderRight: '2px solid #d1d5db', padding: '12px 8px', fontSize: '14px', cursor: 'pointer' }}
+                        onClick={() => navigate(`/projects/${project.id}`)}
+                      >
                         <div style={{ fontWeight: 600, color: '#111827', marginBottom: '4px' }} title={`${project.customer?.names?.join('・') || '顧客名なし'}様邸`}>
                           {project.customer?.names?.join('・') || '顧客名なし'}様
                         </div>
@@ -920,7 +925,8 @@ export default function ProjectList() {
                                 }${daysOverdue > 0 ? `\n遅延: ${daysOverdue}日` : ''}`}
                                 onClick={(e) => {
                                   e.stopPropagation()
-                                  navigate(`/projects/${project.id}`)
+                                  setSelectedTask(task)
+                                  setShowTaskDetailModal(true)
                                 }}
                                 onMouseEnter={(e) => {
                                   e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)'
@@ -1436,6 +1442,144 @@ export default function ProjectList() {
                 className="btn-canva-danger flex-1"
               >
                 削除
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* タスク詳細モーダル */}
+      {showTaskDetailModal && selectedTask && (
+        <div className="prisma-modal-overlay">
+          <div className="prisma-modal" style={{ maxWidth: '600px' }}>
+            <div className="prisma-modal-header">
+              <div className="flex items-center justify-between">
+                <h2 className="prisma-modal-title">タスク詳細</h2>
+                <button
+                  onClick={() => {
+                    setShowTaskDetailModal(false)
+                    setSelectedTask(null)
+                  }}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            <div className="prisma-modal-content space-y-4">
+              <div>
+                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                  タスク名
+                </label>
+                <div className="prisma-text-base text-gray-900">{selectedTask.title}</div>
+              </div>
+
+              {selectedTask.description && (
+                <div>
+                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                    説明
+                  </label>
+                  <div className="prisma-text-base text-gray-900">{selectedTask.description}</div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                    期限日
+                  </label>
+                  <div className="prisma-text-base text-gray-900">
+                    {selectedTask.due_date ? format(new Date(selectedTask.due_date), 'yyyy年MM月dd日') : '未設定'}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                    ステータス
+                  </label>
+                  <div>
+                    <span className={`prisma-badge ${
+                      selectedTask.status === 'completed' ? 'prisma-badge-blue' :
+                      selectedTask.status === 'requested' ? 'prisma-badge-yellow' :
+                      selectedTask.status === 'delayed' ? 'prisma-badge-red' :
+                      'prisma-badge-gray'
+                    }`}>
+                      {selectedTask.status === 'completed' ? '完了' :
+                       selectedTask.status === 'requested' ? '着手中' :
+                       selectedTask.status === 'delayed' ? '遅延' :
+                       '未着手'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {selectedTask.dos && (
+                <div>
+                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                    Do's（推奨事項）
+                  </label>
+                  <div className="prisma-text-base text-gray-900 whitespace-pre-wrap">{selectedTask.dos}</div>
+                </div>
+              )}
+
+              {selectedTask.donts && (
+                <div>
+                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                    Don'ts（禁止事項）
+                  </label>
+                  <div className="prisma-text-base text-gray-900 whitespace-pre-wrap">{selectedTask.donts}</div>
+                </div>
+              )}
+
+              {selectedTask.manual_url && (
+                <div>
+                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                    マニュアル
+                  </label>
+                  <a
+                    href={selectedTask.manual_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
+                    マニュアルを開く
+                  </a>
+                </div>
+              )}
+
+              {selectedTask.video_url && (
+                <div>
+                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                    動画
+                  </label>
+                  <a
+                    href={selectedTask.video_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
+                    動画を開く
+                  </a>
+                </div>
+              )}
+            </div>
+
+            <div className="prisma-modal-footer">
+              <button
+                onClick={() => navigate(`/projects/${selectedTask.project_id}`)}
+                className="prisma-btn prisma-btn-primary"
+              >
+                案件詳細へ
+              </button>
+              <button
+                onClick={() => {
+                  setShowTaskDetailModal(false)
+                  setSelectedTask(null)
+                }}
+                className="prisma-btn prisma-btn-secondary"
+              >
+                閉じる
               </button>
             </div>
           </div>
