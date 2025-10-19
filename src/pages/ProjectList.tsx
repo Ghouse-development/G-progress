@@ -630,60 +630,34 @@ export default function ProjectList() {
   }
 
   return (
-    <div className="p-2 min-h-screen">
-      {/* ヘッダー + ツールバー統合カード */}
-      <div className="bg-white rounded-lg border-2 border-gray-300 shadow-sm mb-2 overflow-hidden">
-        {/* ヘッダー */}
-        <div className="px-3 py-2 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-gray-300">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold text-gray-900">案件一覧</h1>
-            <div className="flex items-center gap-2">
-              {/* モード切替 */}
-              <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-0.5">
-                <button
-                  onClick={() => setMode('staff')}
-                  className={`px-3 py-1.5 rounded-lg text-base font-semibold transition-all duration-200 ${
-                    mode === 'staff'
-                      ? 'bg-white text-blue-600 shadow'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  担当者モード
-                </button>
-                <button
-                  onClick={() => setMode('admin')}
-                  className={`px-3 py-1.5 rounded-lg text-base font-semibold transition-all duration-200 ${
-                    mode === 'admin'
-                      ? 'bg-white text-blue-600 shadow'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  管理者モード
-                </button>
-              </div>
-
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="px-3 py-1.5 bg-green-600 text-white rounded-lg font-bold text-base hover:bg-green-700 transition-colors flex items-center gap-1"
-              >
-                <Plus size={18} />
-                新規案件追加
-              </button>
-            </div>
-          </div>
+    <>
+      <div className="prisma-header">
+        <h1 className="prisma-header-title">案件一覧</h1>
+        <div className="prisma-header-actions">
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="prisma-btn prisma-btn-primary prisma-btn-sm"
+          >
+            <Plus size={16} />
+            新規案件追加
+          </button>
         </div>
+      </div>
 
-        {/* ツールバー */}
-        <div className="px-3 py-2 bg-white">
+      <div className="prisma-content" style={{ padding: '12px' }}>
+        {/* ツールバーカード */}
+        <div className="prisma-card" style={{ marginBottom: '12px', padding: '12px' }}>
+
           <div className="flex items-center justify-between gap-3">
             {/* ソート */}
             <div className="flex items-center gap-2">
               <ArrowUpDown size={16} className="text-gray-600" />
-              <span className="text-gray-700 text-base">並び:</span>
+              <span className="text-gray-700 text-sm">並び:</span>
               <select
                 value={sortField}
                 onChange={(e) => setSortField(e.target.value as SortField)}
-                className="px-2 py-1 border border-gray-300 rounded-lg bg-white text-base font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="prisma-select"
+                style={{ width: 'auto' }}
               >
                 <option value="contract_date">契約日順</option>
                 <option value="construction_start_date">着工日順</option>
@@ -693,7 +667,7 @@ export default function ProjectList() {
               </select>
               <button
                 onClick={() => setSortAscending(!sortAscending)}
-                className="px-2 py-1 bg-gray-100 text-gray-700 rounded-lg font-bold text-base hover:bg-gray-200 transition-colors"
+                className="prisma-btn prisma-btn-secondary prisma-btn-sm"
               >
                 {sortAscending ? '昇順 ↑' : '降順 ↓'}
               </button>
@@ -702,44 +676,38 @@ export default function ProjectList() {
             {/* フィルタ */}
             <div className="flex items-center gap-2">
               <Filter size={16} className="text-gray-600" />
-              <span className="text-gray-700 text-base">絞込:</span>
+              <span className="text-gray-700 text-sm">絞込:</span>
               <div className="flex gap-1">
                 <button
                   onClick={() => setFilterStatus('all')}
-                  className={`px-2 py-1 rounded-lg font-bold text-base transition-colors ${
-                    filterStatus === 'all'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  className={`prisma-btn prisma-btn-sm ${
+                    filterStatus === 'all' ? 'prisma-btn-primary' : 'prisma-btn-secondary'
                   }`}
                 >
                   全て ({projects.length})
                 </button>
                 <button
                   onClick={() => setFilterStatus('delayed')}
-                  className={`px-2 py-1 rounded-lg font-bold text-base transition-colors ${
-                    filterStatus === 'delayed'
-                      ? 'bg-red-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  className={`prisma-btn prisma-btn-sm ${
+                    filterStatus === 'delayed' ? 'prisma-btn-primary' : 'prisma-btn-secondary'
                   }`}
+                  style={filterStatus === 'delayed' ? { background: '#ef4444' } : {}}
                 >
                   遅れ
                 </button>
                 <button
                   onClick={() => setFilterStatus('requested')}
-                  className={`px-2 py-1 rounded-lg font-bold text-base transition-colors ${
-                    filterStatus === 'requested'
-                      ? 'bg-yellow-400 text-gray-900'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  className={`prisma-btn prisma-btn-sm ${
+                    filterStatus === 'requested' ? 'prisma-btn-primary' : 'prisma-btn-secondary'
                   }`}
+                  style={filterStatus === 'requested' ? { background: '#eab308' } : {}}
                 >
                   着手中
                 </button>
                 <button
                   onClick={() => setFilterStatus('completed')}
-                  className={`px-2 py-1 rounded-lg font-bold text-base transition-colors ${
-                    filterStatus === 'completed'
-                      ? 'bg-blue-400 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  className={`prisma-btn prisma-btn-sm ${
+                    filterStatus === 'completed' ? 'prisma-btn-primary' : 'prisma-btn-secondary'
                   }`}
                 >
                   完了
@@ -750,23 +718,17 @@ export default function ProjectList() {
         </div>
       </div>
 
-      {/* 進捗マトリクス表示 */}
-      <div className="bg-white rounded-lg border-2 border-gray-300 shadow-sm overflow-hidden" style={{ height: 'calc(100vh - 140px)', minHeight: '600px' }}>
-          {/* ヘッダー */}
-          <div className="px-3 py-1.5 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-gray-300">
+        {/* 進捗マトリクス表示 */}
+        <div className="prisma-card" style={{ height: 'calc(100vh - 180px)', minHeight: '600px', overflow: 'hidden', padding: 0 }}>
+          {/* マトリクスヘッダー */}
+          <div style={{ padding: '12px 16px', borderBottom: '1px solid #e5e7eb', background: '#f9fafb' }}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <h3 className="text-base font-bold text-gray-900">全案件進捗マトリクス</h3>
-                <div className="flex items-center gap-2 text-base">
-                  <div className="bg-white px-2 py-0.5 rounded shadow-sm">
-                    <span className="font-bold text-blue-900 text-base">{filteredProjectsForMatrix.length}案件</span>
-                  </div>
-                  <div className="bg-white px-2 py-0.5 rounded shadow-sm">
-                    <span className="font-bold text-green-900 text-base">{uniqueTaskTitles.length}種類</span>
-                  </div>
-                  <div className="bg-white px-2 py-0.5 rounded shadow-sm">
-                    <span className="font-bold text-purple-900 text-base">計{allTasks.length}</span>
-                  </div>
+                <h3 className="text-base font-semibold text-gray-900">全案件進捗マトリクス</h3>
+                <div className="flex items-center gap-2">
+                  <span className="prisma-badge prisma-badge-blue">{filteredProjectsForMatrix.length}案件</span>
+                  <span className="prisma-badge prisma-badge-green">{uniqueTaskTitles.length}種類</span>
+                  <span className="prisma-badge prisma-badge-gray">計{allTasks.length}</span>
                 </div>
               </div>
 
@@ -774,30 +736,24 @@ export default function ProjectList() {
               <div className="flex gap-1">
                 <button
                   onClick={() => setConstructionFilter('all')}
-                  className={`px-3 py-1 rounded text-base font-medium transition-all ${
-                    constructionFilter === 'all'
-                      ? 'bg-white text-pastel-blue-dark shadow-pastel'
-                      : 'bg-pastel-blue-light text-gray-700 hover:bg-white'
+                  className={`prisma-btn prisma-btn-sm ${
+                    constructionFilter === 'all' ? 'prisma-btn-primary' : 'prisma-btn-secondary'
                   }`}
                 >
                   全て ({displayProjects.length})
                 </button>
                 <button
                   onClick={() => setConstructionFilter('pre')}
-                  className={`px-3 py-1 rounded text-base font-medium transition-all ${
-                    constructionFilter === 'pre'
-                      ? 'bg-white text-pastel-blue-dark shadow-pastel'
-                      : 'bg-pastel-blue-light text-gray-700 hover:bg-white'
+                  className={`prisma-btn prisma-btn-sm ${
+                    constructionFilter === 'pre' ? 'prisma-btn-primary' : 'prisma-btn-secondary'
                   }`}
                 >
                   着工前 ({displayProjects.filter(p => p.status === 'post_contract').length})
                 </button>
                 <button
                   onClick={() => setConstructionFilter('post')}
-                  className={`px-3 py-1 rounded text-base font-medium transition-all ${
-                    constructionFilter === 'post'
-                      ? 'bg-white text-pastel-blue-dark shadow-pastel'
-                      : 'bg-pastel-blue-light text-gray-700 hover:bg-white'
+                  className={`prisma-btn prisma-btn-sm ${
+                    constructionFilter === 'post' ? 'prisma-btn-primary' : 'prisma-btn-secondary'
                   }`}
                 >
                   着工後 ({displayProjects.filter(p => p.status === 'construction' || p.status === 'completed').length})
@@ -1444,6 +1400,6 @@ export default function ProjectList() {
           </div>
         </div>
       )}
-    </div>
+    </>
   )
 }

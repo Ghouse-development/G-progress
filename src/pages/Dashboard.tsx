@@ -34,7 +34,6 @@ export default function Dashboard() {
           <Route path="/import-csv" element={<ImportCSV />} />
           <Route path="/sample" element={<SamplePage />} />
           <Route path="/master/products" element={<ProductMaster />} />
-          <Route path="/master/projects" element={<ProjectList />} />
           <Route path="/master/tasks" element={<TaskMasterManagement />} />
           <Route path="/master/employees" element={<EmployeeMaster />} />
           <Route path="/master/departments" element={<DepartmentMaster />} />

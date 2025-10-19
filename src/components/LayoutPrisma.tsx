@@ -124,9 +124,6 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
 
         <div className="prisma-sidebar-section">
           <div className="prisma-sidebar-section-title">マスタ管理</div>
-          <Link to="/master/projects" className={`prisma-sidebar-item ${location.pathname === '/master/projects' ? 'active' : ''}`}>
-            案件マスタ
-          </Link>
           <Link to="/master/tasks" className={`prisma-sidebar-item ${location.pathname === '/master/tasks' ? 'active' : ''}`}>
             タスクマスタ
           </Link>

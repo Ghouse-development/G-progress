@@ -204,11 +204,97 @@ export default function NewDashboard() {
         <h1 className="prisma-header-title">ダッシュボード</h1>
       </div>
       <div className="prisma-content">
+        {/* === 数値サマリーエリア ===  */}
+
         {/* 完工予定数 */}
         <div className="prisma-card">
           <h2 className="prisma-card-title">完工予定数</h2>
           <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{expectedCompletionCount}件</div>
         </div>
+
+        {/* 遅れタスク数 */}
+        <div className="prisma-card">
+          <h2 className="prisma-card-title">遅れタスク数</h2>
+          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#ef4444' }}>{delayedTaskCount}件</div>
+          <button className="prisma-btn prisma-btn-primary prisma-mt-2">
+            詳細を見る
+          </button>
+        </div>
+
+        {/* 入金サマリー */}
+        <div className="prisma-card">
+          <h2 className="prisma-card-title">入金サマリー</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '12px' }}>
+            <div>
+              <div className="prisma-text-sm prisma-text-secondary">予定売上高（税別）</div>
+              <div style={{ fontSize: '20px', fontWeight: 'bold', marginTop: '4px' }}>
+                {(totalScheduledPayment / 1.1).toLocaleString()}円
+              </div>
+            </div>
+            <div>
+              <div className="prisma-text-sm prisma-text-secondary">実績（税込）</div>
+              <div style={{ fontSize: '20px', fontWeight: 'bold', marginTop: '4px' }}>
+                {totalActualPayment.toLocaleString()}円
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 粗利益高サマリー */}
+        <div className="prisma-card">
+          <h2 className="prisma-card-title">粗利益高（税別）</h2>
+          <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>
+            {totalGrossProfit.toLocaleString()}円
+          </div>
+        </div>
+
+        {/* 平均値 */}
+        <div className="prisma-card">
+          <h2 className="prisma-card-title">平均値</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '12px' }}>
+            <div>
+              <div className="prisma-text-sm prisma-text-secondary">平均坪数</div>
+              <div style={{ fontSize: '20px', fontWeight: 'bold', marginTop: '4px' }}>{avgFloorArea.toFixed(2)}坪</div>
+            </div>
+            <div>
+              <div className="prisma-text-sm prisma-text-secondary">平均契約金額</div>
+              <div style={{ fontSize: '20px', fontWeight: 'bold', marginTop: '4px' }}>{avgContractAmount.toLocaleString()}円</div>
+              <div className="prisma-text-sm prisma-text-secondary">（税別: {(avgContractAmount / 1.1).toLocaleString()}円）</div>
+            </div>
+          </div>
+        </div>
+
+        {/* 商品構成 */}
+        <div className="prisma-card">
+          <h2 className="prisma-card-title">商品構成</h2>
+          <table className="prisma-table">
+            <thead>
+              <tr>
+                <th>商品種別</th>
+                <th style={{ textAlign: 'right' }}>件数</th>
+                <th style={{ textAlign: 'right' }}>割合</th>
+              </tr>
+            </thead>
+            <tbody>
+              {productComposition.map((item, index) => (
+                <tr key={index}>
+                  <td>{item.name}</td>
+                  <td style={{ textAlign: 'right' }}>{item.count}件</td>
+                  <td style={{ textAlign: 'right' }}>{item.percentage}%</td>
+                </tr>
+              ))}
+              <tr style={{ background: '#f3f4f6', fontWeight: 'bold' }}>
+                <td>合計</td>
+                <td style={{ textAlign: 'right' }}>
+                  {productComposition.reduce((sum, item) => sum + item.count, 0)}件
+                </td>
+                <td style={{ textAlign: 'right' }}>100.0%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* === グラフエリア === */}
 
         {/* 請負契約数 */}
         <div className="prisma-card">
@@ -272,11 +358,7 @@ export default function NewDashboard() {
 
         {/* 入金予定・実績 */}
         <div className="prisma-card">
-          <h2 className="prisma-card-title">入金予定・実績</h2>
-          <div className="prisma-mb-3">
-            <span className="prisma-text-sm">予定売上高（税別）: {(totalScheduledPayment / 1.1).toLocaleString()}円</span>
-            <span className="prisma-text-sm" style={{ marginLeft: '16px' }}>実績（税込）: {totalActualPayment.toLocaleString()}円</span>
-          </div>
+          <h2 className="prisma-card-title">入金予定・実績（月次推移）</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={monthlyStats}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -292,10 +374,7 @@ export default function NewDashboard() {
 
         {/* 粗利益高 */}
         <div className="prisma-card">
-          <h2 className="prisma-card-title">粗利益高（税別）</h2>
-          <div className="prisma-mb-3">
-            <span className="prisma-text-sm">予定粗利益高: {totalGrossProfit.toLocaleString()}円</span>
-          </div>
+          <h2 className="prisma-card-title">粗利益高（月次推移）</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={monthlyStats}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -306,61 +385,6 @@ export default function NewDashboard() {
               <Bar dataKey="grossProfit" fill="#000000" name="粗利益高" />
             </BarChart>
           </ResponsiveContainer>
-        </div>
-
-        {/* 遅れ案件数 */}
-        <div className="prisma-card">
-          <h2 className="prisma-card-title">遅れタスク数</h2>
-          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#ef4444' }}>{delayedTaskCount}件</div>
-          <button className="prisma-btn prisma-btn-primary prisma-mt-2">
-            詳細を見る
-          </button>
-        </div>
-
-        {/* 商品構成 */}
-        <div className="prisma-card">
-          <h2 className="prisma-card-title">商品構成</h2>
-          <table className="prisma-table">
-            <thead>
-              <tr>
-                <th>商品種別</th>
-                <th style={{ textAlign: 'right' }}>件数</th>
-                <th style={{ textAlign: 'right' }}>割合</th>
-              </tr>
-            </thead>
-            <tbody>
-              {productComposition.map((item, index) => (
-                <tr key={index}>
-                  <td>{item.name}</td>
-                  <td style={{ textAlign: 'right' }}>{item.count}件</td>
-                  <td style={{ textAlign: 'right' }}>{item.percentage}%</td>
-                </tr>
-              ))}
-              <tr style={{ background: '#f3f4f6', fontWeight: 'bold' }}>
-                <td>合計</td>
-                <td style={{ textAlign: 'right' }}>
-                  {productComposition.reduce((sum, item) => sum + item.count, 0)}件
-                </td>
-                <td style={{ textAlign: 'right' }}>100.0%</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        {/* 平均坪数・平均契約金額 */}
-        <div className="prisma-card">
-          <h2 className="prisma-card-title">平均値</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-            <div>
-              <div className="prisma-text-sm prisma-text-secondary">平均坪数</div>
-              <div style={{ fontSize: '20px', fontWeight: 'bold', marginTop: '4px' }}>{avgFloorArea.toFixed(2)}坪</div>
-            </div>
-            <div>
-              <div className="prisma-text-sm prisma-text-secondary">平均契約金額</div>
-              <div style={{ fontSize: '20px', fontWeight: 'bold', marginTop: '4px' }}>{avgContractAmount.toLocaleString()}円</div>
-              <div className="prisma-text-sm prisma-text-secondary">（税別: {(avgContractAmount / 1.1).toLocaleString()}円）</div>
-            </div>
-          </div>
         </div>
       </div>
     </>
