@@ -163,8 +163,7 @@ export default function AuditLogs() {
       'ユーザー': log.employee ? `${log.employee.last_name} ${log.employee.first_name}` : '不明',
       '部門': log.employee?.department || '',
       'アクション': getActionLabel(log.action),
-      'テーブル': getTableLabel(log.table_name),
-      'レコードID': log.record_id
+      '変更内容': log.changes?.description || (log.old_values || log.new_values ? 'データを変更' : '-')
     }))
 
     if (exportFormat === 'csv') {
@@ -345,8 +344,7 @@ export default function AuditLogs() {
                 <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>ユーザー</th>
                 <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>部門</th>
                 <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>アクション</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>テーブル</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>レコードID</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', minWidth: '400px' }}>変更内容</th>
               </tr>
             </thead>
             <tbody>
@@ -391,11 +389,8 @@ export default function AuditLogs() {
                       {getActionLabel(log.action)}
                     </span>
                   </td>
-                  <td style={{ padding: '12px', fontSize: '14px' }}>
-                    {getTableLabel(log.table_name)}
-                  </td>
-                  <td style={{ padding: '12px', fontSize: '12px', fontFamily: 'monospace', color: '#666' }}>
-                    {log.record_id ? `${log.record_id.substring(0, 8)}...` : '-'}
+                  <td style={{ padding: '12px', fontSize: '14px', lineHeight: '1.6' }}>
+                    {log.changes?.description || (log.old_values || log.new_values ? 'データを変更' : '-')}
                   </td>
                 </tr>
               ))}
