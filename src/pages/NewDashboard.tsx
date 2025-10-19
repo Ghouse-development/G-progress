@@ -271,18 +271,18 @@ export default function NewDashboard() {
             </div>
           </div>
 
-          {/* 目標棟数 */}
-          <div className="prisma-card">
-            <h2 className="prisma-card-title">目標棟数</h2>
-            <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>{targetUnits}棟</div>
-          </div>
-
           {/* 目標粗利益高 */}
           <div className="prisma-card">
             <h2 className="prisma-card-title">目標粗利益高（税別）</h2>
             <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>
               {targetGrossProfit.toLocaleString()}円
             </div>
+          </div>
+
+          {/* 目標棟数 */}
+          <div className="prisma-card">
+            <h2 className="prisma-card-title">目標棟数</h2>
+            <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>{targetUnits}棟</div>
           </div>
 
           {/* 完工予定数 */}
@@ -527,19 +527,6 @@ export default function NewDashboard() {
 
               <div>
                 <label className="block text-base font-medium text-gray-700 mb-1">
-                  目標棟数
-                </label>
-                <input
-                  type="number"
-                  value={editTargetUnits}
-                  onChange={(e) => setEditTargetUnits(e.target.value)}
-                  placeholder="例: 50"
-                  className="input-canva w-full"
-                />
-              </div>
-
-              <div>
-                <label className="block text-base font-medium text-gray-700 mb-1">
                   目標粗利益高（税別）
                 </label>
                 <input
@@ -547,6 +534,19 @@ export default function NewDashboard() {
                   value={editTargetGrossProfit}
                   onChange={(e) => setEditTargetGrossProfit(e.target.value)}
                   placeholder="例: 100000000"
+                  className="input-canva w-full"
+                />
+              </div>
+
+              <div>
+                <label className="block text-base font-medium text-gray-700 mb-1">
+                  目標棟数
+                </label>
+                <input
+                  type="number"
+                  value={editTargetUnits}
+                  onChange={(e) => setEditTargetUnits(e.target.value)}
+                  placeholder="例: 50"
                   className="input-canva w-full"
                 />
               </div>
