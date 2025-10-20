@@ -17,7 +17,11 @@ interface PaymentWithProject extends Payment {
   project?: Project
 }
 
-type CalendarMode = 'tasks' | 'payments'
+interface ProjectWithCustomer extends Project {
+  customer?: any
+}
+
+type CalendarMode = 'tasks' | 'payments' | 'construction_start' | 'handover'
 
 // マイルストーンイベントの種類
 const MILESTONE_EVENTS = [
@@ -49,6 +53,8 @@ export default function Calendar() {
   const [calendarMode, setCalendarMode] = useState<CalendarMode>('tasks')
   const [tasks, setTasks] = useState<TaskWithProject[]>([])
   const [payments, setPayments] = useState<PaymentWithProject[]>([])
+  const [constructionStarts, setConstructionStarts] = useState<ProjectWithCustomer[]>([])
+  const [handovers, setHandovers] = useState<ProjectWithCustomer[]>([])
   const [currentUser, setCurrentUser] = useState<Employee | null>(null)
   const [loading, setLoading] = useState(true)
   const [draggedTask, setDraggedTask] = useState<TaskWithProject | null>(null)
@@ -62,20 +68,24 @@ export default function Calendar() {
 
   useEffect(() => {
     loadCurrentUser()
-    if (calendarMode === 'tasks') {
-      loadTasks()
-    } else {
-      loadPayments()
-    }
+    loadDataForMode()
   }, [])
 
   useEffect(() => {
+    loadDataForMode()
+  }, [currentMonth, calendarMode])
+
+  const loadDataForMode = () => {
     if (calendarMode === 'tasks') {
       loadTasks()
-    } else {
+    } else if (calendarMode === 'payments') {
       loadPayments()
+    } else if (calendarMode === 'construction_start') {
+      loadConstructionStarts()
+    } else if (calendarMode === 'handover') {
+      loadHandovers()
     }
-  }, [currentMonth, calendarMode])
+  }
 
   const loadCurrentUser = async () => {
     // 開発モード: localStorageまたはデフォルトユーザーIDを使用
@@ -174,6 +184,68 @@ export default function Calendar() {
     }
   }
 
+  const loadConstructionStarts = async () => {
+    const start = startOfMonth(currentMonth)
+    const end = endOfMonth(currentMonth)
+
+    console.log(`カレンダー: ${format(start, 'yyyy-MM-dd')} ～ ${format(end, 'yyyy-MM-dd')} の範囲で着工日を取得します`)
+
+    // 着工日を含むプロジェクトを取得
+    const { data: projectsData, error } = await supabase
+      .from('projects')
+      .select(`
+        *,
+        customer:customers(*)
+      `)
+      .gte('construction_start_date', format(start, 'yyyy-MM-dd'))
+      .lte('construction_start_date', format(end, 'yyyy-MM-dd'))
+      .not('construction_start_date', 'is', null)
+
+    if (error) {
+      console.error('カレンダー: 着工日の取得に失敗:', error)
+      return
+    }
+
+    console.log(`カレンダー: ${projectsData?.length || 0}件の着工日を取得しました`, projectsData)
+
+    if (projectsData) {
+      setConstructionStarts(projectsData as ProjectWithCustomer[])
+    } else {
+      setConstructionStarts([])
+    }
+  }
+
+  const loadHandovers = async () => {
+    const start = startOfMonth(currentMonth)
+    const end = endOfMonth(currentMonth)
+
+    console.log(`カレンダー: ${format(start, 'yyyy-MM-dd')} ～ ${format(end, 'yyyy-MM-dd')} の範囲で引き渡し日を取得します`)
+
+    // 引き渡し日を含むプロジェクトを取得
+    const { data: projectsData, error } = await supabase
+      .from('projects')
+      .select(`
+        *,
+        customer:customers(*)
+      `)
+      .gte('handover_date', format(start, 'yyyy-MM-dd'))
+      .lte('handover_date', format(end, 'yyyy-MM-dd'))
+      .not('handover_date', 'is', null)
+
+    if (error) {
+      console.error('カレンダー: 引き渡し日の取得に失敗:', error)
+      return
+    }
+
+    console.log(`カレンダー: ${projectsData?.length || 0}件の引き渡し日を取得しました`, projectsData)
+
+    if (projectsData) {
+      setHandovers(projectsData as ProjectWithCustomer[])
+    } else {
+      setHandovers([])
+    }
+  }
+
   const getCalendarDays = () => {
     const monthStart = startOfMonth(currentMonth)
     const monthEnd = endOfMonth(currentMonth)
@@ -217,6 +289,32 @@ export default function Calendar() {
       const actualMatch = payment.actual_date && isSameDay(new Date(payment.actual_date), day)
       return scheduledMatch || actualMatch
     }).length
+  }
+
+  const getConstructionStartsForDay = (day: Date) => {
+    return constructionStarts.filter(project =>
+      project.construction_start_date && isSameDay(new Date(project.construction_start_date), day)
+    ).slice(0, 2) // 最大2件（見やすさのため）
+  }
+
+  // その日の全着工日数を取得
+  const getTotalConstructionStartsForDay = (day: Date) => {
+    return constructionStarts.filter(project =>
+      project.construction_start_date && isSameDay(new Date(project.construction_start_date), day)
+    ).length
+  }
+
+  const getHandoversForDay = (day: Date) => {
+    return handovers.filter(project =>
+      project.handover_date && isSameDay(new Date(project.handover_date), day)
+    ).slice(0, 2) // 最大2件（見やすさのため）
+  }
+
+  // その日の全引き渡し日数を取得
+  const getTotalHandoversForDay = (day: Date) => {
+    return handovers.filter(project =>
+      project.handover_date && isSameDay(new Date(project.handover_date), day)
+    ).length
   }
 
   const previousMonth = () => {
@@ -487,7 +585,7 @@ export default function Calendar() {
           </div>
 
           {/* モード切替 */}
-          <div className="flex items-center justify-center gap-2 mb-3">
+          <div className="flex items-center justify-center gap-2 mb-3 flex-wrap">
             <button
               onClick={() => setCalendarMode('tasks')}
               className={`px-4 py-2 text-sm lg:text-base font-bold border-2 transition-colors shadow-sm ${
@@ -507,6 +605,26 @@ export default function Calendar() {
               }`}
             >
               入金カレンダー
+            </button>
+            <button
+              onClick={() => setCalendarMode('construction_start')}
+              className={`px-4 py-2 text-sm lg:text-base font-bold border-2 transition-colors shadow-sm ${
+                calendarMode === 'construction_start'
+                  ? 'bg-orange-600 text-white border-orange-600 hover:bg-orange-700'
+                  : 'bg-white text-gray-800 border-gray-400 hover:bg-gray-100'
+              }`}
+            >
+              着工カレンダー
+            </button>
+            <button
+              onClick={() => setCalendarMode('handover')}
+              className={`px-4 py-2 text-sm lg:text-base font-bold border-2 transition-colors shadow-sm ${
+                calendarMode === 'handover'
+                  ? 'bg-purple-600 text-white border-purple-600 hover:bg-purple-700'
+                  : 'bg-white text-gray-800 border-gray-400 hover:bg-gray-100'
+              }`}
+            >
+              引き渡しカレンダー
             </button>
           </div>
 
@@ -561,6 +679,8 @@ export default function Calendar() {
             {days.map(day => {
               const dayTasks = calendarMode === 'tasks' ? getTasksForDay(day) : []
               const dayPayments = calendarMode === 'payments' ? getPaymentsForDay(day) : []
+              const dayConstructionStarts = calendarMode === 'construction_start' ? getConstructionStartsForDay(day) : []
+              const dayHandovers = calendarMode === 'handover' ? getHandoversForDay(day) : []
               const isToday = isSameDay(day, new Date())
               const isCurrentMonth = isSameMonth(day, currentMonth)
               const dayOfWeek = day.getDay() // 日曜=0, 月曜=1, ..., 土曜=6
@@ -679,6 +799,68 @@ export default function Calendar() {
                         +{getTotalPaymentsForDay(day) - 2}件
                       </div>
                     )}
+
+                    {/* 着工日モードの表示 */}
+                    {calendarMode === 'construction_start' && dayConstructionStarts.map((project) => {
+                      const customerName = project.customer?.names?.join('・') || ''
+                      return (
+                        <div
+                          key={project.id}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            navigate(`/projects/${project.id}`)
+                          }}
+                          className="text-base lg:text-lg px-2 py-2 rounded cursor-pointer mb-1 bg-orange-200 text-orange-900 font-bold hover:bg-orange-300 border-2 border-orange-400"
+                          title={`${customerName ? customerName + '様 - ' : ''}着工日`}
+                        >
+                          {customerName && <div className="text-xs font-semibold mb-0.5">【{truncateTaskName(customerName, 8)}様】</div>}
+                          <div className="font-bold leading-tight">着工日</div>
+                          {project.construction_start_date && <div className="text-sm font-semibold">{format(new Date(project.construction_start_date), 'yyyy/MM/dd')}</div>}
+                        </div>
+                      )
+                    })}
+                    {calendarMode === 'construction_start' && getTotalConstructionStartsForDay(day) > 2 && (
+                      <div className="text-base lg:text-lg text-gray-600 dark:text-gray-400 font-bold bg-gray-100 dark:bg-gray-700 px-2 py-1.5 rounded cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          // TODO: その日の全着工日を表示するモーダルを開く
+                        }}
+                        title="クリックして全着工日を表示"
+                      >
+                        +{getTotalConstructionStartsForDay(day) - 2}件
+                      </div>
+                    )}
+
+                    {/* 引き渡し日モードの表示 */}
+                    {calendarMode === 'handover' && dayHandovers.map((project) => {
+                      const customerName = project.customer?.names?.join('・') || ''
+                      return (
+                        <div
+                          key={project.id}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            navigate(`/projects/${project.id}`)
+                          }}
+                          className="text-base lg:text-lg px-2 py-2 rounded cursor-pointer mb-1 bg-purple-200 text-purple-900 font-bold hover:bg-purple-300 border-2 border-purple-400"
+                          title={`${customerName ? customerName + '様 - ' : ''}引き渡し日`}
+                        >
+                          {customerName && <div className="text-xs font-semibold mb-0.5">【{truncateTaskName(customerName, 8)}様】</div>}
+                          <div className="font-bold leading-tight">引き渡し日</div>
+                          {project.contract_amount && <div className="text-sm font-semibold">契約額: {Math.floor(project.contract_amount).toLocaleString()}円</div>}
+                        </div>
+                      )
+                    })}
+                    {calendarMode === 'handover' && getTotalHandoversForDay(day) > 2 && (
+                      <div className="text-base lg:text-lg text-gray-600 dark:text-gray-400 font-bold bg-gray-100 dark:bg-gray-700 px-2 py-1.5 rounded cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          // TODO: その日の全引き渡し日を表示するモーダルを開く
+                        }}
+                        title="クリックして全引き渡し日を表示"
+                      >
+                        +{getTotalHandoversForDay(day) - 2}件
+                      </div>
+                    )}
                   </div>
                 </div>
               )
@@ -709,7 +891,7 @@ export default function Calendar() {
                 <span>未着手</span>
               </div>
             </div>
-          ) : (
+          ) : calendarMode === 'payments' ? (
             <div className="flex items-center justify-center gap-2 lg:gap-4 text-xs lg:text-base flex-wrap">
               <span className="font-bold text-canva-green">凡例:</span>
               <div className="flex items-center gap-1">
@@ -719,6 +901,22 @@ export default function Calendar() {
               <div className="flex items-center gap-1">
                 <div className="w-3 h-3 bg-yellow-100 border border-yellow-300 rounded"></div>
                 <span>入金予定</span>
+              </div>
+            </div>
+          ) : calendarMode === 'construction_start' ? (
+            <div className="flex items-center justify-center gap-2 lg:gap-4 text-xs lg:text-base flex-wrap">
+              <span className="font-bold text-orange-700">凡例:</span>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 bg-orange-200 border border-orange-400 rounded"></div>
+                <span>着工日</span>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center gap-2 lg:gap-4 text-xs lg:text-base flex-wrap">
+              <span className="font-bold text-purple-700">凡例:</span>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 bg-purple-200 border border-purple-400 rounded"></div>
+                <span>引き渡し日</span>
               </div>
             </div>
           )}
