@@ -48,7 +48,7 @@ export default function CommentSection({ projectId, taskId, currentUserId }: Com
       .from('comments')
       .select(`
         *,
-        user:employees!user_id(*)
+        user:employees(*)
       `)
       .is('parent_comment_id', null)
       .order('created_at', { ascending: true })
@@ -74,7 +74,7 @@ export default function CommentSection({ projectId, taskId, currentUserId }: Com
             .from('comments')
             .select(`
               *,
-              user:employees!user_id(*)
+              user:employees(*)
             `)
             .eq('parent_comment_id', comment.id)
             .order('created_at', { ascending: true })

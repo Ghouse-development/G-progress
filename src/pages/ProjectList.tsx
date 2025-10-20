@@ -230,9 +230,9 @@ export default function ProjectList() {
         .select(`
           *,
           customer:customers(*),
-          sales:assigned_sales(id, last_name, first_name, department),
-          design:assigned_design(id, last_name, first_name, department),
-          construction:assigned_construction(id, last_name, first_name, department)
+          sales:employees!assigned_sales(id, last_name, first_name, department),
+          design:employees!assigned_design(id, last_name, first_name, department),
+          construction:employees!assigned_construction(id, last_name, first_name, department)
         `)
 
       // 年度フィルタ（fiscal_yearがnullの場合も含める）
@@ -324,7 +324,7 @@ export default function ProjectList() {
         .from('audit_logs')
         .select(`
           *,
-          user:employees!user_id(id, last_name, first_name, department)
+          user:employees(id, last_name, first_name, department)
         `)
         .eq('table_name', 'tasks')
         .eq('record_id', taskId)
@@ -346,7 +346,7 @@ export default function ProjectList() {
         .from('comments')
         .select(`
           *,
-          user:employees!user_id(id, last_name, first_name, department)
+          user:employees(id, last_name, first_name, department)
         `)
         .eq('task_id', taskId)
         .is('parent_comment_id', null)
