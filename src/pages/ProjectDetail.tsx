@@ -162,9 +162,9 @@ export default function ProjectDetail() {
         .select(`
           *,
           customer:customers(*),
-          sales:employees!assigned_sales(id, last_name, first_name, department),
-          design:employees!assigned_design(id, last_name, first_name, department),
-          construction:employees!assigned_construction(id, last_name, first_name, department)
+          sales:employees!projects_assigned_sales_fkey(id, last_name, first_name, department),
+          design:employees!projects_assigned_design_fkey(id, last_name, first_name, department),
+          construction:employees!projects_assigned_construction_fkey(id, last_name, first_name, department)
         `)
         .eq('id', id)
         .single()
