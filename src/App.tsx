@@ -4,6 +4,7 @@ import { ToastProvider } from './contexts/ToastContext'
 import { NotificationProvider } from './contexts/NotificationContext'
 import { PermissionsProvider } from './contexts/PermissionsContext'
 import { FilterProvider } from './contexts/FilterContext'
+import { ViewModeProvider } from './contexts/ViewModeContext'
 import Dashboard from './pages/Dashboard'
 
 // プロテクトされたルートコンポーネント
@@ -44,15 +45,17 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <ToastProvider>
-          <NotificationProvider>
-            <PermissionsProvider>
-              <FilterProvider>
-                <AppRoutes />
-              </FilterProvider>
-            </PermissionsProvider>
-          </NotificationProvider>
-        </ToastProvider>
+        <ViewModeProvider>
+          <ToastProvider>
+            <NotificationProvider>
+              <PermissionsProvider>
+                <FilterProvider>
+                  <AppRoutes />
+                </FilterProvider>
+              </PermissionsProvider>
+            </NotificationProvider>
+          </ToastProvider>
+        </ViewModeProvider>
       </AuthProvider>
     </Router>
   )

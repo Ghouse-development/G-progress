@@ -1,18 +1,18 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { useFilter } from '../contexts/FilterContext'
+import { useViewMode } from '../contexts/ViewModeContext'
 import './Layout.css'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation()
   const {
-    fiscalYears,
-    selectedFiscalYear,
-    setSelectedFiscalYear,
     viewMode,
     setViewMode,
-    currentUser
-  } = useFilter()
+    fiscalYear,
+    setFiscalYear,
+    availableFiscalYears,
+    currentEmployee
+  } = useViewMode()
 
   // モバイルではデフォルトでサイドバーを閉じる
   const [sidebarCollapsed, setSidebarCollapsed] = useState(window.innerWidth <= 768)
@@ -36,7 +36,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }
 
   // 管理者権限チェック
-  const isAdmin = currentUser?.role === 'department_head' || currentUser?.role === 'president' || currentUser?.role === 'executive'
+  const isAdmin = currentEmployee?.role === 'department_head' || currentEmployee?.role === 'president' || currentEmployee?.role === 'executive'
+
+  // モード切替のラベル
+  const viewModeLabels = {
+    personal: '👤 担当者モード',
+    branch: '🏢 拠点モード',
+    company: '🌐 全社モード'
+  }
 
   return (
     <div className="layout-container">
@@ -83,16 +90,22 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <div className="p-3 border-b bg-gradient-to-r from-purple-50 to-pink-50">
               <div className="text-xs font-bold text-gray-700 mb-2">① 年度選択</div>
               <select
-                value={selectedFiscalYear || ''}
-                onChange={(e) => setSelectedFiscalYear(e.target.value)}
+                value={fiscalYear.year}
+                onChange={(e) => {
+                  const selectedYear = availableFiscalYears.find(fy => fy.year === parseInt(e.target.value))
+                  if (selectedYear) setFiscalYear(selectedYear)
+                }}
                 className="w-full p-2 border-2 border-gray-300 text-sm bg-white font-bold rounded-lg shadow-sm hover:border-purple-500 transition-colors"
               >
-                {fiscalYears.map((fy) => (
-                  <option key={fy.id} value={fy.year}>
-                    {fy.year}年度（{fy.start_date.substring(0, 7)}～{fy.end_date.substring(0, 7)}完工）
+                {availableFiscalYears.map((fy) => (
+                  <option key={fy.year} value={fy.year}>
+                    {fy.label}（{fy.startDate.substring(0, 7)}～{fy.endDate.substring(0, 7)}完工）
                   </option>
                 ))}
               </select>
+              <div className="text-xs text-gray-600 mt-1">
+                現在: {viewModeLabels[viewMode]}
+              </div>
             </div>
 
             {/* ② ダッシュボード */}
