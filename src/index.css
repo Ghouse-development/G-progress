@@ -1543,3 +1543,257 @@ html, body {
 .dark .text-red-900 {
   color: #fecaca !important;
 }
+
+/* ========================================
+   Prisma Studio Modal Styles
+   ======================================== */
+
+/* モーダルオーバーレイ */
+.prisma-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+}
+
+/* モーダル本体 */
+.prisma-modal {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ダークモード対応 */
+.dark .prisma-modal {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+/* モーダルヘッダー */
+.prisma-modal-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+.dark .prisma-modal-header {
+  border-bottom-color: #374151;
+  background-color: #111111;
+}
+
+/* モーダルタイトル */
+.prisma-modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.dark .prisma-modal-title {
+  color: #f3f4f6;
+}
+
+/* モーダルコンテンツ */
+.prisma-modal-content {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* モーダルフッター */
+.prisma-modal-footer {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+  justify-content: flex-end;
+}
+
+.dark .prisma-modal-footer {
+  border-top-color: #374151;
+  background-color: #111111;
+}
+
+/* Prismaボタン共通スタイル */
+.prisma-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  white-space: nowrap;
+}
+
+.prisma-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* プライマリボタン */
+.prisma-btn-primary {
+  background-color: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+.prisma-btn-primary:hover:not(:disabled) {
+  background-color: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+.prisma-btn-primary:active:not(:disabled) {
+  background-color: #1e40af;
+  border-color: #1e40af;
+}
+
+/* セカンダリボタン */
+.prisma-btn-secondary {
+  background-color: white;
+  color: #374151;
+  border-color: #d1d5db;
+}
+
+.prisma-btn-secondary:hover:not(:disabled) {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.dark .prisma-btn-secondary {
+  background-color: #1f2937;
+  color: #f3f4f6;
+  border-color: #4b5563;
+}
+
+.dark .prisma-btn-secondary:hover:not(:disabled) {
+  background-color: #374151;
+  border-color: #6b7280;
+}
+
+/* Prisma入力フィールド */
+.prisma-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background-color: white;
+  color: #111827;
+  transition: all 0.15s ease-in-out;
+}
+
+.prisma-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  ring: 2px;
+  ring-color: rgba(37, 99, 235, 0.2);
+}
+
+.prisma-input::placeholder {
+  color: #9ca3af;
+}
+
+.dark .prisma-input {
+  background-color: #1f2937;
+  border-color: #4b5563;
+  color: #f3f4f6;
+}
+
+.dark .prisma-input:focus {
+  border-color: #3b82f6;
+}
+
+/* Prisma セレクト */
+.prisma-select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background-color: white;
+  color: #111827;
+  transition: all 0.15s ease-in-out;
+  cursor: pointer;
+}
+
+.prisma-select:focus {
+  outline: none;
+  border-color: #2563eb;
+  ring: 2px;
+  ring-color: rgba(37, 99, 235, 0.2);
+}
+
+.dark .prisma-select {
+  background-color: #1f2937;
+  border-color: #4b5563;
+  color: #f3f4f6;
+}
+
+.dark .prisma-select:focus {
+  border-color: #3b82f6;
+}
+
+/* Prisma テキストエリア */
+.prisma-textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background-color: white;
+  color: #111827;
+  transition: all 0.15s ease-in-out;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.prisma-textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  ring: 2px;
+  ring-color: rgba(37, 99, 235, 0.2);
+}
+
+.dark .prisma-textarea {
+  background-color: #1f2937;
+  border-color: #4b5563;
+  color: #f3f4f6;
+}
+
+/* Prisma ラベル */
+.prisma-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.25rem;
+}
+
+.dark .prisma-label {
+  color: #d1d5db;
+}
+
+/* Prisma テキストサイズ */
+.prisma-text-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.prisma-mb-1 {
+  margin-bottom: 0.25rem;
+}

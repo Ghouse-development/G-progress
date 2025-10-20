@@ -7,8 +7,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { Payment, Project } from '../types/database'
-import { useFiscalYear } from '../contexts/FiscalYearContext'
-import { useMode } from '../contexts/ModeContext'
+import { useFilter } from '../contexts/FilterContext'
 import { useSettings } from '../contexts/SettingsContext'
 import { generateDemoPayments, generateDemoProjects, generateDemoCustomers } from '../utils/demoData'
 import Papa from 'papaparse'
@@ -23,8 +22,7 @@ interface PaymentRow {
 }
 
 export default function PaymentManagement() {
-  const { selectedYear } = useFiscalYear()
-  const { mode } = useMode()
+  const { selectedFiscalYear, viewMode } = useFilter()
   const { demoMode } = useSettings()
   const [selectedMonth, setSelectedMonth] = useState<string>(() => {
     const now = new Date()
@@ -34,17 +32,20 @@ export default function PaymentManagement() {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
 
+  // Map viewMode to old mode format for demo data compatibility
+  const legacyMode = viewMode === 'personal' ? 'my_tasks' : viewMode === 'branch' ? 'branch' : 'admin'
+
   useEffect(() => {
     loadPayments()
-  }, [selectedMonth, selectedYear, mode])
+  }, [selectedMonth, selectedFiscalYear, viewMode])
 
   const loadPayments = async () => {
     setLoading(true)
 
     // デモモードの場合はサンプルデータを使用（モード別にデータ件数を調整）
     if (demoMode) {
-      const demoPayments = generateDemoPayments(mode as 'my_tasks' | 'branch' | 'admin')
-      const demoProjects = generateDemoProjects(mode as 'my_tasks' | 'branch' | 'admin')
+      const demoPayments = generateDemoPayments(legacyMode)
+      const demoProjects = generateDemoProjects(legacyMode)
       const demoCustomers = generateDemoCustomers()
 
       // 選択した月の支払いをフィルタ
@@ -88,7 +89,7 @@ export default function PaymentManagement() {
     const { data: fiscalYearProjects } = await supabase
       .from('projects')
       .select('id')
-      .eq('fiscal_year', selectedYear)
+      .eq('fiscal_year', selectedFiscalYear)
 
     const projectIds = fiscalYearProjects?.map(p => p.id) || []
 

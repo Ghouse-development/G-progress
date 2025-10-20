@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Project, Customer, Employee, Task } from '../types/database'
 import { format, differenceInDays } from 'date-fns'
+import { ja } from 'date-fns/locale'
 import { ArrowUpDown, Filter, Edit2, Trash2, X, Plus } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
 import { useMode } from '../contexts/ModeContext'
@@ -58,6 +59,8 @@ export default function ProjectList() {
   const [showTaskDetailModal, setShowTaskDetailModal] = useState(false)
   const [editingDueDate, setEditingDueDate] = useState(false)
   const [taskAuditLogs, setTaskAuditLogs] = useState<any[]>([])
+  const [taskComments, setTaskComments] = useState<any[]>([])
+  const [newComment, setNewComment] = useState('')
 
   // 従業員データ
   const [employees, setEmployees] = useState<Employee[]>([])
@@ -321,7 +324,7 @@ export default function ProjectList() {
         .from('audit_logs')
         .select(`
           *,
-          user:employees(id, last_name, first_name, department)
+          user:employees!user_id(id, last_name, first_name, department)
         `)
         .eq('table_name', 'tasks')
         .eq('record_id', taskId)
@@ -333,6 +336,54 @@ export default function ProjectList() {
     } catch (error) {
       console.error('Failed to load audit logs:', error)
       setTaskAuditLogs([])
+    }
+  }
+
+  // タスクのコメントを取得
+  const loadTaskComments = async (taskId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('comments')
+        .select(`
+          *,
+          user:employees!user_id(id, last_name, first_name, department)
+        `)
+        .eq('task_id', taskId)
+        .is('parent_comment_id', null)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      setTaskComments(data || [])
+    } catch (error) {
+      console.error('Failed to load comments:', error)
+      setTaskComments([])
+    }
+  }
+
+  // コメント追加
+  const handleAddComment = async () => {
+    if (!selectedTask || !newComment.trim()) return
+
+    try {
+      const currentUserId = localStorage.getItem('currentUserId') || '1'
+
+      const { error } = await supabase
+        .from('comments')
+        .insert({
+          task_id: selectedTask.id,
+          user_id: currentUserId,
+          content: newComment,
+          mentions: []
+        })
+
+      if (error) throw error
+
+      toast.success('コメントを追加しました')
+      setNewComment('')
+      await loadTaskComments(selectedTask.id)
+    } catch (error) {
+      console.error('Failed to add comment:', error)
+      toast.error('コメントの追加に失敗しました')
     }
   }
 
@@ -1048,8 +1099,9 @@ export default function ProjectList() {
                                   setSelectedTask(task)
                                   setSelectedTaskProject(project)
                                   setShowTaskDetailModal(true)
-                                  // 変更履歴を取得
+                                  // 変更履歴とコメントを取得
                                   await loadTaskAuditLogs(task.id)
+                                  await loadTaskComments(task.id)
                                 }}
                                 onMouseEnter={(e) => {
                                   e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)'
@@ -1726,42 +1778,61 @@ export default function ProjectList() {
                 </div>
               )}
 
-              {/* マニュアル・動画 */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
-                    マニュアル
-                  </label>
-                  {selectedTask.manual_url ? (
-                    <a
-                      href={selectedTask.manual_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="prisma-btn prisma-btn-secondary w-full"
+              {/* コメント */}
+              <div className="mt-4 pt-4 border-t-2 border-gray-200 dark:border-gray-700">
+                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-2">
+                  コメント
+                </label>
+                <div className="space-y-3">
+                  {/* コメント入力 */}
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      placeholder="コメントを入力..."
+                      className="prisma-input flex-1"
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          handleAddComment()
+                        }
+                      }}
+                    />
+                    <button
+                      onClick={handleAddComment}
+                      disabled={!newComment.trim()}
+                      className="prisma-btn prisma-btn-primary"
                     >
-                      開く
-                    </a>
-                  ) : (
-                    <div className="text-gray-500 dark:text-gray-400 text-sm">未設定</div>
-                  )}
-                </div>
+                      送信
+                    </button>
+                  </div>
 
-                <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
-                    動画
-                  </label>
-                  {selectedTask.video_url ? (
-                    <a
-                      href={selectedTask.video_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="prisma-btn prisma-btn-secondary w-full"
-                    >
-                      再生
-                    </a>
-                  ) : (
-                    <div className="text-gray-500 dark:text-gray-400 text-sm">未設定</div>
-                  )}
+                  {/* コメント一覧 */}
+                  <div className="prisma-input bg-gray-50 dark:bg-gray-800" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                    {taskComments.length > 0 ? (
+                      <div className="space-y-3">
+                        {taskComments.map((comment) => (
+                          <div key={comment.id} className="pb-3 border-b border-gray-200 dark:border-gray-700 last:border-0">
+                            <div className="flex items-start justify-between gap-2 mb-1">
+                              <div className="font-medium text-sm text-gray-900 dark:text-gray-100">
+                                {comment.user?.last_name} {comment.user?.first_name}
+                              </div>
+                              <div className="text-xs text-gray-500 dark:text-gray-500 whitespace-nowrap">
+                                {format(new Date(comment.created_at), 'MM/dd HH:mm')}
+                              </div>
+                            </div>
+                            <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                              {comment.content}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center text-gray-500 dark:text-gray-500 py-4 text-sm">
+                        コメントがありません
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -1813,6 +1884,50 @@ export default function ProjectList() {
                       変更履歴がありません
                     </div>
                   )}
+                </div>
+              </div>
+
+              {/* マニュアル・動画 */}
+              <div className="mt-4 pt-4 border-t-2 border-gray-200 dark:border-gray-700">
+                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-2">
+                  マニュアル・動画
+                </label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                      マニュアル
+                    </label>
+                    {selectedTask.manual_url ? (
+                      <a
+                        href={selectedTask.manual_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="prisma-btn prisma-btn-secondary w-full"
+                      >
+                        開く
+                      </a>
+                    ) : (
+                      <div className="text-gray-500 dark:text-gray-400 text-sm">未設定</div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                      動画
+                    </label>
+                    {selectedTask.video_url ? (
+                      <a
+                        href={selectedTask.video_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="prisma-btn prisma-btn-secondary w-full"
+                      >
+                        再生
+                      </a>
+                    ) : (
+                      <div className="text-gray-500 dark:text-gray-400 text-sm">未設定</div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

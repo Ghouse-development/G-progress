@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase'
 import { Comment, Employee } from '../types/database'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
-import { MessageSquare, Send, Edit2, Trash2, Reply } from 'lucide-react'
+import { MessageSquare, Edit2, Trash2, Reply } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
 
 interface CommentSectionProps {
@@ -164,6 +164,14 @@ export default function CommentSection({ projectId, taskId, currentUserId }: Com
     loadComments()
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Enterキーのみで送信（Shift+Enterは改行）
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSubmitComment()
+    }
+  }
+
   const handleEditComment = async (commentId: string) => {
     if (!editContent.trim()) return
 
@@ -313,28 +321,20 @@ export default function CommentSection({ projectId, taskId, currentUserId }: Com
               ref={textareaRef}
               value={newComment}
               onChange={(e) => handleCommentChange(e.target.value)}
-              placeholder="@ユーザー名でメンション可能"
+              onKeyDown={handleKeyDown}
+              placeholder="Enterで送信、Shift+Enterで改行、@ユーザー名でメンション可能"
               className="w-full p-2 border-2 border-black rounded-lg resize-none"
               rows={3}
             />
-            <div className="flex gap-2 mt-2">
-              <button
-                onClick={handleSubmitComment}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg border-2 border-black font-bold flex items-center gap-2"
-              >
-                <Send size={16} />
-                返信
-              </button>
-              <button
-                onClick={() => {
-                  setReplyingTo(null)
-                  setNewComment('')
-                }}
-                className="px-4 py-2 bg-gray-200 rounded-lg border-2 border-black font-bold"
-              >
-                キャンセル
-              </button>
-            </div>
+            <button
+              onClick={() => {
+                setReplyingTo(null)
+                setNewComment('')
+              }}
+              className="mt-2 px-4 py-2 bg-gray-200 rounded-lg border-2 border-black font-bold"
+            >
+              キャンセル
+            </button>
           </div>
         )}
       </div>
@@ -355,7 +355,8 @@ export default function CommentSection({ projectId, taskId, currentUserId }: Com
             ref={textareaRef}
             value={newComment}
             onChange={(e) => handleCommentChange(e.target.value)}
-            placeholder="コメントを入力... (@ユーザー名でメンション可能)"
+            onKeyDown={handleKeyDown}
+            placeholder="コメントを入力... (Enterで送信、Shift+Enterで改行、@ユーザー名でメンション可能)"
             className="w-full p-3 border-2 border-black rounded-lg resize-none text-base"
             rows={4}
           />
@@ -377,15 +378,6 @@ export default function CommentSection({ projectId, taskId, currentUserId }: Com
               ))}
             </div>
           )}
-
-          <button
-            onClick={handleSubmitComment}
-            disabled={!newComment.trim()}
-            className="mt-2 px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg border-2 border-black font-bold flex items-center gap-2 hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Send size={18} />
-            コメント投稿
-          </button>
         </div>
       )}
 

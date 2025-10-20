@@ -12,13 +12,13 @@ type Mode = 'my_tasks' | 'branch' | 'admin'
 // サンプル商品データ
 export const generateDemoProducts = (): Product[] => {
   return [
-    { id: 'demo-product-1', name: 'LIFE', code: 'LIFE-001', description: 'スタンダードな高性能住宅プラン', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-    { id: 'demo-product-2', name: 'LIFE+', code: 'LIFE-002', description: 'LIFEのアップグレード版', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-    { id: 'demo-product-3', name: 'HOURS', code: 'HOURS-001', description: '時間を楽しむ住まい', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-    { id: 'demo-product-4', name: 'LACIE', code: 'LACIE-001', description: 'デザイン性重視プラン', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-    { id: 'demo-product-5', name: 'LIFE X', code: 'LIFEX-001', description: 'LIFE究極進化版', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-    { id: 'demo-product-6', name: 'LIFE Limited', code: 'LIFE-LTD', description: 'LIFE限定仕様', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-    { id: 'demo-product-7', name: 'LIFE+ Limited', code: 'LIFE+-LTD', description: 'LIFE+限定仕様', created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
+    { id: 'demo-product-1', name: 'LIFE', category: '注文住宅', description: 'スタンダードな高性能住宅プラン', is_active: true, display_order: 1, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'demo-product-2', name: 'LIFE+', category: '注文住宅', description: 'LIFEのアップグレード版', is_active: true, display_order: 2, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'demo-product-3', name: 'HOURS', category: '企画住宅', description: '時間を楽しむ住まい', is_active: true, display_order: 3, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'demo-product-4', name: 'LACIE', category: '企画住宅', description: 'デザイン性重視プラン', is_active: true, display_order: 4, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'demo-product-5', name: 'LIFE X', category: '注文住宅', description: 'LIFE究極進化版', is_active: true, display_order: 5, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'demo-product-6', name: 'LIFE Limited', category: '注文住宅', description: 'LIFE限定仕様', is_active: true, display_order: 6, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'demo-product-7', name: 'LIFE+ Limited', category: '注文住宅', description: 'LIFE+限定仕様', is_active: true, display_order: 7, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
   ]
 }
 

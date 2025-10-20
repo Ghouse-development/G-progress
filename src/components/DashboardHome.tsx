@@ -3,8 +3,9 @@ import { supabase } from '../lib/supabase'
 import { Project, Task, Employee, Product, Payment } from '../types/database'
 import { differenceInDays, format } from 'date-fns'
 import { HelpCircle, Plus, X } from 'lucide-react'
-import { useMode } from '../contexts/ModeContext'
+import { useFilter } from '../contexts/FilterContext'
 import { useToast } from '../contexts/ToastContext'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 
 // 年度計算関数（8月1日～翌年7月31日）
 const getFiscalYear = (date: Date): number => {
@@ -28,13 +29,11 @@ interface DepartmentStatus {
 }
 
 export default function DashboardHome() {
-  const { mode, setMode } = useMode()
+  const { selectedFiscalYear, viewMode, currentUser } = useFilter()
   const toast = useToast()
-  const [fiscalYear, setFiscalYear] = useState<number>(2024) // 2024年度から表示
   const [projects, setProjects] = useState<Project[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
   const [payments, setPayments] = useState<Payment[]>([])
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [constructionFilter, setConstructionFilter] = useState<'all' | 'pre' | 'post'>('all')
 
   // 新規案件追加用のstate
@@ -62,14 +61,13 @@ export default function DashboardHome() {
   const availableYears = Array.from({ length: 5 }, (_, i) => currentFY - i)
 
   useEffect(() => {
-    loadCurrentUser()
     loadEmployees()
     loadProducts()
   }, [])
 
   useEffect(() => {
     loadProjects()
-  }, [mode, fiscalYear, currentUserId])
+  }, [viewMode, selectedFiscalYear, currentUser])
 
   // リアルタイム更新: projects, customers, tasks, employeesテーブルの変更を監視
   useEffect(() => {
@@ -130,42 +128,10 @@ export default function DashboardHome() {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [mode, fiscalYear, currentUserId]) // フィルタ条件変更時にチャンネルを再作成
-
-  const loadCurrentUser = async () => {
-    // 開発モード: localStorageまたはデフォルトユーザーIDを使用
-    const savedUserId = localStorage.getItem('currentUserId')
-    if (savedUserId) {
-      setCurrentUserId(savedUserId)
-      return
-    }
-
-    // Supabase認証を試みる（本番用）
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        const { data: employee } = await supabase
-          .from('employees')
-          .select('id')
-          .eq('email', user.email)
-          .single()
-
-        if (employee) {
-          setCurrentUserId(employee.id)
-          return
-        }
-      }
-    } catch (error) {
-      console.log('Supabase auth not configured, using default user')
-    }
-
-    // デフォルト: ユーザーID '1' を使用（開発モード）
-    setCurrentUserId('1')
-    localStorage.setItem('currentUserId', '1')
-  }
+  }, [viewMode, selectedFiscalYear, currentUser]) // フィルタ条件変更時にチャンネルを再作成
 
   const loadProjects = async () => {
-    const { startDate, endDate } = getFiscalYearRange(fiscalYear)
+    if (!selectedFiscalYear) return
 
     let query = supabase
       .from('projects')
@@ -177,12 +143,11 @@ export default function DashboardHome() {
         design:assigned_design(id, name, department),
         construction:assigned_construction(id, name, department)
       `)
-      .gte('contract_date', startDate.toISOString())
-      .lte('contract_date', endDate.toISOString())
+      .eq('fiscal_year', selectedFiscalYear)
 
     // 担当者モードの場合、自分が担当する案件のみ
-    if (mode === 'staff' && currentUserId) {
-      query = query.or(`assigned_sales.eq.${currentUserId},assigned_design.eq.${currentUserId},assigned_construction.eq.${currentUserId}`)
+    if (viewMode === 'personal' && currentUser) {
+      query = query.or(`assigned_sales.eq.${currentUser.id},assigned_design.eq.${currentUser.id},assigned_construction.eq.${currentUser.id}`)
     }
 
     const { data, error } = await query
@@ -315,6 +280,9 @@ export default function DashboardHome() {
     return daysOverdue > 0
   }).length
 
+  // 年度を数値に変換
+  const fiscalYear = selectedFiscalYear ? parseInt(selectedFiscalYear) : new Date().getFullYear()
+
   // 月別統計を計算（8月～7月の12ヶ月）
   const getMonthlyStatistics = () => {
     const months = []
@@ -346,13 +314,29 @@ export default function DashboardHome() {
         return handoverDate >= monthStart && handoverDate <= monthEnd
       }).length
 
-      // 入金額：actual_dateが該当月の支払い
-      const monthPayments = payments.filter(payment => {
+      // 入金予定額：scheduled_dateが該当月の支払い
+      const scheduledPayments = payments.filter(payment => {
+        if (!payment.scheduled_date) return false
+        const paymentDate = new Date(payment.scheduled_date)
+        return paymentDate >= monthStart && paymentDate <= monthEnd
+      })
+      const scheduledAmount = scheduledPayments.reduce((sum, payment) => sum + (payment.scheduled_amount || 0), 0)
+
+      // 入金実績額：actual_dateが該当月の支払い
+      const actualPayments = payments.filter(payment => {
         if (!payment.actual_date) return false
         const paymentDate = new Date(payment.actual_date)
         return paymentDate >= monthStart && paymentDate <= monthEnd
       })
-      const paymentAmount = monthPayments.reduce((sum, payment) => sum + payment.amount, 0)
+      const actualAmount = actualPayments.reduce((sum, payment) => sum + (payment.actual_amount || 0), 0)
+
+      // 粗利益：該当月に契約した案件の粗利益合計
+      const monthProjects = projects.filter(p => {
+        if (!p.contract_date) return false
+        const contractDate = new Date(p.contract_date)
+        return contractDate >= monthStart && contractDate <= monthEnd
+      })
+      const grossProfit = monthProjects.reduce((sum, p) => sum + (p.gross_profit || 0), 0)
 
       months.push({
         month: format(monthDate, 'M月'),
@@ -360,7 +344,11 @@ export default function DashboardHome() {
         contractCount,
         constructionStartCount,
         handoverCount,
-        paymentAmount
+        scheduledAmount,
+        actualAmount,
+        grossProfit,
+        // 税別売上高（入金予定+実績を1.1で割る）
+        salesExcludingTax: Math.round((scheduledAmount + actualAmount) / 1.1)
       })
     }
 
@@ -368,6 +356,55 @@ export default function DashboardHome() {
   }
 
   const monthlyStats = getMonthlyStatistics()
+
+  // 商品構成の計算
+  const getProductComposition = () => {
+    const productCounts: { [key: string]: number } = {}
+
+    projects.forEach(p => {
+      const productType = p.product_type || p.product?.name || '未分類'
+      productCounts[productType] = (productCounts[productType] || 0) + 1
+    })
+
+    const total = projects.length
+    return Object.entries(productCounts).map(([name, count]) => ({
+      name,
+      count,
+      percentage: total > 0 ? Math.round((count / total) * 100) : 0
+    }))
+  }
+
+  const productComposition = getProductComposition()
+
+  // 平均坪数の計算
+  const getAverageFloorArea = () => {
+    const projectsWithArea = projects.filter(p => p.total_floor_area && p.total_floor_area > 0)
+    if (projectsWithArea.length === 0) return 0
+    const sum = projectsWithArea.reduce((acc, p) => acc + (p.total_floor_area || 0), 0)
+    return Math.round((sum / projectsWithArea.length) * 10) / 10
+  }
+
+  const averageFloorArea = getAverageFloorArea()
+
+  // 平均契約金額の計算（contract_amountフィールドが必要、なければpayments合計から推定）
+  const getAverageContractAmount = () => {
+    // プロジェクトごとの支払い合計を計算
+    const projectAmounts = projects.map(p => {
+      const projectPayments = payments.filter(payment => payment.project_id === p.id)
+      const totalAmount = projectPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0)
+      return totalAmount
+    }).filter(amount => amount > 0)
+
+    if (projectAmounts.length === 0) return 0
+    const sum = projectAmounts.reduce((acc, amount) => acc + amount, 0)
+    return Math.round(sum / projectAmounts.length)
+  }
+
+  const averageContractAmount = getAverageContractAmount()
+  const averageContractAmountExcludingTax = Math.round(averageContractAmount / 1.1)
+
+  // 完工予定数の計算
+  const expectedCompletionCount = projects.filter(p => !p.exclude_from_count).length
 
   // 部署ステータス計算（担当者モードでは自分の案件のみ）
   const getDepartmentStatus = (): DepartmentStatus[] => {
@@ -380,12 +417,12 @@ export default function DashboardHome() {
 
     // 担当者モードの場合、自分が担当している案件のIDリストを取得
     let myProjectIds: string[] = []
-    if (mode === 'staff' && currentUserId) {
+    if (viewMode === 'personal' && currentUser) {
       myProjectIds = projects
         .filter(p =>
-          p.assigned_sales === currentUserId ||
-          p.assigned_design === currentUserId ||
-          p.assigned_construction === currentUserId
+          p.assigned_sales === currentUser.id ||
+          p.assigned_design === currentUser.id ||
+          p.assigned_construction === currentUser.id
         )
         .map(p => p.id)
     }
@@ -397,7 +434,7 @@ export default function DashboardHome() {
         const isInDepartment = dept.positions.includes(taskPosition || '')
 
         // 管理者モードまたはタスクが自分の案件に属している場合のみ
-        if (mode === 'admin') {
+        if (viewMode === 'company') {
           return isInDepartment
         } else {
           return isInDepartment && myProjectIds.includes(task.project_id)
@@ -445,12 +482,12 @@ export default function DashboardHome() {
 
     // 担当者モードの場合、自分が担当している案件のIDリストを取得
     let myProjectIds: string[] = []
-    if (mode === 'staff' && currentUserId) {
+    if (viewMode === 'personal' && currentUser) {
       myProjectIds = projects
         .filter(p =>
-          p.assigned_sales === currentUserId ||
-          p.assigned_design === currentUserId ||
-          p.assigned_construction === currentUserId
+          p.assigned_sales === currentUser.id ||
+          p.assigned_design === currentUser.id ||
+          p.assigned_construction === currentUser.id
         )
         .map(p => p.id)
     }
@@ -459,7 +496,7 @@ export default function DashboardHome() {
     return positions.map(position => {
       const positionDelayedTasks = tasks.filter(task => {
         // タスクが自分の案件に属しているかチェック（担当者モードの場合）
-        if (mode === 'staff' && !myProjectIds.includes(task.project_id)) {
+        if (viewMode === 'personal' && !myProjectIds.includes(task.project_id)) {
           return false
         }
 
@@ -547,9 +584,9 @@ export default function DashboardHome() {
 
   return (
     <div className="space-y-3">
-      {/* ヘッダー: モード切替と年度選択 */}
+      {/* ヘッダー */}
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">ダッシュボード</h2>
+        <h2 className="text-2xl font-bold text-gray-900">ダッシュボード - {fiscalYear}年度</h2>
 
         <div className="flex items-center gap-4">
           {/* 新規案件追加ボタン */}
@@ -560,127 +597,147 @@ export default function DashboardHome() {
             <Plus size={20} />
             新規案件追加
           </button>
-          {/* 年度選択 */}
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <label className="text-xl font-bold text-gray-900 flex items-center gap-1">
-                年度
-                <span title="当社では8月1日〜翌年7月31日を1年度としています">
-                  <HelpCircle size={18} className="text-gray-400 cursor-help" />
-                </span>
-                :
-              </label>
-              <select
-                value={fiscalYear}
-                onChange={(e) => setFiscalYear(Number(e.target.value))}
-                className="input-canva px-6 py-3 text-xl font-bold shadow-canva"
-                title="当社では8月1日〜翌年7月31日を1年度としています"
-              >
-                {availableYears.map(year => (
-                  <option key={year} value={year}>
-                    {year}年度 ({year}/8/1 - {year + 1}/7/31)
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* モード切替 */}
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2 bg-white rounded-canva p-1 shadow-canva">
-              <button
-                onClick={() => setMode('staff')}
-                className={`px-4 py-2 rounded-canva text-base font-semibold transition-all duration-300 ${
-                  mode === 'staff'
-                    ? 'bg-canva-gradient-1 text-white shadow-canva'
-                    : 'text-gray-600 hover:bg-gray-100'
-                }`}
-                title="あなたが担当する案件のみを表示します"
-              >
-                担当者モード
-              </button>
-              <button
-                onClick={() => setMode('admin')}
-                className={`px-4 py-2 rounded-canva text-base font-semibold transition-all duration-300 ${
-                  mode === 'admin'
-                    ? 'bg-canva-gradient-1 text-white shadow-canva'
-                    : 'text-gray-600 hover:bg-gray-100'
-                }`}
-                title="全社の案件を俯瞰的に確認できます"
-              >
-                管理者モード
-              </button>
-            </div>
-          </div>
         </div>
       </div>
 
       {/* 統計情報 */}
-      <div className="grid grid-cols-5 gap-3">
+      <div className="grid grid-cols-4 gap-3">
         <div className="prisma-card">
           <div className="flex items-center gap-1 mb-2">
-            <p className="text-base text-gray-600 font-semibold">全案件数</p>
-            <span title={`${fiscalYear}年度の全案件数を表示しています`}>
+            <p className="text-base text-gray-600 font-semibold">完工予定数</p>
+            <span title={`${fiscalYear}年度の完工予定数（カウント除外を除く）`}>
               <HelpCircle size={16} className="text-gray-400 cursor-help" />
             </span>
           </div>
-          <p className="text-3xl font-bold text-canva-purple mb-3">{totalProjects}</p>
+          <p className="text-3xl font-bold text-canva-purple mb-3">{expectedCompletionCount}</p>
           <p className="text-base text-gray-500 font-medium">{fiscalYear}年度</p>
         </div>
 
         <div className="prisma-card">
           <div className="flex items-center gap-1 mb-2">
-            <p className="text-base text-gray-600 font-semibold">契約後案件数</p>
-            <span title="請負契約完了済み、着工未完了の案件数を表示しています">
+            <p className="text-base text-gray-600 font-semibold">全案件数</p>
+            <span title={`${fiscalYear}年度の全案件数`}>
               <HelpCircle size={16} className="text-gray-400 cursor-help" />
             </span>
           </div>
-          <p className="text-3xl font-bold text-canva-blue mb-3">{postContractProjects}</p>
-          <p className="text-base text-gray-500 font-medium">契約済・着工前</p>
+          <p className="text-3xl font-bold text-canva-blue mb-3">{totalProjects}</p>
+          <p className="text-base text-gray-500 font-medium">全体</p>
         </div>
 
         <div className="prisma-card">
           <div className="flex items-center gap-1 mb-2">
-            <p className="text-base text-gray-600 font-semibold">着工後案件数</p>
-            <span title="着工完了済み、引き渡し未完了の案件数を表示しています">
+            <p className="text-base text-gray-600 font-semibold">平均坪数</p>
+            <span title="案件の平均延床面積（坪）">
               <HelpCircle size={16} className="text-gray-400 cursor-help" />
             </span>
           </div>
-          <p className="text-3xl font-bold text-canva-pink mb-3">{constructionProjects}</p>
-          <p className="text-base text-gray-500 font-medium">着工済・引渡前</p>
+          <p className="text-3xl font-bold text-canva-pink mb-3">{averageFloorArea}</p>
+          <p className="text-base text-gray-500 font-medium">坪</p>
         </div>
 
         <div className="prisma-card">
           <div className="flex items-center gap-1 mb-2">
-            <p className="text-base text-gray-600 font-semibold">引き渡し済み案件数</p>
-            <span title="引き渡し完了済みの案件数を表示しています">
+            <p className="text-base text-gray-600 font-semibold">平均契約金額</p>
+            <span title="案件の平均契約金額（税込）">
               <HelpCircle size={16} className="text-gray-400 cursor-help" />
             </span>
           </div>
-          <p className="text-3xl font-bold text-green-600 mb-3">{completedProjects}</p>
-          <p className="text-base text-gray-500 font-medium">完了</p>
+          <p className="text-3xl font-bold text-green-600 mb-3">{(averageContractAmount / 10000).toFixed(0)}万円</p>
+          <p className="text-base text-gray-500 font-medium">税別: {(averageContractAmountExcludingTax / 10000).toFixed(0)}万円</p>
+        </div>
+      </div>
+
+      {/* Rechartsグラフセクション */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* 月別契約数・着工数・引き渡し数 */}
+        <div className="prisma-card">
+          <h3 className="text-lg font-bold text-gray-900 mb-3">月別 契約数・着工数・引き渡し数</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={monthlyStats}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="contractCount" fill="#8B5CF6" name="契約数" />
+              <Bar dataKey="constructionStartCount" fill="#EC4899" name="着工数" />
+              <Bar dataKey="handoverCount" fill="#10B981" name="引き渡し数" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
 
+        {/* 月別入金予定・実績 */}
         <div className="prisma-card">
-          <div className="flex items-center gap-1 mb-2">
-            <p className="text-base text-gray-600 font-semibold">遅延タスク数</p>
-            <span title="期限超過している未完了タスクの数を表示しています">
-              <HelpCircle size={16} className="text-gray-400 cursor-help" />
-            </span>
+          <h3 className="text-lg font-bold text-gray-900 mb-3">月別 入金予定・実績</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={monthlyStats}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip formatter={(value: number) => `¥${value.toLocaleString()}`} />
+              <Legend />
+              <Bar dataKey="scheduledAmount" fill="#3B82F6" name="予定（税込）" />
+              <Bar dataKey="actualAmount" fill="#EF4444" name="実績（税込）" />
+            </BarChart>
+          </ResponsiveContainer>
+          <p className="text-sm text-gray-600 mt-2">※税別売上高は各月の合計を1.1で割った値</p>
+        </div>
+
+        {/* 月別粗利益 */}
+        <div className="prisma-card">
+          <h3 className="text-lg font-bold text-gray-900 mb-3">月別 粗利益高（税別）</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={monthlyStats}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip formatter={(value: number) => `¥${value.toLocaleString()}`} />
+              <Legend />
+              <Bar dataKey="grossProfit" fill="#F59E0B" name="粗利益" />
+            </BarChart>
+          </ResponsiveContainer>
+          <p className="text-sm text-gray-600 mt-2">合計粗利益: ¥{monthlyStats.reduce((sum, m) => sum + m.grossProfit, 0).toLocaleString()}</p>
+        </div>
+
+        {/* 商品構成 */}
+        <div className="prisma-card">
+          <h3 className="text-lg font-bold text-gray-900 mb-3">商品構成</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b-2 border-gray-300">
+                  <th className="text-left p-2 text-base font-bold">商品</th>
+                  <th className="text-right p-2 text-base font-bold">数</th>
+                  <th className="text-right p-2 text-base font-bold">割合</th>
+                </tr>
+              </thead>
+              <tbody>
+                {productComposition.map((item, index) => (
+                  <tr key={index} className="border-b border-gray-200">
+                    <td className="p-2 text-base">{item.name}</td>
+                    <td className="p-2 text-right text-base font-semibold">{item.count}</td>
+                    <td className="p-2 text-right text-base font-semibold">{item.percentage}%</td>
+                  </tr>
+                ))}
+                <tr className="border-t-2 border-gray-300 font-bold bg-gray-50">
+                  <td className="p-2 text-base">合計</td>
+                  <td className="p-2 text-right text-base">{totalProjects}</td>
+                  <td className="p-2 text-right text-base">100%</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          <p className="text-3xl font-bold text-red-600 mb-3">{delayedTasksCount}</p>
-          <p className="text-base text-gray-500 font-medium">期限超過</p>
         </div>
       </div>
 
       {/* 担当者モード: 自分のタスク一覧 */}
-      {mode === 'staff' && currentUserId && (
+      {viewMode === 'personal' && currentUser && (
         <div className="space-y-4">
           <h3 className="text-xl font-bold text-gray-900">あなたのタスク</h3>
 
           {(() => {
             // 自分に割り当てられたタスクを取得
-            const myTasks = tasks.filter(task => task.assigned_to === currentUserId)
+            const myTasks = tasks.filter(task => task.assigned_to === currentUser.id)
 
             // タスクを3つのカテゴリに分類
             const delayedTasks = myTasks.filter(task => {
@@ -937,7 +994,7 @@ export default function DashboardHome() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <span className="inline-block px-3 py-1 bg-yellow-100 text-yellow-900 rounded-full font-semibold">
-                      ¥{stat.paymentAmount.toLocaleString()}
+                      ¥{(stat.scheduledAmount + stat.actualAmount).toLocaleString()}
                     </span>
                   </td>
                 </tr>
@@ -956,7 +1013,7 @@ export default function DashboardHome() {
                   {monthlyStats.reduce((sum, stat) => sum + stat.handoverCount, 0)}件
                 </td>
                 <td className="px-4 py-3 text-right text-yellow-900">
-                  ¥{monthlyStats.reduce((sum, stat) => sum + stat.paymentAmount, 0).toLocaleString()}
+                  ¥{monthlyStats.reduce((sum, stat) => sum + stat.scheduledAmount + stat.actualAmount, 0).toLocaleString()}
                 </td>
               </tr>
             </tfoot>
@@ -965,7 +1022,7 @@ export default function DashboardHome() {
       </div>
 
       {/* 管理者モード: スタッフ負荷状況 */}
-      {mode === 'admin' && (
+      {viewMode !== 'personal' && (
         <div className="bg-white rounded-lg border-2 border-pastel-blue shadow-pastel overflow-hidden">
           <div className="p-4 bg-gradient-pastel-blue border-b-2 border-pastel-blue">
             <h3 className="text-xl font-semibold text-pastel-blue-dark">スタッフ負荷状況</h3>
@@ -1273,7 +1330,7 @@ export default function DashboardHome() {
                 return (
                   <div className="space-y-3">
                     <p className="text-base text-gray-600 mb-4">
-                      {mode === 'staff' ? '自分の担当案件の遅延タスク' : '全案件の遅延タスク'}
+                      {viewMode === 'personal' ? '自分の担当案件の遅延タスク' : '全案件の遅延タスク'}
                     </p>
                     <div className="bg-white rounded-lg border-2 border-gray-300 overflow-hidden">
                       <table className="w-full text-base">

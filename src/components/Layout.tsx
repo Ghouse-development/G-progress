@@ -1,24 +1,21 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { useMode } from '../contexts/ModeContext'
-import { supabase } from '../lib/supabase'
-import { FiscalYear, Employee } from '../types/database'
+import { useFilter } from '../contexts/FilterContext'
 import './Layout.css'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation()
-  const { mode, setMode } = useMode()
-  const [fiscalYears, setFiscalYears] = useState<FiscalYear[]>([])
-  const [selectedYear, setSelectedYear] = useState<string>('2025')
-  const [currentEmployee, setCurrentEmployee] = useState<Employee | null>(null)
+  const {
+    fiscalYears,
+    selectedFiscalYear,
+    setSelectedFiscalYear,
+    viewMode,
+    setViewMode,
+    currentUser
+  } = useFilter()
+
   // モバイルではデフォルトでサイドバーを閉じる
   const [sidebarCollapsed, setSidebarCollapsed] = useState(window.innerWidth <= 768)
-
-  // データ読み込み
-  useEffect(() => {
-    loadFiscalYears()
-    loadCurrentEmployee()
-  }, [])
 
   // ウィンドウリサイズ時にサイドバーの状態を更新
   useEffect(() => {
@@ -32,32 +29,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  const loadFiscalYears = async () => {
-    const { data } = await supabase
-      .from('fiscal_years')
-      .select('*')
-      .order('year', { ascending: false })
-
-    if (data) {
-      setFiscalYears(data)
-    }
-  }
-
-  const loadCurrentEmployee = async () => {
-    const employeeId = localStorage.getItem('selectedEmployeeId')
-    if (!employeeId) return
-
-    const { data } = await supabase
-      .from('employees')
-      .select('*')
-      .eq('id', employeeId)
-      .single()
-
-    if (data) {
-      setCurrentEmployee(data)
-    }
-  }
-
   const handleLogout = () => {
     // 開発モード: localStorageをクリアしてログイン画面へ
     localStorage.removeItem('auth')
@@ -65,7 +36,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }
 
   // 管理者権限チェック
-  const isAdmin = currentEmployee?.role === 'department_head' || currentEmployee?.role === 'president' || currentEmployee?.role === 'executive'
+  const isAdmin = currentUser?.role === 'department_head' || currentUser?.role === 'president' || currentUser?.role === 'executive'
 
   return (
     <div className="layout-container">
@@ -95,25 +66,26 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </div>
 
             {/* ⓪ モード切替 */}
-            <div className="p-3 border-b">
-              <div className="text-xs text-gray-600 mb-2">表示モード</div>
+            <div className="p-3 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
+              <div className="text-xs font-bold text-gray-700 mb-2">⓪ 表示モード</div>
               <select
-                value={mode}
-                onChange={(e) => setMode(e.target.value as any)}
-                className="w-full p-2 border text-sm bg-white"
+                value={viewMode}
+                onChange={(e) => setViewMode(e.target.value as 'personal' | 'branch' | 'company')}
+                className="w-full p-2 border-2 border-gray-300 text-sm bg-white font-bold rounded-lg shadow-sm hover:border-blue-500 transition-colors"
               >
-                <option value="my_tasks">担当者モード</option>
-                <option value="branch">拠点モード</option>
-                {isAdmin && <option value="admin">全社モード</option>}
+                <option value="personal">👤 担当者モード</option>
+                <option value="branch">🏢 拠点モード</option>
+                {isAdmin && <option value="company">🌐 全社モード</option>}
               </select>
             </div>
 
             {/* ① 年度選択 */}
-            <div className="p-3 border-b">
+            <div className="p-3 border-b bg-gradient-to-r from-purple-50 to-pink-50">
+              <div className="text-xs font-bold text-gray-700 mb-2">① 年度選択</div>
               <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
-                className="w-full p-2 border text-sm bg-white font-bold"
+                value={selectedFiscalYear || ''}
+                onChange={(e) => setSelectedFiscalYear(e.target.value)}
+                className="w-full p-2 border-2 border-gray-300 text-sm bg-white font-bold rounded-lg shadow-sm hover:border-purple-500 transition-colors"
               >
                 {fiscalYears.map((fy) => (
                   <option key={fy.id} value={fy.year}>
@@ -186,6 +158,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 }`}
               >
                 案件マスタ
+              </Link>
+              <Link
+                to="/master/products"
+                className={`block p-2 text-sm ${
+                  location.pathname === '/master/products' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                商品マスタ
               </Link>
               <Link
                 to="/master/tasks"

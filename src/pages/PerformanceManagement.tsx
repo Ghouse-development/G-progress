@@ -7,8 +7,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { Project } from '../types/database'
-import { useFiscalYear } from '../contexts/FiscalYearContext'
-import { useMode } from '../contexts/ModeContext'
+import { useFilter } from '../contexts/FilterContext'
 import { useSettings } from '../contexts/SettingsContext'
 import { generateDemoProjects, generateDemoCustomers } from '../utils/demoData'
 import Papa from 'papaparse'
@@ -35,23 +34,25 @@ interface PerformanceStats {
 }
 
 export default function PerformanceManagement() {
-  const { selectedYear } = useFiscalYear()
-  const { mode } = useMode()
+  const { selectedFiscalYear, viewMode } = useFilter()
   const { demoMode } = useSettings()
   const [projects, setProjects] = useState<Project[]>([])
   const [stats, setStats] = useState<PerformanceStats | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // Map viewMode to old mode format for demo data compatibility
+  const legacyMode = viewMode === 'personal' ? 'my_tasks' : viewMode === 'branch' ? 'branch' : 'admin'
+
   useEffect(() => {
     loadProjects()
-  }, [selectedYear, mode, demoMode])
+  }, [selectedFiscalYear, viewMode, demoMode])
 
   const loadProjects = async () => {
     setLoading(true)
 
     if (demoMode) {
       // デモモード：サンプルデータを使用（モード別にデータ件数を調整）
-      const demoProjects = generateDemoProjects(mode as 'my_tasks' | 'branch' | 'admin')
+      const demoProjects = generateDemoProjects(legacyMode)
       const demoCustomers = generateDemoCustomers()
 
       const projectsWithCustomers = demoProjects.map(project => ({
@@ -69,7 +70,7 @@ export default function PerformanceManagement() {
     const { data } = await supabase
       .from('projects')
       .select('*, customer:customers(*)')
-      .eq('fiscal_year', selectedYear)
+      .eq('fiscal_year', selectedFiscalYear)
       .order('contract_date', { ascending: false })
 
     if (data) {
@@ -202,7 +203,7 @@ export default function PerformanceManagement() {
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
     link.href = URL.createObjectURL(blob)
-    link.download = `性能管理_${selectedYear}年度.csv`
+    link.download = `性能管理_${selectedFiscalYear}年度.csv`
     link.click()
   }
 
@@ -210,7 +211,7 @@ export default function PerformanceManagement() {
     const doc = new jsPDF('landscape')
     doc.setFont('helvetica')
     doc.setFontSize(16)
-    doc.text(`性能管理 ${selectedYear}年度`, 20, 20)
+    doc.text(`性能管理 ${selectedFiscalYear}年度`, 20, 20)
 
     let y = 40
     doc.setFontSize(10)
@@ -245,7 +246,7 @@ export default function PerformanceManagement() {
       y += 10
     })
 
-    doc.save(`性能管理_${selectedYear}年度.pdf`)
+    doc.save(`性能管理_${selectedFiscalYear}年度.pdf`)
   }
 
   if (loading) {

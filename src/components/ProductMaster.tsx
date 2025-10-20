@@ -1,64 +1,170 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Product } from '../types/database'
-import { Plus, Edit2, Trash2, X, ArrowLeft } from 'lucide-react'
+import { Plus, Edit2, Trash2, X, GripVertical } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
-import { useSettings } from '../contexts/SettingsContext'
-import { generateDemoProducts } from '../utils/demoData'
 
 export default function ProductMaster() {
-  const navigate = useNavigate()
-  const toast = useToast()
-  const { demoMode } = useSettings()
+  const { showToast } = useToast()
   const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+  const [draggedProduct, setDraggedProduct] = useState<Product | null>(null)
+
   const [formData, setFormData] = useState({
     name: '',
-    code: '',
-    description: ''
+    category: '',
+    description: '',
+    is_active: true,
+    display_order: 0
   })
 
   useEffect(() => {
     loadProducts()
-  }, [demoMode])
+  }, [])
 
   const loadProducts = async () => {
-    if (demoMode) {
-      // デモモード：サンプルデータを使用
-      setProducts(generateDemoProducts())
-      return
-    }
+    try {
+      setLoading(true)
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('display_order', { ascending: true })
 
-    // 通常モード：Supabaseからデータを取得
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .order('name')
-
-    if (!error && data) {
-      setProducts(data as Product[])
+      if (error) throw error
+      setProducts(data || [])
+    } catch (error) {
+      console.error('Failed to load products:', error)
+      showToast('商品マスタの読み込みに失敗しました', 'error')
+    } finally {
+      setLoading(false)
     }
   }
 
-  const handleOpenModal = (product?: Product) => {
-    if (product) {
-      setEditingProduct(product)
-      setFormData({
-        name: product.name,
-        code: product.code || '',
-        description: product.description || ''
-      })
-    } else {
-      setEditingProduct(null)
-      setFormData({
-        name: '',
-        code: '',
-        description: ''
-      })
+  const handleSubmit = async () => {
+    if (!formData.name.trim()) {
+      showToast('商品名は必須です', 'warning')
+      return
     }
+
+    try {
+      const productData = {
+        name: formData.name,
+        category: formData.category,
+        description: formData.description,
+        is_active: formData.is_active,
+        display_order: editingProduct ? editingProduct.display_order : products.length
+      }
+
+      if (editingProduct) {
+        const { error } = await supabase
+          .from('products')
+          .update(productData)
+          .eq('id', editingProduct.id)
+
+        if (error) throw error
+        showToast('商品マスタを更新しました', 'success')
+      } else {
+        const { error } = await supabase
+          .from('products')
+          .insert(productData)
+
+        if (error) throw error
+        showToast('商品マスタを作成しました', 'success')
+      }
+
+      await loadProducts()
+      handleCloseModal()
+    } catch (error: any) {
+      console.error('Failed to save product:', error)
+      if (error.code === '23505') {
+        showToast('この商品名は既に登録されています', 'error')
+      } else {
+        showToast('商品マスタの保存に失敗しました', 'error')
+      }
+    }
+  }
+
+  const handleEdit = (product: Product) => {
+    setEditingProduct(product)
+    setFormData({
+      name: product.name,
+      category: product.category || '',
+      description: product.description || '',
+      is_active: product.is_active,
+      display_order: product.display_order
+    })
     setShowModal(true)
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('この商品マスタを削除してもよろしいですか？\n\n※この商品を使用している案件がある場合は削除できません。')) return
+
+    try {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', id)
+
+      if (error) {
+        if (error.code === '23503') {
+          showToast('この商品を使用している案件があるため削除できません', 'error')
+        } else {
+          throw error
+        }
+        return
+      }
+
+      showToast('商品マスタを削除しました', 'success')
+      await loadProducts()
+    } catch (error) {
+      console.error('Failed to delete product:', error)
+      showToast('商品マスタの削除に失敗しました', 'error')
+    }
+  }
+
+  const handleDragStart = (product: Product) => {
+    setDraggedProduct(product)
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+  }
+
+  const handleDrop = async (targetProduct: Product) => {
+    if (!draggedProduct || draggedProduct.id === targetProduct.id) {
+      setDraggedProduct(null)
+      return
+    }
+
+    try {
+      const draggedIndex = products.findIndex(p => p.id === draggedProduct.id)
+      const targetIndex = products.findIndex(p => p.id === targetProduct.id)
+
+      // ローカルで並び替え
+      const newProducts = [...products]
+      newProducts.splice(draggedIndex, 1)
+      newProducts.splice(targetIndex, 0, draggedProduct)
+
+      // display_orderを更新
+      const updates = newProducts.map((product, index) => ({
+        id: product.id,
+        display_order: index
+      }))
+
+      // バッチ更新
+      for (const update of updates) {
+        await supabase.from('products').update({ display_order: update.display_order }).eq('id', update.id)
+      }
+
+      await loadProducts()
+      showToast('並び順を変更しました', 'success')
+    } catch (error) {
+      showToast('並び順の変更に失敗しました', 'error')
+    } finally {
+      setDraggedProduct(null)
+    }
   }
 
   const handleCloseModal = () => {
@@ -66,187 +172,94 @@ export default function ProductMaster() {
     setEditingProduct(null)
     setFormData({
       name: '',
-      code: '',
-      description: ''
+      category: '',
+      description: '',
+      is_active: true,
+      display_order: products.length
     })
-  }
-
-  const handleSubmit = async () => {
-    if (!formData.name.trim()) {
-      toast.warning('商品名は必須です')
-      return
-    }
-
-    try {
-      if (demoMode) {
-        // デモモード：ローカルステートのみ更新
-        if (editingProduct) {
-          setProducts(prevProducts =>
-            prevProducts.map(p =>
-              p.id === editingProduct.id
-                ? { ...p, name: formData.name, code: formData.code || undefined, description: formData.description || undefined, updated_at: new Date().toISOString() }
-                : p
-            )
-          )
-          toast.success('商品を更新しました（デモモード）')
-        } else {
-          const newProduct: Product = {
-            id: `demo-product-${Date.now()}`,
-            name: formData.name,
-            code: formData.code || undefined,
-            description: formData.description || undefined,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }
-          setProducts(prevProducts => [...prevProducts, newProduct])
-          toast.success('商品を追加しました（デモモード）')
-        }
-        handleCloseModal()
-        return
-      }
-
-      // 通常モード：Supabaseを更新
-      if (editingProduct) {
-        const { error } = await supabase
-          .from('products')
-          .update({
-            name: formData.name,
-            code: formData.code || null,
-            description: formData.description || null,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', editingProduct.id)
-
-        if (error) throw error
-        toast.success('商品を更新しました')
-      } else {
-        const { error } = await supabase
-          .from('products')
-          .insert({
-            name: formData.name,
-            code: formData.code || null,
-            description: formData.description || null
-          })
-
-        if (error) throw error
-        toast.success('商品を追加しました')
-      }
-
-      await loadProducts()
-      handleCloseModal()
-    } catch (error) {
-      console.error('Failed to save product:', error)
-      toast.error('商品の保存に失敗しました')
-    }
-  }
-
-  const handleDelete = async (product: Product) => {
-    if (!confirm(`「${product.name}」を削除してもよろしいですか？`)) {
-      return
-    }
-
-    try {
-      if (demoMode) {
-        // デモモード：ローカルステートのみ更新
-        setProducts(prevProducts => prevProducts.filter(p => p.id !== product.id))
-        toast.success('商品を削除しました（デモモード）')
-        return
-      }
-
-      // 通常モード：Supabaseを更新
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', product.id)
-
-      if (error) throw error
-
-      toast.success('商品を削除しました')
-      await loadProducts()
-    } catch (error) {
-      console.error('Failed to delete product:', error)
-      toast.error('商品の削除に失敗しました')
-    }
   }
 
   return (
     <div className="space-y-6">
       {/* ヘッダー */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors font-medium"
-            title="前の画面に戻る"
-          >
-            <ArrowLeft size={20} />
-            戻る
-          </button>
-          <h2 className="text-2xl font-light text-black dark:text-gray-100">商品マスタ管理</h2>
-        </div>
+        <h2 className="text-3xl font-bold text-gray-900">商品マスタ</h2>
         <button
-          onClick={() => handleOpenModal()}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          onClick={() => setShowModal(true)}
+          className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg border-2 border-black hover:bg-blue-700 transition-colors font-bold text-lg shadow-lg"
         >
-          <Plus size={20} />
+          <Plus size={24} />
           新規商品追加
         </button>
       </div>
 
-      {/* 商品一覧テーブル */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border-2 border-pastel-blue shadow-pastel-lg overflow-hidden">
+      {/* テーブル */}
+      <div className="bg-white rounded-lg border-3 border-black shadow-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-pastel-blue-light">
+            <thead className="bg-gradient-to-r from-purple-100 to-purple-50 border-b-3 border-black">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
-                  商品コード
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
-                  商品名
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
-                  説明
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
-                  操作
-                </th>
+                <th className="px-2 py-4 text-center text-base font-bold text-gray-900 w-12"></th>
+                <th className="px-6 py-4 text-left text-base font-bold text-gray-900">商品名</th>
+                <th className="px-6 py-4 text-left text-base font-bold text-gray-900">カテゴリ</th>
+                <th className="px-6 py-4 text-center text-base font-bold text-gray-900">有効/無効</th>
+                <th className="px-6 py-4 text-center text-base font-bold text-gray-900">操作</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {products.length === 0 ? (
+            <tbody>
+              {loading ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
-                    商品が登録されていません
+                  <td colSpan={5} className="px-6 py-10 text-center text-gray-500 text-base">
+                    読み込み中...
+                  </td>
+                </tr>
+              ) : products.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-10 text-center text-gray-500 text-base">
+                    商品マスタが登録されていません
                   </td>
                 </tr>
               ) : (
                 products.map((product) => (
-                  <tr key={product.id} className="hover:bg-pastel-blue-light dark:hover:bg-gray-700 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {product.code || '-'}
+                  <tr
+                    key={product.id}
+                    draggable
+                    onDragStart={() => handleDragStart(product)}
+                    onDragOver={handleDragOver}
+                    onDrop={() => handleDrop(product)}
+                    className={`border-b-2 border-gray-200 hover:bg-purple-50 transition-colors cursor-move ${
+                      draggedProduct?.id === product.id ? 'opacity-50' : ''
+                    }`}
+                  >
+                    <td className="px-2 py-4 text-center">
+                      <GripVertical size={20} className="text-gray-400 mx-auto" />
                     </td>
-                    <td className="px-6 py-4 text-sm font-bold text-gray-900 dark:text-gray-100">
-                      {product.name}
+                    <td className="px-6 py-4 text-base text-gray-900 font-bold">{product.name}</td>
+                    <td className="px-6 py-4 text-base text-gray-700 font-medium">{product.category || '-'}</td>
+                    <td className="px-6 py-4 text-center">
+                      <span className={`px-3 py-1 rounded-full text-sm font-bold ${
+                        product.is_active
+                          ? 'bg-green-100 text-green-800 border-2 border-green-600'
+                          : 'bg-gray-100 text-gray-600 border-2 border-gray-400'
+                      }`}>
+                        {product.is_active ? '有効' : '無効'}
+                      </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
-                      {product.description || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="flex items-center justify-center gap-2">
+                    <td className="px-6 py-4 text-center">
+                      <div className="flex items-center justify-center gap-3">
                         <button
-                          onClick={() => handleOpenModal(product)}
-                          className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-lg transition-colors"
+                          onClick={() => handleEdit(product)}
+                          className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors border-2 border-blue-600"
                           title="編集"
                         >
-                          <Edit2 size={18} />
+                          <Edit2 size={20} />
                         </button>
                         <button
-                          onClick={() => handleDelete(product)}
-                          className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 rounded-lg transition-colors"
+                          onClick={() => handleDelete(product.id)}
+                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors border-2 border-red-600"
                           title="削除"
                         >
-                          <Trash2 size={18} />
+                          <Trash2 size={20} />
                         </button>
                       </div>
                     </td>
@@ -258,7 +271,7 @@ export default function ProductMaster() {
         </div>
       </div>
 
-      {/* 商品追加/編集モーダル */}
+      {/* モーダル */}
       {showModal && (
         <div className="prisma-modal-overlay">
           <div className="prisma-modal" style={{ maxWidth: '600px' }}>
@@ -266,7 +279,7 @@ export default function ProductMaster() {
             <div className="prisma-modal-header">
               <div className="flex items-center justify-between">
                 <h2 className="prisma-modal-title">
-                  {editingProduct ? '商品編集' : '新規商品追加'}
+                  {editingProduct ? '商品マスタ編集' : '新規商品マスタ'}
                 </h2>
                 <button
                   onClick={handleCloseModal}
@@ -279,43 +292,65 @@ export default function ProductMaster() {
 
             {/* コンテンツ */}
             <div className="prisma-modal-content space-y-4">
+              {/* 商品名 */}
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
-                  商品名 <span className="text-red-500">*</span>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                  商品名 <span className="text-red-600">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="例: スタンダードプラン"
+                  placeholder="例: LIFE Limited"
                   className="prisma-input"
                 />
               </div>
 
+              {/* カテゴリ */}
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
-                  商品コード
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                  カテゴリ
                 </label>
-                <input
-                  type="text"
-                  value={formData.code}
-                  onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                  placeholder="例: STD-001"
-                  className="prisma-input"
-                />
+                <select
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className="prisma-select"
+                >
+                  <option value="">選択してください</option>
+                  <option value="注文住宅">注文住宅</option>
+                  <option value="規格住宅">規格住宅</option>
+                  <option value="モデルハウス">モデルハウス</option>
+                  <option value="建売">建売</option>
+                  <option value="その他">その他</option>
+                </select>
               </div>
 
+              {/* 商品説明 */}
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
-                  説明
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                  商品説明
                 </label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="商品の説明を入力してください"
-                  rows={3}
+                  placeholder="商品の特徴や説明を入力してください"
                   className="prisma-input resize-none"
+                  rows={4}
                 />
+              </div>
+
+              {/* 有効/無効 */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="is_active"
+                  checked={formData.is_active}
+                  onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                  className="w-4 h-4"
+                />
+                <label htmlFor="is_active" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  この商品を有効にする
+                </label>
               </div>
             </div>
 

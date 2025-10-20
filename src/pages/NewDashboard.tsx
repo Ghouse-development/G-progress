@@ -249,11 +249,11 @@ export default function NewDashboard() {
     })
     setDelayedTaskCount(delayedTasks.length)
 
-    // 商品構成
+    // 商品構成（商品マスタから取得）
     const productCounts: { [key: string]: number } = {}
     projects.forEach(p => {
-      const productType = p.product_type || '不明'
-      productCounts[productType] = (productCounts[productType] || 0) + 1
+      const productName = p.product?.name || p.product_type || '不明'
+      productCounts[productName] = (productCounts[productName] || 0) + 1
     })
     const total = projects.length
     const composition = Object.entries(productCounts).map(([name, count]) => ({

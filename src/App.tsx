@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { ToastProvider } from './contexts/ToastContext'
 import { NotificationProvider } from './contexts/NotificationContext'
 import { PermissionsProvider } from './contexts/PermissionsContext'
+import { FilterProvider } from './contexts/FilterContext'
 import Dashboard from './pages/Dashboard'
 
 // プロテクトされたルートコンポーネント
@@ -46,7 +47,9 @@ function App() {
         <ToastProvider>
           <NotificationProvider>
             <PermissionsProvider>
-              <AppRoutes />
+              <FilterProvider>
+                <AppRoutes />
+              </FilterProvider>
             </PermissionsProvider>
           </NotificationProvider>
         </ToastProvider>

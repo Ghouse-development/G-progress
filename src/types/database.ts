@@ -66,10 +66,12 @@ export interface Employee {
   department: Department
   role: Role
   branch_id?: string
+  organization_id?: string // マルチテナント対応
   avatar_url?: string
   created_at: string
   updated_at: string
   branch?: Branch
+  organization?: Organization
 }
 
 export interface Vendor {
@@ -90,32 +92,172 @@ export interface Customer {
   building_site: string
   phone?: string
   email?: string
+  organization_id?: string // マルチテナント対応
   created_at: string
   updated_at: string
+  organization?: Organization
 }
 
 export interface Product {
   id: string
   name: string
-  code?: string
+  category?: string // 規格住宅、注文住宅、リノベーション等
   description?: string
+  base_price?: number // 基本価格（参考値）
+  is_active: boolean
+  display_order: number
   created_at: string
   updated_at: string
+}
+
+export interface Organization {
+  id: string
+  name: string // "本社", "FC横浜", "FC大阪"
+  type: 'headquarters' | 'franchise'
+  parent_organization_id?: string
+  subscription_status: 'active' | 'suspended' | 'cancelled'
+  contract_start_date?: string
+  contract_end_date?: string
+  created_at: string
+  updated_at: string
+  parent?: Organization // リレーション
 }
 
 export interface Project {
   id: string
   customer_id: string
-  product_id?: string
+  organization_id?: string // マルチテナント対応
+
+  // 基本情報
   contract_number?: string
+  customer_names?: string[]
+  construction_address?: string
+  product_id?: string
+  sales_staff_id?: string
+  design_staff_id?: string
+  ic_staff_id?: string
+  construction_staff_id?: string
+  exterior_staff_id?: string
+  implementation_designer?: string
+  design_office?: string
+  floors?: number
+  construction_area?: number // 坪数(施工)
+
+  // スケジュール
   contract_date: string
+  design_hearing_date?: string
+  plan_finalized_date?: string
+  plan_financial_sent_date?: string
+  structure_go_date?: string
+  application_go_date?: string
+  structure_1st_cb_date?: string
+  structure_2nd_cb_date?: string
+  meeting_available_date?: string
+  weekday_web_meeting_campaign?: boolean
+  benefits_content?: string
+  original_kitchen?: boolean
+  original_iron_stairs?: boolean
+  ic_benefits_count?: number
+  meeting_count?: number
+  youtube_recommended?: boolean
+  final_meeting_date?: string
+  meeting_document_delivery_date?: string
+  pre_change_contract_meeting_date?: string
+  drawing_upload_date?: string
+  structure_drawing_upload_date?: string
+  construction_permit_date?: string
+
+  // 融資関連
+  long_term_loan?: boolean
+  flat_loan?: boolean
+  flat_design_notice_required_date?: string
+  building_permit_required?: boolean
+  building_permit_required_date?: string
+  interim_inspection_cert_required?: boolean
+  interim_inspection_cert_required_date?: string
+  completion_inspection_cert_required?: boolean
+  completion_inspection_cert_required_date?: string
+
+  // 解体・土地関連
+  demolition?: boolean
+  demolition_contractor?: string
+  demolition_subsidy?: boolean
+  shizume_toufuda?: boolean
+  buried_cultural_property_area?: string
+  demolition_start_date?: string
+  demolition_completion_date?: string
+  change_contract_date?: string
+  land_settlement_date?: string
+  subdivision?: boolean
+  subdivision_completion_date?: string
+  new_water_connection?: boolean
+
+  // 工事スケジュール
+  initial_contract_construction_start_date?: string
+  change_contract_construction_start_date?: string
+  pre_construction_work?: string
+  ground_reinforcement?: boolean
+  ground_reinforcement_date?: string
+  foundation_start_date?: string
+  execution_budget_completion_date?: string
+  roof_raising_date?: string
+  interim_inspection_date?: string
+  pre_completion_inspection_work?: string
+  completion_inspection_date?: string
+  handover_date?: string
+  owner_desired_key_delivery_date?: string
+  exterior_work_start_date?: string
+  exterior_work_completion_date?: string
+
+  // 進捗・備考
+  progress_status?: string
+  notes?: string
+
+  // 補助金・融資詳細
+  subsidy_type?: string
+  long_term_requirements?: string
+  gx_requirements?: string
+  bank_name?: string
+  pre_application_approved?: boolean
+  main_application_approved?: boolean
+
+  // 金額
+  contract_amount?: number
+  application_fee_date?: string
+  application_fee_amount?: number
+  contract_payment_date?: string
+  contract_payment_amount?: number
+  construction_start_payment_date?: string
+  construction_start_payment_amount?: number
+  roof_raising_payment_date?: string
+  roof_raising_payment_amount?: number
+  final_payment_date?: string
+  final_payment_amount?: number
+  fire_insurance_amount?: number
+  fire_insurance_commission?: number
+  fixture_work_commission?: boolean
+  fixture_work_commission_amount?: number
+  title_registration_commission?: number
+  judicial_scrivener_commission?: number
+
+  // 性能値
+  c_value?: number
+  ua_value?: number
+  eta_ac_value?: number
+  reduction_rate_no_renewable?: number
+  bei_no_renewable?: number
+  reduction_rate_renewable_self?: number
+  bei_renewable_self?: number
+  reduction_rate_renewable_sell?: number
+  bei_renewable_sell?: number
+  gx_requirements_met?: boolean
+  zeh_certified?: boolean
+
+  // 既存フィールド
   floor_plan_confirmed_date?: string
   final_specification_meeting_date?: string
   construction_permission_date?: string
   construction_start_date?: string
-  roof_raising_date?: string
-  completion_inspection_date?: string
-  handover_date?: string
   scheduled_end_date?: string
   actual_end_date?: string
   expected_completion_date?: string
@@ -126,29 +268,34 @@ export interface Project {
   assigned_construction?: string
   created_at: string
   updated_at: string
-  version?: number // 同時編集対応用バージョン番号
+  version?: number
+
   // サイドバー設計追加フィールド
-  exclude_from_count?: boolean // 完工予定数カウント除外
-  solar_panel?: boolean // 太陽光有無
-  solar_kw?: number // 太陽光kW数
-  battery?: boolean // 蓄電池有無
-  ua_value?: number // UA値
-  bels?: boolean // BELS有無
-  primary_energy_1?: number // 一次消費エネルギー①
-  primary_energy_2?: number // 一次消費エネルギー②
-  primary_energy_3?: number // 一次消費エネルギー③
-  c_value?: number // C値
-  total_floor_area?: number // 延床面積（坪）
-  gross_profit?: number // 粗利益（税別）
-  fiscal_year?: string // 年度（例: "2025"）
-  product_type?: string // 商品種別
-  contract_amount?: number // 契約金額（税込）
+  exclude_from_count?: boolean
+  solar_panel?: boolean
+  solar_kw?: number
+  battery?: boolean
+  bels?: boolean
+  primary_energy_1?: number
+  primary_energy_2?: number
+  primary_energy_3?: number
+  total_floor_area?: number
+  gross_profit?: number
+  fiscal_year?: string
+  product_type?: string
+
   // リレーション
   customer?: Customer
   product?: Product
+  organization?: Organization
   sales?: Employee
   design?: Employee
   construction?: Employee
+  sales_staff?: Employee
+  design_staff?: Employee
+  ic_staff?: Employee
+  construction_staff?: Employee
+  exterior_staff?: Employee
 }
 
 export interface Payment {
@@ -161,8 +308,10 @@ export interface Payment {
   scheduled_amount?: number // 予定額
   actual_amount?: number // 実績額
   status: PaymentStatus
+  organization_id?: string // マルチテナント対応
   created_at: string
   updated_at: string
+  organization?: Organization
 }
 
 export interface Task {
@@ -175,6 +324,7 @@ export interface Task {
   actual_completion_date?: string
   status: TaskStatus
   priority: TaskPriority
+  organization_id?: string // マルチテナント対応
   created_at: string
   updated_at: string
   version?: number // 同時編集対応用バージョン番号
@@ -184,6 +334,7 @@ export interface Task {
   manual_url?: string
   video_url?: string
   task_master_id?: string // タスクマスタとの紐付け
+  organization?: Organization
 }
 
 export interface TaskMaster {
@@ -211,9 +362,11 @@ export interface TaskMaster {
   days_from_trigger?: number // トリガーからの日数
   trigger_id?: string // トリガーID
   duration_days?: number // 作業期間
+  related_task_master_ids?: string[] // 関連タスクマスタのID配列
   created_at: string
   updated_at: string
   trigger?: Trigger // リレーション
+  related_tasks?: TaskMaster[] // 関連タスクマスタ（リレーション）
 }
 
 export interface Attachment {
@@ -237,8 +390,10 @@ export interface AuditLog {
   record_id?: string
   changes?: Record<string, any>
   ip_address?: string
+  organization_id?: string // マルチテナント対応
   created_at: string
   user?: Employee
+  organization?: Organization
 }
 
 export interface Notification {
