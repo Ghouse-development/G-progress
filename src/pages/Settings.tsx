@@ -131,6 +131,140 @@ export default function Settings() {
           </div>
         </div>
 
+        {/* システムロードマップ */}
+        <div className="prisma-card">
+          <div className="p-6">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
+              システムロードマップ - 今後の構想
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 text-base mb-6">
+              G-progressは、会社全体の基幹システムとして6つの事業を包括する総合経営管理システムを目指しています。
+            </p>
+
+            {/* ツリー図 */}
+            <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 p-6 rounded-xl border-2 border-gray-300 dark:border-gray-600">
+              {/* ルートノード */}
+              <div className="text-center mb-6">
+                <div className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl shadow-lg">
+                  <div className="text-xl font-bold">G-progress</div>
+                  <div className="text-sm opacity-90">総合経営管理システム</div>
+                </div>
+              </div>
+
+              {/* 接続線 */}
+              <div className="flex justify-center mb-4">
+                <div className="w-0.5 h-8 bg-gray-400 dark:bg-gray-500"></div>
+              </div>
+
+              {/* 6事業部門 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* 注文住宅事業 - 実装中 */}
+                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border-3 border-green-500 shadow-lg">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-bold text-base text-gray-900 dark:text-gray-100">注文住宅事業</h4>
+                    <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-bold rounded">実装中</span>
+                  </div>
+
+                  <div className="space-y-2 text-sm">
+                    <div className="font-semibold text-gray-700 dark:text-gray-300 mb-1">実装済み:</div>
+                    <div className="flex items-center gap-2 text-green-700 dark:text-green-300">
+                      <span className="text-green-500">✓</span> 案件管理
+                    </div>
+                    <div className="flex items-center gap-2 text-green-700 dark:text-green-300">
+                      <span className="text-green-500">✓</span> タスク管理
+                    </div>
+                    <div className="flex items-center gap-2 text-green-700 dark:text-green-300">
+                      <span className="text-green-500">✓</span> 入金管理
+                    </div>
+                    <div className="flex items-center gap-2 text-green-700 dark:text-green-300">
+                      <span className="text-green-500">✓</span> 性能管理
+                    </div>
+
+                    <div className="font-semibold text-gray-700 dark:text-gray-300 mt-3 mb-1">計画中:</div>
+                    <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                      <span>○</span> 承認フロー
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                      <span>○</span> ミスロス報告
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                      <span>○</span> 発注・積算
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                      <span>○</span> オプション管理
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                      <span>○</span> キャンペーン情報
+                    </div>
+                  </div>
+                </div>
+
+                {/* 不動産事業 */}
+                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border-2 border-gray-300 dark:border-gray-600 opacity-75">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-bold text-base text-gray-900 dark:text-gray-100">不動産事業</h4>
+                    <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs font-bold rounded">予定</span>
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    物件管理・契約管理・顧客管理など
+                  </p>
+                </div>
+
+                {/* 外構事業 */}
+                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border-2 border-gray-300 dark:border-gray-600 opacity-75">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-bold text-base text-gray-900 dark:text-gray-100">外構事業</h4>
+                    <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs font-bold rounded">予定</span>
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    外構設計・工事管理・見積管理など
+                  </p>
+                </div>
+
+                {/* 賃貸管理事業 */}
+                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border-2 border-gray-300 dark:border-gray-600 opacity-75">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-bold text-base text-gray-900 dark:text-gray-100">賃貸管理事業</h4>
+                    <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs font-bold rounded">予定</span>
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    物件管理・入居者管理・契約管理など
+                  </p>
+                </div>
+
+                {/* リフォーム事業 */}
+                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border-2 border-gray-300 dark:border-gray-600 opacity-75">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-bold text-base text-gray-900 dark:text-gray-100">リフォーム事業</h4>
+                    <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs font-bold rounded">予定</span>
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    案件管理・施工管理・見積管理など
+                  </p>
+                </div>
+
+                {/* BtoB事業 */}
+                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border-2 border-gray-300 dark:border-gray-600 opacity-75">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-bold text-base text-gray-900 dark:text-gray-100">BtoB事業</h4>
+                    <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs font-bold rounded">予定</span>
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    企業間取引管理・商談管理など
+                  </p>
+                </div>
+              </div>
+
+              {/* フェーズ情報 */}
+              <div className="mt-6 pt-4 border-t-2 border-gray-300 dark:border-gray-600">
+                <div className="text-center text-sm text-gray-600 dark:text-gray-400">
+                  <span className="font-semibold">開発フェーズ:</span> 第1フェーズ（注文住宅事業の基盤機能構築中）
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* 注意事項 */}
         {demoMode && (
           <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-4 rounded">

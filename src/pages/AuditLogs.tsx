@@ -39,12 +39,12 @@ export default function AuditLogs() {
   // 権限チェック
   if (!hasPermission('audit_logs:view')) {
     return (
-      <div style={{ padding: '24px', textAlign: 'center' }}>
-        <Shield size={64} style={{ margin: '0 auto 16px', color: '#DC2626' }} />
-        <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '8px' }}>
+      <div className="flex flex-col items-center justify-center py-12">
+        <Shield size={64} className="text-red-600 mb-4" />
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
           アクセス権限がありません
         </h2>
-        <p style={{ color: '#666' }}>
+        <p className="text-gray-600">
           監査ログを閲覧する権限がありません。管理者にお問い合わせください。
         </p>
       </div>
@@ -176,47 +176,31 @@ export default function AuditLogs() {
 
   if (loading) {
     return (
-      <div style={{ padding: '24px', textAlign: 'center' }}>
-        <RefreshCw className="animate-spin" size={48} style={{ margin: '0 auto 16px' }} />
-        <p style={{ fontSize: '18px' }}>監査ログを読み込み中...</p>
+      <div className="flex flex-col items-center justify-center py-12">
+        <RefreshCw className="animate-spin text-blue-600 mb-4" size={48} />
+        <p className="text-lg text-gray-900">監査ログを読み込み中...</p>
       </div>
     )
   }
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1600px', margin: '0 auto' }}>
+    <div className="space-y-6">
       {/* ヘッダー */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '24px'
-      }}>
+      <div className="flex items-center justify-between">
         <div>
-          <h1 style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3 mb-2">
             <Shield size={36} />
             監査ログ
           </h1>
-          <p style={{ fontSize: '16px', color: '#666' }}>
+          <p className="text-gray-600">
             システム内の全ての操作履歴を表示（{userPermissions?.role}）
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div className="flex gap-3">
           <button
             onClick={loadAuditLogs}
-            style={{
-              padding: '12px 24px',
-              background: 'white',
-              border: '3px solid black',
-              borderRadius: '8px',
-              fontSize: '16px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
+            className="prisma-btn prisma-btn-secondary flex items-center gap-2"
           >
             <RefreshCw size={20} />
             更新
@@ -224,19 +208,7 @@ export default function AuditLogs() {
 
           <button
             onClick={() => handleExport('excel')}
-            style={{
-              padding: '12px 24px',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              color: 'white',
-              border: '3px solid black',
-              borderRadius: '8px',
-              fontSize: '16px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
+            className="prisma-btn prisma-btn-primary flex items-center gap-2"
           >
             <Download size={20} />
             エクスポート
@@ -245,53 +217,34 @@ export default function AuditLogs() {
       </div>
 
       {/* フィルター */}
-      <div style={{
-        background: 'white',
-        border: '3px solid black',
-        borderRadius: '12px',
-        padding: '20px',
-        marginBottom: '24px'
-      }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+      <div className="prisma-card">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* 検索 */}
           <div>
-            <label style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               検索
             </label>
-            <div style={{ position: 'relative' }}>
-              <Search size={20} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#666' }} />
+            <div className="relative">
+              <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="ユーザー、アクション、テーブルで検索"
-                style={{
-                  width: '100%',
-                  padding: '10px 10px 10px 40px',
-                  border: '2px solid black',
-                  borderRadius: '8px',
-                  fontSize: '16px'
-                }}
+                className="prisma-input pl-10"
               />
             </div>
           </div>
 
           {/* アクションフィルター */}
           <div>
-            <label style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               アクション
             </label>
             <select
               value={filterAction}
               onChange={(e) => setFilterAction(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '10px',
-                border: '2px solid black',
-                borderRadius: '8px',
-                fontSize: '16px',
-                fontWeight: 'bold'
-              }}
+              className="prisma-select"
             >
               <option value="all">全て</option>
               {uniqueActions.map(action => (
@@ -302,20 +255,13 @@ export default function AuditLogs() {
 
           {/* テーブルフィルター */}
           <div>
-            <label style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               テーブル
             </label>
             <select
               value={filterTable}
               onChange={(e) => setFilterTable(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '10px',
-                border: '2px solid black',
-                borderRadius: '8px',
-                fontSize: '16px',
-                fontWeight: 'bold'
-              }}
+              className="prisma-select"
             >
               <option value="all">全て</option>
               {uniqueTables.map(table => (
@@ -325,76 +271,56 @@ export default function AuditLogs() {
           </div>
         </div>
 
-        <div style={{ marginTop: '12px', fontSize: '14px', color: '#666' }}>
+        <div className="mt-3 text-sm text-gray-600">
           {filteredLogs.length}件の結果を表示中
         </div>
       </div>
 
       {/* 監査ログテーブル */}
-      <div style={{
-        background: 'white',
-        border: '3px solid black',
-        borderRadius: '12px',
-        overflow: 'hidden'
-      }}>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ background: '#F3F4F6', borderBottom: '3px solid black' }}>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>日時</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>ユーザー</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>部門</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>案件</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>アクション</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', minWidth: '300px' }}>変更内容</th>
+      <div className="prisma-card" style={{ padding: 0, overflow: 'hidden' }}>
+        <div className="prisma-table-container">
+          <table className="prisma-table">
+            <thead className="bg-gray-100 sticky top-0">
+              <tr>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">日時</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">ユーザー</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">部門</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">案件</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">アクション</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900" style={{ minWidth: '300px' }}>変更内容</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="bg-white">
               {paginatedLogs.map((log, idx) => (
                 <tr
                   key={log.id}
-                  style={{
-                    borderBottom: '2px solid #E5E7EB',
-                    background: idx % 2 === 0 ? 'white' : '#F9FAFB'
-                  }}
+                  className={idx % 2 === 0 ? '' : 'bg-gray-50'}
                 >
-                  <td style={{ padding: '12px', fontSize: '14px' }}>
+                  <td className="px-3 py-3 text-sm text-gray-900">
                     {format(new Date(log.created_at), 'yyyy/MM/dd HH:mm:ss', { locale: ja })}
                   </td>
-                  <td style={{ padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>
+                  <td className="px-3 py-3 text-sm font-bold text-gray-900">
                     {log.employee ? `${log.employee.last_name} ${log.employee.first_name}` : '不明'}
                   </td>
-                  <td style={{ padding: '12px', fontSize: '14px' }}>
+                  <td className="px-3 py-3 text-sm text-gray-900">
                     {log.employee?.department || '-'}
                   </td>
-                  <td style={{ padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>
+                  <td className="px-3 py-3 text-sm font-bold text-gray-900">
                     {log.changes?.project_name || '-'}
                   </td>
-                  <td style={{ padding: '12px', fontSize: '14px' }}>
-                    <span style={{
-                      padding: '4px 12px',
-                      borderRadius: '6px',
-                      fontSize: '12px',
-                      fontWeight: 'bold',
-                      background:
-                        (log.action === 'INSERT' || log.action === 'create') ? '#D1FAE5' :
-                        (log.action === 'UPDATE' || log.action === 'update') ? '#FEF3C7' :
-                        (log.action === 'DELETE' || log.action === 'delete') ? '#FEE2E2' :
-                        (log.action === 'login') ? '#DBEAFE' :
-                        (log.action === 'logout') ? '#E0E7FF' :
-                        '#E5E7EB',
-                      color:
-                        (log.action === 'INSERT' || log.action === 'create') ? '#065F46' :
-                        (log.action === 'UPDATE' || log.action === 'update') ? '#92400E' :
-                        (log.action === 'DELETE' || log.action === 'delete') ? '#991B1B' :
-                        (log.action === 'login') ? '#1E40AF' :
-                        (log.action === 'logout') ? '#4338CA' :
-                        '#1F2937'
-                    }}>
+                  <td className="px-3 py-3 text-sm">
+                    <span className={`px-3 py-1 rounded-md text-xs font-bold ${
+                      (log.action === 'INSERT' || log.action === 'create') ? 'bg-green-100 text-green-800' :
+                      (log.action === 'UPDATE' || log.action === 'update') ? 'bg-yellow-100 text-yellow-800' :
+                      (log.action === 'DELETE' || log.action === 'delete') ? 'bg-red-100 text-red-800' :
+                      (log.action === 'login') ? 'bg-blue-100 text-blue-800' :
+                      (log.action === 'logout') ? 'bg-indigo-100 text-indigo-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
                       {getActionLabel(log.action)}
                     </span>
                   </td>
-                  <td style={{ padding: '12px', fontSize: '14px', lineHeight: '1.6' }}>
+                  <td className="px-3 py-3 text-sm text-gray-900 leading-relaxed">
                     {log.changes?.description || (log.old_values || log.new_values ? 'データを変更' : '-')}
                   </td>
                 </tr>
@@ -405,44 +331,31 @@ export default function AuditLogs() {
 
         {/* ページネーション */}
         {totalPages > 1 && (
-          <div style={{
-            padding: '16px',
-            borderTop: '2px solid #E5E7EB',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
+          <div className="px-4 py-4 border-t-2 border-gray-200 flex justify-center items-center gap-2">
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              style={{
-                padding: '8px 16px',
-                border: '2px solid black',
-                borderRadius: '6px',
-                background: currentPage === 1 ? '#E5E7EB' : 'white',
-                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                fontWeight: 'bold'
-              }}
+              className={`px-4 py-2 border-2 border-black rounded-md font-bold transition-colors ${
+                currentPage === 1
+                  ? 'bg-gray-200 cursor-not-allowed'
+                  : 'bg-white hover:bg-gray-50 cursor-pointer'
+              }`}
             >
               前へ
             </button>
 
-            <span style={{ padding: '0 16px', fontSize: '14px', fontWeight: 'bold' }}>
+            <span className="px-4 text-sm font-bold text-gray-900">
               {currentPage} / {totalPages}
             </span>
 
             <button
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
-              style={{
-                padding: '8px 16px',
-                border: '2px solid black',
-                borderRadius: '6px',
-                background: currentPage === totalPages ? '#E5E7EB' : 'white',
-                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                fontWeight: 'bold'
-              }}
+              className={`px-4 py-2 border-2 border-black rounded-md font-bold transition-colors ${
+                currentPage === totalPages
+                  ? 'bg-gray-200 cursor-not-allowed'
+                  : 'bg-white hover:bg-gray-50 cursor-pointer'
+              }`}
             >
               次へ
             </button>
