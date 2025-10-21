@@ -96,14 +96,15 @@ export function exportTableToPDF(
     body: data.map(row => columns.map(col => row[col.dataKey] || '')),
     startY: 28,
     styles: {
-      font: 'helvetica',
       fontSize: 9,
-      cellPadding: 3
+      cellPadding: 3,
+      halign: 'left'
     },
     headStyles: {
       fillColor: [41, 128, 185],
       textColor: 255,
-      fontStyle: 'bold'
+      fontStyle: 'bold',
+      halign: 'center'
     },
     alternateRowStyles: {
       fillColor: [245, 245, 245]
@@ -156,14 +157,15 @@ export function exportReportToPDF(
       body: section.data.map(row => section.columns.map(col => row[col.dataKey] || '')),
       startY: currentY,
       styles: {
-        font: 'helvetica',
         fontSize: 8,
-        cellPadding: 2
+        cellPadding: 2,
+        halign: 'left'
       },
       headStyles: {
         fillColor: [52, 73, 94],
         textColor: 255,
-        fontStyle: 'bold'
+        fontStyle: 'bold',
+        halign: 'center'
       },
       alternateRowStyles: {
         fillColor: [245, 245, 245]
