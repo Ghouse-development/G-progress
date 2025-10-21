@@ -201,157 +201,162 @@ export default function Settings() {
             </div>
 
             {/* コンテンツ */}
-            <div className="prisma-modal-content">
-              {/* ルートノード */}
-              <div className="flex flex-col items-center mb-8">
-                <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-2xl shadow-2xl border-4 border-black">
-                  <div className="text-2xl font-bold text-center">G-progress</div>
-                  <div className="text-base opacity-90 text-center mt-1">総合経営管理システム</div>
-                </div>
+            <div className="prisma-modal-content overflow-x-auto">
+              {/* 横型ツリー構造 */}
+              <div className="inline-block min-w-full">
+                <div className="flex items-start gap-0" style={{ minWidth: 'max-content' }}>
 
-                {/* 縦の接続線 */}
-                <div className="w-1 h-12 bg-gray-400 dark:bg-gray-500"></div>
-
-                {/* 分岐点 */}
-                <div className="w-full max-w-5xl relative">
-                  {/* 横の接続線 */}
-                  <div className="h-1 bg-gray-400 dark:bg-gray-500 absolute top-0 left-0 right-0"></div>
-
-                  {/* 6つの縦線 */}
-                  <div className="grid grid-cols-6 gap-2">
-                    {[...Array(6)].map((_, i) => (
-                      <div key={i} className="flex justify-center">
-                        <div className="w-1 h-12 bg-gray-400 dark:bg-gray-500"></div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* 6事業部門カード */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* 注文住宅事業 - 実装中 */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl border-4 border-green-500 shadow-2xl p-6 transform hover:scale-105 transition-transform">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">注文住宅事業</h3>
-                    <span className="px-3 py-1 bg-green-500 text-white text-sm font-bold rounded-full animate-pulse">
-                      実装中
-                    </span>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div>
-                      <div className="font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
-                        <span className="text-green-500 text-xl">✓</span>
-                        実装済み
-                      </div>
-                      <div className="space-y-1 ml-7">
-                        <div className="text-sm text-green-700 dark:text-green-300">• 案件管理</div>
-                        <div className="text-sm text-green-700 dark:text-green-300">• タスク管理</div>
-                        <div className="text-sm text-green-700 dark:text-green-300">• 入金管理</div>
-                        <div className="text-sm text-green-700 dark:text-green-300">• 性能管理</div>
-                      </div>
-                    </div>
-
-                    <div className="pt-3 border-t-2 border-gray-200 dark:border-gray-700">
-                      <div className="font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
-                        <span className="text-gray-400 text-xl">○</span>
-                        計画中
-                      </div>
-                      <div className="space-y-1 ml-7">
-                        <div className="text-sm text-gray-500 dark:text-gray-400">• 承認フロー</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">• ミスロス報告</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">• 発注・積算</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">• オプション管理</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">• キャンペーン情報</div>
-                      </div>
+                  {/* ルートノード */}
+                  <div className="flex items-center">
+                    <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-4 rounded-xl shadow-xl border-3 border-black whitespace-nowrap">
+                      <div className="text-xl font-bold">G-progress</div>
+                      <div className="text-sm opacity-90 mt-1">総合経営管理システム</div>
                     </div>
                   </div>
-                </div>
 
-                {/* 不動産事業 */}
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-xl border-3 border-gray-300 dark:border-gray-600 shadow-lg p-6 opacity-80">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">不動産事業</h3>
-                    <span className="px-3 py-1 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm font-bold rounded-full">
-                      予定
-                    </span>
+                  {/* 主接続線 */}
+                  <div className="flex items-center">
+                    <div className="h-0.5 w-12 bg-gray-600 dark:bg-gray-400"></div>
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                    <div>• 物件管理</div>
-                    <div>• 契約管理</div>
-                    <div>• 顧客管理</div>
-                    <div>• 売買履歴管理</div>
-                  </div>
-                </div>
 
-                {/* 外構事業 */}
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-xl border-3 border-gray-300 dark:border-gray-600 shadow-lg p-6 opacity-80">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">外構事業</h3>
-                    <span className="px-3 py-1 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm font-bold rounded-full">
-                      予定
-                    </span>
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                    <div>• 外構設計管理</div>
-                    <div>• 工事進捗管理</div>
-                    <div>• 見積・発注管理</div>
-                    <div>• 業者管理</div>
-                  </div>
-                </div>
+                  {/* 6事業への分岐 */}
+                  <div className="flex flex-col justify-center relative">
+                    {/* 縦の幹線 */}
+                    <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gray-600 dark:bg-gray-400" style={{ left: '0px' }}></div>
 
-                {/* 賃貸管理事業 */}
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-xl border-3 border-gray-300 dark:border-gray-600 shadow-lg p-6 opacity-80">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">賃貸管理事業</h3>
-                    <span className="px-3 py-1 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm font-bold rounded-full">
-                      予定
-                    </span>
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                    <div>• 物件管理</div>
-                    <div>• 入居者管理</div>
-                    <div>• 契約更新管理</div>
-                    <div>• 収支管理</div>
-                  </div>
-                </div>
+                      {/* 注文住宅事業 - 実装中（詳細展開あり） */}
+                      <div className="flex items-start gap-0 relative">
+                        {/* 横線 */}
+                        <div className="h-0.5 w-12 bg-gray-600 dark:bg-gray-400 mt-6"></div>
 
-                {/* リフォーム事業 */}
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-xl border-3 border-gray-300 dark:border-gray-600 shadow-lg p-6 opacity-80">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">リフォーム事業</h3>
-                    <span className="px-3 py-1 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm font-bold rounded-full">
-                      予定
-                    </span>
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                    <div>• 案件管理</div>
-                    <div>• 施工管理</div>
-                    <div>• 見積管理</div>
-                    <div>• 顧客履歴管理</div>
-                  </div>
-                </div>
+                        {/* 注文住宅カード */}
+                        <div className="flex items-start gap-0">
+                          <div className="prisma-card border-3 border-green-500 shadow-xl" style={{ minWidth: '280px' }}>
+                            <div className="flex items-center justify-between mb-3">
+                              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">注文住宅事業</h3>
+                              <span className="prisma-badge prisma-badge-green animate-pulse">実装中</span>
+                            </div>
+                          </div>
 
-                {/* BtoB事業 */}
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-xl border-3 border-gray-300 dark:border-gray-600 shadow-lg p-6 opacity-80">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">BtoB事業</h3>
-                    <span className="px-3 py-1 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm font-bold rounded-full">
-                      予定
-                    </span>
+                          {/* 注文住宅の詳細展開 */}
+                          <div className="flex items-center">
+                            <div className="h-0.5 w-8 bg-gray-600 dark:bg-gray-400"></div>
+                          </div>
+
+                          <div className="flex flex-col gap-0 relative">
+                            {/* 縦幹線 */}
+                            <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gray-600 dark:bg-gray-400"></div>
+
+                            {/* 実装済み */}
+                            <div className="flex items-start gap-0 relative">
+                              <div className="h-0.5 w-8 bg-gray-600 dark:bg-gray-400" style={{ marginTop: '16px' }}></div>
+                              <div className="flex flex-col gap-0 relative">
+                                <div className="prisma-card border-2 border-green-400 bg-green-50 dark:bg-green-900/20" style={{ minWidth: '180px' }}>
+                                  <div className="font-bold text-green-800 dark:text-green-300 mb-2 flex items-center gap-2">
+                                    <span className="text-green-500">✓</span> 実装済み
+                                  </div>
+                                </div>
+                                <div className="flex items-center">
+                                  <div className="h-0.5 w-6 bg-gray-500 dark:bg-gray-400"></div>
+                                </div>
+                                <div className="flex flex-col gap-0 relative">
+                                  <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gray-500 dark:bg-gray-400"></div>
+                                  <div className="flex items-center gap-0"><div className="h-0.5 w-6 bg-gray-500 dark:bg-gray-400" style={{ marginTop: '12px' }}></div><div className="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-sm whitespace-nowrap">案件管理</div></div>
+                                  <div className="flex items-center gap-0"><div className="h-0.5 w-6 bg-gray-500 dark:bg-gray-400" style={{ marginTop: '12px' }}></div><div className="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-sm whitespace-nowrap">タスク管理</div></div>
+                                  <div className="flex items-center gap-0"><div className="h-0.5 w-6 bg-gray-500 dark:bg-gray-400" style={{ marginTop: '12px' }}></div><div className="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-sm whitespace-nowrap">入金管理</div></div>
+                                  <div className="flex items-center gap-0"><div className="h-0.5 w-6 bg-gray-500 dark:bg-gray-400" style={{ marginTop: '12px' }}></div><div className="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-sm whitespace-nowrap">性能管理</div></div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* 計画中 */}
+                            <div className="flex items-start gap-0 relative mt-4">
+                              <div className="h-0.5 w-8 bg-gray-600 dark:bg-gray-400" style={{ marginTop: '16px' }}></div>
+                              <div className="flex flex-col gap-0 relative">
+                                <div className="prisma-card border-2 border-gray-400 bg-gray-50 dark:bg-gray-800" style={{ minWidth: '180px' }}>
+                                  <div className="font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                                    <span className="text-gray-400">○</span> 計画中
+                                  </div>
+                                </div>
+                                <div className="flex items-center">
+                                  <div className="h-0.5 w-6 bg-gray-400 dark:bg-gray-500"></div>
+                                </div>
+                                <div className="flex flex-col gap-0 relative">
+                                  <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gray-400 dark:bg-gray-500"></div>
+                                  <div className="flex items-center gap-0"><div className="h-0.5 w-6 bg-gray-400 dark:bg-gray-500" style={{ marginTop: '12px' }}></div><div className="px-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm whitespace-nowrap opacity-60">承認フロー</div></div>
+                                  <div className="flex items-center gap-0"><div className="h-0.5 w-6 bg-gray-400 dark:bg-gray-500" style={{ marginTop: '12px' }}></div><div className="px-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm whitespace-nowrap opacity-60">ミスロス報告</div></div>
+                                  <div className="flex items-center gap-0"><div className="h-0.5 w-6 bg-gray-400 dark:bg-gray-500" style={{ marginTop: '12px' }}></div><div className="px-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm whitespace-nowrap opacity-60">発注・積算</div></div>
+                                  <div className="flex items-center gap-0"><div className="h-0.5 w-6 bg-gray-400 dark:bg-gray-500" style={{ marginTop: '12px' }}></div><div className="px-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm whitespace-nowrap opacity-60">オプション管理</div></div>
+                                  <div className="flex items-center gap-0"><div className="h-0.5 w-6 bg-gray-400 dark:bg-gray-500" style={{ marginTop: '12px' }}></div><div className="px-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm whitespace-nowrap opacity-60">キャンペーン情報</div></div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 不動産事業 */}
+                      <div className="flex items-center gap-0 mt-4">
+                        <div className="h-0.5 w-12 bg-gray-600 dark:bg-gray-400"></div>
+                        <div className="prisma-card opacity-70" style={{ minWidth: '280px' }}>
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">不動産事業</h3>
+                            <span className="prisma-badge prisma-badge-gray">予定</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 外構事業 */}
+                      <div className="flex items-center gap-0 mt-4">
+                        <div className="h-0.5 w-12 bg-gray-600 dark:bg-gray-400"></div>
+                        <div className="prisma-card opacity-70" style={{ minWidth: '280px' }}>
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">外構事業</h3>
+                            <span className="prisma-badge prisma-badge-gray">予定</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 賃貸管理事業 */}
+                      <div className="flex items-center gap-0 mt-4">
+                        <div className="h-0.5 w-12 bg-gray-600 dark:bg-gray-400"></div>
+                        <div className="prisma-card opacity-70" style={{ minWidth: '280px' }}>
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">賃貸管理事業</h3>
+                            <span className="prisma-badge prisma-badge-gray">予定</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* リフォーム事業 */}
+                      <div className="flex items-center gap-0 mt-4">
+                        <div className="h-0.5 w-12 bg-gray-600 dark:bg-gray-400"></div>
+                        <div className="prisma-card opacity-70" style={{ minWidth: '280px' }}>
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">リフォーム事業</h3>
+                            <span className="prisma-badge prisma-badge-gray">予定</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* BtoB事業 */}
+                      <div className="flex items-center gap-0 mt-4">
+                        <div className="h-0.5 w-12 bg-gray-600 dark:bg-gray-400"></div>
+                        <div className="prisma-card opacity-70" style={{ minWidth: '280px' }}>
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">BtoB事業</h3>
+                            <span className="prisma-badge prisma-badge-gray">予定</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                    <div>• 企業間取引管理</div>
-                    <div>• 商談管理</div>
-                    <div>• 契約管理</div>
-                    <div>• パートナー管理</div>
-                  </div>
+
                 </div>
               </div>
 
               {/* フェーズ情報 */}
-              <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 rounded-xl border-2 border-gray-300 dark:border-gray-600">
+              <div className="mt-8 prisma-card bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700">
                 <div className="text-center">
                   <div className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
                     現在のフェーズ
