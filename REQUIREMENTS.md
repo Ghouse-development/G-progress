@@ -7,11 +7,39 @@
 - **[DISASTER_RECOVERY.md](./docs/DISASTER_RECOVERY.md)** - 災害復旧計画
 
 ## プロジェクト概要
-株式会社Gハウスの建設プロジェクト管理システム。契約から完了まで、建設プロジェクトのタスク、スケジュール、支払い、チーム割り当てを追跡し、**業務の遅延を防ぐ**ことを主目的とする。
+株式会社Gハウスの**総合経営管理システム**。全事業の従業員情報、顧客・案件情報、承認フロー、経営情報を統合管理し、**業務の遅延を防ぎ、経営状態を把握する**ことを最終目的とする。
 
-**現在の進捗**: 65%完了 | **リリース目標**: 2025年11月下旬 | **残り作業**: 約25-30日
+### Gハウスの事業範囲
+1. **注文住宅事業** ← **現在開発中（初期フェーズ）**
+2. 不動産事業
+3. 外構事業
+4. 賃貸管理事業
+5. リフォーム事業
+6. BtoB事業
 
-## システムの目的
+**現在の開発状況**: 注文住宅事業の案件管理機能を構築中（基幹機能の65%完了）
+**リリース目標**: 2025年11月下旬（注文住宅事業の第一弾リリース）
+**残り作業**: 約25-30日
+
+### 技術スタック・開発環境
+- **開発支援**: Claude Code
+- **バージョン管理**: GitHub
+- **ホスティング**: Vercel（**Proプラン**）
+- **データベース**: Supabase（**Proプラン**）
+  - 自動日次バックアップ: 有効
+  - Point-in-Time Recovery (PITR): 有効
+- **フロントエンド**: React + TypeScript + Vite
+- **スタイリング**: Tailwind CSS + カスタムCSS
+- **日付処理**: date-fns
+
+### システムの最終目標
+- 全6事業の案件・顧客・従業員を一元管理
+- 事業横断での経営分析・予実管理
+- 承認フローの電子化
+- ミス・ロスの可視化と再発防止
+- リアルタイムな経営状態の把握
+
+## システムの目的（注文住宅事業・第一弾）
 1. 常にタスクが見える・忘れない
 2. 管理者がタスクを追加設定できる
 3. タスク詳細にマニュアルがあり、新人でもすぐ作業できる
@@ -551,4 +579,435 @@ CREATE TABLE products (
 ### ダッシュボード連携
 - ダッシュボードの「商品構成」は `products.name` を使用
 - `projects.product_id` と `products.id` でJOIN
+
+---
+
+## 🚀 将来実装予定の機能（注文住宅事業）
+
+以下の機能は設計段階であり、**現時点では実装しない**。第一弾リリース後、段階的に実装予定。
+
+---
+
+## 承認フロー
+
+### 目的
+重要な業務フローを電子化し、承認履歴を記録・追跡可能にする。
+
+### 承認種類（6種類＋追加可能）
+1. **請負契約承認** - 初回契約の承認
+2. **変更契約承認** - 契約内容変更の承認
+3. **着工承認** - 工事着工の承認
+4. **引き渡し承認** - 物件引き渡しの承認
+5. **入金イレギュラー承認** - 通常と異なる入金処理の承認
+6. **ミスロス承認** - ミス・ロス報告の承認
+
+### approval_flowsテーブル（設計案）
+```sql
+CREATE TABLE approval_flows (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
+  approval_type VARCHAR(50) NOT NULL, -- 承認種類
+  title VARCHAR(200) NOT NULL, -- 承認タイトル
+  description TEXT, -- 承認内容詳細
+  amount DECIMAL(15,2), -- 金額（該当する場合）
+
+  -- 申請者情報
+  requested_by UUID REFERENCES employees(id), -- 申請者
+  requested_at TIMESTAMPTZ DEFAULT NOW(), -- 申請日時
+
+  -- 承認状態
+  status VARCHAR(20) DEFAULT 'pending', -- pending, approved, rejected, cancelled
+
+  -- 承認者情報（複数承認者の場合は別テーブルで管理）
+  approved_by UUID REFERENCES employees(id), -- 承認者
+  approved_at TIMESTAMPTZ, -- 承認日時
+  rejection_reason TEXT, -- 却下理由
+
+  -- 関連データ
+  related_data JSONB, -- 承認に必要な追加データ（柔軟性確保）
+
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+### approval_flow_stepsテーブル（複数承認者対応）
+```sql
+CREATE TABLE approval_flow_steps (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  approval_flow_id UUID REFERENCES approval_flows(id) ON DELETE CASCADE,
+  step_order INTEGER NOT NULL, -- 承認順序（1, 2, 3...）
+  approver_id UUID REFERENCES employees(id), -- 承認者
+  status VARCHAR(20) DEFAULT 'pending', -- pending, approved, rejected, skipped
+  approved_at TIMESTAMPTZ, -- 承認日時
+  comment TEXT, -- 承認コメント
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+### 機能要件
+- 承認フロー定義機能（どの承認にどの役職が必要か設定）
+- 承認依頼通知（メール・システム内通知）
+- 承認履歴の閲覧
+- 承認状況の可視化（ダッシュボード）
+- 差し戻し機能
+- 承認フローのテンプレート管理
+
+---
+
+## ミスロス報告
+
+### 目的
+業務上のミス・ロスを記録し、金額・責任者・再発防止策を期ごとに管理・分析する。
+
+### miss_loss_reportsテーブル（設計案）
+```sql
+CREATE TABLE miss_loss_reports (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  -- 案件情報
+  project_id UUID REFERENCES projects(id), -- 案件名（プロジェクト）
+  project_name VARCHAR(200), -- 案件名（スナップショット）
+
+  -- 発生情報
+  responsible_employee_id UUID REFERENCES employees(id), -- 発生責任者
+  responsible_employee_name VARCHAR(100), -- 発生責任者名（スナップショット）
+  occurred_at DATE NOT NULL, -- 発生日
+
+  -- ミス・ロス内容
+  category VARCHAR(50), -- カテゴリ（設計ミス、施工ミス、事務ミスなど）
+  title VARCHAR(200) NOT NULL, -- タイトル
+  description TEXT NOT NULL, -- 内容詳細
+
+  -- 金額
+  loss_amount DECIMAL(15,2) NOT NULL, -- ミスロス金額
+
+  -- 再発防止
+  prevention_measures TEXT NOT NULL, -- 再発防止策
+  prevention_status VARCHAR(20) DEFAULT 'pending', -- pending, in_progress, completed
+
+  -- 期管理
+  fiscal_year VARCHAR(10), -- 年度（例: 2025）
+  fiscal_quarter INTEGER, -- 期（1, 2, 3, 4）
+
+  -- 承認
+  approval_flow_id UUID REFERENCES approval_flows(id), -- 承認フローID
+  approval_status VARCHAR(20) DEFAULT 'pending', -- pending, approved, rejected
+
+  -- 報告者
+  reported_by UUID REFERENCES employees(id), -- 報告者
+  reported_at TIMESTAMPTZ DEFAULT NOW(), -- 報告日時
+
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+### 機能要件
+- ミスロス報告フォーム
+- 期ごとの集計・分析
+  - 総ミスロス金額
+  - カテゴリ別集計
+  - 責任者別集計
+  - 案件別集計
+- グラフ表示（期ごとのトレンド、カテゴリ別比較）
+- 再発防止策の進捗管理
+- エクスポート機能（CSV、PDF）
+- ダッシュボードへの表示（当期ミスロス金額）
+
+---
+
+## 発注・積算管理
+
+### 目的
+工事・資材の発注と積算（見積）を管理し、実行予算との差異を把握する。
+
+### ordersテーブル（設計案）
+```sql
+CREATE TABLE orders (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  -- 案件情報
+  project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
+
+  -- 発注情報
+  order_number VARCHAR(50) UNIQUE, -- 発注番号
+  order_type VARCHAR(50) NOT NULL, -- 発注種類（工事、資材、設備など）
+  vendor_id UUID REFERENCES vendors(id), -- 発注先業者
+  vendor_name VARCHAR(200), -- 発注先名（スナップショット）
+
+  -- 内容
+  title VARCHAR(200) NOT NULL, -- 発注タイトル
+  description TEXT, -- 発注内容詳細
+
+  -- 金額
+  estimated_amount DECIMAL(15,2), -- 積算金額（見積）
+  order_amount DECIMAL(15,2) NOT NULL, -- 発注金額
+  actual_amount DECIMAL(15,2), -- 実績金額（支払額）
+
+  -- 日付
+  order_date DATE NOT NULL, -- 発注日
+  delivery_date DATE, -- 納品予定日
+  actual_delivery_date DATE, -- 実際の納品日
+  payment_due_date DATE, -- 支払期限
+  payment_date DATE, -- 支払日
+
+  -- ステータス
+  status VARCHAR(20) DEFAULT 'ordered', -- ordered, delivered, paid, cancelled
+
+  -- 承認
+  approval_flow_id UUID REFERENCES approval_flows(id), -- 承認フローID
+
+  -- 担当者
+  ordered_by UUID REFERENCES employees(id), -- 発注者
+
+  -- 添付ファイル
+  attachments JSONB, -- 添付ファイル（見積書、発注書など）
+
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+### order_itemsテーブル（発注明細）
+```sql
+CREATE TABLE order_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
+
+  item_name VARCHAR(200) NOT NULL, -- 品目名
+  quantity DECIMAL(10,2) NOT NULL, -- 数量
+  unit VARCHAR(20), -- 単位（個、m、㎡など）
+  unit_price DECIMAL(15,2) NOT NULL, -- 単価
+  amount DECIMAL(15,2) NOT NULL, -- 金額（数量×単価）
+
+  notes TEXT, -- 備考
+
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+### 機能要件
+- 発注登録・編集・削除
+- 発注一覧（案件別、業者別、ステータス別）
+- 積算（見積）機能
+- 実行予算との差異分析
+- 支払管理（支払予定、支払済み）
+- 発注書・見積書のPDF出力
+- 承認フロー連携
+- ダッシュボード表示（発注残高、支払予定）
+
+---
+
+## オプション管理
+
+### 目的
+お客様が選択した設備・仕様のオプションを管理し、契約金額への影響を追跡する。
+
+### project_optionsテーブル（設計案）
+```sql
+CREATE TABLE project_options (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  -- 案件情報
+  project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
+
+  -- オプション情報
+  option_category VARCHAR(50) NOT NULL, -- カテゴリ（設備、仕様、外構など）
+  option_name VARCHAR(200) NOT NULL, -- オプション名
+  description TEXT, -- 詳細説明
+
+  -- 金額
+  base_price DECIMAL(15,2) NOT NULL, -- 標準価格
+  discount_amount DECIMAL(15,2) DEFAULT 0, -- 値引額
+  final_price DECIMAL(15,2) NOT NULL, -- 最終価格
+
+  -- 数量
+  quantity INTEGER DEFAULT 1, -- 数量
+
+  -- ステータス
+  status VARCHAR(20) DEFAULT 'selected', -- selected, confirmed, cancelled
+
+  -- 選択日
+  selected_at DATE, -- 選択日
+  confirmed_at DATE, -- 確定日
+
+  -- 備考
+  notes TEXT,
+
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+### option_mastersテーブル（オプションマスタ）
+```sql
+CREATE TABLE option_masters (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  category VARCHAR(50) NOT NULL, -- カテゴリ
+  name VARCHAR(200) NOT NULL UNIQUE, -- オプション名
+  description TEXT, -- 説明
+  standard_price DECIMAL(15,2) NOT NULL, -- 標準価格
+
+  -- 商品制限（特定商品でのみ選択可能な場合）
+  applicable_product_ids UUID[], -- 適用可能商品ID配列
+
+  is_active BOOLEAN DEFAULT true, -- 有効/無効
+  display_order INTEGER DEFAULT 0, -- 表示順序
+
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+### 機能要件
+- オプション選択フォーム
+- オプション一覧表示（案件別）
+- オプションマスタ管理
+- 金額計算（契約金額への自動反映）
+- オプション集計（人気オプションランキング）
+- 商品別のオプション適用制限
+- オプション選択状況のエクスポート
+
+---
+
+## キャンペーン情報管理
+
+### 目的
+契約時のキャンペーン適用状況を管理し、キャンペーン効果を分析する。
+
+### campaignsテーブル（キャンペーンマスタ）
+```sql
+CREATE TABLE campaigns (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  -- キャンペーン情報
+  campaign_code VARCHAR(50) UNIQUE NOT NULL, -- キャンペーンコード
+  name VARCHAR(200) NOT NULL, -- キャンペーン名
+  description TEXT, -- 説明
+
+  -- 期間
+  start_date DATE NOT NULL, -- 開始日
+  end_date DATE NOT NULL, -- 終了日
+
+  -- 特典内容
+  discount_type VARCHAR(20), -- 値引種類（fixed, percentage）
+  discount_amount DECIMAL(15,2), -- 値引額
+  discount_percentage DECIMAL(5,2), -- 値引率（％）
+  benefits TEXT, -- 特典内容（テキスト）
+
+  -- 対象商品
+  applicable_product_ids UUID[], -- 適用可能商品ID配列
+
+  -- ステータス
+  is_active BOOLEAN DEFAULT true, -- 有効/無効
+
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+### project_campaignsテーブル（案件-キャンペーン紐付け）
+```sql
+CREATE TABLE project_campaigns (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  -- 案件情報
+  project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
+
+  -- キャンペーン情報
+  campaign_id UUID REFERENCES campaigns(id),
+  campaign_name VARCHAR(200), -- キャンペーン名（スナップショット）
+  campaign_code VARCHAR(50), -- キャンペーンコード（スナップショット）
+
+  -- 適用情報
+  applied_at DATE, -- 適用日（通常は契約日）
+  discount_amount DECIMAL(15,2), -- 値引額
+  benefits_description TEXT, -- 適用特典内容
+
+  -- 備考
+  notes TEXT,
+
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+### 機能要件
+- キャンペーンマスタ管理
+- 案件へのキャンペーン適用
+- キャンペーン効果分析
+  - キャンペーン別契約数
+  - キャンペーン別売上
+  - キャンペーン別粗利
+- 期間別キャンペーン一覧
+- ダッシュボード表示（現在有効なキャンペーン）
+- キャンペーン適用状況のエクスポート
+
+---
+
+## データバックアップ戦略
+
+### 現状
+- **Supabase Proプラン導入済み** ✅
+  - 自動日次バックアップ: 有効（7日間保持）
+  - Point-in-Time Recovery (PITR): 有効
+- アプリケーションレベルでのバックアップ機能は**未実装**
+
+### 追加対応（100人規模・日次更新多数の場合）
+
+#### 1. 追加実装すべき機能
+**CSV/Excelエクスポート機能**
+   - 全案件データのエクスポート
+   - 入金情報のエクスポート
+   - タスク情報のエクスポート
+   - マスタデータのエクスポート
+
+**定期バックアップ自動化**
+   - Supabase Edge Functionsを使用
+   - 毎週自動エクスポート
+   - クラウドストレージに保存（AWS S3、Google Cloud Storageなど）
+
+**監査ログ（実装済み）の活用**
+   - データ変更履歴を追跡
+   - 万が一のデータ復旧時に参照
+
+#### 2. バックアップスケジュール（推奨）
+- **リアルタイム**: Supabaseの自動バックアップ（常時）
+- **日次**: Point-in-Time Recovery（過去7日間）
+- **週次**: CSV/Excelエクスポート（手動または自動）
+- **月次**: 完全バックアップ（外部ストレージ保存）
+
+#### 3. 災害復旧計画（DR計画）
+- 既存の `DISASTER_RECOVERY.md` に詳細記載
+- RPO（Recovery Point Objective）: 最大24時間
+- RTO（Recovery Time Objective）: 最大4時間
+
+### 実装優先度
+- **完了**: Supabase Proプラン移行 ✅
+- **高**: CSV/Excelエクスポート機能
+- **中**: 自動バックアップスクリプト
+
+---
+
+## システム拡張性の考慮事項
+
+### データベース設計
+- 全テーブルに `business_type` カラムを追加（将来的に事業種別でフィルタリング）
+- 柔軟性のため JSONB カラムを活用（事業ごとの固有データ）
+
+### 段階的リリース戦略
+1. **フェーズ1**: 注文住宅事業（現在開発中）
+2. **フェーズ2**: 承認フロー、ミスロス報告
+3. **フェーズ3**: 発注・積算、オプション、キャンペーン
+4. **フェーズ4**: 不動産事業
+5. **フェーズ5**: 外構事業
+6. **フェーズ6**: 賃貸管理・リフォーム・BtoB事業
+
+### マイグレーション（無停止での機能追加）
+- Supabaseのマイグレーション機能を使用
+- テーブル追加・カラム追加は既存データに影響なし
+- 段階的リリースで新機能を追加
+- フィーチャーフラグで機能の有効/無効を制御
 - 商品マスタで管理することで、商品名の一貫性を保証

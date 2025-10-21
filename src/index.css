@@ -1004,10 +1004,32 @@ th, td {
 }
 
 /* レスポンシブ対応とモバイル最適化 */
+/* テーブルの横スクロール対応（全体） */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 @media (max-width: 768px) {
   .container {
     padding-left: 1rem;
     padding-right: 1rem;
+  }
+
+  /* すべてのテーブルを横スクロール可能に */
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+
+  table thead,
+  table tbody,
+  table tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
   }
 
   .grid-cols-4 {

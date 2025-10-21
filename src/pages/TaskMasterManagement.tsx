@@ -7,25 +7,22 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { TaskMaster, Trigger } from '../types/database'
-import { Plus, Edit2, Trash2, X, ArrowLeft, Settings } from 'lucide-react'
+import { TaskMaster } from '../types/database'
+import { Plus, Edit2, Trash2, X, ArrowLeft } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
-import TriggerMaster from '../components/TriggerMaster'
 
 export default function TaskMasterManagement() {
   const navigate = useNavigate()
   const toast = useToast()
   const [taskMasters, setTaskMasters] = useState<TaskMaster[]>([])
-  const [triggers, setTriggers] = useState<Trigger[]>([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
-  const [showTriggerMaster, setShowTriggerMaster] = useState(false)
   const [editingTask, setEditingTask] = useState<TaskMaster | null>(null)
   const [formData, setFormData] = useState({
     title: '',
     responsible_department: '',
-    trigger_id: '',
-    days_from_trigger: 0,
+    days_from_contract: 0,
+    phase: '契約後',
     purpose: '',
     manual_url: '',
     video_url: '',
@@ -35,31 +32,22 @@ export default function TaskMasterManagement() {
 
   useEffect(() => {
     loadTaskMasters()
-    loadTriggers()
   }, [])
 
   const loadTaskMasters = async () => {
     setLoading(true)
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('task_masters')
-      .select('*, trigger:triggers(*)')
-      .order('days_from_trigger', { ascending: true })
+      .select('*')
+      .order('task_order', { ascending: true })
 
-    if (data) {
+    if (error) {
+      console.error('タスクマスタの読み込みエラー:', error)
+      toast.error('タスクマスタの読み込みに失敗しました')
+    } else if (data) {
       setTaskMasters(data as any)
     }
     setLoading(false)
-  }
-
-  const loadTriggers = async () => {
-    const { data } = await supabase
-      .from('triggers')
-      .select('*')
-      .order('name')
-
-    if (data) {
-      setTriggers(data as Trigger[])
-    }
   }
 
   const handleOpenModal = (task?: TaskMaster) => {
@@ -68,8 +56,8 @@ export default function TaskMasterManagement() {
       setFormData({
         title: task.title,
         responsible_department: task.responsible_department || '',
-        trigger_id: task.trigger_id || (triggers.length > 0 ? triggers[0].id : ''),
-        days_from_trigger: task.days_from_trigger || task.days_from_contract || 0,
+        days_from_contract: task.days_from_contract || 0,
+        phase: task.phase || '契約後',
         purpose: task.purpose || '',
         manual_url: task.manual_url || '',
         video_url: '',
@@ -81,8 +69,8 @@ export default function TaskMasterManagement() {
       setFormData({
         title: '',
         responsible_department: '',
-        trigger_id: triggers.length > 0 ? triggers[0].id : '',
-        days_from_trigger: 0,
+        days_from_contract: 0,
+        phase: '契約後',
         purpose: '',
         manual_url: '',
         video_url: '',
@@ -107,8 +95,8 @@ export default function TaskMasterManagement() {
           .update({
             title: formData.title,
             responsible_department: formData.responsible_department,
-            trigger_id: formData.trigger_id || null,
-            days_from_trigger: formData.days_from_trigger,
+            days_from_contract: formData.days_from_contract,
+            phase: formData.phase,
             purpose: formData.purpose,
             manual_url: formData.manual_url,
             dos: formData.dos,
@@ -121,18 +109,21 @@ export default function TaskMasterManagement() {
         toast.success('タスクマスタを更新しました')
       } else {
         // 新規作成
+        const nextTaskOrder = taskMasters.length > 0
+          ? Math.max(...taskMasters.map(t => t.task_order || 0)) + 1
+          : 1
+
         const { error } = await supabase.from('task_masters').insert({
           title: formData.title,
           responsible_department: formData.responsible_department,
-          trigger_id: formData.trigger_id || null,
-          days_from_trigger: formData.days_from_trigger,
+          days_from_contract: formData.days_from_contract,
           purpose: formData.purpose,
           manual_url: formData.manual_url,
           dos: formData.dos,
           donts: formData.donts,
-          phase: '未設定',
+          phase: formData.phase,
           business_no: 0,
-          task_order: 0
+          task_order: nextTaskOrder
         })
 
         if (error) throw error
@@ -189,14 +180,6 @@ export default function TaskMasterManagement() {
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setShowTriggerMaster(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
-            title="トリガーマスタ管理"
-          >
-            <Settings size={20} />
-            トリガーマスタ
-          </button>
-          <button
             onClick={() => handleOpenModal()}
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
           >
@@ -208,21 +191,21 @@ export default function TaskMasterManagement() {
 
       {/* タスク一覧テーブル */}
       <div className="bg-white rounded-lg border-2 border-pastel-blue shadow-pastel-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        <div className="prisma-table-container">
+          <table className="w-full prisma-table">
             <thead className="bg-pastel-blue-light">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
                   タスク名
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
-                  責任部署
+                  フェーズ
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
-                  トリガー
+                  責任部署
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-bold text-gray-800 uppercase tracking-wider">
-                  トリガーからの日数
+                  契約日からの日数
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
                   目的
@@ -246,13 +229,17 @@ export default function TaskMasterManagement() {
                       <div className="text-sm font-bold text-gray-900">{task.title}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-600">{task.responsible_department || '未設定'}</div>
+                      <div className="text-sm text-gray-600">{task.phase || '未設定'}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-600">{task.trigger?.name || '未設定'}</div>
+                      <div className="text-sm text-gray-600">{task.responsible_department || '未設定'}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className="text-sm font-medium text-gray-900">{task.days_from_trigger || task.days_from_contract || 0}日</div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {task.days_from_contract !== null && task.days_from_contract !== undefined
+                          ? `${task.days_from_contract}日`
+                          : '未設定'}
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm text-gray-600 max-w-md truncate">{task.purpose || '未設定'}</div>
@@ -332,37 +319,48 @@ export default function TaskMasterManagement() {
                 />
               </div>
 
-              {/* トリガー */}
+              {/* フェーズ */}
               <div>
                 <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
-                  トリガー
+                  フェーズ
                 </label>
                 <select
-                  value={formData.trigger_id}
-                  onChange={(e) => setFormData({ ...formData, trigger_id: e.target.value })}
+                  value={formData.phase}
+                  onChange={(e) => setFormData({ ...formData, phase: e.target.value })}
                   className="prisma-input"
                 >
-                  <option value="">トリガーを選択</option>
-                  {triggers.map((trigger) => (
-                    <option key={trigger.id} value={trigger.id}>
-                      {trigger.name}
-                    </option>
-                  ))}
+                  <option value="集客">集客</option>
+                  <option value="アポイント取得">アポイント取得</option>
+                  <option value="営業">営業</option>
+                  <option value="契約">契約</option>
+                  <option value="設計">設計</option>
+                  <option value="申請">申請</option>
+                  <option value="融資">融資</option>
+                  <option value="工事準備">工事準備</option>
+                  <option value="工事">工事</option>
+                  <option value="外構">外構</option>
+                  <option value="管理">管理</option>
+                  <option value="事務">事務</option>
+                  <option value="入金管理">入金管理</option>
+                  <option value="契約後">契約後</option>
                 </select>
               </div>
 
-              {/* トリガーからの日数 */}
+              {/* 契約日からの日数 */}
               <div>
                 <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
-                  トリガーからの日数
+                  契約日からの日数
                 </label>
                 <input
                   type="number"
-                  value={formData.days_from_trigger}
-                  onChange={(e) => setFormData({ ...formData, days_from_trigger: parseInt(e.target.value) || 0 })}
+                  value={formData.days_from_contract}
+                  onChange={(e) => setFormData({ ...formData, days_from_contract: parseInt(e.target.value) || 0 })}
                   className="prisma-input"
-                  placeholder="例: 3"
+                  placeholder="例: 7（契約日から7日後）"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  契約日から何日後にこのタスクが発生するか
+                </p>
               </div>
 
               {/* 目的 */}
@@ -455,15 +453,6 @@ export default function TaskMasterManagement() {
         </div>
       )}
 
-      {/* トリガーマスタモーダル */}
-      {showTriggerMaster && (
-        <TriggerMaster
-          onClose={() => {
-            setShowTriggerMaster(false)
-            loadTriggers() // トリガーを再読み込み
-          }}
-        />
-      )}
     </div>
   )
 }

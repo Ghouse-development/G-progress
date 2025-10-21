@@ -52,13 +52,23 @@ const getTodayFromContract = (contractDate: string): number => {
   return differenceInDays(new Date(), new Date(contractDate))
 }
 
-// 引き渡し日までの日数を計算（引き渡し日がない場合は365日）
-const getDeliveryDays = (project: Project): number => {
+// 引き渡し日までの日数を計算（引き渡し日がない場合は999日、最長999日）
+const getDeliveryDays = (project: Project, tasks: TaskWithEmployee[] = []): number => {
+  // タスクの最大日数を取得
+  const maxTaskDay = tasks.length > 0
+    ? Math.max(...tasks.map(t => t.dayFromContract || 0))
+    : 0
+
+  // 引き渡し日がある場合はその日数を計算
   const deliveryDate = project.actual_end_date || project.scheduled_end_date
   if (deliveryDate) {
-    return Math.max(100, differenceInDays(new Date(deliveryDate), new Date(project.contract_date)))
+    const deliveryDays = differenceInDays(new Date(deliveryDate), new Date(project.contract_date))
+    // 引き渡し日、タスクの最大日、100日のうち最大値を採用（上限999日）
+    return Math.min(999, Math.max(100, deliveryDays, maxTaskDay))
   }
-  return 365 // デフォルトは365日
+
+  // 引き渡し日がない場合はタスクの最大日数 + 余裕（上限999日）
+  return Math.min(999, Math.max(365, maxTaskDay + 30))
 }
 
 export default function ProjectDetail() {
@@ -1141,7 +1151,7 @@ export default function ProjectDetail() {
 
                 {/* グリッドボディ */}
                 <div>
-                  {Array.from({ length: getDeliveryDays(project) + 1 }, (_, index) => index).map((day) => {
+                  {Array.from({ length: getDeliveryDays(project, tasks) + 1 }, (_, index) => index).map((day) => {
                     const hasTask = tasks.some(t => t.dayFromContract === day)
                     const currentDate = addDays(new Date(project.contract_date), day)
                     const todayDay = getTodayFromContract(project.contract_date)

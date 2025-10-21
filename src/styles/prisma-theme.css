@@ -539,3 +539,245 @@ body {
 .dark .prisma-modal-footer {
   border-color: var(--border-color);
 }
+
+/* ========================================
+   レスポンシブデザイン - モバイル対応
+   ======================================== */
+
+/* ハンバーガーメニューボタン */
+.prisma-hamburger {
+  display: none;
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 1001;
+  background: var(--sidebar-bg);
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.prisma-hamburger:hover {
+  background: var(--sidebar-hover);
+  transform: scale(1.05);
+}
+
+.prisma-hamburger svg {
+  color: var(--sidebar-text);
+  display: block;
+}
+
+/* モバイルオーバーレイ */
+.prisma-mobile-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+.prisma-mobile-overlay.active {
+  display: block;
+}
+
+/* タブレット対応 (768px - 1024px) */
+@media (max-width: 1024px) {
+  .prisma-content {
+    padding: 12px;
+  }
+
+  .prisma-header {
+    padding: 0 16px;
+  }
+
+  /* テーブルを横スクロール可能に */
+  .prisma-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .prisma-table {
+    min-width: 800px;
+  }
+}
+
+/* モバイル対応 (768px以下) */
+@media (max-width: 768px) {
+  /* ハンバーガーメニュー表示 */
+  .prisma-hamburger {
+    display: block;
+  }
+
+  /* サイドバーをオーバーレイ表示 */
+  .prisma-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+  }
+
+  .prisma-sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* メインコンテンツ */
+  .prisma-main {
+    width: 100%;
+  }
+
+  .prisma-header {
+    padding: 0 12px;
+    padding-left: 60px; /* ハンバーガーメニューの下 */
+  }
+
+  .prisma-header-title {
+    font-size: 16px;
+  }
+
+  .prisma-content {
+    padding: 12px 8px;
+  }
+
+  /* モーダル */
+  .prisma-modal-overlay {
+    padding: 10px;
+  }
+
+  .prisma-modal {
+    max-width: 100%;
+    max-height: 95vh;
+  }
+
+  .prisma-modal-header,
+  .prisma-modal-content,
+  .prisma-modal-footer {
+    padding: 16px;
+  }
+
+  /* ボタン */
+  .prisma-btn {
+    padding: 10px 14px;
+    font-size: 14px;
+    min-height: 44px; /* タッチターゲット */
+  }
+
+  /* テーブル */
+  .prisma-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -8px; /* コンテンツパディングを相殺 */
+  }
+
+  .prisma-table {
+    min-width: 600px;
+    font-size: 13px;
+  }
+
+  .prisma-table th,
+  .prisma-table td {
+    padding: 10px 12px;
+  }
+
+  /* カード */
+  .prisma-card {
+    padding: 16px;
+    border-radius: 6px;
+  }
+
+  /* フォーム */
+  .prisma-input,
+  .prisma-select {
+    font-size: 16px; /* iOSのズーム防止 */
+    min-height: 44px; /* タッチターゲット */
+  }
+
+  /* セレクト（サイドバー内）*/
+  .prisma-sidebar-section select {
+    font-size: 14px;
+  }
+}
+
+/* 極小スマホ対応 (480px以下) */
+@media (max-width: 480px) {
+  .prisma-header-title {
+    font-size: 14px;
+  }
+
+  .prisma-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .prisma-modal-title {
+    font-size: 16px;
+  }
+
+  .prisma-table {
+    font-size: 12px;
+  }
+
+  .prisma-table th,
+  .prisma-table td {
+    padding: 8px 10px;
+  }
+}
+
+/* ========================================
+   デモモードインジケーター
+   ======================================== */
+
+.prisma-demo-indicator {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #ffffff;
+  padding: 12px 20px;
+  text-align: center;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+  border-top: 3px solid #b45309;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.prisma-demo-indicator-text {
+  font-size: 16px;
+  text-transform: uppercase;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  display: inline-block;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+/* メインコンテンツの下部パディング調整（デモモード時のみ） */
+.demo-mode-active .prisma-main {
+  padding-bottom: 60px;
+}
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+  .prisma-demo-indicator {
+    padding: 10px 16px;
+  }
+
+  .prisma-demo-indicator-text {
+    font-size: 14px;
+  }
+}
