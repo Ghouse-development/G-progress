@@ -258,11 +258,51 @@ body {
   margin-bottom: 16px;
 }
 
+.prisma-card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+  background: #f9fafb;
+  margin: -20px -20px 20px -20px;
+  border-radius: 8px 8px 0 0;
+}
+
 .prisma-card-title {
   font-size: 16px;
   font-weight: 600;
   color: var(--main-text);
+  margin: 0;
+}
+
+/* タブナビゲーション */
+.prisma-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 2px solid var(--border-color);
   margin-bottom: 16px;
+}
+
+.prisma-tab {
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.prisma-tab:hover {
+  color: var(--primary-blue);
+  background: var(--primary-blue-light);
+}
+
+.prisma-tab.active {
+  color: var(--primary-blue);
+  border-bottom-color: var(--primary-blue);
+  font-weight: 600;
 }
 
 /* セレクト */

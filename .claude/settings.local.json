@@ -52,7 +52,9 @@
       "WebFetch(domain:supabase.com)",
       "Bash(for file in \"C:\\claudecode\\G-progress\\src\\components\\ProductMaster.tsx\" \"C:\\claudecode\\G-progress\\src\\components\\RoleMaster.tsx\" \"C:\\claudecode\\G-progress\\src\\components\\DepartmentMaster.tsx\" \"C:\\claudecode\\G-progress\\src\\components\\TriggerMaster.tsx\")",
       "Bash(do echo \"Processing: $file\")",
-      "Bash(npx vite build)"
+      "Bash(npx vite build)",
+      "Bash(for file in *.tsx)",
+      "Bash(do echo \"=== $file ===\")"
     ],
     "deny": [],
     "ask": []

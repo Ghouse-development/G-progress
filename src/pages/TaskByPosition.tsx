@@ -1,12 +1,11 @@
 /**
  * 職種別タスク一覧
- * 横軸：職種、縦軸：タスク
- * Excelライクなデザインで表示
+ * タブで部署を切り替え、その部署の職種別タスクを表示
  */
 
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { Task, Project, Customer } from '../types/database'
+import { Task, Project, Customer, Employee } from '../types/database'
 import { differenceInDays, format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { X } from 'lucide-react'
@@ -26,7 +25,21 @@ const DEPARTMENTS = [
   { name: '外構事業部', positions: ['外構設計', '外構工事'] }
 ]
 
-const ALL_POSITIONS = DEPARTMENTS.flatMap(d => d.positions)
+// 部署名から職種を取得
+const getPositionsForDepartment = (deptName: string): string[] => {
+  const dept = DEPARTMENTS.find(d => d.name === deptName)
+  return dept ? dept.positions : []
+}
+
+// 職種から部署名を取得
+const getDepartmentForPosition = (position: string): string => {
+  for (const dept of DEPARTMENTS) {
+    if (dept.positions.includes(position)) {
+      return dept.name
+    }
+  }
+  return '営業部' // デフォルト
+}
 
 export default function TaskByPosition() {
   const { demoMode } = useSettings()
@@ -35,10 +48,31 @@ export default function TaskByPosition() {
   const [loading, setLoading] = useState(true)
   const [selectedTask, setSelectedTask] = useState<TaskWithProject | null>(null)
   const [showDetailModal, setShowDetailModal] = useState(false)
+  const [selectedDepartment, setSelectedDepartment] = useState<string>('営業部')
+  const [currentEmployee, setCurrentEmployee] = useState<Employee | null>(null)
 
   useEffect(() => {
+    loadCurrentEmployee()
     loadTasks()
   }, [demoMode, mode])
+
+  const loadCurrentEmployee = async () => {
+    const employeeId = localStorage.getItem('selectedEmployeeId')
+    if (!employeeId) return
+
+    const { data } = await supabase
+      .from('employees')
+      .select('*')
+      .eq('id', employeeId)
+      .single()
+
+    if (data) {
+      setCurrentEmployee(data)
+      // 職種から部署を判定して初期表示を設定
+      const dept = getDepartmentForPosition(data.department)
+      setSelectedDepartment(dept)
+    }
+  }
 
   const loadTasks = async () => {
     setLoading(true)
@@ -145,6 +179,9 @@ export default function TaskByPosition() {
     return 'text-gray-700'
   }
 
+  // 選択中の部署の職種リスト
+  const currentPositions = getPositionsForDepartment(selectedDepartment)
+
   if (loading) {
     return (
       <div className="prisma-content">
@@ -154,103 +191,109 @@ export default function TaskByPosition() {
   }
 
   return (
-    <div className="prisma-content">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">職種別タスク一覧</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">職種ごとのタスクをExcel形式で表示</p>
+    <div className="space-y-4">
+      {/* ヘッダー */}
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">職種別タスク一覧</h1>
+        <p className="text-gray-600 mt-1">部署ごとの職種別タスク状況</p>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full border-collapse border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800">
-          <thead className="bg-gray-100 dark:bg-gray-700 sticky top-0 z-10">
-            <tr>
-              <th className="border-2 border-gray-300 dark:border-gray-600 px-4 py-3 text-left text-base font-bold text-gray-700 dark:text-gray-200">
-                タスク名
-              </th>
-              {ALL_POSITIONS.map(position => (
-                <th
-                  key={position}
-                  className="border-2 border-gray-300 dark:border-gray-600 px-4 py-3 text-center text-base font-bold text-gray-700 dark:text-gray-200 whitespace-nowrap"
-                >
-                  {position}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {/* 各タスク名ごとに行を作成 */}
-            {Array.from(new Set(tasks.map(t => t.title))).map((taskTitle, rowIndex) => (
-              <tr key={taskTitle} className={rowIndex % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-750'}>
-                <td className="border-2 border-gray-300 dark:border-gray-600 px-4 py-2 text-base font-medium text-gray-800 dark:text-gray-200 whitespace-nowrap">
-                  {taskTitle}
-                </td>
-                {ALL_POSITIONS.map(position => {
-                  const positionTasks = getTasksByPosition(position).filter(t => t.title === taskTitle)
-                  const task = positionTasks[0] // 同じタイトルの最初のタスクを表示
+      {/* タブナビゲーション */}
+      <div className="prisma-tabs">
+        {DEPARTMENTS.map(dept => (
+          <button
+            key={dept.name}
+            onClick={() => setSelectedDepartment(dept.name)}
+            className={`prisma-tab ${selectedDepartment === dept.name ? 'active' : ''}`}
+          >
+            {dept.name}
+          </button>
+        ))}
+      </div>
 
-                  if (!task) {
+      {/* タスクテーブル */}
+      <div className="prisma-card" style={{ padding: 0, overflow: 'hidden' }}>
+        <div className="prisma-table-container" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+          <table className="prisma-table">
+            <thead className="sticky top-0 bg-gray-100 z-10">
+              <tr>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 border-b-2 border-gray-300" style={{ minWidth: '200px' }}>
+                  タスク名
+                </th>
+                {currentPositions.map(position => (
+                  <th
+                    key={position}
+                    className="px-3 py-3 text-center text-sm font-semibold text-gray-900 border-b-2 border-gray-300 whitespace-nowrap"
+                    style={{ minWidth: '100px' }}
+                  >
+                    {position}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="bg-white">
+              {Array.from(new Set(tasks.map(t => t.title))).map((taskTitle, rowIndex) => (
+                <tr key={taskTitle} className={rowIndex % 2 === 0 ? '' : 'bg-gray-50'}>
+                  <td className="px-4 py-2 text-sm font-medium text-gray-900 border-b border-gray-200">
+                    {taskTitle}
+                  </td>
+                  {currentPositions.map(position => {
+                    const positionTasks = getTasksByPosition(position).filter(t => t.title === taskTitle)
+                    const task = positionTasks[0]
+
+                    if (!task) {
+                      return (
+                        <td
+                          key={position}
+                          className="px-2 py-2 text-center text-gray-400 border-b border-gray-200"
+                        >
+                          -
+                        </td>
+                      )
+                    }
+
+                    const daysFromToday = getDaysFromToday(task.due_date || null)
+                    const daysText = getDaysText(daysFromToday)
+
                     return (
                       <td
                         key={position}
-                        className="border-2 border-gray-300 dark:border-gray-600 px-2 py-2 text-center text-gray-400 dark:text-gray-500"
+                        className="px-2 py-2 border-b border-gray-200 cursor-pointer group hover:bg-blue-50 transition-colors"
+                        onClick={() => {
+                          setSelectedTask(task)
+                          setShowDetailModal(true)
+                        }}
+                        title={`期限: ${task.due_date ? format(new Date(task.due_date), 'M月d日(E)', { locale: ja }) : '未設定'}\n乖離: ${daysText}`}
                       >
-                        -
+                        <div className="flex items-center justify-center">
+                          <span
+                            className={`px-2 py-1 rounded-md text-xs font-bold whitespace-nowrap ${
+                              task.status === 'completed'
+                                ? 'task-completed'
+                                : task.status === 'requested'
+                                ? 'task-in-progress'
+                                : task.status === 'delayed'
+                                ? 'task-delayed'
+                                : 'task-not-started'
+                            }`}
+                          >
+                            {task.status === 'completed'
+                              ? '完了'
+                              : task.status === 'requested'
+                              ? '着手中'
+                              : task.status === 'delayed'
+                              ? '遅延'
+                              : '未着手'}
+                          </span>
+                        </div>
                       </td>
                     )
-                  }
-
-                  const daysFromToday = getDaysFromToday(task.due_date || null)
-                  const daysText = getDaysText(daysFromToday)
-                  const daysColor = getDaysColor(daysFromToday)
-
-                  return (
-                    <td
-                      key={position}
-                      className="border-2 border-gray-300 dark:border-gray-600 px-2 py-2 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors"
-                      onClick={() => {
-                        setSelectedTask(task)
-                        setShowDetailModal(true)
-                      }}
-                    >
-                      <div className="flex flex-col items-center gap-1">
-                        {/* ステータスバッジ */}
-                        <span
-                          className={`px-2 py-1 rounded text-xs font-bold whitespace-nowrap ${
-                            task.status === 'completed'
-                              ? 'task-completed'
-                              : task.status === 'requested'
-                              ? 'task-in-progress'
-                              : task.status === 'delayed'
-                              ? 'task-delayed'
-                              : 'task-not-started'
-                          }`}
-                        >
-                          {task.status === 'completed'
-                            ? '完了'
-                            : task.status === 'requested'
-                            ? '着手中'
-                            : task.status === 'delayed'
-                            ? '遅延'
-                            : '未着手'}
-                        </span>
-
-                        {/* 期限 */}
-                        <span className="text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap">
-                          {task.due_date ? format(new Date(task.due_date), 'M/d(E)', { locale: ja }) : '-'}
-                        </span>
-
-                        {/* 乖離日数 */}
-                        <span className={`text-xs font-medium whitespace-nowrap ${daysColor}`}>
-                          {daysText}
-                        </span>
-                      </div>
-                    </td>
-                  )
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* タスク詳細モーダル */}
