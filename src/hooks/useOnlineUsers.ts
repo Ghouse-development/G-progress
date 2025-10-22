@@ -47,6 +47,7 @@ export function useOnlineUsers(options: UseOnlineUsersOptions = {}) {
 
     const interval = setInterval(() => {
       updatePresence()
+      cleanupStaleSessions() // 古いセッションをクリーンアップ
     }, 30 * 1000) // 30秒
 
     return () => clearInterval(interval)
@@ -80,14 +81,13 @@ export function useOnlineUsers(options: UseOnlineUsersOptions = {}) {
 
   const initializeSession = async (employeeId: string) => {
     try {
-      // 既存のセッションを削除（古いセッションのクリーンアップ）
+      // 同じユーザーの既存セッションをすべて削除（重複防止）
       await supabase
         .from('online_users')
         .delete()
         .eq('employee_id', employeeId)
-        .lt('last_activity_at', new Date(Date.now() - 5 * 60 * 1000).toISOString())
 
-      // 新しいセッションを作成
+      // 新しいセッションを1つだけ作成
       const { data, error } = await supabase
         .from('online_users')
         .insert([{
@@ -135,6 +135,18 @@ export function useOnlineUsers(options: UseOnlineUsersOptions = {}) {
         .eq('id', sessionId)
     } catch (error) {
       console.error('Failed to cleanup session:', error)
+    }
+  }
+
+  const cleanupStaleSessions = async () => {
+    try {
+      // 5分以上前のセッションを削除
+      await supabase
+        .from('online_users')
+        .delete()
+        .lt('last_activity_at', new Date(Date.now() - 5 * 60 * 1000).toISOString())
+    } catch (error) {
+      console.error('Failed to cleanup stale sessions:', error)
     }
   }
 

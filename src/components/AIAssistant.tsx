@@ -97,18 +97,18 @@ export default function AIAssistant() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110"
-          style={{ width: '64px', height: '64px' }}
+          className="fixed bottom-4 right-4 z-40 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+          style={{ width: '56px', height: '56px' }}
         >
-          <Sparkles size={32} />
+          <Sparkles size={28} />
         </button>
       )}
 
       {/* チャット画面 */}
       {isOpen && (
         <div
-          className="fixed bottom-6 right-6 z-50 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl"
-          style={{ width: '400px', height: '600px', display: 'flex', flexDirection: 'column' }}
+          className="fixed bottom-4 right-4 z-40 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl"
+          style={{ width: '380px', height: '580px', display: 'flex', flexDirection: 'column' }}
         >
           {/* ヘッダー */}
           <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-2xl">
