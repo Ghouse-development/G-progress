@@ -12,7 +12,6 @@ import { useOnlineUsers } from '../hooks/useOnlineUsers'
 import { useAuditLog } from '../hooks/useAuditLog'
 import { supabase } from '../lib/supabase'
 import { FiscalYear, Employee } from '../types/database'
-import NotificationBell from './NotificationBell'
 import '../styles/prisma-theme.css'
 
 export default function LayoutPrisma({ children }: { children: React.ReactNode }) {
@@ -95,12 +94,10 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
       <aside className={`prisma-sidebar ${sidebarOpen ? 'open' : ''}`}>
         {/* ロゴ */}
         <div className="prisma-sidebar-header">
-          <div className="flex items-center justify-between w-full">
+          <div className="flex items-center justify-center w-full">
             <Link to="/" className="prisma-sidebar-logo" style={{ textDecoration: 'none', color: 'inherit' }}>
               G-progress
             </Link>
-            {/* 通知ベル */}
-            <NotificationBell />
           </div>
           {/* オンラインユーザー数 */}
           <div className="flex items-center justify-center gap-1 mt-2 text-xs text-gray-500">
