@@ -158,8 +158,8 @@ export default function NotificationCenter() {
                     onClick={() => handleNotificationClick(notification)}
                     className={`p-3 cursor-pointer hover:shadow-md transition-all ${getNotificationBgColor(
                       notification.type,
-                      notification.is_read
-                    )} ${!notification.is_read ? 'border-l-4 border-blue-600' : ''}`}
+                      notification.read
+                    )} ${!notification.read ? 'border-l-4 border-blue-600' : ''}`}
                   >
                     <div className="flex items-start gap-3">
                       {/* アイコン */}
@@ -197,7 +197,7 @@ export default function NotificationCenter() {
                       {/* アクション */}
                       <div className="flex items-center gap-1 flex-shrink-0">
                         {/* 既読ボタン */}
-                        {!notification.is_read && (
+                        {!notification.read && (
                           <button
                             onClick={(e) => handleMarkAsRead(e, notification.id)}
                             className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"

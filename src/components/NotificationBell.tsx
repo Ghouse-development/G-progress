@@ -116,7 +116,7 @@ export default function NotificationBell() {
                 <div
                   key={notification.id}
                   className={`p-4 hover:bg-gray-50 transition-colors ${
-                    !notification.is_read ? 'bg-blue-50' : ''
+                    !notification.read ? 'bg-blue-50' : ''
                   }`}
                 >
                   <div className="flex items-start gap-3">
@@ -146,7 +146,7 @@ export default function NotificationBell() {
 
                     {/* アクションボタン */}
                     <div className="flex-shrink-0 flex items-center gap-1">
-                      {!notification.is_read && (
+                      {!notification.read && (
                         <button
                           onClick={() => markAsRead(notification.id)}
                           className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"

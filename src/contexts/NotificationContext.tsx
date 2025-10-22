@@ -98,7 +98,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   }, [])
 
   // 未読通知数を計算
-  const unreadCount = notifications.filter(n => !n.is_read).length
+  const unreadCount = notifications.filter(n => !n.read).length
 
   // 通知を既読にする
   const markAsRead = async (notificationId: string) => {
@@ -126,7 +126,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const markAllAsRead = async () => {
     try {
       const unreadIds = notifications
-        .filter(n => !n.is_read)
+        .filter(n => !n.read)
         .map(n => n.id)
 
       if (unreadIds.length === 0) return

@@ -401,7 +401,7 @@ export interface Notification {
   type: NotificationType
   related_project_id?: string
   related_task_id?: string
-  is_read: boolean
+  read: boolean
   created_at: string
   project?: Project
   task?: Task

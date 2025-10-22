@@ -38,14 +38,14 @@ export function useNotifications() {
       const { data, error } = await supabase
         .from('notifications')
         .select('*')
-        .eq('employee_id', currentEmployeeId)
+        .eq('user_id', currentEmployeeId)
         .order('created_at', { ascending: false })
         .limit(50)
 
       if (error) throw error
 
       setNotifications(data || [])
-      setUnreadCount(data?.filter(n => !n.is_read).length || 0)
+      setUnreadCount(data?.filter(n => !n.read).length || 0)
     } catch (error) {
       console.error('Failed to load notifications:', error)
     } finally {
@@ -62,7 +62,7 @@ export function useNotifications() {
     try {
       const { error } = await supabase
         .from('notifications')
-        .update({ is_read: true })
+        .update({ read: true })
         .eq('id', notificationId)
 
       if (error) throw error
@@ -82,9 +82,9 @@ export function useNotifications() {
     try {
       const { error } = await supabase
         .from('notifications')
-        .update({ is_read: true })
-        .eq('employee_id', currentEmployeeId)
-        .eq('is_read', false)
+        .update({ read: true })
+        .eq('user_id', currentEmployeeId)
+        .eq('read', false)
 
       if (error) throw error
 
@@ -121,17 +121,24 @@ export function useNotifications() {
     if (demoMode) return
 
     try {
+      const insertData: any = {
+        user_id: params.employeeId,
+        type: params.type,
+        title: params.title,
+        message: params.message,
+        read: false
+      }
+
+      // related_tableに応じて適切なカラムに設定
+      if (params.relatedTable === 'projects') {
+        insertData.related_project_id = params.relatedRecordId
+      } else if (params.relatedTable === 'tasks') {
+        insertData.related_task_id = params.relatedRecordId
+      }
+
       const { error } = await supabase
         .from('notifications')
-        .insert({
-          employee_id: params.employeeId,
-          type: params.type,
-          title: params.title,
-          message: params.message,
-          related_table: params.relatedTable,
-          related_record_id: params.relatedRecordId,
-          is_read: false
-        })
+        .insert(insertData)
 
       if (error) throw error
     } catch (error) {
@@ -153,15 +160,24 @@ export function useNotifications() {
     if (demoMode) return
 
     try {
-      const notifications = employeeIds.map(employeeId => ({
-        employee_id: employeeId,
-        type,
-        title,
-        message,
-        related_table: relatedTable,
-        related_record_id: relatedRecordId,
-        is_read: false
-      }))
+      const notifications = employeeIds.map(employeeId => {
+        const notificationData: any = {
+          user_id: employeeId,
+          type,
+          title,
+          message,
+          read: false
+        }
+
+        // related_tableに応じて適切なカラムに設定
+        if (relatedTable === 'projects') {
+          notificationData.related_project_id = relatedRecordId
+        } else if (relatedTable === 'tasks') {
+          notificationData.related_task_id = relatedRecordId
+        }
+
+        return notificationData
+      })
 
       const { error } = await supabase
         .from('notifications')
@@ -327,7 +343,7 @@ export function useNotifications() {
           event: '*',
           schema: 'public',
           table: 'notifications',
-          filter: `employee_id=eq.${currentEmployeeId}`
+          filter: `user_id=eq.${currentEmployeeId}`
         },
         () => {
           loadNotifications()
