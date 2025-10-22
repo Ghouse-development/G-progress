@@ -12,7 +12,6 @@ import { useOnlineUsers } from '../hooks/useOnlineUsers'
 import { useAuditLog } from '../hooks/useAuditLog'
 import { supabase } from '../lib/supabase'
 import { FiscalYear, Employee } from '../types/database'
-import AIAssistant from './AIAssistant'
 import NotificationBell from './NotificationBell'
 import '../styles/prisma-theme.css'
 
@@ -223,9 +222,6 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
           </span>
         </div>
       )}
-
-      {/* AIアシスタント */}
-      <AIAssistant />
     </div>
   )
 }

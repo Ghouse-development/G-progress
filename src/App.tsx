@@ -7,6 +7,7 @@ import { FilterProvider } from './contexts/FilterContext'
 import { ViewModeProvider } from './contexts/ViewModeContext'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import Dashboard from './pages/Dashboard'
+import AIAssistant from './components/AIAssistant'
 
 // プロテクトされたルートコンポーネント
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -54,6 +55,8 @@ function App() {
                   <FilterProvider>
                     <ErrorBoundary>
                       <AppRoutes />
+                      {/* AIアシスタント - 全ページで表示 */}
+                      <AIAssistant />
                     </ErrorBoundary>
                   </FilterProvider>
                 </PermissionsProvider>
