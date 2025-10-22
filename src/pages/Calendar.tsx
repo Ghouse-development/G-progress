@@ -7,9 +7,7 @@ import { ja } from 'date-fns/locale'
 import { ChevronLeft, ChevronRight, Download, ExternalLink, X, History } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
 import Papa from 'papaparse'
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
-import { JAPANESE_TABLE_STYLES } from '../utils/pdfJapaneseFont'
+import { exportHTMLToPDF } from '../lib/exportUtils'
 
 interface TaskWithProject extends Task {
   project?: Project
@@ -457,33 +455,22 @@ export default function Calendar() {
     showToast('CSVを出力しました', 'success')
   }
 
-  // PDF出力（日本語対応）
-  const exportToPDF = () => {
-    const doc = new jsPDF()
-    doc.setFontSize(16)
-    doc.text(`カレンダー ${format(currentMonth, 'yyyy年M月')}`, 20, 20)
+  // PDF出力（日本語完全対応 - html2canvas方式）
+  const exportToPDF = async () => {
+    try {
+      const calendarElement = document.getElementById('calendar-content')
+      if (!calendarElement) {
+        showToast('カレンダー要素が見つかりません', 'error')
+        return
+      }
 
-    // autoTableを使用してテーブルを作成（日本語対応）
-    autoTable(doc, {
-      startY: 30,
-      head: [['期限日', '案件名', 'タスク名', 'ステータス']],
-      body: tasks.map(task => {
-        const statusText = task.status === 'completed' ? '完了' :
-          task.status === 'requested' ? '着手中' :
-          task.status === 'delayed' ? '遅延' : '未着手'
-
-        return [
-          task.due_date ? format(new Date(task.due_date), 'yyyy/MM/dd') : '-',
-          task.project?.customer?.names?.[0] || '不明',
-          task.title,
-          statusText
-        ]
-      }),
-      ...JAPANESE_TABLE_STYLES
-    })
-
-    doc.save(`カレンダー_${format(currentMonth, 'yyyyMM')}.pdf`)
-    showToast('PDFを出力しました', 'success')
+      showToast('PDF出力中...', 'info')
+      await exportHTMLToPDF(calendarElement, `カレンダー_${format(currentMonth, 'yyyyMM')}`, 'landscape')
+      showToast('PDFを出力しました', 'success')
+    } catch (error) {
+      console.error('PDF export failed:', error)
+      showToast('PDF出力に失敗しました', 'error')
+    }
   }
 
   // iCalエクスポート
@@ -552,7 +539,7 @@ export default function Calendar() {
 
   return (
     <div className="h-full w-full flex flex-col overflow-hidden" style={{ margin: '-24px' }}>
-      <div className="w-full h-full flex flex-col px-4 py-3">
+      <div id="calendar-content" className="w-full h-full flex flex-col px-4 py-3">
         {/* ヘッダー */}
         <div className="prisma-card mb-3 flex-shrink-0">
           <div className="flex items-center justify-between mb-3">
