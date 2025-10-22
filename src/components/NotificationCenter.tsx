@@ -61,7 +61,7 @@ export default function NotificationCenter() {
   // 通知クリック時の処理
   const handleNotificationClick = async (notification: any) => {
     // 未読の場合は既読にする
-    if (!notification.read) {
+    if (!notification.is_read) {
       await markAsRead(notification.id)
     }
 
@@ -158,8 +158,8 @@ export default function NotificationCenter() {
                     onClick={() => handleNotificationClick(notification)}
                     className={`p-3 cursor-pointer hover:shadow-md transition-all ${getNotificationBgColor(
                       notification.type,
-                      notification.read
-                    )} ${!notification.read ? 'border-l-4 border-blue-600' : ''}`}
+                      notification.is_read
+                    )} ${!notification.is_read ? 'border-l-4 border-blue-600' : ''}`}
                   >
                     <div className="flex items-start gap-3">
                       {/* アイコン */}
@@ -197,7 +197,7 @@ export default function NotificationCenter() {
                       {/* アクション */}
                       <div className="flex items-center gap-1 flex-shrink-0">
                         {/* 既読ボタン */}
-                        {!notification.read && (
+                        {!notification.is_read && (
                           <button
                             onClick={(e) => handleMarkAsRead(e, notification.id)}
                             className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"

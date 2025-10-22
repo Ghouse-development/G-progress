@@ -10,9 +10,13 @@ import { Payment, Project } from '../types/database'
 import { useFilter } from '../contexts/FilterContext'
 import { useSettings } from '../contexts/SettingsContext'
 import { useSimplePermissions } from '../hooks/usePermissions'
+import { useAuditLog } from '../hooks/useAuditLog'
+import { useToast } from '../contexts/ToastContext'
 import { generateDemoPayments, generateDemoProjects, generateDemoCustomers } from '../utils/demoData'
 import Papa from 'papaparse'
 import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+import { JAPANESE_TABLE_STYLES } from '../utils/pdfJapaneseFont'
 
 interface PaymentRow {
   projectName: string
@@ -26,6 +30,8 @@ export default function PaymentManagement() {
   const { selectedFiscalYear, viewMode } = useFilter()
   const { demoMode } = useSettings()
   const { canWrite } = useSimplePermissions()
+  const { logExport } = useAuditLog()
+  const toast = useToast()
   const [selectedMonth, setSelectedMonth] = useState<string>(() => {
     const now = new Date()
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
@@ -44,72 +50,87 @@ export default function PaymentManagement() {
   const loadPayments = async () => {
     setLoading(true)
 
-    // デモモードの場合はサンプルデータを使用（モード別にデータ件数を調整）
-    if (demoMode) {
-      const demoPayments = generateDemoPayments(legacyMode)
-      const demoProjects = generateDemoProjects(legacyMode)
-      const demoCustomers = generateDemoCustomers()
+    try {
+      // デモモードの場合はサンプルデータを使用（モード別にデータ件数を調整）
+      if (demoMode) {
+        const demoPayments = generateDemoPayments(legacyMode)
+        const demoProjects = generateDemoProjects(legacyMode)
+        const demoCustomers = generateDemoCustomers()
 
-      // 選択した月の支払いをフィルタ
+        // 選択した月の支払いをフィルタ
+        const [year, month] = selectedMonth.split('-')
+        const startDate = new Date(`${year}-${month}-01`)
+        const endDate = new Date(`${year}-${month}-31`)
+
+        const filteredPayments = demoPayments
+          .filter(payment => {
+            const scheduledDate = payment.scheduled_date ? new Date(payment.scheduled_date) : null
+            const actualDate = payment.actual_date ? new Date(payment.actual_date) : null
+            return (
+              (scheduledDate && scheduledDate >= startDate && scheduledDate <= endDate) ||
+              (actualDate && actualDate >= startDate && actualDate <= endDate)
+            )
+          })
+          .map(payment => {
+            const project = demoProjects.find(p => p.id === payment.project_id)
+            const customer = project ? demoCustomers.find(c => c.id === project.customer_id) : null
+            return {
+              ...payment,
+              project: project ? {
+                ...project,
+                customer
+              } : null
+            }
+          })
+
+        setPayments(filteredPayments as any)
+        setLoading(false)
+        return
+      }
+
+      // 通常モード：Supabaseからデータを取得
+      // 選択した月の支払いを取得（選択した年度のプロジェクトのみ）
       const [year, month] = selectedMonth.split('-')
-      const startDate = new Date(`${year}-${month}-01`)
-      const endDate = new Date(`${year}-${month}-31`)
+      const startDate = `${year}-${month}-01`
+      const endDate = `${year}-${month}-31`
 
-      const filteredPayments = demoPayments
-        .filter(payment => {
-          const scheduledDate = payment.scheduled_date ? new Date(payment.scheduled_date) : null
-          const actualDate = payment.actual_date ? new Date(payment.actual_date) : null
-          return (
-            (scheduledDate && scheduledDate >= startDate && scheduledDate <= endDate) ||
-            (actualDate && actualDate >= startDate && actualDate <= endDate)
-          )
-        })
-        .map(payment => {
-          const project = demoProjects.find(p => p.id === payment.project_id)
-          const customer = project ? demoCustomers.find(c => c.id === project.customer_id) : null
-          return {
-            ...payment,
-            project: project ? {
-              ...project,
-              customer
-            } : null
-          }
-        })
+      // First get projects for the selected fiscal year
+      const { data: fiscalYearProjects, error: projectsError } = await supabase
+        .from('projects')
+        .select('id')
+        .eq('fiscal_year', selectedFiscalYear)
 
-      setPayments(filteredPayments as any)
-      setLoading(false)
-      return
-    }
+      if (projectsError) {
+        throw new Error(`プロジェクトデータの取得に失敗しました: ${projectsError.message}`)
+      }
 
-    // 通常モード：Supabaseからデータを取得
-    // 選択した月の支払いを取得（選択した年度のプロジェクトのみ）
-    const [year, month] = selectedMonth.split('-')
-    const startDate = `${year}-${month}-01`
-    const endDate = `${year}-${month}-31`
+      const projectIds = fiscalYearProjects?.map(p => p.id) || []
 
-    // First get projects for the selected fiscal year
-    const { data: fiscalYearProjects } = await supabase
-      .from('projects')
-      .select('id')
-      .eq('fiscal_year', selectedFiscalYear)
+      if (projectIds.length === 0) {
+        setPayments([])
+        setLoading(false)
+        return
+      }
 
-    const projectIds = fiscalYearProjects?.map(p => p.id) || []
+      const { data: paymentsData, error: paymentsError } = await supabase
+        .from('payments')
+        .select('*, project:projects(*, customer:customers(*))')
+        .in('project_id', projectIds)
+        .or(`scheduled_date.gte.${startDate},actual_date.gte.${startDate}`)
+        .or(`scheduled_date.lte.${endDate},actual_date.lte.${endDate}`)
 
-    if (projectIds.length === 0) {
+      if (paymentsError) {
+        throw new Error(`入金データの取得に失敗しました: ${paymentsError.message}`)
+      }
+
+      setPayments(paymentsData || [])
+    } catch (error: any) {
+      console.error('入金データの読み込みエラー:', error)
+      toast.error(error.message || '入金データの読み込みに失敗しました')
       setPayments([])
+    } finally {
       setLoading(false)
-      return
     }
-
-    const { data: paymentsData } = await supabase
-      .from('payments')
-      .select('*, project:projects(*, customer:customers(*))')
-      .in('project_id', projectIds)
-      .or(`scheduled_date.gte.${startDate},actual_date.gte.${startDate}`)
-      .or(`scheduled_date.lte.${endDate},actual_date.lte.${endDate}`)
-
-    setPayments(paymentsData || [])
-    setLoading(false)
   }
 
   const paymentRows: PaymentRow[] = payments.map(payment => ({
@@ -124,54 +145,96 @@ export default function PaymentManagement() {
   const totalActual = paymentRows.reduce((sum, row) => sum + row.actual, 0)
   const grandTotal = totalScheduled + totalActual
 
-  const exportCSV = () => {
-    const csv = Papa.unparse({
-      fields: ['案件', '名目', '金額', '予定', '実績'],
-      data: paymentRows.map(row => [
-        row.projectName,
-        row.paymentType,
-        row.amount,
-        row.scheduled,
-        row.actual
-      ])
-    })
+  const exportCSV = async () => {
+    try {
+      const csv = Papa.unparse({
+        fields: ['案件', '名目', '金額', '予定', '実績'],
+        data: paymentRows.map(row => [
+          row.projectName,
+          row.paymentType,
+          row.amount,
+          row.scheduled,
+          row.actual
+        ])
+      })
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-    const link = document.createElement('a')
-    link.href = URL.createObjectURL(blob)
-    link.download = `入金管理_${selectedMonth}.csv`
-    link.click()
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = `入金管理_${selectedMonth}.csv`
+      link.click()
+
+      // 監査ログ記録
+      await logExport(
+        'payments',
+        '',
+        {
+          month: selectedMonth,
+          format: 'CSV',
+          record_count: paymentRows.length,
+          total_scheduled: totalScheduled,
+          total_actual: totalActual
+        },
+        `${selectedMonth}の入金管理データをCSV形式で出力しました（${paymentRows.length}件）`
+      )
+
+      toast.success(`CSV出力が完了しました（${paymentRows.length}件）`)
+    } catch (error: any) {
+      console.error('CSV出力エラー:', error)
+      toast.error(error.message || 'CSV出力に失敗しました')
+    }
   }
 
-  const exportPDF = () => {
-    const doc = new jsPDF()
-    doc.setFont('helvetica')
-    doc.setFontSize(16)
-    doc.text(`入金管理 ${selectedMonth}`, 20, 20)
+  const exportPDF = async () => {
+    try {
+      const doc = new jsPDF()
 
-    let y = 40
-    doc.setFontSize(10)
-    doc.text('案件', 20, y)
-    doc.text('名目', 70, y)
-    doc.text('金額', 120, y)
-    doc.text('予定', 150, y)
-    doc.text('実績', 180, y)
+      // タイトル（日本語対応）
+      doc.setFontSize(16)
+      doc.text(`入金管理 ${selectedMonth}`, 20, 20)
 
-    y += 10
-    paymentRows.forEach(row => {
-      doc.text(row.projectName, 20, y)
-      doc.text(row.paymentType, 70, y)
-      doc.text(row.amount.toLocaleString(), 120, y)
-      doc.text(row.scheduled.toLocaleString(), 150, y)
-      doc.text(row.actual.toLocaleString(), 180, y)
-      y += 10
-      if (y > 280) {
-        doc.addPage()
-        y = 20
-      }
-    })
+      // autoTableを使用してテーブルを作成（日本語ヘッダー）
+      autoTable(doc, {
+        startY: 30,
+        head: [['案件', '名目', '金額', '予定', '実績']],
+        body: paymentRows.map(row => [
+          row.projectName,
+          row.paymentType,
+          `¥${row.amount.toLocaleString('ja-JP')}`,
+          `¥${row.scheduled.toLocaleString('ja-JP')}`,
+          `¥${row.actual.toLocaleString('ja-JP')}`
+        ]),
+        foot: [[
+          '合計',
+          '',
+          `¥${grandTotal.toLocaleString('ja-JP')}`,
+          `¥${totalScheduled.toLocaleString('ja-JP')}`,
+          `¥${totalActual.toLocaleString('ja-JP')}`
+        ]],
+        ...JAPANESE_TABLE_STYLES
+      })
 
-    doc.save(`入金管理_${selectedMonth}.pdf`)
+      doc.save(`入金管理_${selectedMonth}.pdf`)
+
+      // 監査ログ記録
+      await logExport(
+        'payments',
+        '',
+        {
+          month: selectedMonth,
+          format: 'PDF',
+          record_count: paymentRows.length,
+          total_scheduled: totalScheduled,
+          total_actual: totalActual
+        },
+        `${selectedMonth}の入金管理データをPDF形式で出力しました（${paymentRows.length}件）`
+      )
+
+      toast.success(`PDF出力が完了しました（${paymentRows.length}件）`)
+    } catch (error: any) {
+      console.error('PDF出力エラー:', error)
+      toast.error(error.message || 'PDF出力に失敗しました')
+    }
   }
 
   if (loading) {
@@ -195,15 +258,20 @@ export default function PaymentManagement() {
             style={{ width: '200px' }}
           />
           <button onClick={exportCSV} className="prisma-btn prisma-btn-secondary prisma-btn-sm">
-            CSV出力
+            CSV出力（推奨）
           </button>
-          <button onClick={exportPDF} className="prisma-btn prisma-btn-primary prisma-btn-sm">
+          <button onClick={exportPDF} className="prisma-btn prisma-btn-primary prisma-btn-sm" title="日本語が正しく表示されない場合があります。完全な日本語対応が必要な場合はCSV出力をご利用ください。">
             PDF出力
           </button>
         </div>
       </div>
 
       <div className="prisma-content">
+        {/* PDF出力の情報 */}
+        <div className="mb-4 p-3 bg-blue-50 border-l-4 border-blue-400 text-sm text-blue-800">
+          <strong>💡 出力形式について:</strong> PDF出力は日本語に対応していますが、
+          Excelでの編集が必要な場合は<strong>CSV出力</strong>をご利用ください。
+        </div>
         <table className="prisma-table">
           <thead>
             <tr>

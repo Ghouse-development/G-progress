@@ -9,6 +9,7 @@ import { useMode } from '../contexts/ModeContext'
 import { useFiscalYear } from '../contexts/FiscalYearContext'
 import { useSettings } from '../contexts/SettingsContext'
 import { useOnlineUsers } from '../hooks/useOnlineUsers'
+import { useAuditLog } from '../hooks/useAuditLog'
 import { supabase } from '../lib/supabase'
 import { FiscalYear, Employee } from '../types/database'
 import AIAssistant from './AIAssistant'
@@ -21,6 +22,7 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
   const { selectedYear, setSelectedYear } = useFiscalYear()
   const { demoMode } = useSettings()
   const { onlineCount } = useOnlineUsers()
+  const { logLogout } = useAuditLog()
   const [fiscalYears, setFiscalYears] = useState<FiscalYear[]>([])
   const [currentEmployee, setCurrentEmployee] = useState<Employee | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -56,7 +58,12 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
     }
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // 監査ログ記録
+    if (currentEmployee) {
+      await logLogout(`${currentEmployee.last_name} ${currentEmployee.first_name}`)
+    }
+
     localStorage.removeItem('auth')
     localStorage.removeItem('selectedEmployeeId')
     window.location.href = '/login'

@@ -141,11 +141,15 @@ export function useAuditLog() {
    */
   const logExport = useCallback(async (
     exportType: string,
+    recordId: string,
+    metadata?: Record<string, any>,
     description?: string
   ) => {
     await log({
       action: 'export',
       table_name: exportType,
+      record_id: recordId || undefined,
+      new_values: metadata,
       description: description || `${exportType}をエクスポートしました`
     })
   }, [log])

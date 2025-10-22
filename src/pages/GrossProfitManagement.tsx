@@ -219,7 +219,7 @@ export default function GrossProfitManagement() {
                     className={index % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800/50'}
                   >
                     <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {project.address || '-'}
+                      {project.construction_address || '-'}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
                       {Array.isArray(project.customer?.names) && project.customer.names.length > 0

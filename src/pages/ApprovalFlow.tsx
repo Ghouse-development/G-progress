@@ -5,6 +5,7 @@
 
 import { useState } from 'react'
 import { CheckCircle, XCircle, Clock, FileText, AlertCircle } from 'lucide-react'
+import { useSimplePermissions } from '../hooks/usePermissions'
 
 interface ApprovalRequest {
   id: string
@@ -20,6 +21,7 @@ interface ApprovalRequest {
 }
 
 export default function ApprovalFlow() {
+  const { canWrite } = useSimplePermissions()
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all')
 
   // サンプルデータ
@@ -273,10 +275,10 @@ export default function ApprovalFlow() {
 
                   {request.status === 'pending' && (
                     <div className="flex gap-2 ml-4">
-                      <button className="prisma-btn prisma-btn-primary">
+                      <button disabled={!canWrite} className="prisma-btn prisma-btn-primary" title={!canWrite ? '権限がありません' : ''}>
                         承認
                       </button>
-                      <button className="prisma-btn prisma-btn-secondary">
+                      <button disabled={!canWrite} className="prisma-btn prisma-btn-secondary" title={!canWrite ? '権限がありません' : ''}>
                         却下
                       </button>
                     </div>

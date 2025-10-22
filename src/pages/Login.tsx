@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
+import { useAuditLog } from '../hooks/useAuditLog'
 import { supabase } from '../lib/supabase'
 
 export default function Login() {
   const navigate = useNavigate()
   const { signIn } = useAuth()
   const toast = useToast()
+  const { logLogin } = useAuditLog()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -38,9 +40,16 @@ export default function Login() {
   }, [])
 
   // 開発モード用クイックログイン
-  const handleDevLogin = () => {
+  const handleDevLogin = async () => {
     localStorage.setItem('auth', 'true')
-    localStorage.setItem('currentUserId', selectedEmployeeId)
+    localStorage.setItem('selectedEmployeeId', selectedEmployeeId)
+
+    // 監査ログ記録
+    const selectedEmployee = employees.find(e => e.id === selectedEmployeeId)
+    if (selectedEmployee) {
+      await logLogin(`${selectedEmployee.last_name} ${selectedEmployee.first_name}`)
+    }
+
     navigate('/')
   }
 
@@ -56,6 +65,9 @@ export default function Login() {
       toast.error('ログインに失敗しました')
       setLoading(false)
     } else {
+      // 監査ログ記録
+      await logLogin(email)
+
       toast.success('ログインしました')
       navigate('/')
     }

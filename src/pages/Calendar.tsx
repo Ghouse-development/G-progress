@@ -8,6 +8,8 @@ import { ChevronLeft, ChevronRight, Download, ExternalLink, X, History } from 'l
 import { useToast } from '../contexts/ToastContext'
 import Papa from 'papaparse'
 import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+import { JAPANESE_TABLE_STYLES } from '../utils/pdfJapaneseFont'
 
 interface TaskWithProject extends Task {
   project?: Project
@@ -455,36 +457,29 @@ export default function Calendar() {
     showToast('CSVを出力しました', 'success')
   }
 
-  // PDF出力
+  // PDF出力（日本語対応）
   const exportToPDF = () => {
     const doc = new jsPDF()
-    doc.setFont('helvetica')
     doc.setFontSize(16)
     doc.text(`カレンダー ${format(currentMonth, 'yyyy年M月')}`, 20, 20)
 
-    let y = 40
-    doc.setFontSize(10)
-    doc.text('期限日', 20, y)
-    doc.text('案件', 50, y)
-    doc.text('タスク名', 100, y)
-    doc.text('ステータス', 150, y)
+    // autoTableを使用してテーブルを作成（日本語対応）
+    autoTable(doc, {
+      startY: 30,
+      head: [['期限日', '案件名', 'タスク名', 'ステータス']],
+      body: tasks.map(task => {
+        const statusText = task.status === 'completed' ? '完了' :
+          task.status === 'requested' ? '着手中' :
+          task.status === 'delayed' ? '遅延' : '未着手'
 
-    y += 10
-    tasks.forEach(task => {
-      if (y > 280) {
-        doc.addPage()
-        y = 20
-      }
-
-      const statusText = task.status === 'completed' ? '完了' :
-        task.status === 'requested' ? '着手中' :
-        task.status === 'delayed' ? '遅延' : '未着手'
-
-      doc.text(task.due_date ? format(new Date(task.due_date), 'MM/dd') : '', 20, y)
-      doc.text(task.project?.customer?.names?.[0] || '不明', 50, y)
-      doc.text(task.title.substring(0, 20), 100, y)
-      doc.text(statusText, 150, y)
-      y += 10
+        return [
+          task.due_date ? format(new Date(task.due_date), 'yyyy/MM/dd') : '-',
+          task.project?.customer?.names?.[0] || '不明',
+          task.title,
+          statusText
+        ]
+      }),
+      ...JAPANESE_TABLE_STYLES
     })
 
     doc.save(`カレンダー_${format(currentMonth, 'yyyyMM')}.pdf`)

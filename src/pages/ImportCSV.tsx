@@ -1,8 +1,14 @@
 import { useState } from 'react'
 import { Upload, CheckCircle, XCircle, AlertCircle, FileText } from 'lucide-react'
 import { parseProjectCSV, importProjectsFromCSV, ImportResult } from '../lib/csvImporter'
+import { useSimplePermissions } from '../hooks/usePermissions'
+import { useAuditLog } from '../hooks/useAuditLog'
+import { useToast } from '../contexts/ToastContext'
 
 export default function ImportCSV() {
+  const { canWrite } = useSimplePermissions()
+  const { logImport } = useAuditLog()
+  const toast = useToast()
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<ImportResult | null>(null)
@@ -23,7 +29,7 @@ export default function ImportCSV() {
           const rows = parseProjectCSV(csvText)
           setPreview(rows.slice(0, 10)) // 最初の10件をプレビュー
         } catch (error: any) {
-          alert(`CSVファイルの読み込みエラー: ${error.message}`)
+          toast.error(`CSVファイルの読み込みエラー: ${error.message}`)
         }
       }
       reader.readAsText(selectedFile)
@@ -32,7 +38,7 @@ export default function ImportCSV() {
 
   const handleImport = async () => {
     if (!file) {
-      alert('CSVファイルを選択してください')
+      toast.error('CSVファイルを選択してください')
       return
     }
 
@@ -47,7 +53,7 @@ export default function ImportCSV() {
           const rows = parseProjectCSV(csvText)
 
           if (rows.length === 0) {
-            alert('インポートするデータがありません')
+            toast.error('インポートするデータがありません')
             setLoading(false)
             return
           }
@@ -65,8 +71,23 @@ export default function ImportCSV() {
           // インポート実行
           const importResult = await importProjectsFromCSV(rows)
           setResult(importResult)
+
+          // 監査ログ記録
+          await logImport(
+            'projects',
+            importResult.success,
+            `CSVから${importResult.success}件のプロジェクトをインポートしました（失敗: ${importResult.failed}件）`
+          )
+
+          // 成功時の通知
+          if (importResult.success > 0) {
+            toast.success(`${importResult.success}件のインポートに成功しました`)
+          }
+          if (importResult.failed > 0) {
+            toast.warning(`${importResult.failed}件のインポートに失敗しました`)
+          }
         } catch (error: any) {
-          alert(`インポートエラー: ${error.message}`)
+          toast.error(`インポートエラー: ${error.message}`)
           console.error(error)
         } finally {
           setLoading(false)
@@ -74,7 +95,7 @@ export default function ImportCSV() {
       }
       reader.readAsText(file)
     } catch (error: any) {
-      alert(`ファイル読み込みエラー: ${error.message}`)
+      toast.error(`ファイル読み込みエラー: ${error.message}`)
       setLoading(false)
     }
   }
@@ -182,10 +203,11 @@ export default function ImportCSV() {
 
             <button
               onClick={handleImport}
-              disabled={loading}
+              disabled={loading || !canWrite}
               className="prisma-btn prisma-btn-primary w-full text-lg py-4"
+              title={!canWrite ? '権限がありません' : ''}
             >
-              {loading ? 'インポート中...' : `${preview.length}件をインポート`}
+              {loading ? 'インポート中...' : !canWrite ? '権限がありません' : `${preview.length}件をインポート`}
             </button>
           </div>
         </div>

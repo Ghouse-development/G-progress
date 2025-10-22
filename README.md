@@ -1,23 +1,47 @@
 # G-progress
 
-株式会社Gハウスの業務管理システム
+株式会社Gハウスの建設プロジェクト管理システム
+
+契約から完了まで、建設プロジェクトのタスク、スケジュール、支払い、チーム割り当てを一元管理します。
+
+---
 
 ## 📚 ドキュメント
 
-| ドキュメント | 内容 | 対象者 |
-|------------|------|--------|
-| [REQUIREMENTS.md](./REQUIREMENTS.md) | 要件定義・機能仕様 | 全員 |
-| [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md) | リリース工程表・進捗管理 | PM/開発者 |
-| [CLAUDE.md](./CLAUDE.md) | プロジェクト概要・開発ガイド | 開発者 |
-| [DISASTER_RECOVERY.md](./docs/DISASTER_RECOVERY.md) | 災害復旧計画 | 運用チーム |
+### 📖 開発者向け
 
-## 概要
+| ドキュメント | 内容 | 優先度 |
+|------------|------|:------:|
+| [CLAUDE.md](./CLAUDE.md) | プロジェクト概要・アーキテクチャ・開発ガイド | ⭐⭐⭐ |
+| [REQUIREMENTS.md](./REQUIREMENTS.md) | 要件定義・機能仕様 | ⭐⭐⭐ |
+| [DEPLOYMENT.md](./DEPLOYMENT.md) | デプロイ手順（Supabase + Vercel） | ⭐⭐⭐ |
 
+### 📊 プロジェクト管理
+
+| ドキュメント | 内容 | 優先度 |
+|------------|------|:------:|
+| [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md) | リリース工程表・進捗管理（65%→100%） | ⭐⭐⭐ |
+
+### 🛠️ 運用チーム向け
+
+| ドキュメント | 内容 | 優先度 |
+|------------|------|:------:|
+| [OPERATIONS_MANUAL.md](./OPERATIONS_MANUAL.md) | 運用マニュアル（日次・週次・月次作業） | ⭐⭐⭐ |
+| [SECURITY_CHECKLIST.md](./SECURITY_CHECKLIST.md) | セキュリティチェックリスト | ⭐⭐⭐ |
+| [DISASTER_RECOVERY.md](./docs/DISASTER_RECOVERY.md) | 災害復旧計画 | ⭐⭐ |
+
+---
+
+## 🎯 プロジェクト概要
+
+- **プロジェクト名**: G-progress（ジープログレス）
 - **開発責任者**: 西野秀樹
 - **目的**: 社内業務の見える化・スケジュール内でのタスク完全実行
-- **技術スタック**: React + TypeScript + Vite + Supabase
-- **デザイン**: Apple調モノクロ（信号機能のみ色使用）
-- **進捗**: 65%完了 | **リリース目標**: 2025年11月下旬
+- **対象ユーザー**: 全従業員（営業、設計、工事、事務など）+ フランチャイズ加盟店
+- **技術スタック**: React 18 + TypeScript + Vite + Supabase
+- **デザイン**: Apple調モノクロ（ステータス表示のみ信号機カラー）
+- **進捗**: **85%完了** → 本番リリース準備完了
+- **リリース目標**: 2025年11月下旬
 
 ## 開発環境のセットアップ
 

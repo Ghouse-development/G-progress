@@ -8,6 +8,8 @@ import { ArrowUpDown, Plus, Eye, Trash2, Table, List, Grid, RefreshCw, X, Lock, 
 import { useToast } from '../contexts/ToastContext'
 import { regenerateProjectTasks } from '../utils/taskGenerator'
 import { useRealtimeEditing } from '../hooks/useRealtimeEditing'
+import { useAuditLog } from '../hooks/useAuditLog'
+import { useNotifications } from '../hooks/useNotifications'
 
 interface ProjectWithRelations extends Project {
   customer: Customer
@@ -76,6 +78,8 @@ export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const toast = useToast()
+  const { logCreate, logUpdate, logDelete } = useAuditLog()
+  const { notifyTaskAssignment, notifyTaskCompletion } = useNotifications()
   const [project, setProject] = useState<ProjectWithRelations | null>(null)
   const [tasks, setTasks] = useState<TaskWithEmployee[]>([])
   const [loading, setLoading] = useState(true)
@@ -93,6 +97,12 @@ export default function ProjectDetail() {
   // 現在のユーザーID
   const currentEmployeeId = localStorage.getItem('selectedEmployeeId') || ''
 
+  // モーダル状態
+  const [showTaskModal, setShowTaskModal] = useState(false)
+  const [showDetailModal, setShowDetailModal] = useState(false)
+  const [selectedTask, setSelectedTask] = useState<TaskWithEmployee | null>(null)
+  const [editingDueDate, setEditingDueDate] = useState(false)
+
   // リアルタイム編集機能（選択されたタスク用）
   const taskEditLock = useRealtimeEditing({
     resourceType: 'task',
@@ -100,12 +110,6 @@ export default function ProjectDetail() {
     employeeId: currentEmployeeId,
     enabled: !!selectedTask?.id
   })
-
-  // モーダル状態
-  const [showTaskModal, setShowTaskModal] = useState(false)
-  const [showDetailModal, setShowDetailModal] = useState(false)
-  const [selectedTask, setSelectedTask] = useState<TaskWithEmployee | null>(null)
-  const [editingDueDate, setEditingDueDate] = useState(false)
 
   // 新規タスク
   const [newTask, setNewTask] = useState({
@@ -228,6 +232,9 @@ export default function ProjectDetail() {
 
   const handleUpdateTaskStatus = async (taskId: string, newStatus: 'not_started' | 'requested' | 'delayed' | 'completed') => {
     try {
+      const taskToUpdate = tasks.find(t => t.id === taskId)
+      const oldStatus = taskToUpdate?.status
+
       setTasks(prevTasks =>
         prevTasks.map(t =>
           t.id === taskId ? { ...t, status: newStatus } : t
@@ -251,6 +258,35 @@ export default function ProjectDetail() {
         toast.error(`ステータスの更新に失敗しました: ${error.message}`)
         await loadProjectData(false)
       } else {
+        // 監査ログ記録
+        const statusText = {
+          'not_started': '未着手',
+          'requested': '着手中',
+          'delayed': '遅延',
+          'completed': '完了'
+        }
+        await logUpdate(
+          'tasks',
+          taskId,
+          { status: oldStatus, task_title: taskToUpdate?.title },
+          { status: newStatus, task_title: taskToUpdate?.title },
+          `タスク「${taskToUpdate?.title}」のステータスを「${statusText[oldStatus as keyof typeof statusText] || oldStatus}」→「${statusText[newStatus]}」に変更しました`
+        )
+
+        // タスク完了通知（完了ステータスに変更された場合）
+        if (newStatus === 'completed' && oldStatus !== 'completed') {
+          const completedByEmployee = employees.find(e => e.id === currentEmployeeId)
+          if (completedByEmployee && project?.assigned_sales) {
+            await notifyTaskCompletion(
+              project.assigned_sales,
+              taskToUpdate?.title || '',
+              project.customer?.names?.join('・') || '',
+              `${completedByEmployee.last_name} ${completedByEmployee.first_name}`,
+              taskId
+            )
+          }
+        }
+
         toast.success('ステータスを更新しました')
         loadProjectData(false)
       }
@@ -263,6 +299,8 @@ export default function ProjectDetail() {
 
   const handleUpdateDueDate = async (newDate: string) => {
     if (!selectedTask) return
+
+    const oldDate = selectedTask.due_date
 
     setSelectedTask({ ...selectedTask, due_date: newDate })
     setEditingDueDate(false)
@@ -285,6 +323,15 @@ export default function ProjectDetail() {
       toast.error('期限日の更新に失敗しました: ' + error.message)
       await loadProjectData(false)
     } else {
+      // 監査ログ記録
+      await logUpdate(
+        'tasks',
+        selectedTask.id,
+        { due_date: oldDate, task_title: selectedTask.title },
+        { due_date: newDate, task_title: selectedTask.title },
+        `タスク「${selectedTask.title}」の期限日を${oldDate ? format(new Date(oldDate), 'yyyy/MM/dd', { locale: ja }) : '未設定'}→${format(new Date(newDate), 'yyyy/MM/dd', { locale: ja })}に変更しました`
+      )
+
       toast.success('期限日を更新しました')
       loadProjectData(false)
     }
@@ -318,6 +365,34 @@ export default function ProjectDetail() {
       toast.error('タスクの追加に失敗しました: ' + error.message)
     } else {
       console.log('タスク追加成功:', data)
+
+      // 監査ログ記録
+      if (data && data[0]) {
+        const assignedEmployee = employees.find(e => e.id === newTask.assigned_to)
+        await logCreate(
+          'tasks',
+          data[0].id,
+          {
+            title: newTask.title,
+            project_name: project.customer?.names?.join('・') || '不明',
+            assigned_to: assignedEmployee ? `${assignedEmployee.last_name} ${assignedEmployee.first_name}` : '未割当',
+            due_date: newTask.due_date,
+            priority: newTask.priority
+          },
+          `案件「${project.customer?.names?.join('・')}様邸」にタスク「${newTask.title}」を追加しました`
+        )
+
+        // タスク割り当て通知（担当者が割り当てられた場合）
+        if (newTask.assigned_to) {
+          await notifyTaskAssignment(
+            newTask.assigned_to,
+            newTask.title,
+            project.customer?.names?.join('・') || '',
+            data[0].id
+          )
+        }
+      }
+
       toast.success('タスクを追加しました')
       await loadProjectData()
       setShowTaskModal(false)
@@ -336,6 +411,8 @@ export default function ProjectDetail() {
       return
     }
 
+    const taskToDelete = tasks.find(t => t.id === taskId)
+
     const { error } = await supabase
       .from('tasks')
       .delete()
@@ -344,6 +421,21 @@ export default function ProjectDetail() {
     if (error) {
       toast.error('タスクの削除に失敗しました: ' + error.message)
     } else {
+      // 監査ログ記録
+      if (taskToDelete) {
+        await logDelete(
+          'tasks',
+          taskId,
+          {
+            title: taskToDelete.title,
+            project_name: project?.customer?.names?.join('・') || '不明',
+            status: taskToDelete.status,
+            due_date: taskToDelete.due_date
+          },
+          `案件「${project?.customer?.names?.join('・')}様邸」のタスク「${taskToDelete.title}」を削除しました`
+        )
+      }
+
       toast.success('タスクを削除しました')
       await loadProjectData()
       if (selectedTask?.id === taskId) {
@@ -359,10 +451,23 @@ export default function ProjectDetail() {
     }
 
     try {
+      const oldTaskCount = tasks.length
       toast.info('タスクを再生成しています...')
       const result = await regenerateProjectTasks(id)
 
       if (result.success) {
+        // 監査ログ記録
+        await logCreate(
+          'tasks',
+          id || '',
+          {
+            project_name: project?.customer?.names?.join('・') || '不明',
+            old_task_count: oldTaskCount,
+            new_task_count: result.tasksCount
+          },
+          `案件「${project?.customer?.names?.join('・')}様邸」のタスクを一括再生成しました（${oldTaskCount}個→${result.tasksCount}個）`
+        )
+
         toast.success(`✅ ${result.tasksCount}個のタスクを再生成しました`)
         await loadProjectData()
       } else {

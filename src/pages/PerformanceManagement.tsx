@@ -9,9 +9,12 @@ import { supabase } from '../lib/supabase'
 import { Project } from '../types/database'
 import { useFilter } from '../contexts/FilterContext'
 import { useSettings } from '../contexts/SettingsContext'
+import { useSimplePermissions } from '../hooks/usePermissions'
 import { generateDemoProjects, generateDemoCustomers } from '../utils/demoData'
 import Papa from 'papaparse'
 import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+import { JAPANESE_TABLE_STYLES } from '../utils/pdfJapaneseFont'
 
 interface PerformanceStats {
   totalProjects: number
@@ -36,6 +39,7 @@ interface PerformanceStats {
 export default function PerformanceManagement() {
   const { selectedFiscalYear, viewMode } = useFilter()
   const { demoMode } = useSettings()
+  const { canWrite } = useSimplePermissions()
   const [projects, setProjects] = useState<Project[]>([])
   const [stats, setStats] = useState<PerformanceStats | null>(null)
   const [loading, setLoading] = useState(true)
@@ -209,41 +213,32 @@ export default function PerformanceManagement() {
 
   const exportPDF = () => {
     const doc = new jsPDF('landscape')
-    doc.setFont('helvetica')
+
+    // タイトル（日本語対応）
     doc.setFontSize(16)
     doc.text(`性能管理 ${selectedFiscalYear}年度`, 20, 20)
 
-    let y = 40
-    doc.setFontSize(10)
-    doc.text('案件', 20, y)
-    doc.text('太陽光', 60, y)
-    doc.text('kW数', 85, y)
-    doc.text('蓄電池', 110, y)
-    doc.text('UA値', 135, y)
-    doc.text('BELS', 160, y)
-    doc.text('1次①', 185, y)
-    doc.text('1次②', 210, y)
-    doc.text('1次③', 235, y)
-    doc.text('C値', 260, y)
-
-    y += 10
-    projects.forEach(project => {
-      if (y > 180) {
-        doc.addPage()
-        y = 20
+    // autoTableを使用してテーブルを作成（日本語ヘッダー）
+    autoTable(doc, {
+      startY: 30,
+      head: [['案件名', '太陽光', 'kW数', '蓄電池', 'UA値', 'BELS', '一次①', '一次②', '一次③', 'C値']],
+      body: projects.map(project => [
+        project.customer?.names?.[0] || '不明',
+        project.solar_panel ? '有' : '無',
+        project.solar_kw?.toString() || '-',
+        project.battery ? '有' : '無',
+        project.ua_value?.toFixed(3) || '-',
+        project.bels ? '有' : '無',
+        project.primary_energy_1?.toFixed(1) || '-',
+        project.primary_energy_2?.toFixed(1) || '-',
+        project.primary_energy_3?.toFixed(1) || '-',
+        project.c_value?.toFixed(3) || '-'
+      ]),
+      ...JAPANESE_TABLE_STYLES,
+      styles: {
+        ...JAPANESE_TABLE_STYLES.styles,
+        fontSize: 9
       }
-
-      doc.text((project.customer?.names?.[0] || '不明').substring(0, 10), 20, y)
-      doc.text(project.solar_panel ? '有' : '無', 60, y)
-      doc.text(project.solar_kw ? project.solar_kw.toString() : '-', 85, y)
-      doc.text(project.battery ? '有' : '無', 110, y)
-      doc.text(project.ua_value ? project.ua_value.toFixed(3) : '-', 135, y)
-      doc.text(project.bels ? '有' : '無', 160, y)
-      doc.text(project.primary_energy_1 ? project.primary_energy_1.toFixed(1) : '-', 185, y)
-      doc.text(project.primary_energy_2 ? project.primary_energy_2.toFixed(1) : '-', 210, y)
-      doc.text(project.primary_energy_3 ? project.primary_energy_3.toFixed(1) : '-', 235, y)
-      doc.text(project.c_value ? project.c_value.toFixed(3) : '-', 260, y)
-      y += 10
     })
 
     doc.save(`性能管理_${selectedFiscalYear}年度.pdf`)
@@ -262,10 +257,10 @@ export default function PerformanceManagement() {
       <div className="prisma-header">
         <h1 className="prisma-header-title">性能管理</h1>
         <div className="prisma-header-actions">
-          <button onClick={exportCSV} className="prisma-btn prisma-btn-secondary prisma-btn-sm">
+          <button onClick={exportCSV} disabled={!canWrite} className="prisma-btn prisma-btn-secondary prisma-btn-sm" title={!canWrite ? '権限がありません' : ''}>
             CSV出力
           </button>
-          <button onClick={exportPDF} className="prisma-btn prisma-btn-primary prisma-btn-sm">
+          <button onClick={exportPDF} disabled={!canWrite} className="prisma-btn prisma-btn-primary prisma-btn-sm" title={!canWrite ? '権限がありません' : ''}>
             PDF出力
           </button>
         </div>

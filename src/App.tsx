@@ -5,6 +5,7 @@ import { NotificationProvider } from './contexts/NotificationContext'
 import { PermissionsProvider } from './contexts/PermissionsContext'
 import { FilterProvider } from './contexts/FilterContext'
 import { ViewModeProvider } from './contexts/ViewModeContext'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import Dashboard from './pages/Dashboard'
 
 // プロテクトされたルートコンポーネント
@@ -43,21 +44,25 @@ function AppRoutes() {
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <ViewModeProvider>
-          <ToastProvider>
-            <NotificationProvider>
-              <PermissionsProvider>
-                <FilterProvider>
-                  <AppRoutes />
-                </FilterProvider>
-              </PermissionsProvider>
-            </NotificationProvider>
-          </ToastProvider>
-        </ViewModeProvider>
-      </AuthProvider>
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <AuthProvider>
+          <ViewModeProvider>
+            <ToastProvider>
+              <NotificationProvider>
+                <PermissionsProvider>
+                  <FilterProvider>
+                    <ErrorBoundary>
+                      <AppRoutes />
+                    </ErrorBoundary>
+                  </FilterProvider>
+                </PermissionsProvider>
+              </NotificationProvider>
+            </ToastProvider>
+          </ViewModeProvider>
+        </AuthProvider>
+      </Router>
+    </ErrorBoundary>
   )
 }
 
