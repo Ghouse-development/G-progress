@@ -9,6 +9,8 @@ import { useToast } from '../contexts/ToastContext'
 import { useMode } from '../contexts/ModeContext'
 import { useFiscalYear } from '../contexts/FiscalYearContext'
 import { useSettings } from '../contexts/SettingsContext'
+import { useSimplePermissions } from '../hooks/usePermissions'
+import { useAuditLog } from '../hooks/useAuditLog'
 import { SkeletonTable } from '../components/ui/Skeleton'
 import { generateProjectTasks } from '../utils/taskGenerator'
 import { generateDemoProjects, generateDemoEmployees, generateDemoCustomers, generateDemoTasks } from '../utils/demoData'
@@ -38,6 +40,8 @@ export default function ProjectList() {
   const { mode, setMode } = useMode()
   const { selectedYear } = useFiscalYear()
   const { demoMode } = useSettings()
+  const { canWrite, canDelete } = useSimplePermissions()
+  const { logCreate, logUpdate, logDelete } = useAuditLog()
   const [projects, setProjects] = useState<ProjectWithRelations[]>([])
   const [allTasks, setAllTasks] = useState<Task[]>([])
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
@@ -647,6 +651,19 @@ export default function ProjectList() {
         console.error('⚠️ タスク自動生成に失敗しました:', taskResult.error)
       }
 
+      // 監査ログを記録
+      await logCreate(
+        'projects',
+        project.id,
+        {
+          customer_names: customer.names.join('・'),
+          building_site: customer.building_site,
+          contract_date: project.contract_date,
+          status: project.status
+        },
+        `案件「${customer.names.join('・')}様邸」を作成しました`
+      )
+
       await loadProjects()
       setShowCreateModal(false)
       resetForm()
@@ -696,6 +713,23 @@ export default function ProjectList() {
 
       if (projectError) throw projectError
 
+      // 監査ログを記録
+      await logUpdate(
+        'projects',
+        editingProject.id,
+        {
+          customer_names: editingProject.customer?.names?.join('・'),
+          status: editingProject.status,
+          progress_rate: editingProject.progress_rate
+        },
+        {
+          customer_names: formData.customerNames,
+          status: formData.status,
+          progress_rate: formData.progressRate
+        },
+        `案件「${formData.customerNames}様邸」を更新しました`
+      )
+
       await loadProjects()
       setShowEditModal(false)
       setEditingProject(null)
@@ -712,12 +746,29 @@ export default function ProjectList() {
     if (!deletingProjectId) return
 
     try {
+      // 削除前にプロジェクト情報を取得
+      const projectToDelete = projects.find(p => p.id === deletingProjectId)
+
       const { error } = await supabase
         .from('projects')
         .delete()
         .eq('id', deletingProjectId)
 
       if (error) throw error
+
+      // 監査ログを記録
+      if (projectToDelete) {
+        await logDelete(
+          'projects',
+          deletingProjectId,
+          {
+            customer_names: projectToDelete.customer?.names?.join('・'),
+            contract_date: projectToDelete.contract_date,
+            status: projectToDelete.status
+          },
+          `案件「${projectToDelete.customer?.names?.join('・')}様邸」を削除しました`
+        )
+      }
 
       await loadProjects()
       setShowDeleteDialog(false)
@@ -814,13 +865,15 @@ export default function ProjectList() {
       <div className="prisma-header">
         <h1 className="prisma-header-title">案件一覧</h1>
         <div className="prisma-header-actions">
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="prisma-btn prisma-btn-primary prisma-btn-sm"
-          >
-            <Plus size={16} />
-            新規案件追加
-          </button>
+          {canWrite('projects') && (
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="prisma-btn prisma-btn-primary prisma-btn-sm"
+            >
+              <Plus size={16} />
+              新規案件追加
+            </button>
+          )}
         </div>
       </div>
 

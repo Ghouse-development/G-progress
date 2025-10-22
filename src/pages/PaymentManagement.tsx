@@ -9,6 +9,7 @@ import { supabase } from '../lib/supabase'
 import { Payment, Project } from '../types/database'
 import { useFilter } from '../contexts/FilterContext'
 import { useSettings } from '../contexts/SettingsContext'
+import { useSimplePermissions } from '../hooks/usePermissions'
 import { generateDemoPayments, generateDemoProjects, generateDemoCustomers } from '../utils/demoData'
 import Papa from 'papaparse'
 import jsPDF from 'jspdf'
@@ -24,6 +25,7 @@ interface PaymentRow {
 export default function PaymentManagement() {
   const { selectedFiscalYear, viewMode } = useFilter()
   const { demoMode } = useSettings()
+  const { canWrite } = useSimplePermissions()
   const [selectedMonth, setSelectedMonth] = useState<string>(() => {
     const now = new Date()
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`

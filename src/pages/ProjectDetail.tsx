@@ -4,9 +4,10 @@ import { supabase } from '../lib/supabase'
 import { Project, Customer, Employee, Task } from '../types/database'
 import { format, differenceInDays, addDays } from 'date-fns'
 import { ja } from 'date-fns/locale'
-import { ArrowUpDown, Plus, Eye, Trash2, Table, List, Grid, RefreshCw, X } from 'lucide-react'
+import { ArrowUpDown, Plus, Eye, Trash2, Table, List, Grid, RefreshCw, X, Lock, Users } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
 import { regenerateProjectTasks } from '../utils/taskGenerator'
+import { useRealtimeEditing } from '../hooks/useRealtimeEditing'
 
 interface ProjectWithRelations extends Project {
   customer: Customer
@@ -89,6 +90,16 @@ export default function ProjectDetail() {
   // グリッドビュー用
   const todayRowRef = useRef<HTMLDivElement>(null)
 
+  // 現在のユーザーID
+  const currentEmployeeId = localStorage.getItem('selectedEmployeeId') || ''
+
+  // リアルタイム編集機能（選択されたタスク用）
+  const taskEditLock = useRealtimeEditing({
+    resourceType: 'task',
+    resourceId: selectedTask?.id || '',
+    employeeId: currentEmployeeId,
+    enabled: !!selectedTask?.id
+  })
 
   // モーダル状態
   const [showTaskModal, setShowTaskModal] = useState(false)
@@ -336,8 +347,7 @@ export default function ProjectDetail() {
       toast.success('タスクを削除しました')
       await loadProjectData()
       if (selectedTask?.id === taskId) {
-        setSelectedTask(null)
-        setShowDetailModal(false)
+        closeTaskDetail()
       }
     }
   }
@@ -363,6 +373,29 @@ export default function ProjectDetail() {
       toast.error('タスクの再生成中にエラーが発生しました')
       console.error(error)
     }
+  }
+
+  // タスク詳細モーダルを開く（編集ロック取得）
+  const openTaskDetail = async (task: TaskWithEmployee) => {
+    setSelectedTask(task)
+    setShowDetailModal(true)
+
+    // 編集ロックを取得
+    const lockAcquired = await taskEditLock.acquireLock()
+    if (!lockAcquired && taskEditLock.lockedBy !== currentEmployeeId) {
+      toast.warning(`${taskEditLock.lockedByName || '他のユーザー'}が編集中です。閲覧のみ可能です。`)
+    }
+  }
+
+  // タスク詳細モーダルを閉じる（編集ロック解放）
+  const closeTaskDetail = async () => {
+    // 編集ロックを解放
+    if (taskEditLock.lockedBy === currentEmployeeId) {
+      await taskEditLock.releaseLock()
+    }
+    setSelectedTask(null)
+    setShowDetailModal(false)
+    setEditingDueDate(false)
   }
 
   const getStatusBadgeColor = (status: string) => {
@@ -849,10 +882,7 @@ export default function ProjectDetail() {
                     <tr
                       key={task.id}
                       className="hover:bg-blue-50 transition-colors cursor-pointer"
-                      onClick={() => {
-                        setSelectedTask(task)
-                        setShowDetailModal(true)
-                      }}
+                      onClick={() => openTaskDetail(task)}
                     >
                       {/* No */}
                       <td className="border-2 border-gray-300 p-3 text-center font-bold text-gray-900 bg-gray-50 sticky left-0 z-10">
@@ -907,8 +937,7 @@ export default function ProjectDetail() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation()
-                              setSelectedTask(task)
-                              setShowDetailModal(true)
+                              openTaskDetail(task)
                             }}
                             className="p-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors border-2 border-blue-300"
                             title="詳細表示"
@@ -986,10 +1015,7 @@ export default function ProjectDetail() {
                                   <div
                                     key={task.id}
                                     className="bg-gray-50 rounded-lg border border-gray-300 p-3 hover:shadow-md transition-shadow cursor-pointer"
-                                    onClick={() => {
-                                      setSelectedTask(task)
-                                      setShowDetailModal(true)
-                                    }}
+                                    onClick={() => openTaskDetail(task)}
                                   >
                                     <div className="flex items-start justify-between gap-4">
                                       {/* 左側: タスク情報 */}
@@ -1034,8 +1060,7 @@ export default function ProjectDetail() {
                                         <button
                                           onClick={(e) => {
                                             e.stopPropagation()
-                                            setSelectedTask(task)
-                                            setShowDetailModal(true)
+                                            openTaskDetail(task)
                                           }}
                                           className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
                                           title="詳細表示"
@@ -1203,8 +1228,7 @@ export default function ProjectDetail() {
                                     key={task.id}
                                     onClick={(e) => {
                                       e.stopPropagation()
-                                      setSelectedTask(task)
-                                      setShowDetailModal(true)
+                                      openTaskDetail(task)
                                     }}
                                     className={`text-base px-2 py-1 rounded truncate cursor-pointer mb-1 ${
                                       isDelayed ? 'task-delayed' :
@@ -1375,16 +1399,35 @@ export default function ProjectDetail() {
                 <div className="flex items-center justify-between">
                   <h2 className="prisma-modal-title">{selectedTask.title}</h2>
                   <button
-                    onClick={() => {
-                      setSelectedTask(null)
-                      setShowDetailModal(false)
-                      setEditingDueDate(false)
-                    }}
+                    onClick={closeTaskDetail}
                     className="text-gray-400 hover:text-gray-600 transition-colors"
                   >
                     <X size={20} />
                   </button>
                 </div>
+
+                {/* 編集ロック状態表示 */}
+                {taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId && (
+                  <div className="mt-3 p-3 bg-yellow-50 border-2 border-yellow-400 rounded-lg flex items-center gap-2">
+                    <Lock size={18} className="text-yellow-700" />
+                    <div className="flex-1">
+                      <p className="text-sm font-bold text-yellow-900">
+                        {taskEditLock.lockedByName}が編集中です
+                      </p>
+                      <p className="text-xs text-yellow-700">閲覧のみ可能です。編集はできません。</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* オンラインユーザー表示 */}
+                {taskEditLock.onlineUsers.length > 0 && (
+                  <div className="mt-2 p-2 bg-blue-50 border border-blue-300 rounded-lg flex items-center gap-2">
+                    <Users size={16} className="text-blue-700" />
+                    <p className="text-xs text-blue-900">
+                      他に{taskEditLock.onlineUsers.length}人が閲覧中
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* コンテンツ */}
@@ -1397,41 +1440,45 @@ export default function ProjectDetail() {
                   <div className="grid grid-cols-4 gap-2">
                     <button
                       onClick={() => handleUpdateTaskStatus(selectedTask.id, 'not_started')}
+                      disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
                       className={`px-3 py-2 rounded-lg font-bold text-sm transition-all ${
                         selectedTask.status === 'not_started'
                           ? 'task-not-started'
                           : 'bg-white text-gray-900 hover:bg-gray-50 border-2 border-gray-300'
-                      }`}
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                       未着手
                     </button>
                     <button
                       onClick={() => handleUpdateTaskStatus(selectedTask.id, 'requested')}
+                      disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
                       className={`px-3 py-2 rounded-lg font-bold text-sm transition-all ${
                         selectedTask.status === 'requested'
                           ? 'task-in-progress'
                           : 'bg-white text-yellow-900 hover:bg-yellow-50 border-2 border-yellow-300'
-                      }`}
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                       着手中
                     </button>
                     <button
                       onClick={() => handleUpdateTaskStatus(selectedTask.id, 'delayed')}
+                      disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
                       className={`px-3 py-2 rounded-lg font-bold text-sm transition-all ${
                         selectedTask.status === 'delayed'
                           ? 'task-delayed'
                           : 'bg-white text-red-900 hover:bg-red-50 border-2 border-red-300'
-                      }`}
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                       遅延
                     </button>
                     <button
                       onClick={() => handleUpdateTaskStatus(selectedTask.id, 'completed')}
+                      disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
                       className={`px-3 py-2 rounded-lg font-bold text-sm transition-all ${
                         selectedTask.status === 'completed'
                           ? 'task-completed'
                           : 'bg-white text-blue-900 hover:bg-blue-50 border-2 border-blue-300'
-                      }`}
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                       完了
                     </button>
@@ -1547,11 +1594,7 @@ export default function ProjectDetail() {
               {/* フッター */}
               <div className="prisma-modal-footer">
                 <button
-                  onClick={() => {
-                    setSelectedTask(null)
-                    setShowDetailModal(false)
-                    setEditingDueDate(false)
-                  }}
+                  onClick={closeTaskDetail}
                   className="prisma-btn prisma-btn-secondary"
                 >
                   閉じる

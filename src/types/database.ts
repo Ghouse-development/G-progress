@@ -112,15 +112,12 @@ export interface Product {
 
 export interface Organization {
   id: string
-  name: string // "本社", "FC横浜", "FC大阪"
-  type: 'headquarters' | 'franchise'
-  parent_organization_id?: string
-  subscription_status: 'active' | 'suspended' | 'cancelled'
-  contract_start_date?: string
-  contract_end_date?: string
+  name: string
+  org_type: 'headquarter' | 'franchise'
+  org_status: 'active' | 'inactive' | 'suspended'
+  settings?: Record<string, any> // JSON設定（ロゴURL、カラーテーマなど）
   created_at: string
   updated_at: string
-  parent?: Organization // リレーション
 }
 
 export interface Project {
@@ -446,4 +443,47 @@ export interface Trigger {
   name: string // 請負契約日、間取確定日、最終打合せ日、長期GO、変更契約、着工、上棟、完了検査、引き渡し
   created_at: string
   updated_at: string
+}
+
+// 権限管理
+export type PermissionCategory = 'project' | 'payment' | 'employee' | 'master' | 'system'
+
+export interface Permission {
+  id: string
+  name: string // read_projects, write_projects, delete_projects など
+  description?: string
+  category: PermissionCategory
+  created_at: string
+}
+
+export interface RolePermission {
+  id: string
+  role: Role | 'franchise_user' | 'franchise_admin'
+  permission_id: string
+  created_at: string
+  permission?: Permission
+}
+
+// リアルタイム同時編集
+export type ResourceType = 'project' | 'task' | 'payment' | 'employee' | 'customer'
+
+export interface OnlineUser {
+  id: string
+  employee_id: string
+  page_path: string
+  editing_resource_type?: ResourceType
+  editing_resource_id?: string
+  last_activity_at: string
+  created_at: string
+  employee?: Employee
+}
+
+export interface EditLock {
+  id: string
+  resource_type: ResourceType
+  resource_id: string
+  locked_by: string
+  locked_at: string
+  expires_at: string
+  employee?: Employee
 }

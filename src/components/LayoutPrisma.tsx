@@ -4,12 +4,15 @@
 
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, Users } from 'lucide-react'
 import { useMode } from '../contexts/ModeContext'
 import { useFiscalYear } from '../contexts/FiscalYearContext'
 import { useSettings } from '../contexts/SettingsContext'
+import { useOnlineUsers } from '../hooks/useOnlineUsers'
 import { supabase } from '../lib/supabase'
 import { FiscalYear, Employee } from '../types/database'
+import AIAssistant from './AIAssistant'
+import NotificationBell from './NotificationBell'
 import '../styles/prisma-theme.css'
 
 export default function LayoutPrisma({ children }: { children: React.ReactNode }) {
@@ -17,6 +20,7 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
   const { mode, setMode } = useMode()
   const { selectedYear, setSelectedYear } = useFiscalYear()
   const { demoMode } = useSettings()
+  const { onlineCount } = useOnlineUsers()
   const [fiscalYears, setFiscalYears] = useState<FiscalYear[]>([])
   const [currentEmployee, setCurrentEmployee] = useState<Employee | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -85,7 +89,18 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
       <aside className={`prisma-sidebar ${sidebarOpen ? 'open' : ''}`}>
         {/* ロゴ */}
         <div className="prisma-sidebar-header">
-          <div className="prisma-sidebar-logo">G-progress</div>
+          <div className="flex items-center justify-between w-full">
+            <Link to="/" className="prisma-sidebar-logo" style={{ textDecoration: 'none', color: 'inherit' }}>
+              G-progress
+            </Link>
+            {/* 通知ベル */}
+            <NotificationBell />
+          </div>
+          {/* オンラインユーザー数 */}
+          <div className="flex items-center justify-center gap-1 mt-2 text-xs text-gray-500">
+            <Users size={14} />
+            <span>{onlineCount}人がオンライン</span>
+          </div>
         </div>
 
         {/* モード切替 */}
@@ -122,8 +137,8 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
 
         {/* メニュー */}
         <div className="prisma-sidebar-section">
-          <div className="prisma-sidebar-section-title">メイン</div>
-          <Link to="/" className={`prisma-sidebar-item ${location.pathname === '/' ? 'active' : ''}`} onClick={closeSidebar}>
+          <div className="prisma-sidebar-section-title">注文住宅事業</div>
+          <Link to="/dashboard" className={`prisma-sidebar-item ${location.pathname === '/dashboard' ? 'active' : ''}`} onClick={closeSidebar}>
             ダッシュボード
           </Link>
           <Link to="/projects" className={`prisma-sidebar-item ${location.pathname.startsWith('/projects') ? 'active' : ''}`} onClick={closeSidebar}>
@@ -132,11 +147,24 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
           <Link to="/payments" className={`prisma-sidebar-item ${location.pathname === '/payments' ? 'active' : ''}`} onClick={closeSidebar}>
             入金管理
           </Link>
+          <Link to="/gross-profit" className={`prisma-sidebar-item ${location.pathname === '/gross-profit' ? 'active' : ''}`} onClick={closeSidebar}>
+            粗利益管理
+          </Link>
           <Link to="/performance" className={`prisma-sidebar-item ${location.pathname === '/performance' ? 'active' : ''}`} onClick={closeSidebar}>
             性能管理
           </Link>
           <Link to="/calendar" className={`prisma-sidebar-item ${location.pathname === '/calendar' ? 'active' : ''}`} onClick={closeSidebar}>
             カレンダー
+          </Link>
+        </div>
+
+        <div className="prisma-sidebar-section">
+          <div className="prisma-sidebar-section-title">全社共通</div>
+          <Link to="/employee-management" className={`prisma-sidebar-item ${location.pathname === '/employee-management' ? 'active' : ''}`} onClick={closeSidebar}>
+            従業員管理
+          </Link>
+          <Link to="/approval-flow" className={`prisma-sidebar-item ${location.pathname === '/approval-flow' ? 'active' : ''}`} onClick={closeSidebar}>
+            承認フロー
           </Link>
         </div>
 
@@ -148,14 +176,18 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
           <Link to="/master/tasks" className={`prisma-sidebar-item ${location.pathname === '/master/tasks' ? 'active' : ''}`} onClick={closeSidebar}>
             タスクマスタ
           </Link>
-          <Link to="/master/employees" className={`prisma-sidebar-item ${location.pathname === '/master/employees' ? 'active' : ''}`} onClick={closeSidebar}>
-            従業員マスタ
-          </Link>
           <Link to="/audit-logs" className={`prisma-sidebar-item ${location.pathname === '/audit-logs' ? 'active' : ''}`} onClick={closeSidebar}>
             履歴ログ
           </Link>
           <Link to="/settings" className={`prisma-sidebar-item ${location.pathname === '/settings' ? 'active' : ''}`} onClick={closeSidebar}>
             設定
+          </Link>
+        </div>
+
+        <div className="prisma-sidebar-section">
+          <div className="prisma-sidebar-section-title">システム管理</div>
+          <Link to="/organizations" className={`prisma-sidebar-item ${location.pathname === '/organizations' ? 'active' : ''}`} onClick={closeSidebar}>
+            組織管理
           </Link>
         </div>
 
@@ -184,6 +216,9 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
           </span>
         </div>
       )}
+
+      {/* AIアシスタント */}
+      <AIAssistant />
     </div>
   )
 }

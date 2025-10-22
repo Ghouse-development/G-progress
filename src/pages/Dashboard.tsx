@@ -19,6 +19,10 @@ import PerformanceManagement from './PerformanceManagement'
 import TaskMasterManagement from './TaskMasterManagement'
 import TaskByPosition from './TaskByPosition'
 import Settings from './Settings'
+import TopPage from './TopPage'
+import GrossProfitManagement from './GrossProfitManagement'
+import ApprovalFlow from './ApprovalFlow'
+import OrganizationManagement from './OrganizationManagement'
 import { ModeProvider } from '../contexts/ModeContext'
 import { FiscalYearProvider } from '../contexts/FiscalYearContext'
 import { SettingsProvider } from '../contexts/SettingsContext'
@@ -28,28 +32,38 @@ export default function Dashboard() {
     <SettingsProvider>
       <ModeProvider>
         <FiscalYearProvider>
-          <LayoutPrisma>
-            <Routes>
-              <Route path="/" element={<NewDashboard />} />
-              <Route path="/projects" element={<ProjectList />} />
-              <Route path="/projects/:id" element={<ProjectDetail />} />
-              <Route path="/payments" element={<PaymentManagement />} />
-              <Route path="/performance" element={<PerformanceManagement />} />
-              <Route path="/calendar" element={<Calendar />} />
-              <Route path="/tasks-by-position" element={<TaskByPosition />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/audit-logs" element={<AuditLogs />} />
-              <Route path="/import-csv" element={<ImportCSV />} />
-              <Route path="/sample" element={<SamplePage />} />
-              <Route path="/master/products" element={<ProductMaster />} />
-              <Route path="/master/tasks" element={<TaskMasterManagement />} />
-              <Route path="/master/employees" element={<EmployeeMaster />} />
-              <Route path="/master/departments" element={<DepartmentMaster />} />
-              <Route path="/master/roles" element={<RoleMaster />} />
-              <Route path="/master/branches" element={<BranchMaster />} />
-              <Route path="/settings" element={<Settings />} />
-            </Routes>
-          </LayoutPrisma>
+          <Routes>
+            {/* すべてのページにLayoutPrismaを適用（デザイン統一） */}
+            <Route path="/*" element={
+              <LayoutPrisma>
+                <Routes>
+                  <Route path="/" element={<TopPage />} />
+                  <Route path="/dashboard" element={<NewDashboard />} />
+                  <Route path="/projects" element={<ProjectList />} />
+                  <Route path="/projects/:id" element={<ProjectDetail />} />
+                  <Route path="/payments" element={<PaymentManagement />} />
+                  <Route path="/gross-profit" element={<GrossProfitManagement />} />
+                  <Route path="/performance" element={<PerformanceManagement />} />
+                  <Route path="/calendar" element={<Calendar />} />
+                  <Route path="/tasks-by-position" element={<TaskByPosition />} />
+                  <Route path="/employee-management" element={<EmployeeMaster />} />
+                  <Route path="/approval-flow" element={<ApprovalFlow />} />
+                  <Route path="/reports" element={<Reports />} />
+                  <Route path="/audit-logs" element={<AuditLogs />} />
+                  <Route path="/import-csv" element={<ImportCSV />} />
+                  <Route path="/sample" element={<SamplePage />} />
+                  <Route path="/organizations" element={<OrganizationManagement />} />
+                  <Route path="/master/products" element={<ProductMaster />} />
+                  <Route path="/master/tasks" element={<TaskMasterManagement />} />
+                  <Route path="/master/employees" element={<EmployeeMaster />} />
+                  <Route path="/master/departments" element={<DepartmentMaster />} />
+                  <Route path="/master/roles" element={<RoleMaster />} />
+                  <Route path="/master/branches" element={<BranchMaster />} />
+                  <Route path="/settings" element={<Settings />} />
+                </Routes>
+              </LayoutPrisma>
+            } />
+          </Routes>
         </FiscalYearProvider>
       </ModeProvider>
     </SettingsProvider>

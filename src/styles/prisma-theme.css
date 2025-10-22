@@ -252,7 +252,7 @@ body {
 /* カード */
 .prisma-card {
   background: white;
-  border: 1px solid var(--border-color);
+  border: 2px solid var(--border-color);
   border-radius: 8px;
   padding: 20px;
   margin-bottom: 16px;

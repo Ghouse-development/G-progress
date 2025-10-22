@@ -3,9 +3,11 @@ import { supabase } from '../lib/supabase'
 import { Product } from '../types/database'
 import { Plus, Edit2, Trash2, X, GripVertical } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
+import { useSimplePermissions } from '../hooks/usePermissions'
 
 export default function ProductMaster() {
   const { showToast } = useToast()
+  const { canWrite, canDelete } = useSimplePermissions()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
