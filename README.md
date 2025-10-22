@@ -118,10 +118,16 @@ G-progress/
 
 詳細は [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md) を参照
 
-## 初期ログイン情報
+## 🔐 初期ログイン情報
 
+**システム管理者アカウント**:
 - **メール**: admin@ghouse.jp
 - **パスワード**: Ghouse0648
+
+**注意**:
+- 初回デプロイ時は `docs/ADMIN_USER_SETUP.md` を参照してユーザーを作成してください
+- 本番環境では必ずパスワードを変更してください
+- ログイン手順の詳細: `docs/QUICK_LOGIN_GUIDE.md`
 
 ## デプロイ
 

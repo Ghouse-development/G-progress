@@ -42,6 +42,45 @@
 - **フロントエンド**: React + TypeScript + Vite
 - **スタイリング**: Tailwind CSS + カスタムCSS
 - **日付処理**: date-fns
+- **AI統合**: Google Gemini 1.5 Flash
+
+### 環境変数・認証情報
+
+**⚠️ 重要: これらの情報は機密情報です。Gitにコミットしないでください**
+
+#### Supabase設定
+```
+Project URL: https://qxftwxkpeqvlukjybnfp.supabase.co
+Project Reference ID: qxftwxkpeqvlukjybnfp
+Region: Tokyo (Northeast Asia)
+```
+
+#### 環境変数（`.env`ファイル）
+```bash
+# Supabase接続情報
+VITE_SUPABASE_URL=https://qxftwxkpeqvlukjybnfp.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF4ZnR3eGtwZXF2bHVranlibmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk4MTIzMTUsImV4cCI6MjA3NTM4ODMxNX0.CMvqNski6cYgG3cfkNPwtpKJQKiaWPtszP48qX8_WP8
+
+# Supabase Service Role Key（管理操作用・RLSバイパス）
+# ⚠️ 警告: このキーは強力な権限を持ちます。本番環境では厳重に管理してください
+VITE_SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF4ZnR3eGtwZXF2bHVranlibmZwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1OTgxMjMxNSwiZXhwIjoyMDc1Mzg4MzE1fQ.aagoyqouAINiKBXKngvimecxEq5K0boQk5Y8fQnIvJs
+
+# Google Gemini AI
+VITE_GEMINI_API_KEY=AIzaSyAfEI3sFVWbZvG9qp2Y8irYCuNMbZFbntw
+```
+
+#### Service Role Keyの使用用途
+- **初期データ投入**: RLSポリシーをバイパスして大量データを投入
+- **管理者操作**: システム管理者による特権操作
+- **バックアップ・リストア**: データベース全体のバックアップ/復元
+- **マイグレーション**: データベーススキーマの変更
+
+**⚠️ セキュリティ注意事項**:
+1. Service Role Keyは**絶対にフロントエンドコードで使用しないでください**
+2. 本番環境では環境変数として厳重に管理
+3. GitHubなど公開リポジトリにコミットしない（`.gitignore`で除外）
+4. 定期的なキーのローテーション推奨
+5. アクセスログの監視
 
 ### システムの最終目標
 - 全6事業の案件・顧客・従業員を一元管理

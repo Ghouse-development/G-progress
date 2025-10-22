@@ -68,8 +68,14 @@
   - [ ] `.env.example`に実際の値が含まれていない
 
 - [ ] **APIキー管理**
-  - [ ] Supabase Anon Keyのみを使用（Service Keyは使用しない）
-  - [ ] Gemini APIキーが適切に保護されている
+  - [x] Supabase Anon Key: フロントエンド用（RLS適用）
+  - [x] Supabase Service Role Key: バックエンド専用（RLSバイパス）
+    - ⚠️ **重要**: フロントエンドコードで絶対に使用しないこと
+    - ⚠️ **重要**: Gitにコミットしないこと（`.gitignore`で除外済み）
+    - 詳細: `docs/SERVICE_ROLE_KEY_USAGE.md` を参照
+  - [x] Gemini APIキーが適切に保護されている
+  - [x] 環境変数での管理（`.env`ファイル）
+  - [ ] 定期的なキーローテーション（3ヶ月ごと推奨）
   - [ ] 不要なAPIキーが削除されている
 
 ### 🛡️ XSS/CSRF対策

@@ -12,6 +12,18 @@ dist
 dist-ssr
 *.local
 
+# Environment variables（機密情報）
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# Backup files
+scripts/backup/
+backup/
+*.backup
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

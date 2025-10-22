@@ -1,4 +1,18 @@
 -- データベーススキーマ定義: G-progress
+-- ========================================
+-- 注意: このスクリプトは既存のテーブルを削除して再作成します
+-- ========================================
+
+-- 既存テーブルの削除（外部キー制約を含む）
+DROP TABLE IF EXISTS notifications CASCADE;
+DROP TABLE IF EXISTS audit_logs CASCADE;
+DROP TABLE IF EXISTS attachments CASCADE;
+DROP TABLE IF EXISTS tasks CASCADE;
+DROP TABLE IF EXISTS payments CASCADE;
+DROP TABLE IF EXISTS projects CASCADE;
+DROP TABLE IF EXISTS customers CASCADE;
+DROP TABLE IF EXISTS vendors CASCADE;
+DROP TABLE IF EXISTS employees CASCADE;
 
 -- 従業員テーブル
 CREATE TABLE employees (

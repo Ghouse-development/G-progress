@@ -153,8 +153,37 @@ export default function ProjectDetail() {
         },
         (payload) => {
           console.log('Realtime task change:', payload)
-          // タスクが変更されたら、データを再読み込み（ローディング表示なし）
-          loadProjectData(false)
+
+          // リアルタイムイベントから変更内容を取得して、即座に反映（楽観的更新）
+          if (payload.eventType === 'UPDATE' && payload.new) {
+            const updatedTask = payload.new as any
+
+            // タスクリストを更新（画面リロードなし）
+            setTasks(prevTasks => {
+              const existingTask = prevTasks.find(t => t.id === updatedTask.id)
+              if (existingTask) {
+                // dayFromContractを計算
+                const dayFromContract = updatedTask.due_date && project?.contract_date
+                  ? differenceInDays(new Date(updatedTask.due_date), new Date(project.contract_date))
+                  : 0
+
+                return prevTasks.map(t =>
+                  t.id === updatedTask.id
+                    ? { ...t, ...updatedTask, dayFromContract }
+                    : t
+                )
+              }
+              return prevTasks
+            })
+
+            // 選択中のタスクも更新
+            if (selectedTask && selectedTask.id === updatedTask.id) {
+              setSelectedTask(prev => prev ? { ...prev, ...updatedTask } : null)
+            }
+          } else if (payload.eventType === 'INSERT' || payload.eventType === 'DELETE') {
+            // 新規追加・削除の場合のみ再読み込み（頻度が低い）
+            loadProjectData(false)
+          }
         }
       )
       .subscribe()
@@ -163,7 +192,7 @@ export default function ProjectDetail() {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [id])
+  }, [id, project, selectedTask])
 
   const loadEmployees = async () => {
     const { data, error } = await supabase
