@@ -2,6 +2,7 @@ import * as XLSX from 'xlsx'
 import Papa from 'papaparse'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import html2canvas from 'html2canvas'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 
@@ -113,6 +114,56 @@ export function exportTableToPDF(
   })
 
   doc.save(`${filename}_${format(new Date(), 'yyyyMMdd_HHmmss')}.pdf`)
+}
+
+/**
+ * HTML要素をPDFにエクスポート（日本語完全対応）
+ * html2canvasを使用してHTMLを画像化してからPDFに変換
+ */
+export async function exportHTMLToPDF(
+  element: HTMLElement,
+  filename: string,
+  orientation: 'portrait' | 'landscape' = 'portrait'
+) {
+  try {
+    // HTML要素をCanvasに変換
+    const canvas = await html2canvas(element, {
+      scale: 2, // 高解像度
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff'
+    })
+
+    const imgData = canvas.toDataURL('image/png')
+    const imgWidth = orientation === 'portrait' ? 210 : 297 // A4サイズ (mm)
+    const imgHeight = orientation === 'portrait' ? 297 : 210
+
+    const canvasWidth = canvas.width
+    const canvasHeight = canvas.height
+    const ratio = canvasHeight / canvasWidth
+    const pdfHeight = imgWidth * ratio
+
+    const doc = new jsPDF(orientation, 'mm', 'a4')
+
+    let heightLeft = pdfHeight
+    let position = 0
+
+    // 1ページに収まらない場合は複数ページに分割
+    doc.addImage(imgData, 'PNG', 0, position, imgWidth, pdfHeight)
+    heightLeft -= imgHeight
+
+    while (heightLeft >= 0) {
+      position = heightLeft - pdfHeight
+      doc.addPage()
+      doc.addImage(imgData, 'PNG', 0, position, imgWidth, pdfHeight)
+      heightLeft -= imgHeight
+    }
+
+    doc.save(`${filename}_${format(new Date(), 'yyyyMMdd_HHmmss')}.pdf`)
+  } catch (error) {
+    console.error('PDF export failed:', error)
+    throw new Error('PDFのエクスポートに失敗しました')
+  }
 }
 
 /**
