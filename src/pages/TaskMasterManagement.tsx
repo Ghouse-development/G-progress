@@ -29,7 +29,6 @@ export default function TaskMasterManagement() {
     phase: '内定',
     purpose: '',
     manual_url: '',
-    video_url: '',
     dos: '',
     donts: '',
     is_trigger_task: false,
@@ -69,7 +68,6 @@ export default function TaskMasterManagement() {
         phase: task.phase || '契約後',
         purpose: task.purpose || '',
         manual_url: task.manual_url || '',
-        video_url: '',
         dos: task.dos || '',
         donts: task.donts || '',
         is_trigger_task: task.is_trigger_task || false,
@@ -87,7 +85,6 @@ export default function TaskMasterManagement() {
         phase: '内定',
         purpose: '',
         manual_url: '',
-        video_url: '',
         dos: '',
         donts: '',
         is_trigger_task: false,
@@ -476,20 +473,6 @@ export default function TaskMasterManagement() {
                   type="url"
                   value={formData.manual_url}
                   onChange={(e) => setFormData({ ...formData, manual_url: e.target.value })}
-                  className="prisma-input"
-                  placeholder="https://..."
-                />
-              </div>
-
-              {/* 動画URL */}
-              <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
-                  動画URL
-                </label>
-                <input
-                  type="url"
-                  value={formData.video_url}
-                  onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
                   className="prisma-input"
                   placeholder="https://..."
                 />

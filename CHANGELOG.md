@@ -4,6 +4,35 @@
 
 ## [未リリース] - 2025-10-23
 
+### バグ修正：コード品質の改善 (2025-10-23 14:30)
+
+#### 修正
+- **ProjectDetail.tsx ソートロジックのバグ修正**:
+  - construction_start_dateソート時に同じ値を比較していたバグを修正
+  - 正しくdayFromContractで比較するように変更（lines 633-637）
+
+- **TaskMasterManagement.tsx video_url削除**:
+  - UIに存在していたが保存されないvideo_urlフィールドを削除
+  - データベーススキーマに存在しないため、ユーザーの混乱を防止
+
+- **ProjectList.tsx 職種フィルタリングの統一**:
+  - 担当者選択ドロップダウンのハードコード職種リストを削除
+  - ORGANIZATION_HIERARCHYを使用した統一的な職種管理に変更
+  - getPositionsForDepartmentヘルパー関数を追加
+  - getDepartmentStatus関数もORGANIZATION_HIERARCHYを使用するように修正
+
+#### 改善
+- **コードの保守性向上**:
+  - 職種定義の一元管理により、組織変更時の修正箇所を削減
+  - ORGANIZATION_HIERARCHYが唯一の真実の情報源（Single Source of Truth）
+
+#### ファイル変更
+- `src/pages/ProjectDetail.tsx`: ソートロジック修正
+- `src/pages/TaskMasterManagement.tsx`: video_url削除
+- `src/pages/ProjectList.tsx`: 職種フィルタリング統一
+
+---
+
 ### バグ修正と機能改善 (2025-10-23 12:20)
 
 #### 削除

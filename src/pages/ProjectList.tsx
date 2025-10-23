@@ -14,6 +14,7 @@ import { useAuditLog } from '../hooks/useAuditLog'
 import { SkeletonTable } from '../components/ui/Skeleton'
 import { generateProjectTasks } from '../utils/taskGenerator'
 import { generateDemoProjects, generateDemoEmployees, generateDemoCustomers, generateDemoTasks } from '../utils/demoData'
+import { ORGANIZATION_HIERARCHY } from '../constants/organizationHierarchy'
 
 interface ProjectWithRelations extends Project {
   customer: Customer
@@ -428,15 +429,14 @@ export default function ProjectList() {
     }
   }
 
-  const getDepartmentStatus = (project: ProjectWithRelations): DepartmentStatus[] => {
-    const departments = [
-      { name: '営業部' as const, positions: ['営業', '営業事務', 'ローン事務'] },
-      { name: '設計部' as const, positions: ['意匠設計', 'IC', '実施設計', '構造設計', '申請設計'] },
-      { name: '工事部' as const, positions: ['工事', '工事事務', '積算・発注'] },
-      { name: '外構事業部' as const, positions: ['外構設計', '外構工事'] }
-    ]
+  // 部署名から職種を取得するヘルパー関数
+  const getPositionsForDepartment = (deptName: string): string[] => {
+    const dept = ORGANIZATION_HIERARCHY.find(d => d.name === deptName)
+    return dept ? dept.positions : []
+  }
 
-    return departments.map(dept => {
+  const getDepartmentStatus = (project: ProjectWithRelations): DepartmentStatus[] => {
+    return ORGANIZATION_HIERARCHY.map(dept => {
       const deptTasks = (project.tasks || []).filter(task => {
         const taskPosition = task.description?.split(':')[0]?.trim()
         return dept.positions.includes(taskPosition || '')
@@ -1367,7 +1367,7 @@ export default function ProjectList() {
                       className="input-canva w-full"
                     >
                       <option value="">未設定</option>
-                      {employees.filter(e => ['営業', '営業事務', 'ローン事務'].includes(e.department)).map(emp => (
+                      {employees.filter(e => getPositionsForDepartment('営業部').includes(e.department)).map(emp => (
                         <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name}</option>
                       ))}
                     </select>
@@ -1380,7 +1380,7 @@ export default function ProjectList() {
                       className="input-canva w-full"
                     >
                       <option value="">未設定</option>
-                      {employees.filter(e => ['実施設計', '意匠設計', '申請設計', '構造設計', 'IC'].includes(e.department)).map(emp => (
+                      {employees.filter(e => getPositionsForDepartment('設計部').includes(e.department)).map(emp => (
                         <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name}</option>
                       ))}
                     </select>
@@ -1393,7 +1393,7 @@ export default function ProjectList() {
                       className="input-canva w-full"
                     >
                       <option value="">未設定</option>
-                      {employees.filter(e => ['工事', '発注・積算', '工事事務'].includes(e.department)).map(emp => (
+                      {employees.filter(e => getPositionsForDepartment('工事部').includes(e.department)).map(emp => (
                         <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name}</option>
                       ))}
                     </select>
@@ -1591,7 +1591,7 @@ export default function ProjectList() {
                       className="input-canva w-full"
                     >
                       <option value="">未設定</option>
-                      {employees.filter(e => ['営業', '営業事務', 'ローン事務'].includes(e.department)).map(emp => (
+                      {employees.filter(e => getPositionsForDepartment('営業部').includes(e.department)).map(emp => (
                         <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name}</option>
                       ))}
                     </select>
@@ -1604,7 +1604,7 @@ export default function ProjectList() {
                       className="input-canva w-full"
                     >
                       <option value="">未設定</option>
-                      {employees.filter(e => ['実施設計', '意匠設計', '申請設計', '構造設計', 'IC'].includes(e.department)).map(emp => (
+                      {employees.filter(e => getPositionsForDepartment('設計部').includes(e.department)).map(emp => (
                         <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name}</option>
                       ))}
                     </select>
@@ -1617,7 +1617,7 @@ export default function ProjectList() {
                       className="input-canva w-full"
                     >
                       <option value="">未設定</option>
-                      {employees.filter(e => ['工事', '発注・積算', '工事事務'].includes(e.department)).map(emp => (
+                      {employees.filter(e => getPositionsForDepartment('工事部').includes(e.department)).map(emp => (
                         <option key={emp.id} value={emp.id}>{emp.last_name} {emp.first_name}</option>
                       ))}
                     </select>

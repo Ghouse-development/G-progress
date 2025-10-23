@@ -631,9 +631,9 @@ export default function ProjectDetail() {
         bValue = b.due_date ? new Date(b.due_date).getTime() : 0
         break
       case 'construction_start':
-        // 着工日順（プロジェクトの着工日からの日数でソート）
-        aValue = project?.construction_start_date ? new Date(project.construction_start_date).getTime() : 0
-        bValue = project?.construction_start_date ? new Date(project.construction_start_date).getTime() : 0
+        // 契約日からの日数でソート（dayFromContractと同じ）
+        aValue = a.dayFromContract || 0
+        bValue = b.dayFromContract || 0
         break
       case 'status':
         const statusOrder = { 'not_started': 0, 'requested': 1, 'delayed': 2, 'completed': 3, 'not_applicable': 4 }
