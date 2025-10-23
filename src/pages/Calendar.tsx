@@ -1119,7 +1119,7 @@ export default function Calendar() {
                   onClick={() => {
                     navigate(`/projects/${selectedTask.project?.id}`)
                   }}
-                  className="prisma-btn-secondary flex-1 flex items-center justify-center gap-2"
+                  className="prisma-btn prisma-btn-secondary flex-1 flex items-center justify-center gap-2"
                 >
                   <ExternalLink size={18} />
                   案件詳細を開く
@@ -1131,7 +1131,7 @@ export default function Calendar() {
                   setShowTaskModal(false)
                   setEditingDueDate(false)
                 }}
-                className="prisma-btn-primary flex-1"
+                className="prisma-btn prisma-btn-primary flex-1"
               >
                 閉じる
               </button>
@@ -1230,7 +1230,7 @@ export default function Calendar() {
                   onClick={() => {
                     navigate(`/projects/${selectedPayment.project?.id}`)
                   }}
-                  className="prisma-btn-secondary flex-1 flex items-center justify-center gap-2"
+                  className="prisma-btn prisma-btn-secondary flex-1 flex items-center justify-center gap-2"
                 >
                   <ExternalLink size={18} />
                   案件詳細を開く
@@ -1241,7 +1241,7 @@ export default function Calendar() {
                   setSelectedPayment(null)
                   setShowPaymentModal(false)
                 }}
-                className="prisma-btn-primary flex-1"
+                className="prisma-btn prisma-btn-primary flex-1"
               >
                 閉じる
               </button>

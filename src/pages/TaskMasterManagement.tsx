@@ -389,11 +389,11 @@ export default function TaskMasterManagement() {
                               {taskMasters.find(t => t.id === task.trigger_task_id)?.title || '不明なタスク'}
                             </span>
                             <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-bold w-fit ${
-                              task.days_from_trigger >= 0
+                              (task.days_from_trigger ?? 0) >= 0
                                 ? 'bg-green-100 text-green-800 border-2 border-green-300'
                                 : 'bg-orange-100 text-orange-800 border-2 border-orange-300'
                             }`}>
-                              {task.days_from_trigger > 0 ? '+' : ''}{task.days_from_trigger}日
+                              {(task.days_from_trigger ?? 0) > 0 ? '+' : ''}{task.days_from_trigger ?? 0}日
                             </span>
                           </div>
                         ) : '-'}
