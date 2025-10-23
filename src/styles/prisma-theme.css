@@ -673,8 +673,123 @@ body {
   }
 
   .prisma-header {
-    padding: 0 12px;
-    padding-left: 60px; /* ハンバーガーメニューの下 */
+    padding: 0 16px;
+    padding-left: 64px; /* ハンバーガーメニューの下 */
+    height: 56px;
+  }
+
+  .prisma-header-title {
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .prisma-content {
+    padding: 16px 12px;
+  }
+
+  /* モーダル */
+  .prisma-modal-overlay {
+    padding: 8px;
+  }
+
+  .prisma-modal {
+    max-width: calc(100vw - 16px);
+    max-height: calc(100vh - 16px);
+  }
+
+  .prisma-modal-header,
+  .prisma-modal-content,
+  .prisma-modal-footer {
+    padding: 20px 16px;
+  }
+
+  .prisma-modal-title {
+    font-size: 20px;
+  }
+
+  /* ボタン */
+  .prisma-btn {
+    padding: 12px 16px;
+    font-size: 16px;
+    min-height: 48px; /* タッチターゲット */
+    font-weight: 600;
+  }
+
+  /* テーブル */
+  .prisma-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -12px; /* コンテンツパディングを相殺 */
+  }
+
+  .prisma-table {
+    min-width: 500px;
+    font-size: 14px;
+  }
+
+  .prisma-table th,
+  .prisma-table td {
+    padding: 12px 10px;
+    white-space: nowrap;
+  }
+
+  .prisma-table th {
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  /* カード */
+  .prisma-card {
+    padding: 20px 16px;
+    border-radius: 8px;
+  }
+
+  /* フォーム */
+  .prisma-input,
+  .prisma-select {
+    font-size: 16px; /* iOSのズーム防止 */
+    min-height: 48px; /* タッチターゲット */
+    padding: 12px 14px;
+  }
+
+  /* テキストエリア */
+  .prisma-textarea {
+    font-size: 16px;
+    padding: 12px 14px;
+  }
+
+  /* セレクト（サイドバー内）*/
+  .prisma-sidebar-section select {
+    font-size: 15px;
+    padding: 10px;
+  }
+
+  /* ラベル */
+  label {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  /* 見出し */
+  h1 {
+    font-size: 24px;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  h3 {
+    font-size: 18px;
+  }
+}
+
+/* 極小スマホ対応 (480px以下) */
+@media (max-width: 480px) {
+  .prisma-header {
+    padding-left: 56px;
+    height: 52px;
   }
 
   .prisma-header-title {
@@ -682,90 +797,49 @@ body {
   }
 
   .prisma-content {
-    padding: 12px 8px;
+    padding: 12px 10px;
   }
 
-  /* モーダル */
-  .prisma-modal-overlay {
-    padding: 10px;
+  .prisma-btn {
+    padding: 10px 14px;
+    font-size: 15px;
+    min-height: 44px;
   }
 
-  .prisma-modal {
-    max-width: 100%;
-    max-height: 95vh;
+  .prisma-modal-title {
+    font-size: 18px;
   }
 
   .prisma-modal-header,
   .prisma-modal-content,
   .prisma-modal-footer {
-    padding: 16px;
-  }
-
-  /* ボタン */
-  .prisma-btn {
-    padding: 10px 14px;
-    font-size: 14px;
-    min-height: 44px; /* タッチターゲット */
-  }
-
-  /* テーブル */
-  .prisma-table-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    margin: 0 -8px; /* コンテンツパディングを相殺 */
+    padding: 16px 12px;
   }
 
   .prisma-table {
-    min-width: 600px;
     font-size: 13px;
+    min-width: 450px;
   }
 
   .prisma-table th,
   .prisma-table td {
-    padding: 10px 12px;
+    padding: 10px 8px;
   }
 
-  /* カード */
   .prisma-card {
-    padding: 16px;
-    border-radius: 6px;
+    padding: 16px 12px;
   }
 
-  /* フォーム */
-  .prisma-input,
-  .prisma-select {
-    font-size: 16px; /* iOSのズーム防止 */
-    min-height: 44px; /* タッチターゲット */
+  h1 {
+    font-size: 22px;
   }
 
-  /* セレクト（サイドバー内）*/
-  .prisma-sidebar-section select {
-    font-size: 14px;
-  }
-}
-
-/* 極小スマホ対応 (480px以下) */
-@media (max-width: 480px) {
-  .prisma-header-title {
-    font-size: 14px;
+  h2 {
+    font-size: 18px;
   }
 
-  .prisma-btn {
-    padding: 8px 12px;
-    font-size: 13px;
-  }
-
-  .prisma-modal-title {
+  h3 {
     font-size: 16px;
-  }
-
-  .prisma-table {
-    font-size: 12px;
-  }
-
-  .prisma-table th,
-  .prisma-table td {
-    padding: 8px 10px;
   }
 }
 
