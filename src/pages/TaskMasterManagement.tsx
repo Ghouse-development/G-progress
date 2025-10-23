@@ -348,8 +348,17 @@ export default function TaskMasterManagement() {
 
       {/* タスク一覧テーブル */}
       <div className="bg-white rounded-lg border-2 border-pastel-blue shadow-pastel-lg overflow-hidden">
-        <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
-          <table className="w-full prisma-table min-w-max">
+        <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-350px)]" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <table className="w-full prisma-table min-w-max table-fixed">
+            <colgroup>
+              <col style={{ width: '25%' }} />
+              <col style={{ width: '12%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '20%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '13%' }} />
+            </colgroup>
             <thead className="bg-pastel-blue-light">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
