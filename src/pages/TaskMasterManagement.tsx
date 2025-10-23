@@ -11,6 +11,7 @@ import { TaskMaster } from '../types/database'
 import { Plus, Edit2, Trash2, X, ArrowLeft } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
 import { useSimplePermissions } from '../hooks/usePermissions'
+import { ORGANIZATION_HIERARCHY } from '../constants/organizationHierarchy'
 
 export default function TaskMasterManagement() {
   const navigate = useNavigate()
@@ -29,7 +30,10 @@ export default function TaskMasterManagement() {
     manual_url: '',
     video_url: '',
     dos: '',
-    donts: ''
+    donts: '',
+    is_trigger_task: false,
+    trigger_task_id: '',
+    days_from_trigger: 0
   })
 
   useEffect(() => {
@@ -64,7 +68,10 @@ export default function TaskMasterManagement() {
         manual_url: task.manual_url || '',
         video_url: '',
         dos: task.dos || '',
-        donts: task.donts || ''
+        donts: task.donts || '',
+        is_trigger_task: task.is_trigger_task || false,
+        trigger_task_id: task.trigger_task_id || '',
+        days_from_trigger: task.days_from_trigger || 0
       })
     } else {
       setEditingTask(null)
@@ -77,7 +84,10 @@ export default function TaskMasterManagement() {
         manual_url: '',
         video_url: '',
         dos: '',
-        donts: ''
+        donts: '',
+        is_trigger_task: false,
+        trigger_task_id: '',
+        days_from_trigger: 0
       })
     }
     setShowModal(true)
@@ -103,6 +113,9 @@ export default function TaskMasterManagement() {
             manual_url: formData.manual_url,
             dos: formData.dos,
             donts: formData.donts,
+            is_trigger_task: formData.is_trigger_task,
+            trigger_task_id: formData.trigger_task_id || null,
+            days_from_trigger: formData.days_from_trigger,
             updated_at: new Date().toISOString()
           })
           .eq('id', editingTask.id)
@@ -125,7 +138,10 @@ export default function TaskMasterManagement() {
           donts: formData.donts,
           phase: formData.phase,
           business_no: 0,
-          task_order: nextTaskOrder
+          task_order: nextTaskOrder,
+          is_trigger_task: formData.is_trigger_task,
+          trigger_task_id: formData.trigger_task_id || null,
+          days_from_trigger: formData.days_from_trigger
         })
 
         if (error) throw error
@@ -315,13 +331,22 @@ export default function TaskMasterManagement() {
                 <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
                   責任部署
                 </label>
-                <input
-                  type="text"
+                <select
                   value={formData.responsible_department}
                   onChange={(e) => setFormData({ ...formData, responsible_department: e.target.value })}
                   className="prisma-input"
-                  placeholder="例: 営業部"
-                />
+                >
+                  <option value="">選択してください</option>
+                  {ORGANIZATION_HIERARCHY.map((dept) => (
+                    <optgroup key={dept.name} label={dept.name}>
+                      {dept.positions.map((pos) => (
+                        <option key={`${dept.name}-${pos}`} value={pos}>
+                          {pos}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
               </div>
 
               {/* フェーズ */}
@@ -436,6 +461,78 @@ export default function TaskMasterManagement() {
                   rows={3}
                   placeholder="避けるべき作業方法"
                 />
+              </div>
+
+              {/* トリガー機能 */}
+              <div className="border-t-2 border-gray-200 pt-4 mt-4">
+                <h3 className="text-base font-bold text-gray-800 mb-3">トリガー設定</h3>
+
+                {/* トリガー設定の有無 */}
+                <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id="is_trigger_task"
+                      checked={formData.is_trigger_task}
+                      onChange={(e) => setFormData({ ...formData, is_trigger_task: e.target.checked })}
+                      className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                    />
+                    <label htmlFor="is_trigger_task" className="text-base font-bold text-gray-800">
+                      トリガー設定の有無
+                    </label>
+                  </div>
+                  <p className="text-sm text-gray-600 mt-2 ml-8">
+                    ※ONにすると、他のタスクの起点（トリガー）として選択できるようになります
+                  </p>
+                </div>
+
+                {/* トリガーを設定する */}
+                <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 mb-4">
+                  <h4 className="text-base font-bold text-gray-800 mb-3">トリガーを設定する</h4>
+
+                  {/* トリガー選択 */}
+                  <div className="mb-4">
+                    <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                      トリガー（このタスクの起点となるタスク）
+                    </label>
+                    <select
+                      value={formData.trigger_task_id}
+                      onChange={(e) => setFormData({ ...formData, trigger_task_id: e.target.value })}
+                      className="prisma-input"
+                    >
+                      <option value="">トリガーなし（契約日基準）</option>
+                      {taskMasters
+                        .filter(t => t.is_trigger_task && t.id !== editingTask?.id)
+                        .map((t) => (
+                          <option key={t.id} value={t.id}>
+                            {t.title}
+                          </option>
+                        ))}
+                    </select>
+                    <p className="text-xs text-gray-500 mt-1">
+                      トリガータスクを選択すると、そのタスクからの相対日数で期限が設定されます
+                    </p>
+                  </div>
+
+                  {/* トリガーからの日数 */}
+                  {formData.trigger_task_id && (
+                    <div>
+                      <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                        日数（トリガーからの相対日数）
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.days_from_trigger}
+                        onChange={(e) => setFormData({ ...formData, days_from_trigger: parseInt(e.target.value) || 0 })}
+                        className="prisma-input"
+                        placeholder="例: 5（トリガーから5日後）、-3（トリガーから3日前）"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        プラス値: トリガー完了から〇日後、マイナス値: トリガー完了から〇日前
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 

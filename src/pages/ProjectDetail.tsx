@@ -23,6 +23,13 @@ interface TaskWithEmployee extends Task {
   dayFromContract?: number
   position?: string
   business_no?: number
+  task_master?: {
+    trigger_task_id?: string
+    days_from_trigger?: number
+    trigger_task?: {
+      title: string
+    }
+  }
 }
 
 type SortField = 'due_date' | 'status' | 'priority' | 'title' | 'dayFromContract' | 'construction_start' | 'business_no'
@@ -231,7 +238,12 @@ export default function ProjectDetail() {
         .from('tasks')
         .select(`
           *,
-          assigned_employee:assigned_to(id, last_name, first_name, department)
+          assigned_employee:assigned_to(id, last_name, first_name, department),
+          task_master:task_masters!task_master_id(
+            trigger_task_id,
+            days_from_trigger,
+            trigger_task:task_masters!trigger_task_id(title)
+          )
         `)
         .eq('project_id', id)
 
@@ -1647,6 +1659,27 @@ export default function ProjectDetail() {
                     </div>
                   )}
                 </div>
+
+                {/* トリガーからの日にち設定（読み取り専用） */}
+                {selectedTask.task_master?.trigger_task_id && selectedTask.task_master?.days_from_trigger !== undefined && (
+                  <div>
+                    <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                      トリガー設定
+                    </label>
+                    <div className="prisma-input bg-gray-50">
+                      <div className="font-medium text-gray-900">
+                        {selectedTask.task_master.trigger_task?.title || 'トリガータスク'}
+                        {' '}
+                        {selectedTask.task_master.days_from_trigger > 0 && `から ${selectedTask.task_master.days_from_trigger}日後`}
+                        {selectedTask.task_master.days_from_trigger < 0 && `から ${Math.abs(selectedTask.task_master.days_from_trigger)}日前`}
+                        {selectedTask.task_master.days_from_trigger === 0 && '完了時'}
+                      </div>
+                      <div className="text-sm text-gray-600 mt-1">
+                        このタスクは上記タスクの完了を起点として期限が設定されます
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* 作業内容 */}
                 {selectedTask.description && (

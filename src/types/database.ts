@@ -349,21 +349,26 @@ export interface TaskMaster {
   target?: string
   what?: string
   when_to_do?: string
-  responsible_department?: string
+  responsible_department?: string // 責任部署（組織階層から選択）
   tools?: string
   required_materials?: string
   storage_location?: string
   manual_url?: string
   notes?: string
-  days_from_contract?: number // 契約日からの日数（廃止予定）
-  days_from_trigger?: number // トリガーからの日数
-  trigger_id?: string // トリガーID
+  days_from_contract?: number // 契約日からの日数
+
+  // トリガー機能
+  is_trigger_task?: boolean // トリガータスクの有無（ONにするとトリガーのプルダウンに表示）
+  trigger_task_id?: string // トリガータスクID（このタスクの起点となるタスク）
+  days_from_trigger?: number // トリガーからの日数（プラスマイナス対応、例: +5日、-3日）
+
   duration_days?: number // 作業期間
   related_task_master_ids?: string[] // 関連タスクマスタのID配列
   created_at: string
   updated_at: string
   trigger?: Trigger // リレーション
   related_tasks?: TaskMaster[] // 関連タスクマスタ（リレーション）
+  trigger_task?: TaskMaster // トリガータスクのリレーション
 }
 
 export interface Attachment {
