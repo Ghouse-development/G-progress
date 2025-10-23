@@ -180,26 +180,34 @@ export default function GrossProfitManagement() {
 
       {/* テーブル */}
       <div className="prisma-card" style={{ padding: 0, overflow: 'hidden' }}>
-        <div className="prisma-table-container">
-          <table className="prisma-table">
+        <div className="prisma-table-container" style={{ overflowX: 'auto' }}>
+          <table className="prisma-table" style={{ tableLayout: 'fixed', width: '100%', minWidth: '1200px' }}>
+            <colgroup>
+              <col style={{ width: '20%' }} />
+              <col style={{ width: '15%' }} />
+              <col style={{ width: '18%' }} />
+              <col style={{ width: '18%' }} />
+              <col style={{ width: '18%' }} />
+              <col style={{ width: '11%' }} />
+            </colgroup>
             <thead className="bg-gray-100 dark:bg-gray-800 sticky top-0">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
+                <th className="px-4 py-3 text-left text-base font-bold text-gray-900 dark:text-gray-100">
                   案件名
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
+                <th className="px-4 py-3 text-left text-base font-bold text-gray-900 dark:text-gray-100">
                   顧客名
                 </th>
-                <th className="px-4 py-3 text-right text-sm font-semibold text-gray-900 dark:text-gray-100">
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100">
                   売上
                 </th>
-                <th className="px-4 py-3 text-right text-sm font-semibold text-gray-900 dark:text-gray-100">
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100">
                   原価
                 </th>
-                <th className="px-4 py-3 text-right text-sm font-semibold text-gray-900 dark:text-gray-100">
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100">
                   粗利益
                 </th>
-                <th className="px-4 py-3 text-right text-sm font-semibold text-gray-900 dark:text-gray-100">
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100">
                   粗利益率
                 </th>
               </tr>
