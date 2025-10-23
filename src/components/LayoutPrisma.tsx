@@ -175,9 +175,6 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
           <Link to="/settings" className={`prisma-sidebar-item ${location.pathname === '/settings' ? 'active' : ''}`} onClick={closeSidebar}>
             設定
           </Link>
-          <Link to="/system-settings" className={`prisma-sidebar-item ${location.pathname === '/system-settings' ? 'active' : ''}`} onClick={closeSidebar}>
-            システム設定
-          </Link>
         </div>
 
         {/* ログアウト */}

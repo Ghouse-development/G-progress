@@ -340,126 +340,158 @@ export default function ProjectDetailFields({
 
         {/* 職種別ビュー */}
         {activeTab === 'position' && (
-          <div className="space-y-4 p-4" style={{ maxHeight: 'calc(100vh - 350px)', overflowY: 'auto' }}>
+          <div className="p-4" style={{ maxHeight: 'calc(100vh - 350px)', overflowY: 'auto' }}>
             {tasks.length === 0 ? (
-              <div className="bg-white rounded-lg shadow-md p-8 text-center text-gray-500 font-medium border-2 border-gray-300">
+              <div className="bg-white rounded-lg shadow-md p-8 text-center text-gray-500 font-medium border-3 border-gray-300">
                 タスクがありません
               </div>
             ) : (
-              DEPARTMENTS.map((dept) => {
-                const deptTasks = tasks.filter(task => {
-                  const taskPosition = task.description?.split(':')[0]?.trim()
-                  return dept.positions.includes(taskPosition || '')
-                })
-
-                if (deptTasks.length === 0) return null
-
-                return (
-                  <div key={dept.name} className="bg-white rounded-lg shadow-md border-2 border-gray-300 overflow-hidden">
-                    {/* 部門ヘッダー */}
-                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-4">
-                      <h3 className="text-xl font-bold text-white">{dept.name}</h3>
-                      <p className="text-blue-100 text-base mt-1">{deptTasks.length}件のタスク</p>
-                    </div>
-
-                    {/* 職種ごとにグループ化 */}
-                    <div className="p-4 space-y-4">
-                      {dept.positions.map(position => {
-                        const positionTasks = deptTasks.filter(task => {
+              <div className="bg-white rounded-lg shadow-xl overflow-hidden border-3 border-gray-300">
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead className="bg-gray-100 border-b-2 border-gray-400 sticky top-0 z-10">
+                      <tr>
+                        <th className="border-3 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '100px' }}>
+                          部門
+                        </th>
+                        <th className="border-3 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '100px' }}>
+                          職種
+                        </th>
+                        <th className="border-3 border-gray-300 px-4 py-3 text-left font-bold text-base text-gray-900" style={{ minWidth: '250px' }}>
+                          タスク名
+                        </th>
+                        <th className="border-3 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '120px' }}>
+                          担当者
+                        </th>
+                        <th className="border-3 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '110px' }}>
+                          期限
+                        </th>
+                        <th className="border-3 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '90px' }}>
+                          経過日数
+                        </th>
+                        <th className="border-3 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '100px' }}>
+                          ステータス
+                        </th>
+                        <th className="border-3 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '120px' }}>
+                          操作
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {DEPARTMENTS.map((dept) => {
+                        const deptTasks = tasks.filter(task => {
                           const taskPosition = task.description?.split(':')[0]?.trim()
-                          return taskPosition === position
+                          return dept.positions.includes(taskPosition || '')
                         })
 
-                        if (positionTasks.length === 0) return null
+                        return dept.positions.map(position => {
+                          const positionTasks = deptTasks.filter(task => {
+                            const taskPosition = task.description?.split(':')[0]?.trim()
+                            return taskPosition === position
+                          })
 
-                        return (
-                          <div key={position} className="border-l-4 border-blue-400 pl-4">
-                            <h4 className="font-bold text-lg text-gray-800 mb-3">{position} ({positionTasks.length}件)</h4>
-                            <div className="space-y-2">
-                              {positionTasks.map((task) => {
-                                const isDelayed = task.due_date &&
-                                  task.status !== 'completed' &&
-                                  new Date(task.due_date) < new Date()
+                          if (positionTasks.length === 0) return null
 
-                                return (
-                                  <div
-                                    key={task.id}
-                                    className="bg-gray-50 rounded-lg border border-gray-300 p-3 hover:shadow-md transition-shadow cursor-pointer"
-                                    onClick={() => onTaskClick && onTaskClick(task)}
+                          return positionTasks.map((task, index) => {
+                            const isDelayed = task.due_date &&
+                              task.status !== 'completed' &&
+                              new Date(task.due_date) < new Date()
+
+                            return (
+                              <tr
+                                key={task.id}
+                                className="hover:bg-blue-50 transition-colors cursor-pointer"
+                                onClick={() => onTaskClick && onTaskClick(task)}
+                              >
+                                {/* 部門 */}
+                                {index === 0 && (
+                                  <td
+                                    rowSpan={positionTasks.length}
+                                    className="border-3 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900 bg-blue-50"
                                   >
-                                    <div className="flex items-start justify-between gap-4">
-                                      {/* 左側: タスク情報 */}
-                                      <div className="flex-1">
-                                        <div className="flex items-center gap-3 mb-2">
-                                          <h5 className="text-base font-bold text-gray-900">{task.title}</h5>
-                                          <span className={`px-2 py-1 rounded-lg ${
-                                            isDelayed ? 'task-delayed' : getStatusBadgeColor(task.status)
-                                          }`}>
-                                            {isDelayed ? '遅延' : getStatusText(task.status)}
-                                          </span>
-                                        </div>
+                                    {dept.name}
+                                  </td>
+                                )}
 
-                                        <div className="flex items-center gap-4 text-base text-gray-600">
-                                          <div>
-                                            <span className="font-medium">担当者: </span>
-                                            <span className="font-bold text-gray-900">
-                                              {task.assigned_employee
-                                                ? `${task.assigned_employee.last_name} ${task.assigned_employee.first_name}`
-                                                : '未割当'
-                                              }
-                                            </span>
-                                          </div>
-                                          <div>
-                                            <span className="font-medium">期限: </span>
-                                            <span className="font-bold text-gray-900">
-                                              {task.due_date
-                                                ? format(new Date(task.due_date), 'M/d (E)', { locale: ja })
-                                                : '未設定'
-                                              }
-                                            </span>
-                                          </div>
-                                          <div>
-                                            <span className="font-medium">契約から: </span>
-                                            <span className="font-bold text-blue-700">{task.dayFromContract || 0}日</span>
-                                          </div>
-                                        </div>
-                                      </div>
+                                {/* 職種 */}
+                                {index === 0 && (
+                                  <td
+                                    rowSpan={positionTasks.length}
+                                    className="border-3 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900 bg-green-50"
+                                  >
+                                    {position}
+                                  </td>
+                                )}
 
-                                      {/* 右側: 操作ボタン */}
-                                      <div className="flex items-center gap-1">
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation()
-                                            onTaskClick && onTaskClick(task)
-                                          }}
-                                          className="p-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
-                                          title="詳細表示"
-                                        >
-                                          <Eye size={16} />
-                                        </button>
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation()
-                                            onTaskDelete && onTaskDelete(task.id)
-                                          }}
-                                          className="p-2 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
-                                          title="削除"
-                                        >
-                                          <Trash2 size={16} />
-                                        </button>
-                                      </div>
-                                    </div>
+                                {/* タスク名 */}
+                                <td className="border-3 border-gray-300 px-4 py-3 text-base text-gray-900 font-medium">
+                                  {task.title}
+                                </td>
+
+                                {/* 担当者 */}
+                                <td className="border-3 border-gray-300 px-4 py-3 text-center text-base text-gray-900">
+                                  {task.assigned_employee
+                                    ? `${task.assigned_employee.last_name} ${task.assigned_employee.first_name}`
+                                    : '未割当'
+                                  }
+                                </td>
+
+                                {/* 期限 */}
+                                <td className="border-3 border-gray-300 px-4 py-3 text-center text-base font-bold text-gray-900">
+                                  {task.due_date
+                                    ? format(new Date(task.due_date), 'M/d (E)', { locale: ja })
+                                    : '未設定'
+                                  }
+                                </td>
+
+                                {/* 経過日数 */}
+                                <td className="border-3 border-gray-300 px-4 py-3 text-center text-base font-bold text-blue-700">
+                                  {task.dayFromContract || 0}日
+                                </td>
+
+                                {/* ステータス */}
+                                <td className="border-3 border-gray-300 px-4 py-3 text-center">
+                                  <span className={`px-3 py-1 rounded-lg font-bold text-base border-2 ${
+                                    isDelayed ? 'task-delayed' : getStatusBadgeColor(task.status)
+                                  }`}>
+                                    {isDelayed ? '遅延' : getStatusText(task.status)}
+                                  </span>
+                                </td>
+
+                                {/* 操作 */}
+                                <td className="border-3 border-gray-300 px-4 py-3 text-center">
+                                  <div className="flex items-center justify-center gap-1">
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        onTaskClick && onTaskClick(task)
+                                      }}
+                                      className="p-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors border-2 border-blue-300"
+                                      title="詳細表示"
+                                    >
+                                      <Eye size={16} />
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        onTaskDelete && onTaskDelete(task.id)
+                                      }}
+                                      className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors border-2 border-red-300"
+                                      title="削除"
+                                    >
+                                      <Trash2 size={16} />
+                                    </button>
                                   </div>
-                                )
-                              })}
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )
-              })
+                                </td>
+                              </tr>
+                            )
+                          })
+                        })
+                      }).flat()}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             )}
           </div>
         )}
