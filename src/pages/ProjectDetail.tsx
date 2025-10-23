@@ -1396,63 +1396,65 @@ export default function ProjectDetail() {
 
         {/* タスク追加モーダル */}
         {showTaskModal && (
-          <div className="modal-overlay">
-            <div className="bg-white rounded-lg shadow-2xl max-w-md w-full border-2 border-gray-300">
+          <div className="prisma-modal-overlay">
+            <div className="prisma-modal" style={{ maxWidth: '600px' }}>
               {/* ヘッダー */}
-              <div className="flex items-center justify-between px-5 py-4 border-b-2 border-gray-200">
-                <h2 className="text-xl font-bold text-gray-900">新しいタスクを追加</h2>
-                <button
-                  onClick={() => {
-                    setShowTaskModal(false)
-                    setNewTask({
-                      title: '',
-                      description: '',
-                      assigned_to: '',
-                      due_date: '',
-                      priority: 'medium'
-                    })
-                  }}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <X size={22} />
-                </button>
+              <div className="prisma-modal-header">
+                <div className="flex items-center justify-between">
+                  <h2 className="prisma-modal-title">新しいタスクを追加</h2>
+                  <button
+                    onClick={() => {
+                      setShowTaskModal(false)
+                      setNewTask({
+                        title: '',
+                        description: '',
+                        assigned_to: '',
+                        due_date: '',
+                        priority: 'medium'
+                      })
+                    }}
+                    className="text-gray-400 hover:text-gray-600 dark:text-gray-300 transition-colors"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
               </div>
 
               {/* コンテンツ */}
-              <div className="px-5 py-4 space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
+              <div className="prisma-modal-content space-y-4">
                 <div>
-                  <label className="block text-base font-medium text-gray-700 mb-1">
+                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                     タスク名 <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={newTask.title}
                     onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                    className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="prisma-input"
                     placeholder="例: 初回面談"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-base font-medium text-gray-700 mb-1">
+                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                     期限 <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="date"
                     value={newTask.due_date}
                     onChange={(e) => setNewTask({ ...newTask, due_date: e.target.value })}
-                    className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="prisma-input"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-base font-medium text-gray-700 mb-1">
+                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                     担当者
                   </label>
                   <select
                     value={newTask.assigned_to}
                     onChange={(e) => setNewTask({ ...newTask, assigned_to: e.target.value })}
-                    className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="prisma-input"
                   >
                     <option value="">未割り当て</option>
                     {employees.map((emp) => (
@@ -1464,13 +1466,13 @@ export default function ProjectDetail() {
                 </div>
 
                 <div>
-                  <label className="block text-base font-medium text-gray-700 mb-1">
+                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                     優先度
                   </label>
                   <select
                     value={newTask.priority}
                     onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as 'low' | 'medium' | 'high' })}
-                    className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="prisma-input"
                   >
                     <option value="low">低</option>
                     <option value="medium">中</option>
@@ -1479,13 +1481,13 @@ export default function ProjectDetail() {
                 </div>
 
                 <div>
-                  <label className="block text-base font-medium text-gray-700 mb-1">
+                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                     詳細説明
                   </label>
                   <textarea
                     value={newTask.description}
                     onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-                    className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="prisma-input"
                     rows={3}
                     placeholder="タスクの詳細説明（任意）"
                   />
@@ -1493,7 +1495,7 @@ export default function ProjectDetail() {
               </div>
 
               {/* フッター */}
-              <div className="flex gap-2 px-5 py-3 border-t-2 border-gray-200 bg-gray-50">
+              <div className="prisma-modal-footer">
                 <button
                   onClick={() => {
                     setShowTaskModal(false)
@@ -1505,13 +1507,13 @@ export default function ProjectDetail() {
                       priority: 'medium'
                     })
                   }}
-                  className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-100 transition-colors font-medium"
+                  className="prisma-btn prisma-btn-secondary flex-1"
                 >
                   キャンセル
                 </button>
                 <button
                   onClick={handleAddTask}
-                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                  className="prisma-btn prisma-btn-primary flex-1"
                 >
                   追加
                 </button>
