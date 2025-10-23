@@ -100,11 +100,11 @@ export default function TaskByPosition() {
         *,
         project:projects(*, customer:customers(*)),
         assigned_employee:assigned_to(id, last_name, first_name, department),
-        task_master:task_masters!task_master_id(
+        task_master:task_masters!tasks_task_master_id_fkey(
           trigger_task_id,
           days_from_trigger,
           show_in_progress,
-          trigger_task:task_masters!trigger_task_id(title)
+          trigger_task:task_masters!task_masters_trigger_task_id_fkey(title)
         )
       `)
       .order('due_date', { ascending: true })

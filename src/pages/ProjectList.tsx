@@ -282,7 +282,7 @@ export default function ProjectList() {
               .from('tasks')
               .select(`
                 *,
-                task_master:task_masters!task_master_id(show_in_progress)
+                task_master:task_masters!tasks_task_master_id_fkey(show_in_progress)
               `)
               .eq('project_id', project.id)
 
@@ -307,7 +307,7 @@ export default function ProjectList() {
             .from('tasks')
             .select(`
               *,
-              task_master:task_masters!task_master_id(show_in_progress)
+              task_master:task_masters!tasks_task_master_id_fkey(show_in_progress)
             `)
             .in('project_id', projectIds)
 
