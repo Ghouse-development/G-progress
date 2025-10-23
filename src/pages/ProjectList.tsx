@@ -917,94 +917,55 @@ export default function ProjectList() {
       </div>
 
       <div className="prisma-content" style={{ padding: '12px' }}>
-        {/* ツールバーカード */}
-        <div className="prisma-card" style={{ marginBottom: '12px', padding: '12px' }}>
-
-          <div className="flex items-center justify-between gap-3">
-            {/* ソート */}
-            <div className="flex items-center gap-2">
-              <ArrowUpDown size={16} className="text-gray-600" />
-              <span className="text-gray-700 text-sm">並び:</span>
-              <select
-                value={sortField}
-                onChange={(e) => setSortField(e.target.value as SortField)}
-                className="prisma-select"
-                style={{ width: 'auto' }}
-              >
-                <option value="contract_date">契約日順</option>
-                <option value="construction_start_date">着工日順</option>
-                <option value="progress_rate">進捗率順</option>
-                <option value="delayed_tasks">遅延件数順</option>
-                <option value="customer_name">顧客名順</option>
-              </select>
-              <button
-                onClick={() => setSortAscending(!sortAscending)}
-                className="prisma-btn prisma-btn-secondary prisma-btn-sm"
-              >
-                {sortAscending ? '昇順 ↑' : '降順 ↓'}
-              </button>
-            </div>
-
-            {/* フィルタ */}
-            <div className="flex items-center gap-2">
-              <Filter size={16} className="text-gray-600" />
-              <span className="text-gray-700 text-sm">絞込:</span>
-              <div className="flex gap-1">
-                <button
-                  onClick={() => setFilterStatus('all')}
-                  className={`prisma-btn prisma-btn-sm ${
-                    filterStatus === 'all' ? 'prisma-btn-primary' : 'prisma-btn-secondary'
-                  }`}
-                >
-                  全て ({projects.length})
-                </button>
-                <button
-                  onClick={() => setFilterStatus('delayed')}
-                  className={`prisma-btn prisma-btn-sm ${
-                    filterStatus === 'delayed' ? 'prisma-btn-primary' : 'prisma-btn-secondary'
-                  }`}
-                  style={filterStatus === 'delayed' ? { background: '#ef4444' } : {}}
-                >
-                  遅れ
-                </button>
-                <button
-                  onClick={() => setFilterStatus('requested')}
-                  className={`prisma-btn prisma-btn-sm ${
-                    filterStatus === 'requested' ? 'prisma-btn-primary' : 'prisma-btn-secondary'
-                  }`}
-                  style={filterStatus === 'requested' ? { background: '#eab308' } : {}}
-                >
-                  着手中
-                </button>
-                <button
-                  onClick={() => setFilterStatus('completed')}
-                  className={`prisma-btn prisma-btn-sm ${
-                    filterStatus === 'completed' ? 'prisma-btn-primary' : 'prisma-btn-secondary'
-                  }`}
-                >
-                  完了
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* 進捗マトリクス表示 */}
         <div className="prisma-card" style={{ overflow: 'hidden' }}>
           {/* マトリクスヘッダー */}
           <div className="prisma-card-header" style={{ padding: '16px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {/* タイトルとバッジ */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+              {/* 左側：タイトルと並び順・絞込 */}
               <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px' }}>
                 <h3 className="prisma-card-title" style={{ fontSize: '18px', marginBottom: 0 }}>全案件進捗マトリクス</h3>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  <span className="prisma-badge prisma-badge-blue" style={{ fontSize: '14px', padding: '4px 12px' }}>{filteredProjectsForMatrix.length}件</span>
-                  <span className="prisma-badge prisma-badge-green" style={{ fontSize: '14px', padding: '4px 12px' }}>{uniqueTaskTitles.length}種</span>
-                  <span className="prisma-badge prisma-badge-gray" style={{ fontSize: '14px', padding: '4px 12px' }}>計{allTasks.length}</span>
+
+                {/* 並び順 */}
+                <div className="flex items-center gap-2">
+                  <ArrowUpDown size={16} className="text-gray-600" />
+                  <span className="text-gray-700 text-sm">並び:</span>
+                  <select
+                    value={sortField}
+                    onChange={(e) => setSortField(e.target.value as SortField)}
+                    className="prisma-select"
+                    style={{ width: 'auto' }}
+                  >
+                    <option value="contract_date">契約日順</option>
+                    <option value="construction_start_date">着工日順</option>
+                    <option value="progress_rate">進捗率順</option>
+                    <option value="delayed_tasks">遅延件数順</option>
+                    <option value="customer_name">顧客名順</option>
+                  </select>
+                  <button
+                    onClick={() => setSortAscending(!sortAscending)}
+                    className="prisma-btn prisma-btn-secondary prisma-btn-sm"
+                  >
+                    {sortAscending ? '昇順 ↑' : '降順 ↓'}
+                  </button>
+                </div>
+
+                {/* 絞込 */}
+                <div className="flex items-center gap-2">
+                  <Filter size={16} className="text-gray-600" />
+                  <span className="text-gray-700 text-sm">絞込:</span>
+                  <button
+                    onClick={() => setFilterStatus('all')}
+                    className={`prisma-btn prisma-btn-sm ${
+                      filterStatus === 'all' ? 'prisma-btn-primary' : 'prisma-btn-secondary'
+                    }`}
+                  >
+                    全て ({projects.length})
+                  </button>
                 </div>
               </div>
 
-              {/* フィルタボタン */}
+              {/* 右側：着工フィルタ */}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                 <button
                   onClick={() => setConstructionFilter('all')}
@@ -1064,31 +1025,31 @@ export default function ProjectList() {
               }
             `}</style>
             <table className="prisma-table" style={{ minWidth: 'max-content', width: 'max-content', borderCollapse: 'separate', borderSpacing: 0 }}>
-              <thead style={{ position: 'sticky', top: 0, zIndex: 40 }} className="bg-gray-100">
+              <thead className="bg-gray-100">
                 <tr>
-                  <th className="bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-left font-semibold shadow-sm" style={{ position: 'sticky', left: 0, zIndex: 50, minWidth: '200px', width: '200px', padding: '12px 8px', fontSize: '13px' }}>
+                  <th className="bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-left font-semibold shadow-sm" style={{ position: 'sticky', top: 0, left: 0, zIndex: 50, minWidth: '200px', width: '200px', padding: '12px 8px', fontSize: '13px' }}>
                     案件名
                   </th>
-                  <th className="bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold shadow-sm" style={{ position: 'sticky', left: '200px', zIndex: 50, minWidth: '110px', width: '110px', padding: '12px 8px', fontSize: '13px' }}>
+                  <th className="bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold shadow-sm" style={{ position: 'sticky', top: 0, left: '200px', zIndex: 50, minWidth: '110px', width: '110px', padding: '12px 8px', fontSize: '13px' }}>
                     営業
                   </th>
-                  <th className="bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold shadow-sm" style={{ position: 'sticky', left: '310px', zIndex: 50, minWidth: '110px', width: '110px', padding: '12px 8px', fontSize: '13px' }}>
+                  <th className="bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold shadow-sm" style={{ position: 'sticky', top: 0, left: '310px', zIndex: 50, minWidth: '110px', width: '110px', padding: '12px 8px', fontSize: '13px' }}>
                     意匠設計
                   </th>
-                  <th className="bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold shadow-sm" style={{ position: 'sticky', left: '420px', zIndex: 50, minWidth: '110px', width: '110px', padding: '12px 8px', fontSize: '13px' }}>
+                  <th className="bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold shadow-sm" style={{ position: 'sticky', top: 0, left: '420px', zIndex: 50, minWidth: '110px', width: '110px', padding: '12px 8px', fontSize: '13px' }}>
                     IC
                   </th>
-                  <th className="bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold shadow-sm" style={{ position: 'sticky', left: '530px', zIndex: 50, minWidth: '110px', width: '110px', padding: '12px 8px', fontSize: '13px' }}>
+                  <th className="bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold shadow-sm" style={{ position: 'sticky', top: 0, left: '530px', zIndex: 50, minWidth: '110px', width: '110px', padding: '12px 8px', fontSize: '13px' }}>
                     工事
                   </th>
-                  <th className="bg-gray-100 border border-gray-200 border-r-4 border-r-gray-700 text-center font-semibold shadow-md" style={{ position: 'sticky', left: '640px', zIndex: 50, minWidth: '110px', width: '110px', padding: '12px 8px', fontSize: '13px' }}>
+                  <th className="bg-gray-100 border border-gray-200 border-r-4 border-r-gray-700 text-center font-semibold shadow-md" style={{ position: 'sticky', top: 0, left: '640px', zIndex: 50, minWidth: '110px', width: '110px', padding: '12px 8px', fontSize: '13px' }}>
                     外構プランナー
                   </th>
                   {uniqueTaskTitles.map(taskTitle => (
                     <th
                       key={taskTitle}
                       className="bg-gray-100 border border-gray-200 text-center font-semibold"
-                      style={{ minWidth: '120px', padding: '12px 8px', fontSize: '13px' }}
+                      style={{ position: 'sticky', top: 0, zIndex: 10, minWidth: '120px', padding: '12px 8px', fontSize: '13px' }}
                       title={taskTitle}
                     >
                       <div style={{ wordBreak: 'break-word', whiteSpace: 'normal', lineHeight: '1.3' }}>
