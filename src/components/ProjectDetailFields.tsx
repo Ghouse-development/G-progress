@@ -527,7 +527,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">営業担当</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">営業</label>
               <select
                 value={formData.sales_staff_id || ''}
                 onChange={e => setFormData({ ...formData, sales_staff_id: e.target.value || undefined })}
@@ -542,7 +542,7 @@ export default function ProjectDetailFields({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">設計担当</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">意匠設計</label>
               <select
                 value={formData.design_staff_id || ''}
                 onChange={e => setFormData({ ...formData, design_staff_id: e.target.value || undefined })}
@@ -557,7 +557,7 @@ export default function ProjectDetailFields({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">IC担当</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">IC</label>
               <select
                 value={formData.ic_staff_id || ''}
                 onChange={e => setFormData({ ...formData, ic_staff_id: e.target.value || undefined })}
@@ -587,7 +587,7 @@ export default function ProjectDetailFields({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">外構担当</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">外構プランナー</label>
               <select
                 value={formData.exterior_staff_id || ''}
                 onChange={e => setFormData({ ...formData, exterior_staff_id: e.target.value || undefined })}

@@ -32,7 +32,7 @@ interface ProjectWithProfit extends Project {
 export default function GrossProfitManagement() {
   const [projects, setProjects] = useState<ProjectWithProfit[]>([])
   const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState<'all' | 'positive' | 'negative'>('all')
+  const [filter, setFilter] = useState<'all' | 'low_margin' | 'large_diff'>('all')
 
   useEffect(() => {
     loadProjects()
@@ -101,10 +101,22 @@ export default function GrossProfitManagement() {
   }
 
   const filteredProjects = projects.filter(project => {
-    if (filter === 'positive') return project.actualGrossProfit > 0
-    if (filter === 'negative') return project.actualGrossProfit <= 0
+    if (filter === 'low_margin') {
+      // 粗利益率20%未満（実行予算または完工のいずれか）
+      return project.budgetGrossProfitRate < 20 || project.actualGrossProfitRate < 20
+    }
+    if (filter === 'large_diff') {
+      // 予算と完工の粗利益率の差が5%以上
+      return Math.abs(project.diffGrossProfitRate) >= 5
+    }
     return true
   })
+
+  // 統計情報
+  const lowMarginCount = projects.filter(p => p.budgetGrossProfitRate < 20 || p.actualGrossProfitRate < 20).length
+  const lowMarginRate = projects.length > 0 ? (lowMarginCount / projects.length) * 100 : 0
+  const largeDiffCount = projects.filter(p => Math.abs(p.diffGrossProfitRate) >= 5).length
+  const largeDiffRate = projects.length > 0 ? (largeDiffCount / projects.length) * 100 : 0
 
   // 実行予算の集計
   const totalBudgetRevenue = filteredProjects.reduce((sum, p) => sum + p.budgetRevenue, 0)
@@ -158,22 +170,22 @@ export default function GrossProfitManagement() {
           <div className="text-center">
             <DollarSign className="text-blue-600 dark:text-blue-400 mx-auto mb-2" size={32} />
             <p className="text-base font-bold text-gray-900 dark:text-gray-100 mb-3">売上</p>
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div>
-                <p className="text-xs text-gray-600 dark:text-gray-400">実行予算</p>
-                <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">実行予算</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {formatCurrency(totalBudgetRevenue)}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-600 dark:text-gray-400">完工</p>
-                <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">完工</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {formatCurrency(totalActualRevenue)}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-600 dark:text-gray-400">差額</p>
-                <p className={`text-base font-bold ${totalDiffRevenue >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">差額</p>
+                <p className={`text-xl font-bold ${totalDiffRevenue >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                   {totalDiffRevenue >= 0 ? '+' : ''}{formatCurrency(totalDiffRevenue)}
                 </p>
               </div>
@@ -186,22 +198,22 @@ export default function GrossProfitManagement() {
           <div className="text-center">
             <TrendingUp className="text-orange-600 dark:text-orange-400 mx-auto mb-2" size={32} />
             <p className="text-base font-bold text-gray-900 dark:text-gray-100 mb-3">原価</p>
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div>
-                <p className="text-xs text-gray-600 dark:text-gray-400">実行予算</p>
-                <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">実行予算</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {formatCurrency(totalBudgetCost)}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-600 dark:text-gray-400">完工</p>
-                <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">完工</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {formatCurrency(totalActualCost)}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-600 dark:text-gray-400">差額</p>
-                <p className={`text-base font-bold ${totalDiffCost <= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">差額</p>
+                <p className={`text-xl font-bold ${totalDiffCost <= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                   {totalDiffCost >= 0 ? '+' : ''}{formatCurrency(totalDiffCost)}
                 </p>
               </div>
@@ -214,22 +226,22 @@ export default function GrossProfitManagement() {
           <div className="text-center">
             <TrendingUp className="text-green-600 dark:text-green-400 mx-auto mb-2" size={32} />
             <p className="text-base font-bold text-gray-900 dark:text-gray-100 mb-3">粗利益</p>
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div>
-                <p className="text-xs text-gray-600 dark:text-gray-400">実行予算</p>
-                <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">実行予算</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {formatCurrency(totalBudgetGrossProfit)}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-600 dark:text-gray-400">完工</p>
-                <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">完工</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {formatCurrency(totalActualGrossProfit)}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-600 dark:text-gray-400">差額</p>
-                <p className={`text-base font-bold ${totalDiffGrossProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">差額</p>
+                <p className={`text-xl font-bold ${totalDiffGrossProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                   {totalDiffGrossProfit >= 0 ? '+' : ''}{formatCurrency(totalDiffGrossProfit)}
                 </p>
               </div>
@@ -242,22 +254,22 @@ export default function GrossProfitManagement() {
           <div className="text-center">
             <Percent className="text-purple-600 dark:text-purple-400 mx-auto mb-2" size={32} />
             <p className="text-base font-bold text-gray-900 dark:text-gray-100 mb-3">粗利益率</p>
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div>
-                <p className="text-xs text-gray-600 dark:text-gray-400">実行予算</p>
-                <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">実行予算</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {totalBudgetGrossProfitRate.toFixed(1)}%
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-600 dark:text-gray-400">完工</p>
-                <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">完工</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {totalActualGrossProfitRate.toFixed(1)}%
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-600 dark:text-gray-400">差額</p>
-                <p className={`text-base font-bold ${totalDiffGrossProfitRate >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">差額</p>
+                <p className={`text-xl font-bold ${totalDiffGrossProfitRate >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                   {totalDiffGrossProfitRate >= 0 ? '+' : ''}{totalDiffGrossProfitRate.toFixed(1)}pt
                 </p>
               </div>
@@ -266,28 +278,67 @@ export default function GrossProfitManagement() {
         </div>
       </div>
 
+      {/* 警告カード */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* 粗利率20%未満の物件 */}
+        <div className="prisma-card bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border-3 border-yellow-400 dark:border-yellow-600">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">⚠️ 粗利益率20%未満</p>
+              <p className="text-base text-gray-700 dark:text-gray-300">
+                実行予算または完工時点で粗利益率が20%を下回る物件
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-4xl font-bold text-orange-600 dark:text-orange-400">{lowMarginCount}</p>
+              <p className="text-lg font-semibold text-orange-700 dark:text-orange-300">
+                {lowMarginRate.toFixed(1)}%
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* 予算と完工の差が大きい物件 */}
+        <div className="prisma-card bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border-3 border-red-400 dark:border-red-600">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">🚨 予算との差異大</p>
+              <p className="text-base text-gray-700 dark:text-gray-300">
+                予算と完工の粗利益率の差が5%以上ある物件
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-4xl font-bold text-red-600 dark:text-red-400">{largeDiffCount}</p>
+              <p className="text-lg font-semibold text-red-700 dark:text-red-300">
+                {largeDiffRate.toFixed(1)}%
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* フィルター */}
       <div className="prisma-card">
         <div className="flex items-center gap-4">
-          <label className="text-base font-semibold text-gray-700 dark:text-gray-300">表示:</label>
-          <div className="flex gap-2">
+          <label className="text-lg font-bold text-gray-900 dark:text-gray-100">表示フィルター:</label>
+          <div className="flex gap-3">
             <button
               onClick={() => setFilter('all')}
-              className={`prisma-btn ${filter === 'all' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
+              className={`prisma-btn text-base px-6 py-3 ${filter === 'all' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
             >
-              全て ({projects.length})
+              全て ({projects.length}件)
             </button>
             <button
-              onClick={() => setFilter('positive')}
-              className={`prisma-btn ${filter === 'positive' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
+              onClick={() => setFilter('low_margin')}
+              className={`prisma-btn text-base px-6 py-3 ${filter === 'low_margin' ? 'prisma-btn-primary' : 'prisma-btn-secondary'} ${lowMarginCount > 0 ? 'border-3 border-orange-400' : ''}`}
             >
-              黒字 ({projects.filter(p => p.actualGrossProfit > 0).length})
+              ⚠️ 粗利率20%未満 ({lowMarginCount}件 / {lowMarginRate.toFixed(1)}%)
             </button>
             <button
-              onClick={() => setFilter('negative')}
-              className={`prisma-btn ${filter === 'negative' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
+              onClick={() => setFilter('large_diff')}
+              className={`prisma-btn text-base px-6 py-3 ${filter === 'large_diff' ? 'prisma-btn-primary' : 'prisma-btn-secondary'} ${largeDiffCount > 0 ? 'border-3 border-red-400' : ''}`}
             >
-              赤字 ({projects.filter(p => p.actualGrossProfit <= 0).length})
+              🚨 予算差5%以上 ({largeDiffCount}件 / {largeDiffRate.toFixed(1)}%)
             </button>
           </div>
         </div>
@@ -300,61 +351,58 @@ export default function GrossProfitManagement() {
             <thead className="bg-gray-100 dark:bg-gray-800 sticky top-0">
               {/* 1段目ヘッダー：グループ */}
               <tr>
-                <th rowSpan={2} className="px-4 py-3 text-left text-base font-bold text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600" style={{ minWidth: '150px' }}>
+                <th rowSpan={2} className="px-4 py-4 text-left text-lg font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600" style={{ minWidth: '200px' }}>
                   案件名
                 </th>
-                <th rowSpan={2} className="px-4 py-3 text-left text-base font-bold text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600" style={{ minWidth: '120px' }}>
-                  顧客名
+                <th rowSpan={2} className="px-4 py-4 text-right text-lg font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-blue-100 dark:bg-blue-900/30" style={{ minWidth: '140px' }}>
+                  請負金額<br/><span className="text-sm font-normal">(税別)</span>
                 </th>
-                <th rowSpan={2} className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600 bg-blue-100 dark:bg-blue-900/30" style={{ minWidth: '130px' }}>
-                  請負金額<br/><span className="text-xs font-normal">(税別)</span>
-                </th>
-                <th colSpan={4} className="px-4 py-2 text-center text-base font-bold text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600 bg-green-100 dark:bg-green-900/30">
+                <th colSpan={4} className="px-4 py-3 text-center text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-green-100 dark:bg-green-900/30">
                   実行予算
                 </th>
-                <th colSpan={4} className="px-4 py-2 text-center text-base font-bold text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600 bg-purple-100 dark:bg-purple-900/30">
+                <th colSpan={4} className="px-4 py-3 text-center text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-purple-100 dark:bg-purple-900/30">
                   完工
                 </th>
-                <th colSpan={4} className="px-4 py-2 text-center text-base font-bold text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600 bg-orange-100 dark:bg-orange-900/30">
+                <th colSpan={4} className="px-4 py-3 text-center text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-orange-100 dark:bg-orange-900/30">
                   差額
                 </th>
               </tr>
               {/* 2段目ヘッダー：詳細項目 */}
               <tr>
-                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600 bg-green-50 dark:bg-green-900/20" style={{ minWidth: '120px' }}>
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-green-50 dark:bg-green-900/20" style={{ minWidth: '130px' }}>
                   売上
                 </th>
-                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600 bg-green-50 dark:bg-green-900/20" style={{ minWidth: '120px' }}>
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-green-50 dark:bg-green-900/20" style={{ minWidth: '130px' }}>
                   原価
                 </th>
-                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600 bg-green-50 dark:bg-green-900/20" style={{ minWidth: '120px' }}>
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-green-50 dark:bg-green-900/20" style={{ minWidth: '130px' }}>
                   粗利益
                 </th>
-                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600 bg-green-50 dark:bg-green-900/20" style={{ minWidth: '80px' }}>
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-green-50 dark:bg-green-900/20" style={{ minWidth: '90px' }}>
                   粗利率
                 </th>
-                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600 bg-purple-50 dark:bg-purple-900/20" style={{ minWidth: '120px' }}>
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-purple-50 dark:bg-purple-900/20" style={{ minWidth: '130px' }}>
                   売上
                 </th>
-                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600 bg-purple-50 dark:bg-purple-900/20" style={{ minWidth: '120px' }}>
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-purple-50 dark:bg-purple-900/20" style={{ minWidth: '130px' }}>
                   原価
                 </th>
-                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600 bg-purple-50 dark:bg-purple-900/20" style={{ minWidth: '120px' }}>
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-purple-50 dark:bg-purple-900/20" style={{ minWidth: '130px' }}>
                   粗利益
                 </th>
-                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600 bg-purple-50 dark:bg-purple-900/20" style={{ minWidth: '80px' }}>
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-purple-50 dark:bg-purple-900/20" style={{ minWidth: '90px' }}>
                   粗利率
                 </th>
-                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600 bg-orange-50 dark:bg-orange-900/20" style={{ minWidth: '120px' }}>
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-orange-50 dark:bg-orange-900/20" style={{ minWidth: '130px' }}>
                   売上
                 </th>
-                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600 bg-orange-50 dark:bg-orange-900/20" style={{ minWidth: '120px' }}>
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-orange-50 dark:bg-orange-900/20" style={{ minWidth: '130px' }}>
                   原価
                 </th>
-                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600 bg-orange-50 dark:bg-orange-900/20" style={{ minWidth: '120px' }}>
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-orange-50 dark:bg-orange-900/20" style={{ minWidth: '130px' }}>
                   粗利益
                 </th>
-                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600 bg-orange-50 dark:bg-orange-900/20" style={{ minWidth: '80px' }}>
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-orange-50 dark:bg-orange-900/20" style={{ minWidth: '90px' }}>
                   粗利率
                 </th>
               </tr>
@@ -362,94 +410,103 @@ export default function GrossProfitManagement() {
             <tbody>
               {filteredProjects.length === 0 ? (
                 <tr>
-                  <td colSpan={15} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                  <td colSpan={14} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                     <AlertCircle className="inline-block mb-2" size={32} />
-                    <p className="text-base">データがありません</p>
+                    <p className="text-lg">データがありません</p>
                   </td>
                 </tr>
               ) : (
-                filteredProjects.map((project, index) => (
-                  <tr
-                    key={project.id}
-                    className={index % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800/50'}
-                  >
-                    {/* 案件名 */}
-                    <td className="px-4 py-3 text-base font-medium text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600">
-                      {project.construction_address || '-'}
-                    </td>
-                    {/* 顧客名 */}
-                    <td className="px-4 py-3 text-base text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600">
-                      {Array.isArray(project.customer?.names) && project.customer.names.length > 0
-                        ? project.customer.names[0]
-                        : '-'}
-                    </td>
-                    {/* 請負金額 */}
-                    <td className="px-3 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600 bg-blue-50 dark:bg-blue-900/20 font-semibold">
-                      {formatCurrency(project.contractAmount)}
-                    </td>
-                    {/* 実行予算 */}
-                    <td className="px-3 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600">
-                      {formatCurrency(project.budgetRevenue)}
-                    </td>
-                    <td className="px-3 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600">
-                      {formatCurrency(project.budgetCost)}
-                    </td>
-                    <td className="px-3 py-3 text-sm text-right font-semibold border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100">
-                      {formatCurrency(project.budgetGrossProfit)}
-                    </td>
-                    <td className="px-3 py-3 text-sm text-right font-semibold border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100">
-                      {project.budgetGrossProfitRate.toFixed(1)}%
-                    </td>
-                    {/* 完工 */}
-                    <td className="px-3 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600">
-                      {formatCurrency(project.actualRevenue)}
-                    </td>
-                    <td className="px-3 py-3 text-sm text-right text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600">
-                      {formatCurrency(project.actualCost)}
-                    </td>
-                    <td
-                      className={`px-3 py-3 text-sm text-right font-bold border-2 border-gray-300 dark:border-gray-600 ${
-                        project.actualGrossProfit > 0
+                filteredProjects.map((project, index) => {
+                  const hasLowMargin = project.budgetGrossProfitRate < 20 || project.actualGrossProfitRate < 20
+                  const hasLargeDiff = Math.abs(project.diffGrossProfitRate) >= 5
+
+                  return (
+                    <tr
+                      key={project.id}
+                      className={`${index % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800/50'} ${
+                        hasLowMargin ? 'border-l-8 border-l-orange-400' : ''
+                      } ${hasLargeDiff ? 'border-r-8 border-r-red-400' : ''}`}
+                    >
+                      {/* 案件名 */}
+                      <td className="px-4 py-4 text-base font-medium text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600">
+                        {project.construction_address || '-'}
+                      </td>
+                      {/* 請負金額 */}
+                      <td className="px-4 py-4 text-base text-right text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-blue-50 dark:bg-blue-900/20 font-semibold">
+                        {formatCurrency(project.contractAmount)}
+                      </td>
+                      {/* 実行予算 */}
+                      <td className="px-4 py-4 text-base text-right text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600">
+                        {formatCurrency(project.budgetRevenue)}
+                      </td>
+                      <td className="px-4 py-4 text-base text-right text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600">
+                        {formatCurrency(project.budgetCost)}
+                      </td>
+                      <td className="px-4 py-4 text-base text-right font-semibold border-3 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100">
+                        {formatCurrency(project.budgetGrossProfit)}
+                      </td>
+                      <td className={`px-4 py-4 text-base text-right font-bold border-3 border-gray-300 dark:border-gray-600 ${
+                        project.budgetGrossProfitRate < 20
+                          ? 'bg-orange-200 dark:bg-orange-900/50 text-orange-900 dark:text-orange-100'
+                          : 'text-gray-900 dark:text-gray-100'
+                      }`}>
+                        {project.budgetGrossProfitRate.toFixed(1)}%
+                      </td>
+                      {/* 完工 */}
+                      <td className="px-4 py-4 text-base text-right text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600">
+                        {formatCurrency(project.actualRevenue)}
+                      </td>
+                      <td className="px-4 py-4 text-base text-right text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600">
+                        {formatCurrency(project.actualCost)}
+                      </td>
+                      <td
+                        className={`px-4 py-4 text-base text-right font-bold border-3 border-gray-300 dark:border-gray-600 ${
+                          project.actualGrossProfit > 0
+                            ? 'text-green-600 dark:text-green-400'
+                            : 'text-red-600 dark:text-red-400'
+                        }`}
+                      >
+                        {formatCurrency(project.actualGrossProfit)}
+                      </td>
+                      <td
+                        className={`px-4 py-4 text-base text-right font-bold border-3 border-gray-300 dark:border-gray-600 ${
+                          project.actualGrossProfitRate < 20
+                            ? 'bg-orange-200 dark:bg-orange-900/50 text-orange-900 dark:text-orange-100'
+                            : project.actualGrossProfitRate > 20
+                            ? 'text-green-600 dark:text-green-400'
+                            : 'text-gray-900 dark:text-gray-100'
+                        }`}
+                      >
+                        {project.actualGrossProfitRate.toFixed(1)}%
+                      </td>
+                      {/* 差額 */}
+                      <td className={`px-4 py-4 text-base text-right font-semibold border-3 border-gray-300 dark:border-gray-600 ${
+                        project.diffRevenue >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                      }`}>
+                        {project.diffRevenue >= 0 ? '+' : ''}{formatCurrency(project.diffRevenue)}
+                      </td>
+                      <td className={`px-4 py-4 text-base text-right font-semibold border-3 border-gray-300 dark:border-gray-600 ${
+                        project.diffCost <= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                      }`}>
+                        {project.diffCost >= 0 ? '+' : ''}{formatCurrency(project.diffCost)}
+                      </td>
+                      <td className={`px-4 py-4 text-base text-right font-bold border-3 border-gray-300 dark:border-gray-600 ${
+                        project.diffGrossProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                      }`}>
+                        {project.diffGrossProfit >= 0 ? '+' : ''}{formatCurrency(project.diffGrossProfit)}
+                      </td>
+                      <td className={`px-4 py-4 text-base text-right font-bold border-3 border-gray-300 dark:border-gray-600 ${
+                        Math.abs(project.diffGrossProfitRate) >= 5
+                          ? 'bg-red-200 dark:bg-red-900/50 text-red-900 dark:text-red-100'
+                          : project.diffGrossProfitRate >= 0
                           ? 'text-green-600 dark:text-green-400'
                           : 'text-red-600 dark:text-red-400'
-                      }`}
-                    >
-                      {formatCurrency(project.actualGrossProfit)}
-                    </td>
-                    <td
-                      className={`px-3 py-3 text-sm text-right font-bold border-2 border-gray-300 dark:border-gray-600 ${
-                        project.actualGrossProfitRate > 20
-                          ? 'text-green-600 dark:text-green-400'
-                          : project.actualGrossProfitRate > 10
-                          ? 'text-yellow-600 dark:text-yellow-400'
-                          : 'text-red-600 dark:text-red-400'
-                      }`}
-                    >
-                      {project.actualGrossProfitRate.toFixed(1)}%
-                    </td>
-                    {/* 差額 */}
-                    <td className={`px-3 py-3 text-sm text-right font-semibold border-2 border-gray-300 dark:border-gray-600 ${
-                      project.diffRevenue >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                    }`}>
-                      {project.diffRevenue >= 0 ? '+' : ''}{formatCurrency(project.diffRevenue)}
-                    </td>
-                    <td className={`px-3 py-3 text-sm text-right font-semibold border-2 border-gray-300 dark:border-gray-600 ${
-                      project.diffCost <= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                    }`}>
-                      {project.diffCost >= 0 ? '+' : ''}{formatCurrency(project.diffCost)}
-                    </td>
-                    <td className={`px-3 py-3 text-sm text-right font-bold border-2 border-gray-300 dark:border-gray-600 ${
-                      project.diffGrossProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                    }`}>
-                      {project.diffGrossProfit >= 0 ? '+' : ''}{formatCurrency(project.diffGrossProfit)}
-                    </td>
-                    <td className={`px-3 py-3 text-sm text-right font-bold border-2 border-gray-300 dark:border-gray-600 ${
-                      project.diffGrossProfitRate >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                    }`}>
-                      {project.diffGrossProfitRate >= 0 ? '+' : ''}{project.diffGrossProfitRate.toFixed(1)}pt
-                    </td>
-                  </tr>
-                ))
+                      }`}>
+                        {project.diffGrossProfitRate >= 0 ? '+' : ''}{project.diffGrossProfitRate.toFixed(1)}pt
+                      </td>
+                    </tr>
+                  )
+                })
               )}
             </tbody>
           </table>

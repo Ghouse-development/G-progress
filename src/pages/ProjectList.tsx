@@ -1368,7 +1368,7 @@ export default function ProjectList() {
                 <h3 className="font-bold text-gray-900 mb-2">担当者</h3>
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-base font-medium text-gray-700 mb-1">営業担当</label>
+                    <label className="block text-base font-medium text-gray-700 mb-1">営業</label>
                     <select
                       value={formData.assignedSales}
                       onChange={(e) => setFormData({ ...formData, assignedSales: e.target.value })}
@@ -1381,7 +1381,7 @@ export default function ProjectList() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-base font-medium text-gray-700 mb-1">設計担当</label>
+                    <label className="block text-base font-medium text-gray-700 mb-1">意匠設計</label>
                     <select
                       value={formData.assignedDesign}
                       onChange={(e) => setFormData({ ...formData, assignedDesign: e.target.value })}
@@ -1592,7 +1592,7 @@ export default function ProjectList() {
                 <h3 className="font-bold text-gray-900 mb-2">担当者</h3>
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-base font-medium text-gray-700 mb-1">営業担当</label>
+                    <label className="block text-base font-medium text-gray-700 mb-1">営業</label>
                     <select
                       value={formData.assignedSales}
                       onChange={(e) => setFormData({ ...formData, assignedSales: e.target.value })}
@@ -1605,7 +1605,7 @@ export default function ProjectList() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-base font-medium text-gray-700 mb-1">設計担当</label>
+                    <label className="block text-base font-medium text-gray-700 mb-1">意匠設計</label>
                     <select
                       value={formData.assignedDesign}
                       onChange={(e) => setFormData({ ...formData, assignedDesign: e.target.value })}
