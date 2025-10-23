@@ -22,6 +22,8 @@ export default function TaskMasterManagement() {
   const [showModal, setShowModal] = useState(false)
   const [editingTask, setEditingTask] = useState<TaskMaster | null>(null)
   const [daysFromTriggerInput, setDaysFromTriggerInput] = useState<string>('') // 入力フィールド用の文字列ステート
+  const [selectedPosition, setSelectedPosition] = useState<string>('全職種') // 職種フィルタ（初期値: 全職種）
+  const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null) // ドラッグ中のタスクID
   const [formData, setFormData] = useState({
     title: '',
     responsible_department: '',
@@ -186,9 +188,53 @@ export default function TaskMasterManagement() {
     }
   }
 
+  // ドラッグ開始
+  const handleDragStart = (taskId: string) => {
+    setDraggedTaskId(taskId)
+  }
+
+  // ドラッグオーバー
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+  }
+
+  // ドロップ
+  const handleDrop = (targetTaskId: string) => {
+    if (!draggedTaskId || draggedTaskId === targetTaskId) {
+      setDraggedTaskId(null)
+      return
+    }
+
+    const draggedIndex = taskMasters.findIndex(t => t.id === draggedTaskId)
+    const targetIndex = taskMasters.findIndex(t => t.id === targetTaskId)
+
+    if (draggedIndex === -1 || targetIndex === -1) {
+      setDraggedTaskId(null)
+      return
+    }
+
+    // 配列を並び替え
+    const newTaskMasters = [...taskMasters]
+    const [draggedTask] = newTaskMasters.splice(draggedIndex, 1)
+    newTaskMasters.splice(targetIndex, 0, draggedTask)
+
+    setTaskMasters(newTaskMasters)
+    setDraggedTaskId(null)
+
+    toast.success('並び順を変更しました')
+  }
+
   if (loading) {
     return <div className="p-4">読み込み中...</div>
   }
+
+  // 全職種リストを生成（ORGANIZATION_HIERARCHYから）
+  const allPositions = ORGANIZATION_HIERARCHY.flatMap(dept => dept.positions)
+
+  // フィルタリングされたタスクマスタリスト
+  const filteredTaskMasters = selectedPosition === '全職種'
+    ? taskMasters
+    : taskMasters.filter(task => task.responsible_department === selectedPosition)
 
   return (
     <div className="space-y-6">
@@ -215,6 +261,24 @@ export default function TaskMasterManagement() {
             新規タスク追加
           </button>
         </div>
+      </div>
+
+      {/* 職種フィルタ */}
+      <div className="flex items-center gap-3 bg-white p-4 rounded-lg border-2 border-gray-200 shadow-sm">
+        <label className="text-base font-semibold text-gray-700">表示職種:</label>
+        <select
+          value={selectedPosition}
+          onChange={(e) => setSelectedPosition(e.target.value)}
+          className="prisma-select text-base font-medium min-w-[200px]"
+        >
+          <option value="全職種">全職種</option>
+          {allPositions.map(position => (
+            <option key={position} value={position}>{position}</option>
+          ))}
+        </select>
+        <span className="text-sm text-gray-500">
+          （{filteredTaskMasters.length}件）
+        </span>
       </div>
 
       {/* タスク一覧テーブル */}
@@ -247,15 +311,24 @@ export default function TaskMasterManagement() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {taskMasters.length === 0 ? (
+              {filteredTaskMasters.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
-                    タスクマスタが登録されていません
+                    {selectedPosition === '全職種' ? 'タスクマスタが登録されていません' : `「${selectedPosition}」のタスクマスタがありません`}
                   </td>
                 </tr>
               ) : (
-                taskMasters.map((task) => (
-                  <tr key={task.id} className="hover:bg-pastel-blue-light transition-colors">
+                filteredTaskMasters.map((task) => (
+                  <tr
+                    key={task.id}
+                    draggable
+                    onDragStart={() => handleDragStart(task.id)}
+                    onDragOver={handleDragOver}
+                    onDrop={() => handleDrop(task.id)}
+                    className={`hover:bg-pastel-blue-light transition-colors cursor-move ${
+                      draggedTaskId === task.id ? 'opacity-50 bg-blue-100' : ''
+                    }`}
+                  >
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-bold text-gray-900 whitespace-nowrap">{task.title}</span>
