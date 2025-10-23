@@ -11,6 +11,7 @@ import { useRealtimeEditing } from '../hooks/useRealtimeEditing'
 import { useAuditLog } from '../hooks/useAuditLog'
 import { useNotifications } from '../hooks/useNotifications'
 import { ORGANIZATION_HIERARCHY } from '../constants/organizationHierarchy'
+import ProjectDetailFields from '../components/ProjectDetailFields'
 
 interface ProjectWithRelations extends Project {
   customer: Customer
@@ -225,8 +226,7 @@ export default function ProjectDetail() {
           task_master:task_masters!task_master_id(
             trigger_task_id,
             days_from_trigger,
-            show_in_progress,
-            trigger_task:task_masters!trigger_task_id(title)
+            show_in_progress
           )
         `)
         .eq('project_id', id)
@@ -942,6 +942,12 @@ export default function ProjectDetail() {
             </div>
           </div>
         </div>
+
+        {/* プロジェクト詳細編集フィールド */}
+        <ProjectDetailFields
+          project={project}
+          onUpdate={loadProject}
+        />
 
         {/* テーブル表示モード - 削除済み */}
         {false && (
