@@ -1039,7 +1039,9 @@ export default function ProjectList() {
 
           {/* マトリクステーブル */}
           <div className="prisma-table-container" style={{
-            overflowX: 'scroll',
+            maxHeight: 'calc(100vh - 400px)',
+            maxWidth: '100%',
+            overflowX: 'auto',
             overflowY: 'auto',
             WebkitOverflowScrolling: 'touch',
             scrollbarWidth: 'auto', // Firefox: スクロールバーを常時表示
