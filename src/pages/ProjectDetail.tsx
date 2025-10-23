@@ -803,21 +803,19 @@ export default function ProjectDetail() {
 
         {/* 統合カード：プロジェクト情報 + ツールバー */}
         <div className="bg-white rounded-lg shadow-xl border-2 border-gray-300 overflow-hidden mb-2">
-          {/* プロジェクト情報 */}
+          {/* プロジェクト情報（1行） */}
           <div className="px-3 py-2 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-gray-300">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-lg font-bold text-gray-900">
-                  {project.customer?.names?.join('・') || '顧客名なし'}様邸
-                </h1>
-                <span className="text-base font-bold text-gray-700">
-                  契約日: {format(new Date(project.contract_date), 'yyyy/MM/dd (E)', { locale: ja })}
-                </span>
-                <span className="text-base text-gray-700">
-                  {project.customer?.building_site || '-'}
-                </span>
-              </div>
-              <span className={`px-2 py-1 rounded-lg text-base font-bold ${
+            <div className="flex items-center gap-3 flex-wrap text-base">
+              <h1 className="text-lg font-bold text-gray-900">
+                {project.customer?.names?.join('・') || '顧客名なし'}様邸
+              </h1>
+              <span className="font-bold text-gray-700">
+                契約日: {format(new Date(project.contract_date), 'yyyy/MM/dd (E)', { locale: ja })}
+              </span>
+              <span className="text-gray-700">
+                {project.customer?.building_site || '-'}
+              </span>
+              <span className={`px-2 py-1 rounded-lg font-bold ${
                 project.status === 'post_contract' ? 'bg-blue-100 text-blue-800 border-2 border-blue-300' :
                 project.status === 'construction' ? 'bg-orange-100 text-orange-800 border-2 border-orange-300' :
                 'bg-green-100 text-green-800 border-2 border-green-300'
@@ -825,30 +823,19 @@ export default function ProjectDetail() {
                 {project.status === 'post_contract' ? '契約後' :
                  project.status === 'construction' ? '着工後' : '引き渡し済'}
               </span>
-            </div>
-          </div>
-
-          {/* 担当者情報 */}
-          <div className="px-3 py-1.5 bg-gray-50 border-b border-gray-200">
-            <div className="flex items-center gap-6 text-base">
-              <div className="flex items-center gap-1">
-                <span className="text-gray-600">営業:</span>
-                <span className="font-bold text-gray-900">
-                  {project.sales ? `${project.sales.last_name} ${project.sales.first_name}` : '未割当'}
-                </span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span className="text-gray-600">設計:</span>
-                <span className="font-bold text-gray-900">
-                  {project.design ? `${project.design.last_name} ${project.design.first_name}` : '未割当'}
-                </span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span className="text-gray-600">工事:</span>
-                <span className="font-bold text-gray-900">
-                  {project.construction ? `${project.construction.last_name} ${project.construction.first_name}` : '未割当'}
-                </span>
-              </div>
+              <span className="text-gray-400">|</span>
+              <span className="text-gray-600">営業:</span>
+              <span className="font-bold text-gray-900">
+                {project.sales ? `${project.sales.last_name} ${project.sales.first_name}` : '未割当'}
+              </span>
+              <span className="text-gray-600">設計:</span>
+              <span className="font-bold text-gray-900">
+                {project.design ? `${project.design.last_name} ${project.design.first_name}` : '未割当'}
+              </span>
+              <span className="text-gray-600">工事:</span>
+              <span className="font-bold text-gray-900">
+                {project.construction ? `${project.construction.last_name} ${project.construction.first_name}` : '未割当'}
+              </span>
             </div>
           </div>
 

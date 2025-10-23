@@ -534,9 +534,9 @@ export default function ProjectDetailFields({
                 className="prisma-input"
               >
                 <option value="">未選択</option>
-                {employees.map(emp => (
+                {employees.filter(emp => emp.department === '営業').map(emp => (
                   <option key={emp.id} value={emp.id}>
-                    {emp.last_name} {emp.first_name} ({emp.department})
+                    {emp.last_name} {emp.first_name}
                   </option>
                 ))}
               </select>
@@ -549,9 +549,9 @@ export default function ProjectDetailFields({
                 className="prisma-input"
               >
                 <option value="">未選択</option>
-                {employees.map(emp => (
+                {employees.filter(emp => emp.department === '意匠設計').map(emp => (
                   <option key={emp.id} value={emp.id}>
-                    {emp.last_name} {emp.first_name} ({emp.department})
+                    {emp.last_name} {emp.first_name}
                   </option>
                 ))}
               </select>
@@ -564,9 +564,9 @@ export default function ProjectDetailFields({
                 className="prisma-input"
               >
                 <option value="">未選択</option>
-                {employees.map(emp => (
+                {employees.filter(emp => emp.department === 'IC').map(emp => (
                   <option key={emp.id} value={emp.id}>
-                    {emp.last_name} {emp.first_name} ({emp.department})
+                    {emp.last_name} {emp.first_name}
                   </option>
                 ))}
               </select>
@@ -579,9 +579,9 @@ export default function ProjectDetailFields({
                 className="prisma-input"
               >
                 <option value="">未選択</option>
-                {employees.map(emp => (
+                {employees.filter(emp => emp.department === '工事').map(emp => (
                   <option key={emp.id} value={emp.id}>
-                    {emp.last_name} {emp.first_name} ({emp.department})
+                    {emp.last_name} {emp.first_name}
                   </option>
                 ))}
               </select>
@@ -594,9 +594,9 @@ export default function ProjectDetailFields({
                 className="prisma-input"
               >
                 <option value="">未選択</option>
-                {employees.map(emp => (
+                {employees.filter(emp => emp.department === '外構設計').map(emp => (
                   <option key={emp.id} value={emp.id}>
-                    {emp.last_name} {emp.first_name} ({emp.department})
+                    {emp.last_name} {emp.first_name}
                   </option>
                 ))}
               </select>
