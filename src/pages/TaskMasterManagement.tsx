@@ -214,26 +214,29 @@ export default function TaskMasterManagement() {
 
       {/* タスク一覧テーブル */}
       <div className="bg-white rounded-lg border-2 border-pastel-blue shadow-pastel-lg overflow-hidden">
-        <div className="prisma-table-container">
-          <table className="w-full prisma-table">
+        <div className="overflow-x-auto">
+          <table className="w-full prisma-table min-w-max">
             <thead className="bg-pastel-blue-light">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
                   タスク名
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
                   フェーズ
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
                   責任部署
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-bold text-gray-800 uppercase tracking-wider">
-                  契約日からの日数
+                <th className="px-4 py-3 text-right text-xs font-bold text-gray-800 uppercase tracking-wider">
+                  契約日から
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
+                <th className="px-4 py-3 text-right text-xs font-bold text-gray-800 uppercase tracking-wider">
+                  トリガーから
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider hidden md:table-cell">
                   目的
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-bold text-gray-800 uppercase tracking-wider">
+                <th className="px-4 py-3 text-center text-xs font-bold text-gray-800 uppercase tracking-wider">
                   操作
                 </th>
               </tr>
@@ -241,33 +244,55 @@ export default function TaskMasterManagement() {
             <tbody className="divide-y divide-gray-200">
               {taskMasters.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
                     タスクマスタが登録されていません
                   </td>
                 </tr>
               ) : (
                 taskMasters.map((task) => (
                   <tr key={task.id} className="hover:bg-pastel-blue-light transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-bold text-gray-900">{task.title}</div>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-gray-900 whitespace-nowrap">{task.title}</span>
+                        {task.is_trigger_task && (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border-2 border-blue-300 whitespace-nowrap">
+                            トリガー
+                          </span>
+                        )}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-600">{task.phase || '未設定'}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-600">{task.responsible_department || '未設定'}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                    <td className="px-4 py-4 whitespace-nowrap text-right">
                       <div className="text-sm font-medium text-gray-900">
                         {task.days_from_contract !== null && task.days_from_contract !== undefined
                           ? `${task.days_from_contract}日`
-                          : '未設定'}
+                          : '-'}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-4 whitespace-nowrap text-right">
+                      <div className="text-sm font-medium text-gray-900">
+                        {task.trigger_task_id && task.days_from_trigger !== null && task.days_from_trigger !== undefined
+                          ? (
+                            <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-bold ${
+                              task.days_from_trigger >= 0
+                                ? 'bg-green-100 text-green-800 border-2 border-green-300'
+                                : 'bg-orange-100 text-orange-800 border-2 border-orange-300'
+                            }`}>
+                              {task.days_from_trigger > 0 ? '+' : ''}{task.days_from_trigger}日
+                            </span>
+                          )
+                          : '-'}
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 hidden md:table-cell">
                       <div className="text-sm text-gray-600 max-w-md truncate">{task.purpose || '未設定'}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <td className="px-4 py-4 whitespace-nowrap text-center">
                       <div className="flex items-center justify-center gap-2">
                         <button
                           onClick={() => handleOpenModal(task)}
