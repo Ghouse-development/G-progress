@@ -53,8 +53,8 @@ export default function TopPage() {
       {/* メニューカードグリッド - レスポンシブ対応 */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: '20px',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+        gap: '16px',
         width: '100%',
         maxWidth: '1200px',
         padding: '20px 0'
@@ -110,11 +110,14 @@ export default function TopPage() {
                 strokeWidth={2.5}
               />
               <h2 style={{
-                fontSize: '20px',
+                fontSize: '18px',
                 fontWeight: 'bold',
                 color: isActive ? '#111827' : '#6b7280',
-                wordBreak: 'keep-all',
-                lineHeight: '1.4'
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                lineHeight: '1.4',
+                flex: 1
               }}>
                 {item.name}
               </h2>
