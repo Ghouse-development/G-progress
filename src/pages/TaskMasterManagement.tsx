@@ -25,7 +25,7 @@ export default function TaskMasterManagement() {
     title: '',
     responsible_department: '',
     days_from_contract: 0,
-    phase: '契約後',
+    phase: '内定',
     purpose: '',
     manual_url: '',
     video_url: '',
@@ -79,7 +79,7 @@ export default function TaskMasterManagement() {
         title: '',
         responsible_department: '',
         days_from_contract: 0,
-        phase: '契約後',
+        phase: '内定',
         purpose: '',
         manual_url: '',
         video_url: '',
@@ -150,9 +150,13 @@ export default function TaskMasterManagement() {
 
       setShowModal(false)
       await loadTaskMasters()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to save task master:', error)
-      toast.error('タスクマスタの保存に失敗しました')
+      console.error('Error details:', JSON.stringify(error, null, 2))
+      console.error('Error message:', error?.message)
+      console.error('Error hint:', error?.hint)
+      console.error('Error details:', error?.details)
+      toast.error(`タスクマスタの保存に失敗しました: ${error?.message || '不明なエラー'}`)
     }
   }
 
@@ -359,20 +363,11 @@ export default function TaskMasterManagement() {
                   onChange={(e) => setFormData({ ...formData, phase: e.target.value })}
                   className="prisma-input"
                 >
-                  <option value="集客">集客</option>
-                  <option value="アポイント取得">アポイント取得</option>
-                  <option value="営業">営業</option>
-                  <option value="契約">契約</option>
-                  <option value="設計">設計</option>
-                  <option value="申請">申請</option>
-                  <option value="融資">融資</option>
-                  <option value="工事準備">工事準備</option>
-                  <option value="工事">工事</option>
-                  <option value="外構">外構</option>
-                  <option value="管理">管理</option>
-                  <option value="事務">事務</option>
-                  <option value="入金管理">入金管理</option>
-                  <option value="契約後">契約後</option>
+                  <option value="内定">内定</option>
+                  <option value="契約前">契約前</option>
+                  <option value="着工前">着工前</option>
+                  <option value="着工後">着工後</option>
+                  <option value="引き渡し後">引き渡し後</option>
                 </select>
               </div>
 
