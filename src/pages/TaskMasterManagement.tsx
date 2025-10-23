@@ -319,19 +319,19 @@ export default function TaskMasterManagement() {
                 <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
                   タスク名
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider hidden sm:table-cell">
+                <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
                   フェーズ
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider hidden sm:table-cell">
+                <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
                   責任職種
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-bold text-gray-800 uppercase tracking-wider hidden md:table-cell">
+                <th className="px-4 py-3 text-right text-xs font-bold text-gray-800 uppercase tracking-wider">
                   契約日から
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider hidden md:table-cell">
+                <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
                   トリガー
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider hidden lg:table-cell">
+                <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
                   目的
                 </th>
                 <th className="px-4 py-3 text-center text-xs font-bold text-gray-800 uppercase tracking-wider">
@@ -368,20 +368,20 @@ export default function TaskMasterManagement() {
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap hidden sm:table-cell">
+                    <td className="px-4 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-600">{task.phase || '未設定'}</div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap hidden sm:table-cell">
+                    <td className="px-4 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-600">{task.responsible_department || '未設定'}</div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-right hidden md:table-cell">
+                    <td className="px-4 py-4 whitespace-nowrap text-right">
                       <div className="text-sm font-medium text-gray-900">
                         {task.days_from_contract !== null && task.days_from_contract !== undefined
                           ? `${task.days_from_contract}日`
                           : '-'}
                       </div>
                     </td>
-                    <td className="px-4 py-4 hidden md:table-cell">
+                    <td className="px-4 py-4">
                       <div className="text-sm font-medium text-gray-900">
                         {task.trigger_task_id ? (
                           <div className="flex flex-col gap-1">
@@ -399,7 +399,7 @@ export default function TaskMasterManagement() {
                         ) : '-'}
                       </div>
                     </td>
-                    <td className="px-4 py-4 hidden lg:table-cell">
+                    <td className="px-4 py-4">
                       <div className="text-sm text-gray-600 max-w-md truncate">{task.purpose || '未設定'}</div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-center">

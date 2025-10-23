@@ -162,16 +162,6 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
         </div>
 
         <div className="prisma-sidebar-section">
-          <div className="prisma-sidebar-section-title">全社共通</div>
-          <Link to="/employee-management" className={`prisma-sidebar-item ${location.pathname === '/employee-management' ? 'active' : ''}`} onClick={closeSidebar}>
-            従業員管理
-          </Link>
-          <Link to="/approval-flow" className={`prisma-sidebar-item ${location.pathname === '/approval-flow' ? 'active' : ''}`} onClick={closeSidebar}>
-            承認フロー
-          </Link>
-        </div>
-
-        <div className="prisma-sidebar-section">
           <div className="prisma-sidebar-section-title">マスタ管理</div>
           <Link to="/master/products" className={`prisma-sidebar-item ${location.pathname === '/master/products' ? 'active' : ''}`} onClick={closeSidebar}>
             商品マスタ
@@ -184,13 +174,6 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
           </Link>
           <Link to="/settings" className={`prisma-sidebar-item ${location.pathname === '/settings' ? 'active' : ''}`} onClick={closeSidebar}>
             設定
-          </Link>
-        </div>
-
-        <div className="prisma-sidebar-section">
-          <div className="prisma-sidebar-section-title">システム管理</div>
-          <Link to="/organizations" className={`prisma-sidebar-item ${location.pathname === '/organizations' ? 'active' : ''}`} onClick={closeSidebar}>
-            組織管理
           </Link>
         </div>
 
