@@ -14,12 +14,14 @@ CREATE INDEX IF NOT EXISTS idx_system_settings_key ON system_settings(key);
 
 ALTER TABLE system_settings ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Allow all authenticated users to read system_settings"
+DROP POLICY IF EXISTS "Allow all authenticated users to read system_settings" ON system_settings;
+CREATE POLICY "Allow all authenticated users to read system_settings"
   ON system_settings FOR SELECT
   TO authenticated
   USING (true);
 
-CREATE POLICY IF NOT EXISTS "Allow all authenticated users to update system_settings"
+DROP POLICY IF EXISTS "Allow all authenticated users to update system_settings" ON system_settings;
+CREATE POLICY "Allow all authenticated users to update system_settings"
   ON system_settings FOR ALL
   TO authenticated
   USING (true);
@@ -40,12 +42,14 @@ CREATE INDEX IF NOT EXISTS idx_backup_logs_created_at ON backup_logs(created_at 
 
 ALTER TABLE backup_logs ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Allow all authenticated users to read backup_logs"
+DROP POLICY IF EXISTS "Allow all authenticated users to read backup_logs" ON backup_logs;
+CREATE POLICY "Allow all authenticated users to read backup_logs"
   ON backup_logs FOR SELECT
   TO authenticated
   USING (true);
 
-CREATE POLICY IF NOT EXISTS "Allow all authenticated users to insert backup_logs"
+DROP POLICY IF EXISTS "Allow all authenticated users to insert backup_logs" ON backup_logs;
+CREATE POLICY "Allow all authenticated users to insert backup_logs"
   ON backup_logs FOR INSERT
   TO authenticated
   WITH CHECK (true);

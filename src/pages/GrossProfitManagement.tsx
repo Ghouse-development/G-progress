@@ -103,50 +103,42 @@ export default function GrossProfitManagement() {
       {/* サマリーカード */}
       <div className="grid grid-cols-4 gap-4">
         <div className="prisma-card bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">総売上</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                {formatCurrency(totalRevenue)}
-              </p>
-            </div>
-            <DollarSign className="text-blue-600 dark:text-blue-400" size={32} />
+          <div className="text-center">
+            <DollarSign className="text-blue-600 dark:text-blue-400 mx-auto mb-2" size={32} />
+            <p className="text-base font-bold text-gray-700 dark:text-gray-300 mb-1">売上</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {formatCurrency(totalRevenue)}
+            </p>
           </div>
         </div>
 
         <div className="prisma-card bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">総原価</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                {formatCurrency(totalCost)}
-              </p>
-            </div>
-            <TrendingUp className="text-red-600 dark:text-red-400" size={32} />
+          <div className="text-center">
+            <TrendingUp className="text-red-600 dark:text-red-400 mx-auto mb-2" size={32} />
+            <p className="text-base font-bold text-gray-700 dark:text-gray-300 mb-1">原価</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {formatCurrency(totalCost)}
+            </p>
           </div>
         </div>
 
         <div className="prisma-card bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">総粗利益</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                {formatCurrency(totalGrossProfit)}
-              </p>
-            </div>
-            <TrendingUp className="text-green-600 dark:text-green-400" size={32} />
+          <div className="text-center">
+            <TrendingUp className="text-green-600 dark:text-green-400 mx-auto mb-2" size={32} />
+            <p className="text-base font-bold text-gray-700 dark:text-gray-300 mb-1">粗利益</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {formatCurrency(totalGrossProfit)}
+            </p>
           </div>
         </div>
 
         <div className="prisma-card bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">粗利益率</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                {totalGrossProfitRate.toFixed(1)}%
-              </p>
-            </div>
-            <Percent className="text-purple-600 dark:text-purple-400" size={32} />
+          <div className="text-center">
+            <Percent className="text-purple-600 dark:text-purple-400 mx-auto mb-2" size={32} />
+            <p className="text-base font-bold text-gray-700 dark:text-gray-300 mb-1">粗利益率</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {totalGrossProfitRate.toFixed(1)}%
+            </p>
           </div>
         </div>
       </div>
