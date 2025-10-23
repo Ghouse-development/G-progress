@@ -462,7 +462,7 @@ export default function ProjectList() {
       }
 
       return {
-        department: dept.name,
+        department: dept.name as DepartmentStatus['department'],
         status,
         delayedTasks: delayedCount,
         totalTasks: totalCount
