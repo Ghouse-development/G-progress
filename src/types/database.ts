@@ -349,13 +349,14 @@ export interface TaskMaster {
   target?: string
   what?: string
   when_to_do?: string
-  responsible_department?: string // 責任部署（組織階層から選択）
+  responsible_department?: string // 責任職種（組織階層から選択）
   tools?: string
   required_materials?: string
   storage_location?: string
   manual_url?: string
   notes?: string
   days_from_contract?: number // 契約日からの日数
+  show_in_progress?: boolean // 進捗管理表に掲載するか（TRUE: 掲載する、FALSE: 掲載しない）
 
   // トリガー機能
   is_trigger_task?: boolean // トリガータスクの有無（ONにするとトリガーのプルダウンに表示）

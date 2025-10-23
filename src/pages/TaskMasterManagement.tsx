@@ -21,6 +21,7 @@ export default function TaskMasterManagement() {
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editingTask, setEditingTask] = useState<TaskMaster | null>(null)
+  const [daysFromTriggerInput, setDaysFromTriggerInput] = useState<string>('') // 入力フィールド用の文字列ステート
   const [formData, setFormData] = useState({
     title: '',
     responsible_department: '',
@@ -33,7 +34,8 @@ export default function TaskMasterManagement() {
     donts: '',
     is_trigger_task: false,
     trigger_task_id: '',
-    days_from_trigger: 0
+    days_from_trigger: 0,
+    show_in_progress: true // デフォルトで進捗管理表に掲載
   })
 
   useEffect(() => {
@@ -59,6 +61,7 @@ export default function TaskMasterManagement() {
   const handleOpenModal = (task?: TaskMaster) => {
     if (task) {
       setEditingTask(task)
+      setDaysFromTriggerInput(task.days_from_trigger?.toString() || '0')
       setFormData({
         title: task.title,
         responsible_department: task.responsible_department || '',
@@ -71,10 +74,12 @@ export default function TaskMasterManagement() {
         donts: task.donts || '',
         is_trigger_task: task.is_trigger_task || false,
         trigger_task_id: task.trigger_task_id || '',
-        days_from_trigger: task.days_from_trigger || 0
+        days_from_trigger: task.days_from_trigger || 0,
+        show_in_progress: task.show_in_progress !== undefined ? task.show_in_progress : true
       })
     } else {
       setEditingTask(null)
+      setDaysFromTriggerInput('0')
       setFormData({
         title: '',
         responsible_department: '',
@@ -87,7 +92,8 @@ export default function TaskMasterManagement() {
         donts: '',
         is_trigger_task: false,
         trigger_task_id: '',
-        days_from_trigger: 0
+        days_from_trigger: 0,
+        show_in_progress: true
       })
     }
     setShowModal(true)
@@ -116,6 +122,7 @@ export default function TaskMasterManagement() {
             is_trigger_task: formData.is_trigger_task,
             trigger_task_id: formData.trigger_task_id || null,
             days_from_trigger: formData.days_from_trigger,
+            show_in_progress: formData.show_in_progress,
             updated_at: new Date().toISOString()
           })
           .eq('id', editingTask.id)
@@ -141,7 +148,8 @@ export default function TaskMasterManagement() {
           task_order: nextTaskOrder,
           is_trigger_task: formData.is_trigger_task,
           trigger_task_id: formData.trigger_task_id || null,
-          days_from_trigger: formData.days_from_trigger
+          days_from_trigger: formData.days_from_trigger,
+          show_in_progress: formData.show_in_progress
         })
 
         if (error) throw error
@@ -225,7 +233,7 @@ export default function TaskMasterManagement() {
                   フェーズ
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
-                  責任部署
+                  責任職種
                 </th>
                 <th className="px-4 py-3 text-right text-xs font-bold text-gray-800 uppercase tracking-wider">
                   契約日から
@@ -355,10 +363,10 @@ export default function TaskMasterManagement() {
                 />
               </div>
 
-              {/* 責任部署 */}
+              {/* 責任職種 */}
               <div>
                 <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
-                  責任部署
+                  責任職種
                 </label>
                 <select
                   value={formData.responsible_department}
@@ -394,6 +402,38 @@ export default function TaskMasterManagement() {
                   <option value="着工後">着工後</option>
                   <option value="引き渡し後">引き渡し後</option>
                 </select>
+              </div>
+
+              {/* 進捗管理表に掲載するか */}
+              <div>
+                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                  進捗管理表に掲載するか
+                </label>
+                <div className="flex items-center space-x-4 mt-2">
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="show_in_progress"
+                      checked={formData.show_in_progress === true}
+                      onChange={() => setFormData({ ...formData, show_in_progress: true })}
+                      className="mr-2"
+                    />
+                    <span className="text-sm">掲載する</span>
+                  </label>
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="show_in_progress"
+                      checked={formData.show_in_progress === false}
+                      onChange={() => setFormData({ ...formData, show_in_progress: false })}
+                      className="mr-2"
+                    />
+                    <span className="text-sm">掲載しない</span>
+                  </label>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  案件一覧の進捗表示に表示するかどうか（グリッドビューと職種別一覧ビューには常に表示されます）
+                </p>
               </div>
 
               {/* 契約日からの日数 */}
@@ -541,11 +581,28 @@ export default function TaskMasterManagement() {
                         日数（トリガーからの相対日数）
                       </label>
                       <input
-                        type="number"
-                        value={formData.days_from_trigger}
+                        type="text"
+                        value={daysFromTriggerInput}
                         onChange={(e) => {
-                          const value = e.target.value === '' ? 0 : parseInt(e.target.value, 10)
-                          setFormData({ ...formData, days_from_trigger: isNaN(value) ? 0 : value })
+                          const value = e.target.value
+                          // 空文字列、マイナス記号のみ、または有効な整数値のみ許可
+                          if (value === '' || value === '-' || /^-?\d+$/.test(value)) {
+                            setDaysFromTriggerInput(value)
+                            // 有効な数値の場合のみformDataを更新
+                            const num = parseInt(value, 10)
+                            if (!isNaN(num)) {
+                              setFormData({ ...formData, days_from_trigger: num })
+                            } else {
+                              setFormData({ ...formData, days_from_trigger: 0 })
+                            }
+                          }
+                        }}
+                        onBlur={() => {
+                          // フォーカスが外れた時に、空文字列や"-"のみの場合は0に戻す
+                          if (daysFromTriggerInput === '' || daysFromTriggerInput === '-') {
+                            setDaysFromTriggerInput('0')
+                            setFormData({ ...formData, days_from_trigger: 0 })
+                          }
                         }}
                         className="prisma-input"
                         placeholder="例: 5（トリガーから5日後）、-3（トリガーから3日前）"
