@@ -113,7 +113,7 @@ export default function ProjectDetailFields({ project, onUpdate }: ProjectDetail
               <label className="block text-sm font-semibold text-gray-700 mb-1">営業担当</label>
               <select
                 value={formData.sales_staff_id || ''}
-                onChange={e => setFormData({ ...formData, sales_staff_id: e.target.value || null })}
+                onChange={e => setFormData({ ...formData, sales_staff_id: e.target.value || undefined })}
                 className="prisma-input"
               >
                 <option value="">未選択</option>
@@ -128,7 +128,7 @@ export default function ProjectDetailFields({ project, onUpdate }: ProjectDetail
               <label className="block text-sm font-semibold text-gray-700 mb-1">設計担当</label>
               <select
                 value={formData.design_staff_id || ''}
-                onChange={e => setFormData({ ...formData, design_staff_id: e.target.value || null })}
+                onChange={e => setFormData({ ...formData, design_staff_id: e.target.value || undefined })}
                 className="prisma-input"
               >
                 <option value="">未選択</option>
@@ -143,7 +143,7 @@ export default function ProjectDetailFields({ project, onUpdate }: ProjectDetail
               <label className="block text-sm font-semibold text-gray-700 mb-1">IC担当</label>
               <select
                 value={formData.ic_staff_id || ''}
-                onChange={e => setFormData({ ...formData, ic_staff_id: e.target.value || null })}
+                onChange={e => setFormData({ ...formData, ic_staff_id: e.target.value || undefined })}
                 className="prisma-input"
               >
                 <option value="">未選択</option>
@@ -158,7 +158,7 @@ export default function ProjectDetailFields({ project, onUpdate }: ProjectDetail
               <label className="block text-sm font-semibold text-gray-700 mb-1">工事担当</label>
               <select
                 value={formData.construction_staff_id || ''}
-                onChange={e => setFormData({ ...formData, construction_staff_id: e.target.value || null })}
+                onChange={e => setFormData({ ...formData, construction_staff_id: e.target.value || undefined })}
                 className="prisma-input"
               >
                 <option value="">未選択</option>
@@ -173,7 +173,7 @@ export default function ProjectDetailFields({ project, onUpdate }: ProjectDetail
               <label className="block text-sm font-semibold text-gray-700 mb-1">外構担当</label>
               <select
                 value={formData.exterior_staff_id || ''}
-                onChange={e => setFormData({ ...formData, exterior_staff_id: e.target.value || null })}
+                onChange={e => setFormData({ ...formData, exterior_staff_id: e.target.value || undefined })}
                 className="prisma-input"
               >
                 <option value="">未選択</option>

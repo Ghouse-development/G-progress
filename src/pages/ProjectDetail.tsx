@@ -946,7 +946,7 @@ export default function ProjectDetail() {
         {/* プロジェクト詳細編集フィールド */}
         <ProjectDetailFields
           project={project}
-          onUpdate={loadProject}
+          onUpdate={loadProjectData}
         />
 
         {/* テーブル表示モード - 削除済み */}

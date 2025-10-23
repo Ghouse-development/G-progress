@@ -129,6 +129,7 @@ export interface Project {
   contract_number?: string
   customer_names?: string[]
   construction_address?: string
+  lot_number?: string
   product_id?: string
   sales_staff_id?: string
   design_staff_id?: string
