@@ -314,22 +314,36 @@ export default function TaskMasterManagement() {
         </div>
       </div>
 
-      {/* 職種フィルタ */}
-      <div className="flex items-center gap-3 bg-white p-4 rounded-lg border-2 border-gray-200 shadow-sm">
-        <label className="text-base font-semibold text-gray-700">表示職種:</label>
-        <select
-          value={selectedPosition}
-          onChange={(e) => setSelectedPosition(e.target.value)}
-          className="prisma-select text-base font-medium min-w-[200px]"
-        >
-          <option value="全職種">全職種</option>
-          {allPositions.map(position => (
-            <option key={position} value={position}>{position}</option>
+      {/* 職種フィルタ（タブ表示） */}
+      <div className="bg-white p-4 rounded-lg border-2 border-gray-200 shadow-sm">
+        <div className="flex items-center justify-between mb-3">
+          <label className="text-base font-semibold text-gray-700">表示職種</label>
+          <span className="text-sm text-gray-500">
+            （{filteredTaskMasters.length}件）
+          </span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setSelectedPosition('全職種')}
+            className={`prisma-btn prisma-btn-sm ${selectedPosition === '全職種' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
+          >
+            全職種
+          </button>
+          {ORGANIZATION_HIERARCHY.map(dept => (
+            <div key={dept.name} className="flex flex-wrap gap-2 items-center">
+              <span className="text-xs font-bold text-gray-500 px-2">{dept.name}:</span>
+              {dept.positions.map(position => (
+                <button
+                  key={position}
+                  onClick={() => setSelectedPosition(position)}
+                  className={`prisma-btn prisma-btn-sm ${selectedPosition === position ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
+                >
+                  {position}
+                </button>
+              ))}
+            </div>
           ))}
-        </select>
-        <span className="text-sm text-gray-500">
-          （{filteredTaskMasters.length}件）
-        </span>
+        </div>
       </div>
 
       {/* タスク一覧テーブル */}
