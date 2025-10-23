@@ -91,15 +91,8 @@ export default function ProjectDetailFields({
 
   // 引き渡し日までの日数を計算
   const getDeliveryDays = (tasks: TaskWithEmployee[] = []): number => {
-    const maxTaskDay = tasks.length > 0
-      ? Math.max(...tasks.map(t => t.dayFromContract || 0))
-      : 0
-    const deliveryDate = project.actual_end_date || project.scheduled_end_date
-    if (deliveryDate) {
-      const deliveryDays = differenceInDays(new Date(deliveryDate), new Date(project.contract_date))
-      return Math.min(999, Math.max(100, deliveryDays, maxTaskDay))
-    }
-    return Math.min(999, Math.max(365, maxTaskDay + 30))
+    // 常に999日まで表示（全タスク対応）
+    return 999
   }
 
   // グリッドビュー用ヘルパー関数
