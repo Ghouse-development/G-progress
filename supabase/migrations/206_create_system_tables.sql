@@ -55,7 +55,8 @@ CREATE POLICY "Allow all authenticated users to insert backup_logs"
   WITH CHECK (true);
 
 -- updated_at自動更新トリガー
-CREATE TRIGGER IF NOT EXISTS update_system_settings_updated_at
+DROP TRIGGER IF EXISTS update_system_settings_updated_at ON system_settings;
+CREATE TRIGGER update_system_settings_updated_at
 BEFORE UPDATE ON system_settings
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
