@@ -1039,8 +1039,6 @@ export default function ProjectList() {
 
           {/* マトリクステーブル */}
           <div className="prisma-table-container" style={{
-            height: 'auto',
-            maxHeight: '600px',
             overflowX: 'auto',
             overflowY: 'auto',
             WebkitOverflowScrolling: 'touch'
