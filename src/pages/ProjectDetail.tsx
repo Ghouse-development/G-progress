@@ -218,16 +218,11 @@ export default function ProjectDetail() {
 
       setProject(projectData as unknown as ProjectWithRelations)
 
-      const { data: tasksData, error: tasksError } = await supabase
+      const { data: tasksData, error: tasksError} = await supabase
         .from('tasks')
         .select(`
           *,
-          assigned_employee:assigned_to(id, last_name, first_name, department),
-          task_master:task_masters!task_master_id(
-            trigger_task_id,
-            days_from_trigger,
-            show_in_progress
-          )
+          assigned_employee:assigned_to(id, last_name, first_name, department)
         `)
         .eq('project_id', id)
 
