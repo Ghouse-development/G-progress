@@ -1062,24 +1062,24 @@ export default function ProjectList() {
               }
             `}</style>
             <table className="prisma-table" style={{ minWidth: 'max-content', width: 'max-content', borderCollapse: 'separate', borderSpacing: 0 }}>
-              <thead className="sticky top-0 z-40 bg-gray-100">
+              <thead style={{ position: 'sticky', top: 0, zIndex: 40 }} className="bg-gray-100">
                 <tr>
-                  <th className="sticky left-0 z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-left font-semibold shadow-sm" style={{ minWidth: '200px', width: '200px', padding: '12px 8px', fontSize: '13px' }}>
+                  <th className="bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-left font-semibold shadow-sm" style={{ position: 'sticky', left: 0, zIndex: 50, minWidth: '200px', width: '200px', padding: '12px 8px', fontSize: '13px' }}>
                     案件名
                   </th>
-                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold shadow-sm" style={{ minWidth: '110px', width: '110px', left: '200px', padding: '12px 8px', fontSize: '13px' }}>
+                  <th className="bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold shadow-sm" style={{ position: 'sticky', left: '200px', zIndex: 50, minWidth: '110px', width: '110px', padding: '12px 8px', fontSize: '13px' }}>
                     営業
                   </th>
-                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold shadow-sm" style={{ minWidth: '110px', width: '110px', left: '310px', padding: '12px 8px', fontSize: '13px' }}>
+                  <th className="bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold shadow-sm" style={{ position: 'sticky', left: '310px', zIndex: 50, minWidth: '110px', width: '110px', padding: '12px 8px', fontSize: '13px' }}>
                     意匠設計
                   </th>
-                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold shadow-sm" style={{ minWidth: '110px', width: '110px', left: '420px', padding: '12px 8px', fontSize: '13px' }}>
+                  <th className="bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold shadow-sm" style={{ position: 'sticky', left: '420px', zIndex: 50, minWidth: '110px', width: '110px', padding: '12px 8px', fontSize: '13px' }}>
                     IC
                   </th>
-                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold shadow-sm" style={{ minWidth: '110px', width: '110px', left: '530px', padding: '12px 8px', fontSize: '13px' }}>
+                  <th className="bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold shadow-sm" style={{ position: 'sticky', left: '530px', zIndex: 50, minWidth: '110px', width: '110px', padding: '12px 8px', fontSize: '13px' }}>
                     工事
                   </th>
-                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-4 border-r-gray-700 text-center font-semibold shadow-md" style={{ minWidth: '110px', width: '110px', left: '640px', padding: '12px 8px', fontSize: '13px' }}>
+                  <th className="bg-gray-100 border border-gray-200 border-r-4 border-r-gray-700 text-center font-semibold shadow-md" style={{ position: 'sticky', left: '640px', zIndex: 50, minWidth: '110px', width: '110px', padding: '12px 8px', fontSize: '13px' }}>
                     外構プランナー
                   </th>
                   {uniqueTaskTitles.map(taskTitle => (
@@ -1110,8 +1110,8 @@ export default function ProjectList() {
                       className="transition-colors hover:bg-gray-50"
                     >
                       <td
-                        className="sticky left-0 z-20 bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-sm cursor-pointer hover:bg-blue-50 shadow-sm"
-                        style={{ width: '200px' }}
+                        className="bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-sm cursor-pointer hover:bg-blue-50 shadow-sm"
+                        style={{ position: 'sticky', left: 0, zIndex: 20, width: '200px' }}
                         onClick={() => navigate(`/projects/${project.id}`)}
                       >
                         <div className="font-semibold text-gray-900 mb-1" title={`${project.customer?.names?.join('・') || '顧客名なし'}様邸`}>
@@ -1123,7 +1123,7 @@ export default function ProjectList() {
                           </div>
                         )}
                       </td>
-                      <td className="sticky z-20 bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-sm shadow-sm" style={{ width: '110px', left: '200px' }}>
+                      <td className="bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-sm shadow-sm" style={{ position: 'sticky', left: '200px', zIndex: 20, width: '110px' }}>
                         {project.sales ? (
                           <div className="font-semibold text-gray-900" title={`${project.sales.last_name} ${project.sales.first_name}`}>
                             {project.sales.last_name}
@@ -1132,7 +1132,7 @@ export default function ProjectList() {
                           <div className="font-semibold text-gray-400">-</div>
                         )}
                       </td>
-                      <td className="sticky z-20 bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-sm shadow-sm" style={{ width: '110px', left: '310px' }}>
+                      <td className="bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-sm shadow-sm" style={{ position: 'sticky', left: '310px', zIndex: 20, width: '110px' }}>
                         {project.design ? (
                           <div className="font-semibold text-gray-900" title={`${project.design.last_name} ${project.design.first_name}`}>
                             {project.design.last_name}
@@ -1141,7 +1141,7 @@ export default function ProjectList() {
                           <div className="font-semibold text-gray-400">-</div>
                         )}
                       </td>
-                      <td className="sticky z-20 bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-sm shadow-sm" style={{ width: '110px', left: '420px' }}>
+                      <td className="bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-sm shadow-sm" style={{ position: 'sticky', left: '420px', zIndex: 20, width: '110px' }}>
                         {project.ic ? (
                           <div className="font-semibold text-gray-900" title={`${project.ic.last_name} ${project.ic.first_name}`}>
                             {project.ic.last_name}
@@ -1150,7 +1150,7 @@ export default function ProjectList() {
                           <div className="font-semibold text-gray-400">-</div>
                         )}
                       </td>
-                      <td className="sticky z-20 bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-sm shadow-sm" style={{ width: '110px', left: '530px' }}>
+                      <td className="bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-sm shadow-sm" style={{ position: 'sticky', left: '530px', zIndex: 20, width: '110px' }}>
                         {project.construction ? (
                           <div className="font-semibold text-gray-900" title={`${project.construction.last_name} ${project.construction.first_name}`}>
                             {project.construction.last_name}
@@ -1159,7 +1159,7 @@ export default function ProjectList() {
                           <div className="font-semibold text-gray-400">-</div>
                         )}
                       </td>
-                      <td className="sticky z-20 bg-white border border-gray-100 border-r-4 border-r-gray-700 px-3 py-3 text-center text-sm shadow-md" style={{ width: '110px', left: '640px' }}>
+                      <td className="bg-white border border-gray-100 border-r-4 border-r-gray-700 px-3 py-3 text-center text-sm shadow-md" style={{ position: 'sticky', left: '640px', zIndex: 20, width: '110px' }}>
                         {project.exterior ? (
                           <div className="font-semibold text-gray-900" title={`${project.exterior.last_name} ${project.exterior.first_name}`}>
                             {project.exterior.last_name}
