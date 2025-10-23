@@ -171,35 +171,27 @@ export default function GrossProfitManagement() {
       </div>
 
       {/* テーブル */}
-      <div className="prisma-card" style={{ padding: 0, overflow: 'hidden' }}>
-        <div className="prisma-table-container" style={{ overflowX: 'auto' }}>
-          <table className="prisma-table" style={{ tableLayout: 'fixed', width: '100%', minWidth: '1200px' }}>
-            <colgroup>
-              <col style={{ width: '20%' }} />
-              <col style={{ width: '15%' }} />
-              <col style={{ width: '18%' }} />
-              <col style={{ width: '18%' }} />
-              <col style={{ width: '18%' }} />
-              <col style={{ width: '11%' }} />
-            </colgroup>
+      <div className="prisma-card" style={{ padding: 0, overflow: 'visible' }}>
+        <div style={{ overflowX: 'auto', width: '100%' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '1000px' }}>
             <thead className="bg-gray-100 dark:bg-gray-800 sticky top-0">
               <tr>
-                <th className="px-4 py-3 text-left text-base font-bold text-gray-900 dark:text-gray-100">
+                <th className="px-4 py-3 text-left text-base font-bold text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600" style={{ minWidth: '150px' }}>
                   案件名
                 </th>
-                <th className="px-4 py-3 text-left text-base font-bold text-gray-900 dark:text-gray-100">
+                <th className="px-4 py-3 text-left text-base font-bold text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600" style={{ minWidth: '120px' }}>
                   顧客名
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100">
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600" style={{ minWidth: '150px' }}>
                   売上
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100">
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600" style={{ minWidth: '150px' }}>
                   原価
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100">
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600" style={{ minWidth: '150px' }}>
                   粗利益
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100">
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600" style={{ minWidth: '100px' }}>
                   粗利益率
                 </th>
               </tr>
@@ -218,22 +210,22 @@ export default function GrossProfitManagement() {
                     key={project.id}
                     className={index % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800/50'}
                   >
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <td className="px-4 py-3 text-base font-medium text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600">
                       {project.construction_address || '-'}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                    <td className="px-4 py-3 text-base text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600">
                       {Array.isArray(project.customer?.names) && project.customer.names.length > 0
                         ? project.customer.names[0]
                         : '-'}
                     </td>
-                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100">
+                    <td className="px-4 py-3 text-base text-right text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600">
                       {formatCurrency(project.revenue)}
                     </td>
-                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100">
+                    <td className="px-4 py-3 text-base text-right text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-600">
                       {formatCurrency(project.cost)}
                     </td>
                     <td
-                      className={`px-4 py-3 text-sm text-right font-bold ${
+                      className={`px-4 py-3 text-base text-right font-bold border-2 border-gray-300 dark:border-gray-600 ${
                         project.grossProfit > 0
                           ? 'text-green-600 dark:text-green-400'
                           : 'text-red-600 dark:text-red-400'
@@ -242,7 +234,7 @@ export default function GrossProfitManagement() {
                       {formatCurrency(project.grossProfit)}
                     </td>
                     <td
-                      className={`px-4 py-3 text-sm text-right font-bold ${
+                      className={`px-4 py-3 text-base text-right font-bold border-2 border-gray-300 dark:border-gray-600 ${
                         project.grossProfitRate > 20
                           ? 'text-green-600 dark:text-green-400'
                           : project.grossProfitRate > 10
