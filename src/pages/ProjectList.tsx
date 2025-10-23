@@ -20,7 +20,9 @@ interface ProjectWithRelations extends Project {
   customer: Customer
   sales: Employee
   design: Employee
+  ic: Employee
   construction: Employee
+  exterior: Employee
   tasks?: Task[]
 }
 
@@ -69,6 +71,7 @@ export default function ProjectList() {
 
   // 従業員データ
   const [employees, setEmployees] = useState<Employee[]>([])
+  const [taskMasters, setTaskMasters] = useState<any[]>([])
 
   // フォームデータ
   const [formData, setFormData] = useState({
@@ -92,6 +95,7 @@ export default function ProjectList() {
   useEffect(() => {
     loadCurrentUser()
     loadEmployees()
+    loadTaskMasters()
   }, []) //初回のみ読み込み
 
   useEffect(() => {
@@ -193,6 +197,20 @@ export default function ProjectList() {
     }
   }
 
+  const loadTaskMasters = async () => {
+    const { data, error } = await supabase
+      .from('task_masters')
+      .select('*')
+      .eq('show_in_progress', true)
+      .order('task_order', { ascending: true })
+
+    if (error) {
+      console.error('タスクマスタの読み込みエラー:', error)
+    } else if (data) {
+      setTaskMasters(data)
+    }
+  }
+
   const loadProjects = async () => {
     try {
       setLoading(true)
@@ -207,9 +225,11 @@ export default function ProjectList() {
         // プロジェクトにリレーションデータを結合
         const projectsWithRelations: ProjectWithRelations[] = demoProjects.map(project => {
           const customer = demoCustomers.find(c => c.id === project.customer_id)!
-          const sales = demoEmployees.find(e => e.id === project.assigned_sales)!
-          const design = demoEmployees.find(e => e.id === project.assigned_design)!
-          const construction = demoEmployees.find(e => e.id === project.assigned_construction)!
+          const sales = demoEmployees.find(e => e.id === project.sales_staff_id) || demoEmployees.find(e => e.department === '営業')!
+          const design = demoEmployees.find(e => e.id === project.design_staff_id) || demoEmployees.find(e => e.department === '意匠設計')!
+          const ic = demoEmployees.find(e => e.id === project.ic_staff_id) || demoEmployees.find(e => e.department === 'IC')!
+          const construction = demoEmployees.find(e => e.id === project.construction_staff_id) || demoEmployees.find(e => e.department === '工事')!
+          const exterior = demoEmployees.find(e => e.id === project.exterior_staff_id) || demoEmployees.find(e => e.department === '外構工事')!
           const tasks = demoTasks.filter(t => t.project_id === project.id)
 
           return {
@@ -217,7 +237,9 @@ export default function ProjectList() {
             customer,
             sales,
             design,
+            ic,
             construction,
+            exterior,
             tasks
           }
         })
@@ -235,9 +257,11 @@ export default function ProjectList() {
         .select(`
           *,
           customer:customers(*),
-          sales:employees!projects_assigned_sales_fkey(id, last_name, first_name, department),
-          design:employees!projects_assigned_design_fkey(id, last_name, first_name, department),
-          construction:employees!projects_assigned_construction_fkey(id, last_name, first_name, department)
+          sales:employees!projects_sales_staff_id_fkey(id, last_name, first_name, department),
+          design:employees!projects_design_staff_id_fkey(id, last_name, first_name, department),
+          ic:employees!projects_ic_staff_id_fkey(id, last_name, first_name, department),
+          construction:employees!projects_construction_staff_id_fkey(id, last_name, first_name, department),
+          exterior:employees!projects_exterior_staff_id_fkey(id, last_name, first_name, department)
         `)
 
       // 年度フィルタ（fiscal_yearがnullの場合も含める）
@@ -246,7 +270,7 @@ export default function ProjectList() {
       }
 
       if (mode === 'staff' && currentUserId) {
-        query = query.or(`assigned_sales.eq.${currentUserId},assigned_design.eq.${currentUserId},assigned_construction.eq.${currentUserId}`)
+        query = query.or(`sales_staff_id.eq.${currentUserId},design_staff_id.eq.${currentUserId},ic_staff_id.eq.${currentUserId},construction_staff_id.eq.${currentUserId},exterior_staff_id.eq.${currentUserId}`)
       }
 
       const { data: projectsData} = await query.order('contract_date', { ascending: false })
@@ -558,10 +582,10 @@ export default function ProjectList() {
 
   const displayProjects = getSortedAndFilteredProjects()
 
-  // 進捗マトリクス用のヘルパー関数
+  // 進捗マトリクス用のヘルパー関数（タスクマスタ順）
   const getAllUniqueTasks = () => {
-    const uniqueTitles = Array.from(new Set(allTasks.map(t => t.title)))
-    return uniqueTitles.sort()
+    // タスクマスタの順番でタスクタイトルを返す
+    return taskMasters.map(tm => tm.title)
   }
 
   const getProjectTaskByTitle = (projectId: string, taskTitle: string): Task | null => {
@@ -966,7 +990,7 @@ export default function ProjectList() {
         </div>
 
         {/* 進捗マトリクス表示 */}
-        <div className="prisma-card" style={{ minHeight: '400px', overflow: 'hidden' }}>
+        <div className="prisma-card" style={{ overflow: 'hidden' }}>
           {/* マトリクスヘッダー */}
           <div className="prisma-card-header" style={{ padding: '16px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -1024,20 +1048,23 @@ export default function ProjectList() {
             <table className="prisma-table" style={{ minWidth: 'max-content', width: 'max-content', borderCollapse: 'separate', borderSpacing: 0 }}>
               <thead className="sticky top-0 z-30 bg-gray-100">
                 <tr>
-                  <th className="sticky left-0 z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold" style={{ minWidth: '140px', width: '140px', padding: '12px 8px', fontSize: '13px' }}>
-                    契約No / 契約日
-                  </th>
-                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-left font-semibold" style={{ minWidth: '200px', width: '200px', left: '140px', padding: '12px 8px', fontSize: '13px' }}>
+                  <th className="sticky left-0 z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-left font-semibold" style={{ minWidth: '200px', width: '200px', padding: '12px 8px', fontSize: '13px' }}>
                     案件名
                   </th>
-                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold hidden lg:table-cell" style={{ minWidth: '110px', width: '110px', left: '340px', padding: '12px 8px', fontSize: '13px' }}>
-                    営業担当
+                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold" style={{ minWidth: '110px', width: '110px', left: '200px', padding: '12px 8px', fontSize: '13px' }}>
+                    営業
                   </th>
-                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold hidden lg:table-cell" style={{ minWidth: '110px', width: '110px', left: '450px', padding: '12px 8px', fontSize: '13px' }}>
-                    設計担当
+                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold" style={{ minWidth: '110px', width: '110px', left: '310px', padding: '12px 8px', fontSize: '13px' }}>
+                    意匠設計
                   </th>
-                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-500 text-center font-semibold hidden lg:table-cell" style={{ minWidth: '110px', width: '110px', left: '560px', padding: '12px 8px', fontSize: '13px' }}>
-                    工事担当
+                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold" style={{ minWidth: '110px', width: '110px', left: '420px', padding: '12px 8px', fontSize: '13px' }}>
+                    IC
+                  </th>
+                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold" style={{ minWidth: '110px', width: '110px', left: '530px', padding: '12px 8px', fontSize: '13px' }}>
+                    工事
+                  </th>
+                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-500 text-center font-semibold" style={{ minWidth: '110px', width: '110px', left: '640px', padding: '12px 8px', fontSize: '13px' }}>
+                    外構プランナー
                   </th>
                   {uniqueTaskTitles.map(taskTitle => (
                     <th
@@ -1056,7 +1083,7 @@ export default function ProjectList() {
               <tbody>
                 {filteredProjectsForMatrix.length === 0 ? (
                   <tr>
-                    <td colSpan={uniqueTaskTitles.length + 5} className="border-2 border-gray-300 p-8 text-center text-gray-500">
+                    <td colSpan={uniqueTaskTitles.length + 6} className="border-2 border-gray-300 p-8 text-center text-gray-500">
                       該当する案件がありません
                     </td>
                   </tr>
@@ -1066,20 +1093,9 @@ export default function ProjectList() {
                       key={project.id}
                       className="transition-colors hover:bg-gray-50"
                     >
-                      <td className="sticky left-0 z-10 bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-sm" style={{ width: '140px' }}>
-                        <div className="font-semibold text-gray-900">
-                          No.{project.contract_number || '-'}
-                        </div>
-                        <div className="font-semibold text-gray-900 mt-1">
-                          {format(new Date(project.contract_date), 'MM/dd')}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {format(new Date(project.contract_date), 'yyyy')}
-                        </div>
-                      </td>
                       <td
-                        className="sticky z-10 bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-sm cursor-pointer hover:bg-blue-50"
-                        style={{ width: '200px', left: '140px' }}
+                        className="sticky left-0 z-10 bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-sm cursor-pointer hover:bg-blue-50"
+                        style={{ width: '200px' }}
                         onClick={() => navigate(`/projects/${project.id}`)}
                       >
                         <div className="font-semibold text-gray-900 mb-1" title={`${project.customer?.names?.join('・') || '顧客名なし'}様邸`}>
@@ -1091,7 +1107,7 @@ export default function ProjectList() {
                           </div>
                         )}
                       </td>
-                      <td className="sticky z-10 bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-sm hidden lg:table-cell" style={{ width: '110px', left: '340px' }}>
+                      <td className="sticky z-10 bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-sm" style={{ width: '110px', left: '200px' }}>
                         {project.sales ? (
                           <div className="font-semibold text-gray-900" title={`${project.sales.last_name} ${project.sales.first_name}`}>
                             {project.sales.last_name}
@@ -1100,7 +1116,7 @@ export default function ProjectList() {
                           <div className="font-semibold text-gray-400">-</div>
                         )}
                       </td>
-                      <td className="sticky z-10 bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-sm hidden lg:table-cell" style={{ width: '110px', left: '450px' }}>
+                      <td className="sticky z-10 bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-sm" style={{ width: '110px', left: '310px' }}>
                         {project.design ? (
                           <div className="font-semibold text-gray-900" title={`${project.design.last_name} ${project.design.first_name}`}>
                             {project.design.last_name}
@@ -1109,10 +1125,28 @@ export default function ProjectList() {
                           <div className="font-semibold text-gray-400">-</div>
                         )}
                       </td>
-                      <td className="sticky z-10 bg-white border border-gray-100 border-r-2 border-r-gray-500 px-3 py-3 text-center text-sm hidden lg:table-cell" style={{ width: '110px', left: '560px' }}>
+                      <td className="sticky z-10 bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-sm" style={{ width: '110px', left: '420px' }}>
+                        {project.ic ? (
+                          <div className="font-semibold text-gray-900" title={`${project.ic.last_name} ${project.ic.first_name}`}>
+                            {project.ic.last_name}
+                          </div>
+                        ) : (
+                          <div className="font-semibold text-gray-400">-</div>
+                        )}
+                      </td>
+                      <td className="sticky z-10 bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-sm" style={{ width: '110px', left: '530px' }}>
                         {project.construction ? (
                           <div className="font-semibold text-gray-900" title={`${project.construction.last_name} ${project.construction.first_name}`}>
                             {project.construction.last_name}
+                          </div>
+                        ) : (
+                          <div className="font-semibold text-gray-400">-</div>
+                        )}
+                      </td>
+                      <td className="sticky z-10 bg-white border border-gray-100 border-r-2 border-r-gray-500 px-3 py-3 text-center text-sm" style={{ width: '110px', left: '640px' }}>
+                        {project.exterior ? (
+                          <div className="font-semibold text-gray-900" title={`${project.exterior.last_name} ${project.exterior.first_name}`}>
+                            {project.exterior.last_name}
                           </div>
                         ) : (
                           <div className="font-semibold text-gray-400">-</div>
