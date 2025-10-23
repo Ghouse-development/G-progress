@@ -904,15 +904,13 @@ export default function ProjectList() {
       <div className="prisma-header">
         <h1 className="prisma-header-title">案件一覧</h1>
         <div className="prisma-header-actions">
-          {canWrite('projects') && (
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="prisma-btn prisma-btn-primary prisma-btn-sm"
-            >
-              <Plus size={16} />
-              新規案件追加
-            </button>
-          )}
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="prisma-btn prisma-btn-primary prisma-btn-sm"
+          >
+            <Plus size={16} />
+            新規案件追加
+          </button>
         </div>
       </div>
 

@@ -938,21 +938,6 @@ export default function ProjectDetail() {
                   <option value="delayed">遅延 ({tasks.filter(t => t.status === 'delayed').length})</option>
                   <option value="completed">完了 ({tasks.filter(t => t.status === 'completed').length})</option>
                 </select>
-
-                <button
-                  onClick={handleRegenerateTasks}
-                  className="px-2 py-1.5 bg-purple-600 text-white rounded-lg text-base font-medium hover:bg-purple-700 transition-colors flex items-center gap-1"
-                  title="タスク一括生成"
-                >
-                  <RefreshCw size={16} />
-                </button>
-                <button
-                  onClick={() => setShowTaskModal(true)}
-                  className="px-2 py-1.5 bg-green-600 text-white rounded-lg text-base font-medium hover:bg-green-700 transition-colors flex items-center gap-1"
-                >
-                  <Plus size={16} />
-                  新規
-                </button>
               </div>
             </div>
           </div>

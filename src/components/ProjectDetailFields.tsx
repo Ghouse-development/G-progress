@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Project } from '../types/database'
+import { useState, useEffect } from 'react'
+import { Project, Employee } from '../types/database'
 import { supabase } from '../lib/supabase'
 import { useToast } from '../contexts/ToastContext'
 import { Save } from 'lucide-react'
@@ -14,6 +14,19 @@ export default function ProjectDetailFields({ project, onUpdate }: ProjectDetail
   const [activeTab, setActiveTab] = useState('basic')
   const [formData, setFormData] = useState(project)
   const [saving, setSaving] = useState(false)
+  const [employees, setEmployees] = useState<Employee[]>([])
+
+  useEffect(() => {
+    loadEmployees()
+  }, [])
+
+  const loadEmployees = async () => {
+    const { data } = await supabase
+      .from('employees')
+      .select('*')
+      .order('last_name')
+    if (data) setEmployees(data)
+  }
 
   const handleSave = async () => {
     setSaving(true)
@@ -86,6 +99,90 @@ export default function ProjectDetailFields({ project, onUpdate }: ProjectDetail
                 onChange={e => setFormData({ ...formData, construction_address: e.target.value })}
                 className="prisma-input"
               />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">地番</label>
+              <input
+                type="text"
+                value={formData.lot_number || ''}
+                onChange={e => setFormData({ ...formData, lot_number: e.target.value })}
+                className="prisma-input"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">営業担当</label>
+              <select
+                value={formData.sales_staff_id || ''}
+                onChange={e => setFormData({ ...formData, sales_staff_id: e.target.value || null })}
+                className="prisma-input"
+              >
+                <option value="">未選択</option>
+                {employees.map(emp => (
+                  <option key={emp.id} value={emp.id}>
+                    {emp.last_name} {emp.first_name} ({emp.department})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">設計担当</label>
+              <select
+                value={formData.design_staff_id || ''}
+                onChange={e => setFormData({ ...formData, design_staff_id: e.target.value || null })}
+                className="prisma-input"
+              >
+                <option value="">未選択</option>
+                {employees.map(emp => (
+                  <option key={emp.id} value={emp.id}>
+                    {emp.last_name} {emp.first_name} ({emp.department})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">IC担当</label>
+              <select
+                value={formData.ic_staff_id || ''}
+                onChange={e => setFormData({ ...formData, ic_staff_id: e.target.value || null })}
+                className="prisma-input"
+              >
+                <option value="">未選択</option>
+                {employees.map(emp => (
+                  <option key={emp.id} value={emp.id}>
+                    {emp.last_name} {emp.first_name} ({emp.department})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">工事担当</label>
+              <select
+                value={formData.construction_staff_id || ''}
+                onChange={e => setFormData({ ...formData, construction_staff_id: e.target.value || null })}
+                className="prisma-input"
+              >
+                <option value="">未選択</option>
+                {employees.map(emp => (
+                  <option key={emp.id} value={emp.id}>
+                    {emp.last_name} {emp.first_name} ({emp.department})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">外構担当</label>
+              <select
+                value={formData.exterior_staff_id || ''}
+                onChange={e => setFormData({ ...formData, exterior_staff_id: e.target.value || null })}
+                className="prisma-input"
+              >
+                <option value="">未選択</option>
+                {employees.map(emp => (
+                  <option key={emp.id} value={emp.id}>
+                    {emp.last_name} {emp.first_name} ({emp.department})
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">階数</label>
