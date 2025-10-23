@@ -543,7 +543,10 @@ export default function TaskMasterManagement() {
                       <input
                         type="number"
                         value={formData.days_from_trigger}
-                        onChange={(e) => setFormData({ ...formData, days_from_trigger: parseInt(e.target.value) || 0 })}
+                        onChange={(e) => {
+                          const value = e.target.value === '' ? 0 : parseInt(e.target.value, 10)
+                          setFormData({ ...formData, days_from_trigger: isNaN(value) ? 0 : value })
+                        }}
                         className="prisma-input"
                         placeholder="例: 5（トリガーから5日後）、-3（トリガーから3日前）"
                       />
