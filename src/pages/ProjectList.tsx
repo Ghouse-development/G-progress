@@ -1209,26 +1209,26 @@ export default function ProjectList() {
 
       {/* 新規案件作成モーダル */}
       {showCreateModal && (
-        <div className="modal-overlay">
-          <div className="modal-canva max-w-2xl w-full">
+        <div className="prisma-modal-overlay">
+          <div className="prisma-modal max-w-2xl w-full">
             {/* ヘッダー */}
-            <div className="modal-canva-header flex items-center justify-between">
-              <h2 className="text-2xl font-bold">新規案件追加</h2>
+            <div className="prisma-modal-header flex items-center justify-between">
+              <h2 className="prisma-modal-title">新規案件追加</h2>
               <button
                 onClick={() => {
                   setShowCreateModal(false)
                   resetForm()
                 }}
-                className="text-white hover:text-gray-200 transition-colors"
+                className="text-gray-400 hover:text-gray-600 transition-colors"
               >
                 <X size={24} />
               </button>
             </div>
 
             {/* コンテンツ */}
-            <div className="modal-canva-content space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+            <div className="prisma-modal-content space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto">
               <div>
-                <h3 className="font-bold text-gray-900 mb-2">顧客情報</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">顧客情報</h3>
                 <div className="space-y-3">
                   <div>
                     <label className="block text-base font-medium text-gray-700 mb-1">
@@ -1239,7 +1239,7 @@ export default function ProjectList() {
                       value={formData.customerNames}
                       onChange={(e) => setFormData({ ...formData, customerNames: e.target.value })}
                       placeholder="例: 山田太郎・花子"
-                      className="input-canva w-full"
+                      className="prisma-input w-full"
                     />
                   </div>
                   <div>
@@ -1251,14 +1251,14 @@ export default function ProjectList() {
                       value={formData.buildingSite}
                       onChange={(e) => setFormData({ ...formData, buildingSite: e.target.value })}
                       placeholder="例: 東京都渋谷区〇〇1-2-3"
-                      className="input-canva w-full"
+                      className="prisma-input w-full"
                     />
                   </div>
                 </div>
               </div>
 
               <div>
-                <h3 className="font-bold text-gray-900 mb-2">案件情報</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">案件情報</h3>
                 <div className="space-y-3">
                   <div>
                     <label className="block text-base font-medium text-gray-700 mb-1">契約日</label>
@@ -1266,7 +1266,7 @@ export default function ProjectList() {
                       type="date"
                       value={formData.contractDate}
                       onChange={(e) => setFormData({ ...formData, contractDate: e.target.value })}
-                      className="input-canva w-full"
+                      className="prisma-input w-full"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
@@ -1276,7 +1276,7 @@ export default function ProjectList() {
                         type="date"
                         value={formData.floorPlanConfirmedDate}
                         onChange={(e) => setFormData({ ...formData, floorPlanConfirmedDate: e.target.value })}
-                        className="input-canva w-full"
+                        className="prisma-input w-full"
                       />
                     </div>
                     <div>
@@ -1285,7 +1285,7 @@ export default function ProjectList() {
                         type="date"
                         value={formData.finalSpecificationMeetingDate}
                         onChange={(e) => setFormData({ ...formData, finalSpecificationMeetingDate: e.target.value })}
-                        className="input-canva w-full"
+                        className="prisma-input w-full"
                       />
                     </div>
                   </div>
@@ -1296,7 +1296,7 @@ export default function ProjectList() {
                         type="date"
                         value={formData.constructionPermissionDate}
                         onChange={(e) => setFormData({ ...formData, constructionPermissionDate: e.target.value })}
-                        className="input-canva w-full"
+                        className="prisma-input w-full"
                       />
                     </div>
                     <div>
@@ -1305,7 +1305,7 @@ export default function ProjectList() {
                         type="date"
                         value={formData.constructionStartDate}
                         onChange={(e) => setFormData({ ...formData, constructionStartDate: e.target.value })}
-                        className="input-canva w-full"
+                        className="prisma-input w-full"
                       />
                     </div>
                   </div>
@@ -1316,7 +1316,7 @@ export default function ProjectList() {
                         type="date"
                         value={formData.roofRaisingDate}
                         onChange={(e) => setFormData({ ...formData, roofRaisingDate: e.target.value })}
-                        className="input-canva w-full"
+                        className="prisma-input w-full"
                       />
                     </div>
                     <div>
@@ -1325,7 +1325,7 @@ export default function ProjectList() {
                         type="date"
                         value={formData.completionInspectionDate}
                         onChange={(e) => setFormData({ ...formData, completionInspectionDate: e.target.value })}
-                        className="input-canva w-full"
+                        className="prisma-input w-full"
                       />
                     </div>
                   </div>
@@ -1335,7 +1335,7 @@ export default function ProjectList() {
                       type="date"
                       value={formData.handoverDate}
                       onChange={(e) => setFormData({ ...formData, handoverDate: e.target.value })}
-                      className="input-canva w-full"
+                      className="prisma-input w-full"
                     />
                   </div>
                   <div>
@@ -1343,7 +1343,7 @@ export default function ProjectList() {
                     <select
                       value={formData.status}
                       onChange={(e) => setFormData({ ...formData, status: e.target.value as Project['status'] })}
-                      className="input-canva w-full"
+                      className="prisma-select w-full"
                     >
                       <option value="post_contract">契約後</option>
                       <option value="construction">着工後</option>
@@ -1358,21 +1358,21 @@ export default function ProjectList() {
                       max="100"
                       value={formData.progressRate}
                       onChange={(e) => setFormData({ ...formData, progressRate: parseInt(e.target.value) || 0 })}
-                      className="input-canva w-full"
+                      className="prisma-input w-full"
                     />
                   </div>
                 </div>
               </div>
 
               <div>
-                <h3 className="font-bold text-gray-900 mb-2">担当者</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">担当者</h3>
                 <div className="space-y-3">
                   <div>
                     <label className="block text-base font-medium text-gray-700 mb-1">営業</label>
                     <select
                       value={formData.assignedSales}
                       onChange={(e) => setFormData({ ...formData, assignedSales: e.target.value })}
-                      className="input-canva w-full"
+                      className="prisma-select w-full"
                     >
                       <option value="">未設定</option>
                       {employees.filter(e => getPositionsForDepartment('営業部').includes(e.department)).map(emp => (
@@ -1385,7 +1385,7 @@ export default function ProjectList() {
                     <select
                       value={formData.assignedDesign}
                       onChange={(e) => setFormData({ ...formData, assignedDesign: e.target.value })}
-                      className="input-canva w-full"
+                      className="prisma-select w-full"
                     >
                       <option value="">未設定</option>
                       {employees.filter(e => getPositionsForDepartment('設計部').includes(e.department)).map(emp => (
@@ -1398,7 +1398,7 @@ export default function ProjectList() {
                     <select
                       value={formData.assignedConstruction}
                       onChange={(e) => setFormData({ ...formData, assignedConstruction: e.target.value })}
-                      className="input-canva w-full"
+                      className="prisma-select w-full"
                     >
                       <option value="">未設定</option>
                       {employees.filter(e => getPositionsForDepartment('工事部').includes(e.department)).map(emp => (
@@ -1411,7 +1411,7 @@ export default function ProjectList() {
             </div>
 
             {/* フッター */}
-            <div className="modal-canva-footer">
+            <div className="prisma-modal-footer">
               <button
                 onClick={() => {
                   setShowCreateModal(false)
@@ -1434,27 +1434,27 @@ export default function ProjectList() {
 
       {/* 案件編集モーダル */}
       {showEditModal && editingProject && (
-        <div className="modal-overlay">
-          <div className="modal-canva max-w-2xl w-full">
+        <div className="prisma-modal-overlay">
+          <div className="prisma-modal max-w-2xl w-full">
             {/* ヘッダー */}
-            <div className="modal-canva-header flex items-center justify-between">
-              <h2 className="text-2xl font-bold">案件編集</h2>
+            <div className="prisma-modal-header flex items-center justify-between">
+              <h2 className="prisma-modal-title">案件編集</h2>
               <button
                 onClick={() => {
                   setShowEditModal(false)
                   setEditingProject(null)
                   resetForm()
                 }}
-                className="text-white hover:text-gray-200 transition-colors"
+                className="text-gray-400 hover:text-gray-600 transition-colors"
               >
                 <X size={24} />
               </button>
             </div>
 
             {/* コンテンツ */}
-            <div className="modal-canva-content space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+            <div className="prisma-modal-content space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto">
               <div>
-                <h3 className="font-bold text-gray-900 mb-2">顧客情報</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">顧客情報</h3>
                 <div className="space-y-3">
                   <div>
                     <label className="block text-base font-medium text-gray-700 mb-1">
@@ -1464,7 +1464,7 @@ export default function ProjectList() {
                       type="text"
                       value={formData.customerNames}
                       onChange={(e) => setFormData({ ...formData, customerNames: e.target.value })}
-                      className="input-canva w-full"
+                      className="prisma-input w-full"
                     />
                   </div>
                   <div>
@@ -1475,14 +1475,14 @@ export default function ProjectList() {
                       type="text"
                       value={formData.buildingSite}
                       onChange={(e) => setFormData({ ...formData, buildingSite: e.target.value })}
-                      className="input-canva w-full"
+                      className="prisma-input w-full"
                     />
                   </div>
                 </div>
               </div>
 
               <div>
-                <h3 className="font-bold text-gray-900 mb-2">案件情報</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">案件情報</h3>
                 <div className="space-y-3">
                   <div>
                     <label className="block text-base font-medium text-gray-700 mb-1">契約日</label>
@@ -1490,7 +1490,7 @@ export default function ProjectList() {
                       type="date"
                       value={formData.contractDate}
                       onChange={(e) => setFormData({ ...formData, contractDate: e.target.value })}
-                      className="input-canva w-full"
+                      className="prisma-input w-full"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
@@ -1500,7 +1500,7 @@ export default function ProjectList() {
                         type="date"
                         value={formData.floorPlanConfirmedDate}
                         onChange={(e) => setFormData({ ...formData, floorPlanConfirmedDate: e.target.value })}
-                        className="input-canva w-full"
+                        className="prisma-input w-full"
                       />
                     </div>
                     <div>
@@ -1509,7 +1509,7 @@ export default function ProjectList() {
                         type="date"
                         value={formData.finalSpecificationMeetingDate}
                         onChange={(e) => setFormData({ ...formData, finalSpecificationMeetingDate: e.target.value })}
-                        className="input-canva w-full"
+                        className="prisma-input w-full"
                       />
                     </div>
                   </div>
@@ -1520,7 +1520,7 @@ export default function ProjectList() {
                         type="date"
                         value={formData.constructionPermissionDate}
                         onChange={(e) => setFormData({ ...formData, constructionPermissionDate: e.target.value })}
-                        className="input-canva w-full"
+                        className="prisma-input w-full"
                       />
                     </div>
                     <div>
@@ -1529,7 +1529,7 @@ export default function ProjectList() {
                         type="date"
                         value={formData.constructionStartDate}
                         onChange={(e) => setFormData({ ...formData, constructionStartDate: e.target.value })}
-                        className="input-canva w-full"
+                        className="prisma-input w-full"
                       />
                     </div>
                   </div>
@@ -1540,7 +1540,7 @@ export default function ProjectList() {
                         type="date"
                         value={formData.roofRaisingDate}
                         onChange={(e) => setFormData({ ...formData, roofRaisingDate: e.target.value })}
-                        className="input-canva w-full"
+                        className="prisma-input w-full"
                       />
                     </div>
                     <div>
@@ -1549,7 +1549,7 @@ export default function ProjectList() {
                         type="date"
                         value={formData.completionInspectionDate}
                         onChange={(e) => setFormData({ ...formData, completionInspectionDate: e.target.value })}
-                        className="input-canva w-full"
+                        className="prisma-input w-full"
                       />
                     </div>
                   </div>
@@ -1559,7 +1559,7 @@ export default function ProjectList() {
                       type="date"
                       value={formData.handoverDate}
                       onChange={(e) => setFormData({ ...formData, handoverDate: e.target.value })}
-                      className="input-canva w-full"
+                      className="prisma-input w-full"
                     />
                   </div>
                   <div>
@@ -1567,7 +1567,7 @@ export default function ProjectList() {
                     <select
                       value={formData.status}
                       onChange={(e) => setFormData({ ...formData, status: e.target.value as Project['status'] })}
-                      className="input-canva w-full"
+                      className="prisma-select w-full"
                     >
                       <option value="post_contract">契約後</option>
                       <option value="construction">着工後</option>
@@ -1582,21 +1582,21 @@ export default function ProjectList() {
                       max="100"
                       value={formData.progressRate}
                       onChange={(e) => setFormData({ ...formData, progressRate: parseInt(e.target.value) || 0 })}
-                      className="input-canva w-full"
+                      className="prisma-input w-full"
                     />
                   </div>
                 </div>
               </div>
 
               <div>
-                <h3 className="font-bold text-gray-900 mb-2">担当者</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">担当者</h3>
                 <div className="space-y-3">
                   <div>
                     <label className="block text-base font-medium text-gray-700 mb-1">営業</label>
                     <select
                       value={formData.assignedSales}
                       onChange={(e) => setFormData({ ...formData, assignedSales: e.target.value })}
-                      className="input-canva w-full"
+                      className="prisma-select w-full"
                     >
                       <option value="">未設定</option>
                       {employees.filter(e => getPositionsForDepartment('営業部').includes(e.department)).map(emp => (
@@ -1609,7 +1609,7 @@ export default function ProjectList() {
                     <select
                       value={formData.assignedDesign}
                       onChange={(e) => setFormData({ ...formData, assignedDesign: e.target.value })}
-                      className="input-canva w-full"
+                      className="prisma-select w-full"
                     >
                       <option value="">未設定</option>
                       {employees.filter(e => getPositionsForDepartment('設計部').includes(e.department)).map(emp => (
@@ -1622,7 +1622,7 @@ export default function ProjectList() {
                     <select
                       value={formData.assignedConstruction}
                       onChange={(e) => setFormData({ ...formData, assignedConstruction: e.target.value })}
-                      className="input-canva w-full"
+                      className="prisma-select w-full"
                     >
                       <option value="">未設定</option>
                       {employees.filter(e => getPositionsForDepartment('工事部').includes(e.department)).map(emp => (
@@ -1635,7 +1635,7 @@ export default function ProjectList() {
             </div>
 
             {/* フッター */}
-            <div className="modal-canva-footer">
+            <div className="prisma-modal-footer">
               <button
                 onClick={() => {
                   setShowEditModal(false)
@@ -1658,22 +1658,22 @@ export default function ProjectList() {
       )}
 
       {showDeleteDialog && (
-        <div className="modal-overlay">
-          <div className="modal-canva max-w-md w-full">
+        <div className="prisma-modal-overlay">
+          <div className="prisma-modal max-w-md w-full">
             {/* ヘッダー */}
-            <div className="modal-canva-header">
-              <h3 className="text-2xl font-bold">案件を削除しますか？</h3>
+            <div className="prisma-modal-header">
+              <h3 className="prisma-modal-title">案件を削除しますか？</h3>
             </div>
 
             {/* コンテンツ */}
-            <div className="modal-canva-content">
-              <p className="text-gray-600">
+            <div className="prisma-modal-content">
+              <p className="text-base text-gray-700">
                 この操作は取り消せません。案件に紐づくタスクも削除される可能性があります。
               </p>
             </div>
 
             {/* フッター */}
-            <div className="modal-canva-footer">
+            <div className="prisma-modal-footer">
               <button
                 onClick={() => {
                   setShowDeleteDialog(false)

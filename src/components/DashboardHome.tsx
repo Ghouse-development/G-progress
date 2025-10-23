@@ -1128,27 +1128,27 @@ export default function DashboardHome() {
 
       {/* 新規案件作成モーダル */}
       {showCreateModal && (
-        <div className="modal-overlay">
-          <div className="modal-canva max-w-2xl w-full">
+        <div className="prisma-modal-overlay">
+          <div className="prisma-modal max-w-2xl w-full">
             {/* ヘッダー */}
-            <div className="modal-canva-header flex items-center justify-between">
-              <h2 className="text-2xl font-bold">新規案件追加</h2>
+            <div className="prisma-modal-header flex items-center justify-between">
+              <h2 className="prisma-modal-title">新規案件追加</h2>
               <button
                 onClick={() => {
                   setShowCreateModal(false)
                   resetForm()
                 }}
-                className="text-white hover:text-gray-200 transition-colors"
+                className="text-gray-400 hover:text-gray-600 transition-colors"
               >
                 <X size={24} />
               </button>
             </div>
 
             {/* コンテンツ */}
-            <div className="modal-canva-content space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+            <div className="prisma-modal-content space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto">
               {/* 顧客情報 */}
               <div>
-                <h3 className="font-bold text-gray-900 mb-2">顧客情報</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">顧客情報</h3>
                 <div className="space-y-3">
                   <div>
                     <label className="block text-base font-medium text-gray-700 mb-1">
@@ -1159,7 +1159,7 @@ export default function DashboardHome() {
                       value={formData.customerNames}
                       onChange={(e) => setFormData({ ...formData, customerNames: e.target.value })}
                       placeholder="例: 山田太郎・花子"
-                      className="input-canva w-full"
+                      className="prisma-input w-full"
                     />
                     <p className="text-base text-gray-500 mt-1">複数名の場合は「・」で区切ってください</p>
                   </div>
@@ -1172,7 +1172,7 @@ export default function DashboardHome() {
                       value={formData.buildingSite}
                       onChange={(e) => setFormData({ ...formData, buildingSite: e.target.value })}
                       placeholder="例: 東京都渋谷区〇〇1-2-3"
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="prisma-input w-full"
                     />
                   </div>
                 </div>
@@ -1180,7 +1180,7 @@ export default function DashboardHome() {
 
               {/* 案件情報 */}
               <div>
-                <h3 className="font-bold text-gray-900 mb-2">案件情報</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">案件情報</h3>
                 <div className="space-y-3">
                   <div>
                     <label className="block text-base font-medium text-gray-700 mb-1">契約日</label>
@@ -1188,7 +1188,7 @@ export default function DashboardHome() {
                       type="date"
                       value={formData.contractDate}
                       onChange={(e) => setFormData({ ...formData, contractDate: e.target.value })}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="prisma-input w-full"
                     />
                   </div>
                   <div>
@@ -1196,7 +1196,7 @@ export default function DashboardHome() {
                     <select
                       value={formData.productId}
                       onChange={(e) => setFormData({ ...formData, productId: e.target.value })}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="prisma-select w-full"
                     >
                       <option value="">未設定</option>
                       {products.map(product => (
@@ -1209,7 +1209,7 @@ export default function DashboardHome() {
                     <select
                       value={formData.status}
                       onChange={(e) => setFormData({ ...formData, status: e.target.value as Project['status'] })}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="prisma-select w-full"
                     >
                       <option value="post_contract">契約後</option>
                       <option value="construction">着工後</option>
@@ -1224,7 +1224,7 @@ export default function DashboardHome() {
                       max="100"
                       value={formData.progressRate}
                       onChange={(e) => setFormData({ ...formData, progressRate: parseInt(e.target.value) || 0 })}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="prisma-input w-full"
                     />
                   </div>
                 </div>
@@ -1232,14 +1232,14 @@ export default function DashboardHome() {
 
               {/* 担当者 */}
               <div>
-                <h3 className="font-bold text-gray-900 mb-2">担当者</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">担当者</h3>
                 <div className="space-y-3">
                   <div>
                     <label className="block text-base font-medium text-gray-700 mb-1">営業</label>
                     <select
                       value={formData.assignedSales}
                       onChange={(e) => setFormData({ ...formData, assignedSales: e.target.value })}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="prisma-select w-full"
                     >
                       <option value="">未設定</option>
                       {employees.map(emp => (
@@ -1252,7 +1252,7 @@ export default function DashboardHome() {
                     <select
                       value={formData.assignedDesign}
                       onChange={(e) => setFormData({ ...formData, assignedDesign: e.target.value })}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="prisma-select w-full"
                     >
                       <option value="">未設定</option>
                       {employees.map(emp => (
@@ -1265,7 +1265,7 @@ export default function DashboardHome() {
                     <select
                       value={formData.assignedConstruction}
                       onChange={(e) => setFormData({ ...formData, assignedConstruction: e.target.value })}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="prisma-select w-full"
                     >
                       <option value="">未設定</option>
                       {employees.map(emp => (
@@ -1278,7 +1278,7 @@ export default function DashboardHome() {
             </div>
 
             {/* フッター */}
-            <div className="modal-canva-footer">
+            <div className="prisma-modal-footer">
               <button
                 onClick={() => {
                   setShowCreateModal(false)
@@ -1301,11 +1301,11 @@ export default function DashboardHome() {
 
       {/* 部署遅延詳細モーダル */}
       {showDepartmentDetailModal && selectedDepartment && (
-        <div className="modal-overlay" onClick={() => setShowDepartmentDetailModal(false)}>
-          <div className="modal-canva max-w-2xl w-full" onClick={(e) => e.stopPropagation()}>
+        <div className="prisma-modal-overlay" onClick={() => setShowDepartmentDetailModal(false)}>
+          <div className="prisma-modal max-w-2xl w-full" onClick={(e) => e.stopPropagation()}>
             {/* ヘッダー */}
-            <div className="modal-canva-header">
-              <h2 className="text-2xl font-bold">{selectedDepartment} - 遅延詳細</h2>
+            <div className="prisma-modal-header">
+              <h2 className="prisma-modal-title">{selectedDepartment} - 遅延詳細</h2>
               <button
                 onClick={() => setShowDepartmentDetailModal(false)}
                 className="text-gray-400 hover:text-gray-600"
@@ -1315,7 +1315,7 @@ export default function DashboardHome() {
             </div>
 
             {/* コンテンツ */}
-            <div className="p-6">
+            <div className="prisma-modal-content">
               {(() => {
                 const delayDetails = getDepartmentDelayDetails(selectedDepartment)
 
@@ -1332,7 +1332,7 @@ export default function DashboardHome() {
                     <p className="text-base text-gray-600 mb-4">
                       {viewMode === 'personal' ? '自分の担当案件の遅延タスク' : '全案件の遅延タスク'}
                     </p>
-                    <div className="bg-white rounded-lg border-2 border-gray-300 overflow-hidden">
+                    <div className="bg-white rounded-lg border-3 border-gray-300 overflow-hidden">
                       <table className="w-full text-base">
                         <thead className="bg-gray-100">
                           <tr>
@@ -1360,7 +1360,7 @@ export default function DashboardHome() {
             </div>
 
             {/* フッター */}
-            <div className="modal-canva-footer">
+            <div className="prisma-modal-footer">
               <button
                 onClick={() => setShowDepartmentDetailModal(false)}
                 className="prisma-btn prisma-btn-primary flex-1"

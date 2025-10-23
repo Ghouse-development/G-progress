@@ -6,7 +6,6 @@ import ProjectDetail from './ProjectDetail'
 import Calendar from './Calendar'
 import Reports from './Reports'
 import AuditLogs from './AuditLogs'
-import SamplePage from './SamplePage'
 import ImportCSV from './ImportCSV'
 import ProductMaster from '../components/ProductMaster'
 import EmployeeMaster from '../components/EmployeeMaster'
@@ -51,7 +50,6 @@ export default function Dashboard() {
                   <Route path="/reports" element={<Reports />} />
                   <Route path="/audit-logs" element={<AuditLogs />} />
                   <Route path="/import-csv" element={<ImportCSV />} />
-                  <Route path="/sample" element={<SamplePage />} />
                   <Route path="/organizations" element={<OrganizationManagement />} />
                   <Route path="/master/products" element={<ProductMaster />} />
                   <Route path="/master/tasks" element={<TaskMasterManagement />} />
