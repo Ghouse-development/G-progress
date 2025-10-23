@@ -183,10 +183,10 @@ export default function ProjectDetailFields({
               <div style={{ minWidth: 'fit-content', width: '100%' }}>
                 {/* 部門ヘッダー */}
                 <div className="flex border-b-2 border-gray-200 sticky top-0 z-30 bg-white">
-                  <div className="w-28 flex-shrink-0 border-r-2 border-gray-200 p-3 text-center font-bold text-base text-gray-800 bg-white">
+                  <div className="w-28 flex-shrink-0 border-r-2 border-gray-200 p-3 text-center font-bold text-base text-gray-800 bg-white sticky left-0 z-40">
                     日付
                   </div>
-                  <div className="w-20 flex-shrink-0 border-r-2 border-gray-200 p-3 text-center font-bold text-base text-gray-800 bg-white">
+                  <div className="w-20 flex-shrink-0 border-r-2 border-gray-200 p-3 text-center font-bold text-base text-gray-800 bg-white sticky left-28 z-40">
                     日数
                   </div>
                   {DEPARTMENTS.map((dept, index) => (
@@ -210,10 +210,10 @@ export default function ProjectDetailFields({
 
                 {/* 職種ヘッダー */}
                 <div className="flex border-b-2 border-gray-200 bg-white sticky z-20" style={{ top: '48px' }}>
-                  <div className="w-28 flex-shrink-0 border-r-2 border-gray-200 p-2 text-center text-base font-bold bg-gray-50">
+                  <div className="w-28 flex-shrink-0 border-r-2 border-gray-200 p-2 text-center text-base font-bold bg-gray-50 sticky left-0 z-40">
                     日付
                   </div>
-                  <div className="w-20 flex-shrink-0 border-r-2 border-gray-200 p-2 text-center text-base font-bold bg-gray-50">
+                  <div className="w-20 flex-shrink-0 border-r-2 border-gray-200 p-2 text-center text-base font-bold bg-gray-50 sticky left-28 z-40">
                     日
                   </div>
                   {ALL_POSITIONS.map((position) => {
@@ -262,15 +262,15 @@ export default function ProjectDetailFields({
                           backgroundColor: '#fef2f2'
                         } : {}}
                       >
-                        <div className={`w-28 flex-shrink-0 border-r-2 border-gray-200 p-3 text-center text-base font-bold flex items-center justify-center ${
-                          hasTask ? 'text-blue-700 bg-blue-50' : 'text-gray-700'
-                        }`}>
+                        <div className={`w-28 flex-shrink-0 border-r-2 border-gray-200 p-3 text-center text-base font-bold flex items-center justify-center sticky left-0 z-10 ${
+                          hasTask ? 'text-blue-700 bg-blue-50' : 'text-gray-700 bg-white'
+                        } ${day % 2 === 0 ? (hasTask ? 'bg-blue-50' : 'bg-white') : (hasTask ? 'bg-blue-50' : 'bg-gray-50')}`}>
                           {format(currentDate, 'MM/dd (E)', { locale: ja })}
                         </div>
 
-                        <div className={`w-20 flex-shrink-0 border-r-2 border-gray-200 p-3 text-center text-base font-bold flex items-center justify-center ${
-                          hasTask ? 'text-blue-700' : 'text-gray-600'
-                        }`}>
+                        <div className={`w-20 flex-shrink-0 border-r-2 border-gray-200 p-3 text-center text-base font-bold flex items-center justify-center sticky left-28 z-10 ${
+                          hasTask ? 'text-blue-700 bg-blue-50' : 'text-gray-600'
+                        } ${day % 2 === 0 ? (hasTask ? 'bg-blue-50' : 'bg-white') : (hasTask ? 'bg-blue-50' : 'bg-gray-50')}`}>
                           {day}日
                         </div>
 
