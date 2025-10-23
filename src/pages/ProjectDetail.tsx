@@ -878,6 +878,7 @@ export default function ProjectDetail() {
           onTaskDelete={handleDeleteTask}
           onCellDoubleClick={handleCellDoubleClick}
           scrollToToday={scrollToToday}
+          todayRowRef={todayRowRef}
         />
 
 

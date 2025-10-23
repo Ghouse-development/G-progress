@@ -30,6 +30,7 @@ interface ProjectDetailFieldsProps {
   onTaskDelete?: (taskId: string) => void
   onCellDoubleClick?: (position: string, day: number) => void
   scrollToToday?: () => void
+  todayRowRef?: React.RefObject<HTMLDivElement>
 }
 
 export default function ProjectDetailFields({
@@ -40,11 +41,11 @@ export default function ProjectDetailFields({
   onTaskClick,
   onTaskDelete,
   onCellDoubleClick,
-  scrollToToday
+  scrollToToday,
+  todayRowRef
 }: ProjectDetailFieldsProps) {
   const { showToast } = useToast()
   const [activeTab, setActiveTab] = useState('grid')
-  const todayRowRef = useRef<HTMLDivElement>(null)
   const [formData, setFormData] = useState(project)
   const [saving, setSaving] = useState(false)
 
