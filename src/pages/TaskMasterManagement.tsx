@@ -59,6 +59,24 @@ export default function TaskMasterManagement() {
     setLoading(false)
   }
 
+  // 契約日からの日数を再帰的に計算
+  const calculateDaysFromContract = (taskId: string | null, daysFromTrigger: number = 0): number => {
+    if (!taskId) {
+      return daysFromTrigger
+    }
+    const triggerTask = taskMasters.find(t => t.id === taskId)
+    if (!triggerTask) {
+      return daysFromTrigger
+    }
+    if (triggerTask.trigger_task_id) {
+      // 再帰的に計算
+      return calculateDaysFromContract(triggerTask.trigger_task_id, (triggerTask.days_from_trigger || 0) + daysFromTrigger)
+    } else {
+      // トリガーなしの場合は、そのタスクのdays_from_contractを基準に
+      return (triggerTask.days_from_contract || 0) + daysFromTrigger
+    }
+  }
+
   const handleOpenModal = (task?: TaskMaster) => {
     if (task) {
       setEditingTask(task)
@@ -104,6 +122,17 @@ export default function TaskMasterManagement() {
       return
     }
 
+    // トリガーなしの場合は、days_from_contractが必須
+    if (!formData.trigger_task_id && (formData.days_from_contract === null || formData.days_from_contract === undefined)) {
+      toast.warning('トリガーを設定しない場合は、契約日からの日数を設定してください')
+      return
+    }
+
+    // 契約日からの日数を計算
+    const calculatedDaysFromContract = formData.trigger_task_id
+      ? calculateDaysFromContract(formData.trigger_task_id, formData.days_from_trigger)
+      : formData.days_from_contract
+
     try {
       if (editingTask) {
         // 更新
@@ -112,7 +141,7 @@ export default function TaskMasterManagement() {
           .update({
             title: formData.title,
             responsible_department: formData.responsible_department,
-            days_from_contract: formData.days_from_contract,
+            days_from_contract: calculatedDaysFromContract,
             phase: formData.phase,
             purpose: formData.purpose,
             manual_url: formData.manual_url,
@@ -137,7 +166,7 @@ export default function TaskMasterManagement() {
         const { error } = await supabase.from('task_masters').insert({
           title: formData.title,
           responsible_department: formData.responsible_department,
-          days_from_contract: formData.days_from_contract,
+          days_from_contract: calculatedDaysFromContract,
           purpose: formData.purpose,
           manual_url: formData.manual_url,
           dos: formData.dos,
@@ -299,8 +328,8 @@ export default function TaskMasterManagement() {
                 <th className="px-4 py-3 text-right text-xs font-bold text-gray-800 uppercase tracking-wider hidden md:table-cell">
                   契約日から
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-bold text-gray-800 uppercase tracking-wider hidden md:table-cell">
-                  トリガーから
+                <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider hidden md:table-cell">
+                  トリガー
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider hidden lg:table-cell">
                   目的
@@ -352,19 +381,22 @@ export default function TaskMasterManagement() {
                           : '-'}
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-right hidden md:table-cell">
+                    <td className="px-4 py-4 hidden md:table-cell">
                       <div className="text-sm font-medium text-gray-900">
-                        {task.trigger_task_id && task.days_from_trigger !== null && task.days_from_trigger !== undefined
-                          ? (
-                            <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-bold ${
+                        {task.trigger_task_id ? (
+                          <div className="flex flex-col gap-1">
+                            <span className="text-xs text-gray-600">
+                              {taskMasters.find(t => t.id === task.trigger_task_id)?.title || '不明なタスク'}
+                            </span>
+                            <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-bold w-fit ${
                               task.days_from_trigger >= 0
                                 ? 'bg-green-100 text-green-800 border-2 border-green-300'
                                 : 'bg-orange-100 text-orange-800 border-2 border-orange-300'
                             }`}>
                               {task.days_from_trigger > 0 ? '+' : ''}{task.days_from_trigger}日
                             </span>
-                          )
-                          : '-'}
+                          </div>
+                        ) : '-'}
                       </div>
                     </td>
                     <td className="px-4 py-4 hidden lg:table-cell">
@@ -506,22 +538,45 @@ export default function TaskMasterManagement() {
                 </p>
               </div>
 
-              {/* 契約日からの日数 */}
+              {/* 契約日からの日数（計算表示のみ） */}
               <div>
                 <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
-                  契約日からの日数
+                  契約日からの日数（自動計算）
                 </label>
-                <input
-                  type="number"
-                  value={formData.days_from_contract}
-                  onChange={(e) => setFormData({ ...formData, days_from_contract: parseInt(e.target.value) || 0 })}
-                  className="prisma-input"
-                  placeholder="例: 7（契約日から7日後）"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  契約日から何日後にこのタスクが発生するか
-                </p>
+                <div className="bg-gray-50 border-2 border-gray-200 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {formData.trigger_task_id
+                      ? `${calculateDaysFromContract(formData.trigger_task_id, formData.days_from_trigger)}日`
+                      : formData.days_from_contract !== null && formData.days_from_contract !== undefined
+                        ? `${formData.days_from_contract}日`
+                        : '未設定'}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    {formData.trigger_task_id
+                      ? 'トリガーからの日数に基づいて自動計算されます'
+                      : 'トリガーを設定しない場合は、下の「契約日基準の日数」で設定してください'}
+                  </p>
+                </div>
               </div>
+
+              {/* トリガーなしの場合のみ、契約日からの日数を入力 */}
+              {!formData.trigger_task_id && (
+                <div>
+                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                    契約日基準の日数 <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.days_from_contract}
+                    onChange={(e) => setFormData({ ...formData, days_from_contract: parseInt(e.target.value) || 0 })}
+                    className="prisma-input"
+                    placeholder="例: 7（契約日から7日後）"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    契約日から何日後にこのタスクが発生するか（トリガーなしの場合のみ設定）
+                  </p>
+                </div>
+              )}
 
               {/* 目的 */}
               <div>
