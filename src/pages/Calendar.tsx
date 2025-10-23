@@ -538,8 +538,8 @@ export default function Calendar() {
   const weekdays = ['月', '火', '水', '木', '金', '土', '日']
 
   return (
-    <div className="w-full flex flex-col" style={{ minHeight: '100vh', paddingBottom: '80px' }}>
-      <div id="calendar-content" className="w-full flex flex-col px-4 py-3">
+    <div className="w-full flex flex-col" style={{ height: '100vh', overflow: 'hidden' }}>
+      <div id="calendar-content" className="w-full flex-1 flex flex-col px-4 py-3" style={{ overflow: 'auto', WebkitOverflowScrolling: 'touch' }}>
         {/* ヘッダー */}
         <div className="prisma-card mb-3 flex-shrink-0">
           <div className="flex items-center justify-between mb-3">
@@ -653,11 +653,11 @@ export default function Calendar() {
         </div>
 
         {/* カレンダーグリッド */}
-        <div className="bg-white rounded-b-lg shadow-md">
-          <div className="overflow-y-auto" style={{ maxHeight: '70vh', scrollbarWidth: 'thin', WebkitOverflowScrolling: 'touch' }}>
+        <div className="bg-white rounded-b-lg shadow-md flex-1" style={{ minHeight: 0, overflow: 'hidden' }}>
+          <div className="h-full overflow-auto" style={{ scrollbarWidth: 'thin', WebkitOverflowScrolling: 'touch' }}>
 
           {/* カレンダーグリッド：全ての日を1つのグリッドに配置 */}
-          <div className="calendar-grid flex-1" style={{ minHeight: 0 }}>
+          <div className="calendar-grid">
             {days.map(day => {
               const dayTasks = calendarMode === 'tasks' ? getTasksForDay(day) : []
               const dayPayments = calendarMode === 'payments' ? getPaymentsForDay(day) : []
