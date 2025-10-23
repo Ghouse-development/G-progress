@@ -14,9 +14,7 @@ import { useAuditLog } from '../hooks/useAuditLog'
 import { useToast } from '../contexts/ToastContext'
 import { generateDemoPayments, generateDemoProjects, generateDemoCustomers } from '../utils/demoData'
 import Papa from 'papaparse'
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
-import { JAPANESE_TABLE_STYLES } from '../utils/pdfJapaneseFont'
+import { exportElementToPDF } from '../utils/pdfJapaneseFont'
 
 interface PaymentRow {
   projectName: string
@@ -187,34 +185,34 @@ export default function PaymentManagement() {
 
   const exportPDF = async () => {
     try {
-      const doc = new jsPDF()
+      // テーブル要素を取得
+      const tableElement = document.querySelector('.prisma-content') as HTMLElement
+      if (!tableElement) {
+        throw new Error('テーブル要素が見つかりませんでした')
+      }
 
-      // タイトル（日本語対応）
-      doc.setFontSize(16)
-      doc.text(`入金管理 ${selectedMonth}`, 20, 20)
+      // 一時的にヘッダー（タイトル・フィルタ）を含めた全体をキャプチャするための要素を作成
+      const captureElement = document.createElement('div')
+      captureElement.style.cssText = 'background: white; padding: 20px; width: 1200px;'
 
-      // autoTableを使用してテーブルを作成（日本語ヘッダー）
-      autoTable(doc, {
-        startY: 30,
-        head: [['案件', '名目', '金額', '予定', '実績']],
-        body: paymentRows.map(row => [
-          row.projectName,
-          row.paymentType,
-          `¥${row.amount.toLocaleString('ja-JP')}`,
-          `¥${row.scheduled.toLocaleString('ja-JP')}`,
-          `¥${row.actual.toLocaleString('ja-JP')}`
-        ]),
-        foot: [[
-          '合計',
-          '',
-          `¥${grandTotal.toLocaleString('ja-JP')}`,
-          `¥${totalScheduled.toLocaleString('ja-JP')}`,
-          `¥${totalActual.toLocaleString('ja-JP')}`
-        ]],
-        ...JAPANESE_TABLE_STYLES
-      })
+      // タイトルヘッダーを追加
+      const titleDiv = document.createElement('div')
+      titleDiv.style.cssText = 'margin-bottom: 20px;'
+      titleDiv.innerHTML = `<h1 style="font-size: 24px; font-weight: bold; margin: 0 0 10px 0;">入金管理 ${selectedMonth}</h1>`
+      captureElement.appendChild(titleDiv)
 
-      doc.save(`入金管理_${selectedMonth}.pdf`)
+      // テーブルのクローンを追加
+      const tableClone = tableElement.cloneNode(true) as HTMLElement
+      captureElement.appendChild(tableClone)
+
+      // 一時的にDOMに追加
+      document.body.appendChild(captureElement)
+
+      // PDFにエクスポート
+      await exportElementToPDF(captureElement, `入金管理_${selectedMonth}`, 'portrait')
+
+      // 一時要素を削除
+      document.body.removeChild(captureElement)
 
       // 監査ログ記録
       await logExport(
@@ -258,20 +256,15 @@ export default function PaymentManagement() {
             style={{ width: '200px' }}
           />
           <button onClick={exportCSV} className="prisma-btn prisma-btn-secondary prisma-btn-sm">
-            CSV出力（推奨）
+            CSV出力
           </button>
-          <button onClick={exportPDF} className="prisma-btn prisma-btn-primary prisma-btn-sm" title="日本語が正しく表示されない場合があります。完全な日本語対応が必要な場合はCSV出力をご利用ください。">
+          <button onClick={exportPDF} className="prisma-btn prisma-btn-primary prisma-btn-sm">
             PDF出力
           </button>
         </div>
       </div>
 
       <div className="prisma-content">
-        {/* PDF出力の情報 */}
-        <div className="mb-4 p-4 bg-blue-50 border-l-4 border-blue-400 text-blue-800" style={{ fontSize: '15px', lineHeight: '1.6' }}>
-          <strong style={{ fontSize: '16px' }}>💡 出力形式について:</strong>{' '}
-          PDF出力は日本語に対応していますが、Excelでの編集が必要な場合は<strong>CSV出力</strong>をご利用ください。
-        </div>
         <table className="prisma-table">
           <thead>
             <tr>
