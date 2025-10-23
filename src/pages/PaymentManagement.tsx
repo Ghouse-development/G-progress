@@ -268,9 +268,9 @@ export default function PaymentManagement() {
 
       <div className="prisma-content">
         {/* PDF出力の情報 */}
-        <div className="mb-4 p-3 bg-blue-50 border-l-4 border-blue-400 text-sm text-blue-800">
-          <strong>💡 出力形式について:</strong> PDF出力は日本語に対応していますが、
-          Excelでの編集が必要な場合は<strong>CSV出力</strong>をご利用ください。
+        <div className="mb-4 p-4 bg-blue-50 border-l-4 border-blue-400 text-blue-800" style={{ fontSize: '15px', lineHeight: '1.6' }}>
+          <strong style={{ fontSize: '16px' }}>💡 出力形式について:</strong>{' '}
+          PDF出力は日本語に対応していますが、Excelでの編集が必要な場合は<strong>CSV出力</strong>をご利用ください。
         </div>
         <table className="prisma-table">
           <thead>

@@ -894,4 +894,11 @@ body {
   .prisma-demo-indicator-text {
     font-size: 14px;
   }
+
+  /* TopPage グリッド */
+  .top-page-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+    padding: 16px 0 !important;
+  }
 }

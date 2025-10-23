@@ -966,42 +966,46 @@ export default function ProjectList() {
         </div>
 
         {/* 進捗マトリクス表示 */}
-        <div className="prisma-card" style={{ height: 'calc(100vh - 180px)', minHeight: '600px', overflow: 'hidden' }}>
+        <div className="prisma-card" style={{ minHeight: '400px', overflow: 'hidden' }}>
           {/* マトリクスヘッダー */}
-          <div className="prisma-card-header">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <h3 className="prisma-card-title">全案件進捗マトリクス</h3>
-                <div className="flex items-center gap-2">
-                  <span className="prisma-badge prisma-badge-blue">{filteredProjectsForMatrix.length}件</span>
-                  <span className="prisma-badge prisma-badge-green">{uniqueTaskTitles.length}種</span>
-                  <span className="prisma-badge prisma-badge-gray">計{allTasks.length}</span>
+          <div className="prisma-card-header" style={{ padding: '16px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {/* タイトルとバッジ */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px' }}>
+                <h3 className="prisma-card-title" style={{ fontSize: '18px', marginBottom: 0 }}>全案件進捗マトリクス</h3>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  <span className="prisma-badge prisma-badge-blue" style={{ fontSize: '14px', padding: '4px 12px' }}>{filteredProjectsForMatrix.length}件</span>
+                  <span className="prisma-badge prisma-badge-green" style={{ fontSize: '14px', padding: '4px 12px' }}>{uniqueTaskTitles.length}種</span>
+                  <span className="prisma-badge prisma-badge-gray" style={{ fontSize: '14px', padding: '4px 12px' }}>計{allTasks.length}</span>
                 </div>
               </div>
 
               {/* フィルタボタン */}
-              <div className="flex gap-2">
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                 <button
                   onClick={() => setConstructionFilter('all')}
-                  className={`prisma-btn prisma-btn-sm ${
+                  className={`prisma-btn ${
                     constructionFilter === 'all' ? 'prisma-btn-primary' : 'prisma-btn-secondary'
                   }`}
+                  style={{ fontSize: '15px', padding: '10px 16px', minHeight: '44px' }}
                 >
                   全て ({displayProjects.length})
                 </button>
                 <button
                   onClick={() => setConstructionFilter('pre')}
-                  className={`prisma-btn prisma-btn-sm ${
+                  className={`prisma-btn ${
                     constructionFilter === 'pre' ? 'prisma-btn-primary' : 'prisma-btn-secondary'
                   }`}
+                  style={{ fontSize: '15px', padding: '10px 16px', minHeight: '44px' }}
                 >
                   着工前 ({displayProjects.filter(p => p.status === 'post_contract').length})
                 </button>
                 <button
                   onClick={() => setConstructionFilter('post')}
-                  className={`prisma-btn prisma-btn-sm ${
+                  className={`prisma-btn ${
                     constructionFilter === 'post' ? 'prisma-btn-primary' : 'prisma-btn-secondary'
                   }`}
+                  style={{ fontSize: '15px', padding: '10px 16px', minHeight: '44px' }}
                 >
                   着工後 ({displayProjects.filter(p => p.status === 'construction' || p.status === 'completed').length})
                 </button>
@@ -1011,38 +1015,38 @@ export default function ProjectList() {
 
           {/* マトリクステーブル */}
           <div className="prisma-table-container" style={{
-            height: 'calc(100vh - 260px)',
-            minHeight: '500px',
-            maxHeight: 'calc(100vh - 260px)',
+            height: 'auto',
+            maxHeight: '600px',
             overflowX: 'auto',
+            overflowY: 'auto',
             WebkitOverflowScrolling: 'touch'
           }}>
             <table className="prisma-table" style={{ minWidth: 'max-content', width: 'max-content', borderCollapse: 'separate', borderSpacing: 0 }}>
               <thead className="sticky top-0 z-30 bg-gray-100">
                 <tr>
-                  <th className="sticky left-0 z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide" style={{ minWidth: '140px', width: '140px' }}>
+                  <th className="sticky left-0 z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold" style={{ minWidth: '140px', width: '140px', padding: '12px 8px', fontSize: '13px' }}>
                     契約No / 契約日
                   </th>
-                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ minWidth: '200px', width: '200px', left: '140px' }}>
+                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-left font-semibold" style={{ minWidth: '200px', width: '200px', left: '140px', padding: '12px 8px', fontSize: '13px' }}>
                     案件名
                   </th>
-                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide hidden lg:table-cell" style={{ minWidth: '110px', width: '110px', left: '340px' }}>
+                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold hidden lg:table-cell" style={{ minWidth: '110px', width: '110px', left: '340px', padding: '12px 8px', fontSize: '13px' }}>
                     営業担当
                   </th>
-                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide hidden lg:table-cell" style={{ minWidth: '110px', width: '110px', left: '450px' }}>
+                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold hidden lg:table-cell" style={{ minWidth: '110px', width: '110px', left: '450px', padding: '12px 8px', fontSize: '13px' }}>
                     設計担当
                   </th>
-                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-500 px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide hidden lg:table-cell" style={{ minWidth: '110px', width: '110px', left: '560px' }}>
+                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-500 text-center font-semibold hidden lg:table-cell" style={{ minWidth: '110px', width: '110px', left: '560px', padding: '12px 8px', fontSize: '13px' }}>
                     工事担当
                   </th>
                   {uniqueTaskTitles.map(taskTitle => (
                     <th
                       key={taskTitle}
-                      className="bg-gray-100 border border-gray-200 px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide"
-                      style={{ minWidth: '120px' }}
+                      className="bg-gray-100 border border-gray-200 text-center font-semibold"
+                      style={{ minWidth: '120px', padding: '12px 8px', fontSize: '13px' }}
                       title={taskTitle}
                     >
-                      <div className="break-words whitespace-normal leading-tight">
+                      <div style={{ wordBreak: 'break-word', whiteSpace: 'normal', lineHeight: '1.3' }}>
                         {taskTitle}
                       </div>
                     </th>

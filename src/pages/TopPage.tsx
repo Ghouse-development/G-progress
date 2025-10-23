@@ -47,16 +47,20 @@ export default function TopPage() {
       alignItems: 'center',
       justifyContent: 'center',
       overflow: 'auto',
-      background: 'var(--main-bg)'
+      background: 'var(--main-bg)',
+      padding: '20px'
     }}>
-      {/* メニューカードグリッド - 4行×3列 */}
+      {/* メニューカードグリッド - レスポンシブ対応 */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: '32px 48px',
-        width: '1200px',
-        padding: '40px 0'
-      }}>
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+        gap: '20px',
+        width: '100%',
+        maxWidth: '1200px',
+        padding: '20px 0'
+      }}
+      className="top-page-grid"
+      >
         {menuItems.map((item) => {
           const Icon = item.icon
           const isActive = item.status === 'active'
@@ -66,12 +70,15 @@ export default function TopPage() {
               className={`
                 prisma-card
                 ${isActive ? 'cursor-pointer' : 'opacity-40 cursor-not-allowed'}
-                h-full
-                flex flex-row items-center gap-4
-                p-6
-                min-h-[100px]
               `}
               style={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: '16px',
+                padding: '24px',
+                minHeight: '120px',
+                height: '100%',
                 transition: 'all 0.2s ease',
                 ...(isActive && {
                   ':hover': {
@@ -97,11 +104,18 @@ export default function TopPage() {
               }}
             >
               <Icon
-                size={40}
-                className={isActive ? 'text-blue-600 dark:text-blue-400 flex-shrink-0' : 'text-gray-500 flex-shrink-0'}
+                size={48}
+                className={isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500'}
+                style={{ flexShrink: 0 }}
                 strokeWidth={2.5}
               />
-              <h2 className={`text-lg font-bold ${isActive ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500'}`}>
+              <h2 style={{
+                fontSize: '20px',
+                fontWeight: 'bold',
+                color: isActive ? '#111827' : '#6b7280',
+                wordBreak: 'keep-all',
+                lineHeight: '1.4'
+              }}>
                 {item.name}
               </h2>
             </div>
