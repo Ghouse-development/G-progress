@@ -1013,9 +1013,11 @@ export default function ProjectList() {
           <div className="prisma-table-container" style={{
             height: 'calc(100vh - 260px)',
             minHeight: '500px',
-            maxHeight: 'calc(100vh - 260px)'
+            maxHeight: 'calc(100vh - 260px)',
+            overflowX: 'auto',
+            WebkitOverflowScrolling: 'touch'
           }}>
-            <table className="prisma-table" style={{ minWidth: '2000px', width: 'max-content', borderCollapse: 'separate', borderSpacing: 0 }}>
+            <table className="prisma-table" style={{ minWidth: 'max-content', width: 'max-content', borderCollapse: 'separate', borderSpacing: 0 }}>
               <thead className="sticky top-0 z-30 bg-gray-100">
                 <tr>
                   <th className="sticky left-0 z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide" style={{ minWidth: '140px', width: '140px' }}>
@@ -1024,13 +1026,13 @@ export default function ProjectList() {
                   <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ minWidth: '200px', width: '200px', left: '140px' }}>
                     案件名
                   </th>
-                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide" style={{ minWidth: '110px', width: '110px', left: '340px' }}>
+                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide hidden lg:table-cell" style={{ minWidth: '110px', width: '110px', left: '340px' }}>
                     営業担当
                   </th>
-                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide" style={{ minWidth: '110px', width: '110px', left: '450px' }}>
+                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide hidden lg:table-cell" style={{ minWidth: '110px', width: '110px', left: '450px' }}>
                     設計担当
                   </th>
-                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-500 px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide" style={{ minWidth: '110px', width: '110px', left: '560px' }}>
+                  <th className="sticky z-50 bg-gray-100 border border-gray-200 border-r-2 border-r-gray-500 px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide hidden lg:table-cell" style={{ minWidth: '110px', width: '110px', left: '560px' }}>
                     工事担当
                   </th>
                   {uniqueTaskTitles.map(taskTitle => (
@@ -1085,7 +1087,7 @@ export default function ProjectList() {
                           </div>
                         )}
                       </td>
-                      <td className="sticky z-10 bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-sm" style={{ width: '110px', left: '340px' }}>
+                      <td className="sticky z-10 bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-sm hidden lg:table-cell" style={{ width: '110px', left: '340px' }}>
                         {project.sales ? (
                           <div className="font-semibold text-gray-900" title={`${project.sales.last_name} ${project.sales.first_name}`}>
                             {project.sales.last_name}
@@ -1094,7 +1096,7 @@ export default function ProjectList() {
                           <div className="font-semibold text-gray-400">-</div>
                         )}
                       </td>
-                      <td className="sticky z-10 bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-sm" style={{ width: '110px', left: '450px' }}>
+                      <td className="sticky z-10 bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-sm hidden lg:table-cell" style={{ width: '110px', left: '450px' }}>
                         {project.design ? (
                           <div className="font-semibold text-gray-900" title={`${project.design.last_name} ${project.design.first_name}`}>
                             {project.design.last_name}
@@ -1103,7 +1105,7 @@ export default function ProjectList() {
                           <div className="font-semibold text-gray-400">-</div>
                         )}
                       </td>
-                      <td className="sticky z-10 bg-white border border-gray-100 border-r-2 border-r-gray-500 px-3 py-3 text-center text-sm" style={{ width: '110px', left: '560px' }}>
+                      <td className="sticky z-10 bg-white border border-gray-100 border-r-2 border-r-gray-500 px-3 py-3 text-center text-sm hidden lg:table-cell" style={{ width: '110px', left: '560px' }}>
                         {project.construction ? (
                           <div className="font-semibold text-gray-900" title={`${project.construction.last_name} ${project.construction.first_name}`}>
                             {project.construction.last_name}

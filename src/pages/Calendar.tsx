@@ -654,7 +654,7 @@ export default function Calendar() {
 
         {/* カレンダーグリッド */}
         <div className="bg-white rounded-b-lg shadow-md flex-1 overflow-hidden">
-          <div className="h-full overflow-y-auto"  style={{ scrollbarWidth: 'thin' }}>
+          <div className="h-full overflow-y-auto"  style={{ scrollbarWidth: 'thin', WebkitOverflowScrolling: 'touch' }}>
 
           {/* カレンダーグリッド：全ての日を1つのグリッドに配置 */}
           <div className="calendar-grid flex-1" style={{ minHeight: 0 }}>
@@ -718,7 +718,7 @@ export default function Calendar() {
                             // 変更履歴を取得
                             await loadTaskAuditLogs(task.id)
                           }}
-                          className={`text-base lg:text-lg px-2 py-2 rounded cursor-pointer mb-1 ${
+                          className={`text-sm md:text-base lg:text-lg px-2 py-2 rounded cursor-pointer mb-1 ${
                             isMilestone ? 'bg-red-600 text-white font-bold shadow-lg hover:bg-red-700' :
                             task.status === 'completed' ? 'bg-blue-200 text-blue-900 font-bold hover:bg-blue-300' :
                             task.status === 'requested' ? 'bg-yellow-200 text-yellow-900 font-bold hover:bg-yellow-300' :

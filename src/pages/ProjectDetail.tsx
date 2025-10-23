@@ -1192,20 +1192,20 @@ export default function ProjectDetail() {
                                             e.stopPropagation()
                                             openTaskDetail(task)
                                           }}
-                                          className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                                          className="p-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
                                           title="詳細表示"
                                         >
-                                          <Eye size={14} />
+                                          <Eye size={16} />
                                         </button>
                                         <button
                                           onClick={(e) => {
                                             e.stopPropagation()
                                             handleDeleteTask(task.id)
                                           }}
-                                          className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+                                          className="p-2 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
                                           title="削除"
                                         >
-                                          <Trash2 size={14} />
+                                          <Trash2 size={16} />
                                         </button>
                                       </div>
                                     </div>
@@ -1240,7 +1240,7 @@ export default function ProjectDetail() {
               </button>
             </div>
 
-            <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: 'calc(100vh - 250px)' }}>
+            <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: 'calc(100vh - 250px)', WebkitOverflowScrolling: 'touch' }}>
               <div style={{ minWidth: 'fit-content', width: '100%' }}>
                 {/* 部門ヘッダー */}
                 <div className="flex border-b-2 border-gray-200 sticky top-0 z-30 bg-white">

@@ -219,26 +219,26 @@ export default function TaskMasterManagement() {
 
       {/* タスク一覧テーブル */}
       <div className="bg-white rounded-lg border-2 border-pastel-blue shadow-pastel-lg overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
           <table className="w-full prisma-table min-w-max">
             <thead className="bg-pastel-blue-light">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
                   タスク名
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider hidden sm:table-cell">
                   フェーズ
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider hidden sm:table-cell">
                   責任職種
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-bold text-gray-800 uppercase tracking-wider">
+                <th className="px-4 py-3 text-right text-xs font-bold text-gray-800 uppercase tracking-wider hidden md:table-cell">
                   契約日から
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-bold text-gray-800 uppercase tracking-wider">
+                <th className="px-4 py-3 text-right text-xs font-bold text-gray-800 uppercase tracking-wider hidden md:table-cell">
                   トリガーから
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider hidden md:table-cell">
+                <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider hidden lg:table-cell">
                   目的
                 </th>
                 <th className="px-4 py-3 text-center text-xs font-bold text-gray-800 uppercase tracking-wider">
@@ -266,20 +266,20 @@ export default function TaskMasterManagement() {
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
+                    <td className="px-4 py-4 whitespace-nowrap hidden sm:table-cell">
                       <div className="text-sm text-gray-600">{task.phase || '未設定'}</div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
+                    <td className="px-4 py-4 whitespace-nowrap hidden sm:table-cell">
                       <div className="text-sm text-gray-600">{task.responsible_department || '未設定'}</div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-right">
+                    <td className="px-4 py-4 whitespace-nowrap text-right hidden md:table-cell">
                       <div className="text-sm font-medium text-gray-900">
                         {task.days_from_contract !== null && task.days_from_contract !== undefined
                           ? `${task.days_from_contract}日`
                           : '-'}
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-right">
+                    <td className="px-4 py-4 whitespace-nowrap text-right hidden md:table-cell">
                       <div className="text-sm font-medium text-gray-900">
                         {task.trigger_task_id && task.days_from_trigger !== null && task.days_from_trigger !== undefined
                           ? (
@@ -294,7 +294,7 @@ export default function TaskMasterManagement() {
                           : '-'}
                       </div>
                     </td>
-                    <td className="px-4 py-4 hidden md:table-cell">
+                    <td className="px-4 py-4 hidden lg:table-cell">
                       <div className="text-sm text-gray-600 max-w-md truncate">{task.purpose || '未設定'}</div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-center">

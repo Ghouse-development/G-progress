@@ -1819,3 +1819,254 @@ html, body {
 .prisma-mb-1 {
   margin-bottom: 0.25rem;
 }
+
+/* ========================================
+   レスポンシブデザイン（スマホ・タブレット対応）
+   ======================================== */
+
+/* ブレークポイント定義:
+   - モバイル小: 320px-479px
+   - モバイル大: 480px-767px
+   - タブレット: 768px-1023px
+   - PC: 1024px以上
+*/
+
+/* ===== PC版（デフォルト: 1024px以上） ===== */
+/* 既存のスタイルはPC版として維持 */
+
+/* ===== タブレット版（768px - 1023px） ===== */
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* モーダルサイズ調整 */
+  .prisma-modal {
+    max-width: 90vw;
+    max-height: 85vh;
+  }
+
+  .prisma-modal-content {
+    padding: 1rem;
+  }
+
+  .prisma-modal-header,
+  .prisma-modal-footer {
+    padding: 1rem;
+  }
+
+  /* ボタンサイズ調整 */
+  .prisma-btn {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9375rem;
+  }
+
+  /* テーブルパディング削減 */
+  .prisma-table th,
+  .prisma-table td {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  /* カード内パディング削減 */
+  .prisma-card {
+    padding: 1rem;
+  }
+
+  .prisma-header {
+    padding: 1rem 1.5rem;
+  }
+}
+
+/* ===== モバイル版（767px以下） ===== */
+@media (max-width: 767px) {
+  /* モーダル全画面化 */
+  .prisma-modal {
+    max-width: calc(100vw - 1rem);
+    max-height: calc(100vh - 1rem);
+    margin: 0.5rem;
+  }
+
+  .prisma-modal-content {
+    padding: 0.75rem;
+    max-height: calc(100vh - 180px);
+  }
+
+  .prisma-modal-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .prisma-modal-title {
+    font-size: 1.125rem;
+  }
+
+  .prisma-modal-footer {
+    padding: 0.75rem 1rem;
+    flex-direction: column;
+  }
+
+  .prisma-modal-footer .prisma-btn {
+    width: 100%;
+  }
+
+  /* ボタンタッチターゲット最小化 */
+  .prisma-btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+  }
+
+  button:not(.prisma-btn),
+  a,
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* 入力フィールドサイズ調整 */
+  .prisma-input,
+  .prisma-select {
+    font-size: 16px; /* iOS のズーム防止 */
+    padding: 0.75rem;
+    min-height: 44px;
+  }
+
+  .prisma-textarea {
+    font-size: 16px;
+    padding: 0.75rem;
+  }
+
+  /* テーブル対応 */
+  .prisma-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .prisma-table th,
+  .prisma-table td {
+    padding: 0.5rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  /* ヘッダー調整 */
+  .prisma-header {
+    padding: 0.75rem 1rem;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .prisma-header-title {
+    font-size: 1.25rem;
+  }
+
+  .prisma-header-actions {
+    width: 100%;
+  }
+
+  .prisma-header-actions button {
+    width: 100%;
+  }
+
+  /* カード調整 */
+  .prisma-card {
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .prisma-content {
+    padding: 0.75rem;
+  }
+
+  /* グリッドを1列に */
+  .grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* フレックス要素を縦並びに */
+  .flex.items-center:not(.gap-2):not(.gap-3) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* タブナビゲーション */
+  .prisma-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+  }
+
+  .prisma-tab {
+    flex-shrink: 0;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* ===== モバイル小（479px以下） ===== */
+@media (max-width: 479px) {
+  /* さらにコンパクト化 */
+  .prisma-modal {
+    max-width: calc(100vw - 0.5rem);
+    max-height: calc(100vh - 0.5rem);
+    margin: 0.25rem;
+  }
+
+  .prisma-modal-content {
+    padding: 0.5rem;
+  }
+
+  .prisma-modal-header,
+  .prisma-modal-footer {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .prisma-modal-title {
+    font-size: 1rem;
+  }
+
+  .prisma-btn {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+  }
+
+  .prisma-table th,
+  .prisma-table td {
+    padding: 0.375rem;
+    font-size: 0.6875rem;
+  }
+
+  .prisma-card {
+    padding: 0.5rem;
+  }
+
+  .prisma-header {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .prisma-header-title {
+    font-size: 1.125rem;
+  }
+}
+
+/* ===== タッチデバイス専用スタイル ===== */
+@media (hover: none) and (pointer: coarse) {
+  /* タッチフィードバック強化 */
+  button:active,
+  a:active,
+  [role="button"]:active {
+    opacity: 0.7;
+    transform: scale(0.98);
+  }
+
+  /* スクロールの慣性を有効化 */
+  .prisma-modal-content,
+  .prisma-table-container,
+  .overflow-y-auto,
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ホバー効果を無効化（タッチデバイスでは不要） */
+  *:hover {
+    transition: none;
+  }
+}
