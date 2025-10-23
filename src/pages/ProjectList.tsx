@@ -262,9 +262,9 @@ export default function ProjectList() {
               `)
               .eq('project_id', project.id)
 
-            // show_in_progressがtrueまたは未設定のタスクのみ表示（案件一覧の進捗用）
+            // show_in_progressがtrueのタスクのみ表示（案件一覧の進捗用）
             const filteredTasks = (tasks || []).filter((task: any) =>
-              task.task_master?.show_in_progress !== false
+              task.task_master?.show_in_progress === true
             )
 
             return {
@@ -288,9 +288,9 @@ export default function ProjectList() {
             .in('project_id', projectIds)
 
           if (tasksData) {
-            // show_in_progressがtrueまたは未設定のタスクのみ表示
+            // show_in_progressがtrueのタスクのみ表示
             const filteredTasks = (tasksData || []).filter((task: any) =>
-              task.task_master?.show_in_progress !== false
+              task.task_master?.show_in_progress === true
             )
             setAllTasks(filteredTasks as Task[])
           }
