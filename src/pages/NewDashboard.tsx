@@ -753,17 +753,17 @@ export default function NewDashboard() {
 
       {/* === 目標値設定モーダル === */}
       {showSettingsModal && (
-        <div className="modal-overlay">
-          <div className="modal-canva max-w-md w-full">
+        <div className="prisma-modal-overlay">
+          <div className="prisma-modal" style={{ maxWidth: '600px' }}>
             {/* ヘッダー */}
-            <div className="modal-canva-header">
-              <h2 className="text-2xl font-bold">目標値設定 ({selectedYear}年度)</h2>
+            <div className="prisma-modal-header">
+              <h2 className="prisma-modal-title">目標値設定 ({selectedYear}年度)</h2>
             </div>
 
             {/* コンテンツ */}
-            <div className="modal-canva-content space-y-4">
+            <div className="prisma-modal-content space-y-4">
               <div>
-                <label className="block text-base font-medium text-gray-700 mb-1">
+                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                   目標売上高（税別）
                 </label>
                 <input
@@ -771,12 +771,12 @@ export default function NewDashboard() {
                   value={editTargetRevenue}
                   onChange={(e) => setEditTargetRevenue(e.target.value)}
                   placeholder="例: 500000000"
-                  className="input-canva w-full"
+                  className="prisma-input"
                 />
               </div>
 
               <div>
-                <label className="block text-base font-medium text-gray-700 mb-1">
+                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                   目標粗利益高（税別）
                 </label>
                 <input
@@ -784,12 +784,12 @@ export default function NewDashboard() {
                   value={editTargetGrossProfit}
                   onChange={(e) => setEditTargetGrossProfit(e.target.value)}
                   placeholder="例: 100000000"
-                  className="input-canva w-full"
+                  className="prisma-input"
                 />
               </div>
 
               <div>
-                <label className="block text-base font-medium text-gray-700 mb-1">
+                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                   目標完工棟数
                 </label>
                 <input
@@ -797,13 +797,13 @@ export default function NewDashboard() {
                   value={editTargetUnits}
                   onChange={(e) => setEditTargetUnits(e.target.value)}
                   placeholder="例: 250"
-                  className="input-canva w-full"
+                  className="prisma-input"
                 />
               </div>
             </div>
 
             {/* フッター */}
-            <div className="modal-canva-footer">
+            <div className="prisma-modal-footer">
               <button
                 onClick={() => setShowSettingsModal(false)}
                 className="prisma-btn prisma-btn-secondary flex-1"
