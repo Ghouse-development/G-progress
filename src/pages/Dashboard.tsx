@@ -19,6 +19,7 @@ import PerformanceManagement from './PerformanceManagement'
 import TaskMasterManagement from './TaskMasterManagement'
 import TaskByPosition from './TaskByPosition'
 import Settings from './Settings'
+import SystemSettings from './SystemSettings'
 import TopPage from './TopPage'
 import GrossProfitManagement from './GrossProfitManagement'
 import ApprovalFlow from './ApprovalFlow'
@@ -60,6 +61,7 @@ export default function Dashboard() {
                   <Route path="/master/roles" element={<RoleMaster />} />
                   <Route path="/master/branches" element={<BranchMaster />} />
                   <Route path="/settings" element={<Settings />} />
+                  <Route path="/system-settings" element={<SystemSettings />} />
                 </Routes>
               </LayoutPrisma>
             } />
