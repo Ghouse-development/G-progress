@@ -255,12 +255,20 @@ export default function ProjectList() {
           projectsData.map(async (project) => {
             const { data: tasks } = await supabase
               .from('tasks')
-              .select('*')
+              .select(`
+                *,
+                task_master:task_masters!task_master_id(show_in_progress)
+              `)
               .eq('project_id', project.id)
+
+            // show_in_progressがtrueまたは未設定のタスクのみ表示（案件一覧の進捗用）
+            const filteredTasks = (tasks || []).filter((task: any) =>
+              task.task_master?.show_in_progress !== false
+            )
 
             return {
               ...project,
-              tasks: tasks || []
+              tasks: filteredTasks
             } as ProjectWithRelations
           })
         )
@@ -272,11 +280,18 @@ export default function ProjectList() {
         if (projectIds.length > 0) {
           const { data: tasksData } = await supabase
             .from('tasks')
-            .select('*')
+            .select(`
+              *,
+              task_master:task_masters!task_master_id(show_in_progress)
+            `)
             .in('project_id', projectIds)
 
           if (tasksData) {
-            setAllTasks(tasksData as Task[])
+            // show_in_progressがtrueまたは未設定のタスクのみ表示
+            const filteredTasks = (tasksData || []).filter((task: any) =>
+              task.task_master?.show_in_progress !== false
+            )
+            setAllTasks(filteredTasks as Task[])
           }
         } else {
           setAllTasks([])

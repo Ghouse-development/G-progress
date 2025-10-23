@@ -585,21 +585,19 @@ export default function TaskMasterManagement() {
                         value={daysFromTriggerInput}
                         onChange={(e) => {
                           const value = e.target.value
-                          // 空文字列、マイナス記号のみ、または有効な整数値のみ許可
+                          // 整数値（マイナス含む）のみ許可、入力中の"-"も許可
                           if (value === '' || value === '-' || /^-?\d+$/.test(value)) {
                             setDaysFromTriggerInput(value)
-                            // 有効な数値の場合のみformDataを更新
+                            // 完全な数値の場合のみformDataを更新（"-"のみの場合は更新しない）
                             const num = parseInt(value, 10)
                             if (!isNaN(num)) {
                               setFormData({ ...formData, days_from_trigger: num })
-                            } else {
-                              setFormData({ ...formData, days_from_trigger: 0 })
                             }
                           }
                         }}
                         onBlur={() => {
-                          // フォーカスが外れた時に、空文字列や"-"のみの場合は0に戻す
-                          if (daysFromTriggerInput === '' || daysFromTriggerInput === '-') {
+                          // 入力が不完全な場合（空または"-"のみ）は0に設定
+                          if (!daysFromTriggerInput || daysFromTriggerInput === '-') {
                             setDaysFromTriggerInput('0')
                             setFormData({ ...formData, days_from_trigger: 0 })
                           }

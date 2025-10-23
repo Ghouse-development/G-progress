@@ -12,18 +12,14 @@ import { X } from 'lucide-react'
 import { useSettings } from '../contexts/SettingsContext'
 import { useMode } from '../contexts/ModeContext'
 import { generateDemoTasks, generateDemoProjects, generateDemoCustomers } from '../utils/demoData'
+import { ORGANIZATION_HIERARCHY } from '../constants/organizationHierarchy'
 
 interface TaskWithProject extends Task {
   project?: Project & { customer?: Customer }
 }
 
-// 職種の定義
-const DEPARTMENTS = [
-  { name: '営業部', positions: ['営業', '営業事務', 'ローン事務'] },
-  { name: '設計部', positions: ['意匠設計', 'IC', '実施設計', '構造設計', '申請設計'] },
-  { name: '工事部', positions: ['工事', '工事事務', '積算・発注'] },
-  { name: '外構事業部', positions: ['外構設計', '外構工事'] }
-]
+// 職種の定義（organizationHierarchy.tsから取得）
+const DEPARTMENTS = ORGANIZATION_HIERARCHY
 
 // 部署名から職種を取得
 const getPositionsForDepartment = (deptName: string): string[] => {
@@ -100,7 +96,17 @@ export default function TaskByPosition() {
     // 通常モード：Supabaseからデータを取得
     const { data: tasksData } = await supabase
       .from('tasks')
-      .select('*, project:projects(*, customer:customers(*))')
+      .select(`
+        *,
+        project:projects(*, customer:customers(*)),
+        assigned_employee:assigned_to(id, last_name, first_name, department),
+        task_master:task_masters!task_master_id(
+          trigger_task_id,
+          days_from_trigger,
+          show_in_progress,
+          trigger_task:task_masters!trigger_task_id(title)
+        )
+      `)
       .order('due_date', { ascending: true })
 
     if (tasksData) {

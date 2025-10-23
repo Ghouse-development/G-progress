@@ -4,6 +4,33 @@
 
 ## [未リリース] - 2025-10-23
 
+### バグ修正と機能改善 (2025-10-23 12:20)
+
+#### 削除
+- **古いコンポーネントを削除**: `src/components/TaskMasterManagement.tsx`
+  - ページ版（`src/pages/TaskMasterManagement.tsx`）に統一
+  - 古いバージョンには新機能が未実装だったため削除
+
+#### 実装
+- **show_in_progressフィルタを実装**:
+  - ProjectDetail.tsx: タスクマスタクエリに`show_in_progress`を追加
+  - ProjectList.tsx: 進捗表示で`show_in_progress=false`のタスクを除外
+  - グリッドビューと職種別一覧ビューは常に全タスクを表示（仕様通り）
+
+#### 改善
+- **days_from_trigger入力処理をシンプル化**:
+  - 不要なelse分岐を削除
+  - コメントを明確化
+  - コードの可読性向上
+
+#### ファイル変更
+- `src/components/TaskMasterManagement.tsx`: 削除
+- `src/pages/ProjectDetail.tsx`: show_in_progressフィールド追加
+- `src/pages/ProjectList.tsx`: show_in_progressフィルタ実装
+- `src/pages/TaskMasterManagement.tsx`: 入力処理改善
+
+---
+
 ### タスクマスタ管理機能の改善 (2025-10-23 12:10)
 
 #### 追加

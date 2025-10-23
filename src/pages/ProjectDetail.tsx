@@ -10,6 +10,7 @@ import { regenerateProjectTasks } from '../utils/taskGenerator'
 import { useRealtimeEditing } from '../hooks/useRealtimeEditing'
 import { useAuditLog } from '../hooks/useAuditLog'
 import { useNotifications } from '../hooks/useNotifications'
+import { ORGANIZATION_HIERARCHY } from '../constants/organizationHierarchy'
 
 interface ProjectWithRelations extends Project {
   customer: Customer
@@ -35,26 +36,8 @@ interface TaskWithEmployee extends Task {
 type SortField = 'due_date' | 'status' | 'priority' | 'title' | 'dayFromContract' | 'construction_start' | 'business_no'
 type FilterStatus = 'all' | 'not_started' | 'requested' | 'delayed' | 'completed'
 
-// 部門と職種の定義
-const DEPARTMENTS = [
-  {
-    name: '営業部',
-    positions: ['営業', '営業事務', 'ローン事務']
-  },
-  {
-    name: '設計部',
-    positions: ['意匠設計', 'IC', '実施設計', '構造設計', '申請設計']
-  },
-  {
-    name: '工事部',
-    positions: ['工事', '工事事務', '積算・発注']
-  },
-  {
-    name: '外構事業部',
-    positions: ['外構設計', '外構工事']
-  }
-]
-
+// 部門と職種の定義（organizationHierarchy.tsから取得）
+const DEPARTMENTS = ORGANIZATION_HIERARCHY
 const ALL_POSITIONS = DEPARTMENTS.flatMap(d => d.positions)
 
 // 今日が契約日から何日目かを計算
@@ -242,6 +225,7 @@ export default function ProjectDetail() {
           task_master:task_masters!task_master_id(
             trigger_task_id,
             days_from_trigger,
+            show_in_progress,
             trigger_task:task_masters!trigger_task_id(title)
           )
         `)
