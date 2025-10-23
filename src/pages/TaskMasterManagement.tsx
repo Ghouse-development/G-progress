@@ -228,7 +228,7 @@ export default function TaskMasterManagement() {
   }
 
   // ドロップ
-  const handleDrop = (targetTaskId: string) => {
+  const handleDrop = async (targetTaskId: string) => {
     if (!draggedTaskId || draggedTaskId === targetTaskId) {
       setDraggedTaskId(null)
       return
@@ -247,10 +247,32 @@ export default function TaskMasterManagement() {
     const [draggedTask] = newTaskMasters.splice(draggedIndex, 1)
     newTaskMasters.splice(targetIndex, 0, draggedTask)
 
-    setTaskMasters(newTaskMasters)
+    // 新しい順序でtask_orderを更新
+    const updatedTaskMasters = newTaskMasters.map((task, index) => ({
+      ...task,
+      task_order: index + 1
+    }))
+
+    setTaskMasters(updatedTaskMasters)
     setDraggedTaskId(null)
 
-    toast.success('並び順を変更しました')
+    // データベースに保存
+    try {
+      const updates = updatedTaskMasters.map(task =>
+        supabase
+          .from('task_masters')
+          .update({ task_order: task.task_order })
+          .eq('id', task.id)
+      )
+
+      await Promise.all(updates)
+      toast.success('並び順を保存しました')
+    } catch (error) {
+      console.error('並び順の保存エラー:', error)
+      toast.error('並び順の保存に失敗しました')
+      // エラー時は元のデータを再読み込み
+      await loadTaskMasters()
+    }
   }
 
   if (loading) {
