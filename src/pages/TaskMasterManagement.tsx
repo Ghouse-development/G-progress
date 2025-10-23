@@ -320,10 +320,10 @@ export default function TaskMasterManagement() {
                   タスク名
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
-                  フェーズ
+                  責任職種
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
-                  責任職種
+                  フェーズ
                 </th>
                 <th className="px-4 py-3 text-right text-xs font-bold text-gray-800 uppercase tracking-wider">
                   契約日から
@@ -331,8 +331,8 @@ export default function TaskMasterManagement() {
                 <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
                   トリガー
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
-                  目的
+                <th className="px-4 py-3 text-center text-xs font-bold text-gray-800 uppercase tracking-wider">
+                  進捗管理表
                 </th>
                 <th className="px-4 py-3 text-center text-xs font-bold text-gray-800 uppercase tracking-wider">
                   操作
@@ -369,10 +369,10 @@ export default function TaskMasterManagement() {
                       </div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-600">{task.phase || '未設定'}</div>
+                      <div className="text-sm text-gray-600">{task.responsible_department || '未設定'}</div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-600">{task.responsible_department || '未設定'}</div>
+                      <div className="text-sm text-gray-600">{task.phase || '未設定'}</div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-right">
                       <div className="text-sm font-medium text-gray-900">
@@ -384,11 +384,11 @@ export default function TaskMasterManagement() {
                     <td className="px-4 py-4">
                       <div className="text-sm font-medium text-gray-900">
                         {task.trigger_task_id ? (
-                          <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2">
                             <span className="text-xs text-gray-600">
                               {taskMasters.find(t => t.id === task.trigger_task_id)?.title || '不明なタスク'}
                             </span>
-                            <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-bold w-fit ${
+                            <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-bold whitespace-nowrap ${
                               (task.days_from_trigger ?? 0) >= 0
                                 ? 'bg-green-100 text-green-800 border-2 border-green-300'
                                 : 'bg-orange-100 text-orange-800 border-2 border-orange-300'
@@ -399,8 +399,18 @@ export default function TaskMasterManagement() {
                         ) : '-'}
                       </div>
                     </td>
-                    <td className="px-4 py-4">
-                      <div className="text-sm text-gray-600 max-w-md truncate">{task.purpose || '未設定'}</div>
+                    <td className="px-4 py-4 whitespace-nowrap text-center">
+                      <div className="text-sm font-medium text-gray-900">
+                        {task.show_in_progress ? (
+                          <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold bg-blue-100 text-blue-800 border-2 border-blue-300">
+                            掲載
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold bg-gray-100 text-gray-600 border-2 border-gray-300">
+                            非掲載
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-center">
                       <div className="flex items-center justify-center gap-2">
@@ -465,6 +475,24 @@ export default function TaskMasterManagement() {
                 />
               </div>
 
+              {/* フェーズ */}
+              <div>
+                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                  フェーズ
+                </label>
+                <select
+                  value={formData.phase}
+                  onChange={(e) => setFormData({ ...formData, phase: e.target.value })}
+                  className="prisma-input"
+                >
+                  <option value="内定">内定</option>
+                  <option value="契約前">契約前</option>
+                  <option value="着工前">着工前</option>
+                  <option value="着工後">着工後</option>
+                  <option value="引き渡し後">引き渡し後</option>
+                </select>
+              </div>
+
               {/* 責任職種 */}
               <div>
                 <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
@@ -487,96 +515,6 @@ export default function TaskMasterManagement() {
                   ))}
                 </select>
               </div>
-
-              {/* フェーズ */}
-              <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
-                  フェーズ
-                </label>
-                <select
-                  value={formData.phase}
-                  onChange={(e) => setFormData({ ...formData, phase: e.target.value })}
-                  className="prisma-input"
-                >
-                  <option value="内定">内定</option>
-                  <option value="契約前">契約前</option>
-                  <option value="着工前">着工前</option>
-                  <option value="着工後">着工後</option>
-                  <option value="引き渡し後">引き渡し後</option>
-                </select>
-              </div>
-
-              {/* 進捗管理表に掲載するか */}
-              <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
-                  進捗管理表に掲載するか
-                </label>
-                <div className="flex items-center space-x-4 mt-2">
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      name="show_in_progress"
-                      checked={formData.show_in_progress === true}
-                      onChange={() => setFormData({ ...formData, show_in_progress: true })}
-                      className="mr-2"
-                    />
-                    <span className="text-sm">掲載する</span>
-                  </label>
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      name="show_in_progress"
-                      checked={formData.show_in_progress === false}
-                      onChange={() => setFormData({ ...formData, show_in_progress: false })}
-                      className="mr-2"
-                    />
-                    <span className="text-sm">掲載しない</span>
-                  </label>
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  案件一覧の進捗表示に表示するかどうか（グリッドビューと職種別一覧ビューには常に表示されます）
-                </p>
-              </div>
-
-              {/* 契約日からの日数（計算表示のみ） */}
-              <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
-                  契約日からの日数（自動計算）
-                </label>
-                <div className="bg-gray-50 border-2 border-gray-200 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-blue-600">
-                    {formData.trigger_task_id
-                      ? `${calculateDaysFromContract(formData.trigger_task_id, formData.days_from_trigger)}日`
-                      : formData.days_from_contract !== null && formData.days_from_contract !== undefined
-                        ? `${formData.days_from_contract}日`
-                        : '未設定'}
-                  </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    {formData.trigger_task_id
-                      ? 'トリガーからの日数に基づいて自動計算されます'
-                      : 'トリガーを設定しない場合は、下の「契約日基準の日数」で設定してください'}
-                  </p>
-                </div>
-              </div>
-
-              {/* トリガーなしの場合のみ、契約日からの日数を入力 */}
-              {!formData.trigger_task_id && (
-                <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
-                    契約日基準の日数 <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.days_from_contract}
-                    onChange={(e) => setFormData({ ...formData, days_from_contract: parseInt(e.target.value) || 0 })}
-                    className="prisma-input"
-                    placeholder="例: 7（契約日から7日後）"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    契約日から何日後にこのタスクが発生するか（トリガーなしの場合のみ設定）
-                  </p>
-                </div>
-              )}
 
               {/* 目的 */}
               <div>
@@ -721,6 +659,78 @@ export default function TaskMasterManagement() {
                       </p>
                     </div>
                   )}
+
+                  {/* トリガーなしの場合の日数入力 */}
+                  {!formData.trigger_task_id && (
+                    <div>
+                      <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                        契約日からの日数 <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.days_from_contract}
+                        onChange={(e) => setFormData({ ...formData, days_from_contract: parseInt(e.target.value) || 0 })}
+                        className="prisma-input"
+                        placeholder="例: 7（契約日から7日後）"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        契約日から何日後にこのタスクが発生するか
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* 進捗管理表に掲載するか */}
+              <div className="border-t-2 border-gray-200 pt-4 mt-4">
+                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                  進捗管理表に掲載するか
+                </label>
+                <div className="flex items-center space-x-4 mt-2">
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="show_in_progress"
+                      checked={formData.show_in_progress === true}
+                      onChange={() => setFormData({ ...formData, show_in_progress: true })}
+                      className="mr-2"
+                    />
+                    <span className="text-sm">掲載する</span>
+                  </label>
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="show_in_progress"
+                      checked={formData.show_in_progress === false}
+                      onChange={() => setFormData({ ...formData, show_in_progress: false })}
+                      className="mr-2"
+                    />
+                    <span className="text-sm">掲載しない</span>
+                  </label>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  案件一覧の進捗表示に表示するかどうか（グリッドビューと職種別一覧ビューには常に表示されます）
+                </p>
+              </div>
+
+              {/* 契約日からの日数（自動計算） */}
+              <div className="border-t-2 border-gray-200 pt-4 mt-4">
+                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                  契約日からの日数（自動計算）
+                </label>
+                <div className="bg-gray-50 border-2 border-gray-200 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {formData.trigger_task_id
+                      ? `${calculateDaysFromContract(formData.trigger_task_id, formData.days_from_trigger)}日`
+                      : formData.days_from_contract !== null && formData.days_from_contract !== undefined
+                        ? `${formData.days_from_contract}日`
+                        : '未設定'}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    {formData.trigger_task_id
+                      ? 'トリガーからの日数に基づいて自動計算されます'
+                      : '契約日基準で設定してください'}
+                  </p>
                 </div>
               </div>
             </div>
