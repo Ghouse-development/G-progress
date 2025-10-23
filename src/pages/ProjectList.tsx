@@ -916,9 +916,9 @@ export default function ProjectList() {
         </div>
       </div>
 
-      <div className="prisma-content" style={{ padding: '12px' }}>
+      <div className="prisma-content" style={{ padding: '12px 12px 0 12px' }}>
         {/* 進捗マトリクス表示 */}
-        <div className="prisma-card" style={{ overflow: 'hidden' }}>
+        <div className="prisma-card" style={{ overflow: 'hidden', marginBottom: 0 }}>
           {/* マトリクスヘッダー */}
           <div className="prisma-card-header" style={{ padding: '16px' }}>
             <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
@@ -967,15 +967,6 @@ export default function ProjectList() {
 
               {/* 右側：着工フィルタ */}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                <button
-                  onClick={() => setConstructionFilter('all')}
-                  className={`prisma-btn ${
-                    constructionFilter === 'all' ? 'prisma-btn-primary' : 'prisma-btn-secondary'
-                  }`}
-                  style={{ fontSize: '15px', padding: '10px 16px', minHeight: '44px' }}
-                >
-                  全て ({displayProjects.length})
-                </button>
                 <button
                   onClick={() => setConstructionFilter('pre')}
                   className={`prisma-btn ${
