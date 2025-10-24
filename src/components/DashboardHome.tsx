@@ -82,7 +82,7 @@ export default function DashboardHome() {
           table: 'projects'
         },
         (payload) => {
-          console.log('Realtime project change:', payload)
+          // Realtime project change
           loadProjects() // プロジェクトデータを再読み込み
         }
       )
@@ -94,7 +94,7 @@ export default function DashboardHome() {
           table: 'customers'
         },
         (payload) => {
-          console.log('Realtime customer change:', payload)
+          // Realtime customer change
           loadProjects() // 顧客データ変更時もプロジェクトを再読み込み
         }
       )
@@ -106,7 +106,7 @@ export default function DashboardHome() {
           table: 'tasks'
         },
         (payload) => {
-          console.log('Realtime task change:', payload)
+          // Realtime task change
           loadProjects() // タスク変更は統計に影響するため再読み込み
         }
       )
@@ -118,11 +118,16 @@ export default function DashboardHome() {
           table: 'employees'
         },
         (payload) => {
-          console.log('Realtime employee change:', payload)
+          // Realtime employee change
           loadEmployees() // 従業員データを再読み込み
         }
       )
-      .subscribe()
+      .subscribe((status) => {
+        if (status === 'SUBSCRIPTION_ERROR') {
+          // Realtime接続エラー時の処理
+          toast.error('リアルタイム更新の接続に失敗しました')
+        }
+      })
 
     // クリーンアップ: コンポーネントのアンマウント時にサブスクリプション解除
     return () => {
@@ -247,7 +252,7 @@ export default function DashboardHome() {
       resetForm()
       toast.success('案件を作成しました')
     } catch (error) {
-      console.error('Failed to create project:', error)
+      // Failed to create project
       toast.error('案件の作成に失敗しました')
     }
   }

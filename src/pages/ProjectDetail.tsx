@@ -118,7 +118,7 @@ export default function ProjectDetail() {
           filter: `project_id=eq.${id}` // このプロジェクトのタスクのみ
         },
         (payload) => {
-          console.log('Realtime task change:', payload)
+          // Realtime task change received
 
           // リアルタイムイベントから変更内容を取得して、即座に反映（楽観的更新）
           if (payload.eventType === 'UPDATE' && payload.new) {
@@ -152,7 +152,12 @@ export default function ProjectDetail() {
           }
         }
       )
-      .subscribe()
+      .subscribe((status) => {
+        if (status === 'SUBSCRIPTION_ERROR') {
+          // Realtime接続エラー時の処理
+          toast.error('リアルタイム更新の接続に失敗しました')
+        }
+      })
 
     // クリーンアップ: コンポーネントのアンマウント時にサブスクリプション解除
     return () => {
@@ -197,7 +202,8 @@ export default function ProjectDetail() {
         .from('tasks')
         .select(`
           *,
-          assigned_employee:assigned_to(id, last_name, first_name, department)
+          assigned_employee:assigned_to(id, last_name, first_name, department),
+          task_master:task_master_id(business_no, task_order, trigger_task_id, days_from_trigger, trigger_task:trigger_task_id(title))
         `)
         .eq('project_id', id)
 
@@ -211,13 +217,13 @@ export default function ProjectDetail() {
         return {
           ...task,
           dayFromContract,
-          business_no: 999
+          business_no: task.task_master?.business_no || 999
         }
       })
 
       setTasks(tasksWithDays)
     } catch (error) {
-      console.error('Failed to fetch project:', error)
+      // Failed to fetch project
     } finally {
       if (showLoading) {
         setLoading(false)
@@ -249,7 +255,6 @@ export default function ProjectDetail() {
         .eq('id', taskId)
 
       if (error) {
-        console.error('Supabase error:', error)
         toast.error(`ステータスの更新に失敗しました: ${error.message}`)
         await loadProjectData(false)
       } else {
@@ -286,7 +291,6 @@ export default function ProjectDetail() {
         loadProjectData(false)
       }
     } catch (err) {
-      console.error('Unexpected error:', err)
       toast.error(`予期しないエラーが発生しました: ${err}`)
       await loadProjectData(false)
     }
@@ -348,18 +352,14 @@ export default function ProjectDetail() {
       priority: newTask.priority
     }
 
-    console.log('タスク追加データ:', taskData)
-
     const { data, error } = await supabase
       .from('tasks')
       .insert([taskData])
       .select()
 
     if (error) {
-      console.error('タスク追加エラー:', error)
       toast.error('タスクの追加に失敗しました: ' + error.message)
     } else {
-      console.log('タスク追加成功:', data)
 
       // 監査ログ記録
       if (data && data[0]) {
@@ -467,11 +467,9 @@ export default function ProjectDetail() {
         await loadProjectData()
       } else {
         toast.error('タスクの再生成に失敗しました')
-        console.error(result.error)
       }
     } catch (error) {
       toast.error('タスクの再生成中にエラーが発生しました')
-      console.error(error)
     }
   }
 

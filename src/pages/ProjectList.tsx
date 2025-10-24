@@ -115,7 +115,7 @@ export default function ProjectList() {
           table: 'projects'
         },
         (payload) => {
-          console.log('Realtime project change:', payload)
+          // Realtime project change
           loadProjects() // プロジェクトデータを再読み込み（ローディング表示なし）
         }
       )
@@ -127,7 +127,7 @@ export default function ProjectList() {
           table: 'customers'
         },
         (payload) => {
-          console.log('Realtime customer change:', payload)
+          // Realtime customer change
           loadProjects() // 顧客データ変更時もプロジェクトを再読み込み
         }
       )
@@ -139,11 +139,16 @@ export default function ProjectList() {
           table: 'tasks'
         },
         (payload) => {
-          console.log('Realtime task change:', payload)
+          // Realtime task change
           loadProjects() // タスク変更は部門ステータスに影響するため再読み込み
         }
       )
-      .subscribe()
+      .subscribe((status) => {
+        if (status === 'SUBSCRIPTION_ERROR') {
+          // Realtime接続エラー時の処理
+          toast.error('リアルタイム更新の接続に失敗しました')
+        }
+      })
 
     // クリーンアップ: コンポーネントのアンマウント時にサブスクリプション解除
     return () => {
@@ -173,7 +178,7 @@ export default function ProjectList() {
         }
       }
     } catch (error) {
-      console.log('Supabase auth not configured, using default user')
+      // Supabase auth not configured, using default user
     }
 
     setCurrentUserId('1')
@@ -205,7 +210,7 @@ export default function ProjectList() {
       .order('task_order', { ascending: true })
 
     if (error) {
-      console.error('タスクマスタの読み込みエラー:', error)
+      // タスクマスタの読み込みエラー
     } else if (data) {
       setTaskMasters(data)
     }
@@ -323,7 +328,7 @@ export default function ProjectList() {
         }
       }
     } catch (error) {
-      console.error('Failed to fetch projects:', error)
+      // Failed to fetch projects
     } finally {
       setLoading(false)
     }
@@ -356,7 +361,7 @@ export default function ProjectList() {
       // プロジェクトリストを再読み込み
       loadProjects()
     } catch (error) {
-      console.error('Failed to update task status:', error)
+      // Failed to update task status
       toast.error('ステータスの更新に失敗しました')
     }
   }
@@ -378,7 +383,7 @@ export default function ProjectList() {
       if (error) throw error
       setTaskAuditLogs(data || [])
     } catch (error) {
-      console.error('Failed to load audit logs:', error)
+      // Failed to load audit logs
       setTaskAuditLogs([])
     }
   }
@@ -399,7 +404,7 @@ export default function ProjectList() {
       if (error) throw error
       setTaskComments(data || [])
     } catch (error) {
-      console.error('Failed to load comments:', error)
+      // Failed to load comments
       setTaskComments([])
     }
   }
@@ -426,7 +431,7 @@ export default function ProjectList() {
       setNewComment('')
       await loadTaskComments(selectedTask.id)
     } catch (error) {
-      console.error('Failed to add comment:', error)
+      // Failed to add comment
       toast.error('コメントの追加に失敗しました')
     }
   }
@@ -448,7 +453,7 @@ export default function ProjectList() {
       setEditingDueDate(false)
       loadProjects()
     } catch (error) {
-      console.error('Failed to update due date:', error)
+      // Failed to update due date
       toast.error('期限日の更新に失敗しました')
     }
   }
@@ -684,11 +689,7 @@ export default function ProjectList() {
         formData.assignedConstruction || undefined
       )
 
-      if (taskResult.success) {
-        console.log(`✅ ${taskResult.tasksCount}個のタスクを自動生成しました`)
-      } else {
-        console.error('⚠️ タスク自動生成に失敗しました:', taskResult.error)
-      }
+      // タスク自動生成完了
 
       // 監査ログを記録
       await logCreate(
@@ -708,7 +709,7 @@ export default function ProjectList() {
       resetForm()
       toast.success(`案件を作成しました（${taskResult.tasksCount || 0}個のタスクを自動生成）`)
     } catch (error) {
-      console.error('Failed to create project:', error)
+      // Failed to create project
       toast.error('案件の作成に失敗しました')
     }
   }
@@ -775,7 +776,7 @@ export default function ProjectList() {
       resetForm()
       toast.success('案件を更新しました')
     } catch (error) {
-      console.error('Failed to update project:', error)
+      // Failed to update project
       toast.error('案件の更新に失敗しました')
     }
   }
@@ -814,7 +815,7 @@ export default function ProjectList() {
       setDeletingProjectId(null)
       toast.success('案件を削除しました')
     } catch (error) {
-      console.error('Failed to delete project:', error)
+      // Failed to delete project
       toast.error('案件の削除に失敗しました')
     }
   }
