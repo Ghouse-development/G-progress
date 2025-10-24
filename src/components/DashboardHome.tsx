@@ -395,7 +395,7 @@ export default function DashboardHome() {
   const getAverageContractAmount = () => {
     // プロジェクトごとの支払い合計を計算
     const projectAmounts = projects.map(p => {
-      const projectPayments = payments.filter(payment => payment.project_id === p.id)
+      const projectPayments = (payments || []).filter(payment => payment.project_id === p.id)
       const totalAmount = projectPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0)
       return totalAmount
     }).filter(amount => amount > 0)

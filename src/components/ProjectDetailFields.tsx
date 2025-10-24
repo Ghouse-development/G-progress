@@ -99,9 +99,19 @@ export default function ProjectDetailFields({
   // グリッドビュー用ヘルパー関数
   const getTasksForPositionAndDay = (position: string, day: number): TaskWithEmployee[] => {
     return tasks.filter(task => {
+      if (task.dayFromContract !== day) return false
+
+      // descriptionの形式: "職種: タスク内容"
       const descriptionParts = task.description?.split(':')
       const taskPosition = descriptionParts?.[0]?.trim()
-      return task.dayFromContract === day && taskPosition === position
+
+      // descriptionに職種が含まれている場合はそれを使用
+      if (taskPosition === position) return true
+
+      // descriptionに職種がない場合、担当者の部門を確認
+      if (!taskPosition && task.assigned_employee?.department === position) return true
+
+      return false
     })
   }
 
@@ -113,7 +123,14 @@ export default function ProjectDetailFields({
     const positionTasks = tasks.filter(task => {
       const descriptionParts = task.description?.split(':')
       const taskPosition = descriptionParts?.[0]?.trim()
-      return taskPosition === position
+
+      // descriptionに職種が含まれている場合
+      if (taskPosition === position) return true
+
+      // descriptionに職種がない場合、担当者の部門を確認
+      if (!taskPosition && task.assigned_employee?.department === position) return true
+
+      return false
     })
     if (positionTasks.length === 0) return 0
     const completedTasks = positionTasks.filter(task => task.status === 'completed')

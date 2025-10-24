@@ -210,7 +210,7 @@ export default function ProjectDetail() {
       if (tasksError) throw tasksError
 
       const tasksWithDays = (tasksData || []).map((task: any) => {
-        const dayFromContract = task.due_date && projectData.contract_date
+        const dayFromContract = task.due_date && projectData?.contract_date
           ? differenceInDays(new Date(task.due_date), new Date(projectData.contract_date))
           : 0
 
