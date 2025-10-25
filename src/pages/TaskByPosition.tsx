@@ -11,6 +11,7 @@ import { ja } from 'date-fns/locale'
 import { X } from 'lucide-react'
 import { useSettings } from '../contexts/SettingsContext'
 import { useMode } from '../contexts/ModeContext'
+import { useToast } from '../contexts/ToastContext'
 import { generateDemoTasks, generateDemoProjects, generateDemoCustomers } from '../utils/demoData'
 import { ORGANIZATION_HIERARCHY } from '../constants/organizationHierarchy'
 
@@ -40,6 +41,7 @@ const getDepartmentForPosition = (position: string): string => {
 export default function TaskByPosition() {
   const { demoMode } = useSettings()
   const { mode } = useMode()
+  const toast = useToast()
   const [tasks, setTasks] = useState<TaskWithProject[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedTask, setSelectedTask] = useState<TaskWithProject | null>(null)
@@ -56,11 +58,17 @@ export default function TaskByPosition() {
     const employeeId = localStorage.getItem('selectedEmployeeId')
     if (!employeeId) return
 
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('employees')
       .select('*')
       .eq('id', employeeId)
-      .single()
+      .maybeSingle()
+
+    if (error) {
+      console.error('従業員データ読み込みエラー:', error)
+      toast.error('従業員データの読み込みに失敗しました')
+      return
+    }
 
     if (data) {
       setCurrentEmployee(data)
@@ -94,7 +102,7 @@ export default function TaskByPosition() {
     }
 
     // 通常モード：Supabaseからデータを取得
-    const { data: tasksData } = await supabase
+    const { data: tasksData, error: tasksError } = await supabase
       .from('tasks')
       .select(`
         *,
@@ -108,6 +116,13 @@ export default function TaskByPosition() {
         )
       `)
       .order('due_date', { ascending: true })
+
+    if (tasksError) {
+      console.error('タスクデータ読み込みエラー:', tasksError)
+      toast.error('タスクデータの読み込みに失敗しました')
+      setLoading(false)
+      return
+    }
 
     if (tasksData) {
       setTasks(tasksData as TaskWithProject[])
@@ -152,14 +167,18 @@ export default function TaskByPosition() {
       .update(updateData)
       .eq('id', selectedTask.id)
 
-    if (!error) {
-      setTasks(prevTasks =>
-        prevTasks.map(t =>
-          t.id === selectedTask.id ? { ...t, ...updateData } : t
-        )
-      )
-      setSelectedTask({ ...selectedTask, ...updateData })
+    if (error) {
+      console.error('ステータス更新エラー:', error)
+      toast.error(`ステータスの更新に失敗しました: ${error.message}`)
+      return
     }
+
+    setTasks(prevTasks =>
+      prevTasks.map(t =>
+        t.id === selectedTask.id ? { ...t, ...updateData } : t
+      )
+    )
+    setSelectedTask({ ...selectedTask, ...updateData })
   }
 
   // 期限と今日の乖離日数を計算

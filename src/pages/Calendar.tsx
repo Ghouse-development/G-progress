@@ -75,6 +75,49 @@ export default function Calendar() {
     loadDataForMode()
   }, [currentMonth, calendarMode])
 
+  // リアルタイム更新の購読
+  useEffect(() => {
+    const channel = supabase
+      .channel('calendar-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'tasks' },
+        (payload) => {
+          // タスクが変更されたらカレンダーを再読み込み
+          if (calendarMode === 'tasks') {
+            loadTasks()
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'payments' },
+        (payload) => {
+          // 入金が変更されたらカレンダーを再読み込み
+          if (calendarMode === 'payments') {
+            loadPayments()
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'projects' },
+        (payload) => {
+          // プロジェクトが変更されたらカレンダーを再読み込み
+          if (calendarMode === 'construction_start' || calendarMode === 'handover') {
+            loadConstructionStarts()
+            loadHandovers()
+          }
+        }
+      )
+      .subscribe()
+
+    // クリーンアップ: コンポーネントのアンマウント時にサブスクリプション解除
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [calendarMode])
+
   const loadDataForMode = () => {
     if (calendarMode === 'tasks') {
       loadTasks()
@@ -96,16 +139,19 @@ export default function Calendar() {
         .from('employees')
         .select('*')
         .eq('id', userId)
-        .single()
+        .maybeSingle()
 
-      if (!error && data) {
+      if (error) {
+        console.error('従業員データ読み込みエラー:', error)
+        showToast('従業員データの読み込みに失敗しました', 'error')
+        return
+      }
+
+      if (data) {
         setCurrentUser(data as Employee)
-      } else {
-        // エラー時はデフォルトユーザーを設定
-        console.log('Could not load user, using default')
       }
     } catch (error) {
-      console.log('Error loading user:', error)
+      // エラー時はデフォルトユーザーを設定
     } finally {
       setLoading(false)
     }
@@ -115,39 +161,41 @@ export default function Calendar() {
     const start = startOfMonth(currentMonth)
     const end = endOfMonth(currentMonth)
 
-    console.log(`カレンダー: ${format(start, 'yyyy-MM-dd')} ～ ${format(end, 'yyyy-MM-dd')} の範囲でタスクを取得します`)
-
-    // タスクを取得（プロジェクトと顧客情報も含む）
-    const { data: tasksData, error } = await supabase
-      .from('tasks')
-      .select(`
-        *,
-        project:projects(
+    try {
+      // タスクを取得（プロジェクトと顧客情報も含む）
+      const { data: tasksData, error } = await supabase
+        .from('tasks')
+        .select(`
           *,
-          customer:customers(*)
-        )
-      `)
-      .gte('due_date', format(start, 'yyyy-MM-dd'))
-      .lte('due_date', format(end, 'yyyy-MM-dd'))
+          project:projects(
+            *,
+            customer:customers(*)
+          )
+        `)
+        .gte('due_date', format(start, 'yyyy-MM-dd'))
+        .lte('due_date', format(end, 'yyyy-MM-dd'))
 
-    if (error) {
-      console.error('カレンダー: タスクの取得に失敗:', error)
-      return
-    }
+      if (error) {
+        console.error('カレンダー: タスクの取得に失敗:', error)
+        showToast('タスクの読み込みに失敗しました', 'error')
+        return
+      }
 
-    console.log(`カレンダー: ${tasksData?.length || 0}件のタスクを取得しました`, tasksData)
+      if (tasksData) {
+        // 全てのタスクを表示（フィルタなし）
+        // マイルストーンと担当者のタスクを区別して表示
+        const allTasks = tasksData.map((task: any) => ({
+          ...task,
+          isMilestone: MILESTONE_EVENTS.some(event => task.title.includes(event))
+        }))
 
-    if (tasksData) {
-      // 全てのタスクを表示（フィルタなし）
-      // マイルストーンと担当者のタスクを区別して表示
-      const allTasks = tasksData.map((task: any) => ({
-        ...task,
-        isMilestone: MILESTONE_EVENTS.some(event => task.title.includes(event))
-      }))
-
-      setTasks(allTasks as TaskWithProject[])
-    } else {
-      setTasks([])
+        setTasks(allTasks as TaskWithProject[])
+      } else {
+        setTasks([])
+      }
+    } catch (error) {
+      console.error('予期しないエラー:', error)
+      showToast('予期しないエラーが発生しました', 'error')
     }
   }
 
@@ -155,32 +203,34 @@ export default function Calendar() {
     const start = startOfMonth(currentMonth)
     const end = endOfMonth(currentMonth)
 
-    console.log(`カレンダー: ${format(start, 'yyyy-MM-dd')} ～ ${format(end, 'yyyy-MM-dd')} の範囲で入金を取得します`)
-
-    // 入金を取得（プロジェクトと顧客情報も含む）
-    const { data: paymentsData, error } = await supabase
-      .from('payments')
-      .select(`
-        *,
-        project:projects(
+    try {
+      // 入金を取得（プロジェクトと顧客情報も含む）
+      const { data: paymentsData, error } = await supabase
+        .from('payments')
+        .select(`
           *,
-          customer:customers(*)
-        )
-      `)
-      .or(`scheduled_date.gte.${format(start, 'yyyy-MM-dd')},actual_date.gte.${format(start, 'yyyy-MM-dd')}`)
-      .or(`scheduled_date.lte.${format(end, 'yyyy-MM-dd')},actual_date.lte.${format(end, 'yyyy-MM-dd')}`)
+          project:projects(
+            *,
+            customer:customers(*)
+          )
+        `)
+        .or(`scheduled_date.gte.${format(start, 'yyyy-MM-dd')},actual_date.gte.${format(start, 'yyyy-MM-dd')}`)
+        .or(`scheduled_date.lte.${format(end, 'yyyy-MM-dd')},actual_date.lte.${format(end, 'yyyy-MM-dd')}`)
 
-    if (error) {
-      console.error('カレンダー: 入金の取得に失敗:', error)
-      return
-    }
+      if (error) {
+        console.error('カレンダー: 入金の取得に失敗:', error)
+        showToast('入金情報の読み込みに失敗しました', 'error')
+        return
+      }
 
-    console.log(`カレンダー: ${paymentsData?.length || 0}件の入金を取得しました`, paymentsData)
-
-    if (paymentsData) {
-      setPayments(paymentsData as PaymentWithProject[])
-    } else {
-      setPayments([])
+      if (paymentsData) {
+        setPayments(paymentsData as PaymentWithProject[])
+      } else {
+        setPayments([])
+      }
+    } catch (error) {
+      console.error('予期しないエラー:', error)
+      showToast('予期しないエラーが発生しました', 'error')
     }
   }
 
@@ -188,30 +238,32 @@ export default function Calendar() {
     const start = startOfMonth(currentMonth)
     const end = endOfMonth(currentMonth)
 
-    console.log(`カレンダー: ${format(start, 'yyyy-MM-dd')} ～ ${format(end, 'yyyy-MM-dd')} の範囲で着工日を取得します`)
+    try {
+      // 着工日を含むプロジェクトを取得
+      const { data: projectsData, error } = await supabase
+        .from('projects')
+        .select(`
+          *,
+          customer:customers(*)
+        `)
+        .gte('construction_start_date', format(start, 'yyyy-MM-dd'))
+        .lte('construction_start_date', format(end, 'yyyy-MM-dd'))
+        .not('construction_start_date', 'is', null)
 
-    // 着工日を含むプロジェクトを取得
-    const { data: projectsData, error } = await supabase
-      .from('projects')
-      .select(`
-        *,
-        customer:customers(*)
-      `)
-      .gte('construction_start_date', format(start, 'yyyy-MM-dd'))
-      .lte('construction_start_date', format(end, 'yyyy-MM-dd'))
-      .not('construction_start_date', 'is', null)
+      if (error) {
+        console.error('カレンダー: 着工日の取得に失敗:', error)
+        showToast('着工日の読み込みに失敗しました', 'error')
+        return
+      }
 
-    if (error) {
-      console.error('カレンダー: 着工日の取得に失敗:', error)
-      return
-    }
-
-    console.log(`カレンダー: ${projectsData?.length || 0}件の着工日を取得しました`, projectsData)
-
-    if (projectsData) {
-      setConstructionStarts(projectsData as ProjectWithCustomer[])
-    } else {
-      setConstructionStarts([])
+      if (projectsData) {
+        setConstructionStarts(projectsData as ProjectWithCustomer[])
+      } else {
+        setConstructionStarts([])
+      }
+    } catch (error) {
+      console.error('予期しないエラー:', error)
+      showToast('予期しないエラーが発生しました', 'error')
     }
   }
 
@@ -219,30 +271,32 @@ export default function Calendar() {
     const start = startOfMonth(currentMonth)
     const end = endOfMonth(currentMonth)
 
-    console.log(`カレンダー: ${format(start, 'yyyy-MM-dd')} ～ ${format(end, 'yyyy-MM-dd')} の範囲で引き渡し日を取得します`)
+    try {
+      // 引き渡し日を含むプロジェクトを取得
+      const { data: projectsData, error } = await supabase
+        .from('projects')
+        .select(`
+          *,
+          customer:customers(*)
+        `)
+        .gte('handover_date', format(start, 'yyyy-MM-dd'))
+        .lte('handover_date', format(end, 'yyyy-MM-dd'))
+        .not('handover_date', 'is', null)
 
-    // 引き渡し日を含むプロジェクトを取得
-    const { data: projectsData, error } = await supabase
-      .from('projects')
-      .select(`
-        *,
-        customer:customers(*)
-      `)
-      .gte('handover_date', format(start, 'yyyy-MM-dd'))
-      .lte('handover_date', format(end, 'yyyy-MM-dd'))
-      .not('handover_date', 'is', null)
+      if (error) {
+        console.error('カレンダー: 引き渡し日の取得に失敗:', error)
+        showToast('引き渡し日の読み込みに失敗しました', 'error')
+        return
+      }
 
-    if (error) {
-      console.error('カレンダー: 引き渡し日の取得に失敗:', error)
-      return
-    }
-
-    console.log(`カレンダー: ${projectsData?.length || 0}件の引き渡し日を取得しました`, projectsData)
-
-    if (projectsData) {
-      setHandovers(projectsData as ProjectWithCustomer[])
-    } else {
-      setHandovers([])
+      if (projectsData) {
+        setHandovers(projectsData as ProjectWithCustomer[])
+      } else {
+        setHandovers([])
+      }
+    } catch (error) {
+      console.error('予期しないエラー:', error)
+      showToast('予期しないエラーが発生しました', 'error')
     }
   }
 

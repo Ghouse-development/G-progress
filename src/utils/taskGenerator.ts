@@ -72,8 +72,6 @@ export const generateProjectTasks = async (
   assignedConstruction?: string
 ) => {
   try {
-    console.log(`タスク自動生成開始: projectId=${projectId}, contractDate=${contractDate}`)
-
     const taskMasters = taskMastersData as TaskMaster[]
 
     // タスクマスタから実際のタスクを生成
@@ -116,7 +114,6 @@ export const generateProjectTasks = async (
       throw error
     }
 
-    console.log(`タスク生成完了: ${tasks.length}件のタスクを生成しました`)
     return { success: true, tasksCount: tasks.length, tasks: data }
 
   } catch (error) {

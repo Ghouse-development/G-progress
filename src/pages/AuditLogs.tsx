@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { usePermissions } from '../contexts/PermissionsContext'
 import { useSettings } from '../contexts/SettingsContext'
+import { useToast } from '../contexts/ToastContext'
 import { generateDemoAuditLogs } from '../utils/demoData'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
@@ -28,6 +29,7 @@ interface AuditLog {
 export default function AuditLogs() {
   const { hasPermission, userPermissions } = usePermissions()
   const { demoMode } = useSettings()
+  const { showToast } = useToast()
   const [logs, setLogs] = useState<AuditLog[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
@@ -80,6 +82,7 @@ export default function AuditLogs() {
       setLogs(data || [])
     } catch (error) {
       console.error('Failed to load audit logs:', error)
+      showToast('監査ログの読み込みに失敗しました', 'error')
     } finally {
       setLoading(false)
     }

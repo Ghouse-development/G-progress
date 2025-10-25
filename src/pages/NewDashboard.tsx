@@ -12,6 +12,7 @@ import { differenceInDays } from 'date-fns'
 import { useMode } from '../contexts/ModeContext'
 import { useFiscalYear } from '../contexts/FiscalYearContext'
 import { useSettings } from '../contexts/SettingsContext'
+import { useToast } from '../contexts/ToastContext'
 import { generateDemoProjects, generateDemoPayments, generateDemoTasks, generateDemoEmployees } from '../utils/demoData'
 import { Settings } from 'lucide-react'
 
@@ -30,6 +31,7 @@ export default function NewDashboard() {
   const { mode } = useMode()
   const { selectedYear } = useFiscalYear()
   const { demoMode } = useSettings()
+  const toast = useToast()
   const [projects, setProjects] = useState<Project[]>([])
   const [payments, setPayments] = useState<Payment[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
@@ -92,14 +94,19 @@ export default function NewDashboard() {
     const units = parseInt(editTargetUnits) || 0
     const grossProfit = parseFloat(editTargetGrossProfit) || 0
 
-    localStorage.setItem(`target_revenue_${selectedYear}`, revenue.toString())
-    localStorage.setItem(`target_units_${selectedYear}`, units.toString())
-    localStorage.setItem(`target_gross_profit_${selectedYear}`, grossProfit.toString())
+    try {
+      localStorage.setItem(`target_revenue_${selectedYear}`, revenue.toString())
+      localStorage.setItem(`target_units_${selectedYear}`, units.toString())
+      localStorage.setItem(`target_gross_profit_${selectedYear}`, grossProfit.toString())
 
-    setTargetRevenue(revenue)
-    setTargetUnits(units)
-    setTargetGrossProfit(grossProfit)
-    setShowSettingsModal(false)
+      setTargetRevenue(revenue)
+      setTargetUnits(units)
+      setTargetGrossProfit(grossProfit)
+      setShowSettingsModal(false)
+    } catch (error) {
+      console.error('目標値の保存エラー:', error)
+      toast.error('目標値の保存に失敗しました')
+    }
   }
 
   const openSettingsModal = () => {
@@ -134,36 +141,62 @@ export default function NewDashboard() {
     // 現在の従業員を取得
     const employeeId = localStorage.getItem('selectedEmployeeId')
     if (employeeId) {
-      const { data: employee } = await supabase
+      const { data: employee, error: employeeError } = await supabase
         .from('employees')
         .select('*')
         .eq('id', employeeId)
-        .single()
+        .maybeSingle()
+
+      if (employeeError) {
+        console.error('従業員データ読み込みエラー:', employeeError)
+        toast.error('従業員データの読み込みに失敗しました')
+        return
+      }
+
       setCurrentEmployee(employee)
     }
 
     // 年度のプロジェクトを取得
-    const { data: projectsData } = await supabase
+    const { data: projectsData, error: projectsError } = await supabase
       .from('projects')
       .select('*, customer:customers(*), product:products(*)')
       .eq('fiscal_year', selectedYear)
+
+    if (projectsError) {
+      console.error('プロジェクトデータ読み込みエラー:', projectsError)
+      toast.error('プロジェクトデータの読み込みに失敗しました')
+      setLoading(false)
+      return
+    }
 
     // モードに応じたフィルタリング（後で実装）
     const filteredProjects = projectsData || []
     setProjects(filteredProjects)
 
     // 入金データを取得
-    const { data: paymentsData } = await supabase
+    const { data: paymentsData, error: paymentsError } = await supabase
       .from('payments')
       .select('*')
       .in('project_id', filteredProjects.map(p => p.id))
+
+    if (paymentsError) {
+      console.error('入金データ読み込みエラー:', paymentsError)
+      toast.error('入金データの読み込みに失敗しました')
+    }
+
     setPayments(paymentsData || [])
 
     // タスクデータを取得
-    const { data: tasksData } = await supabase
+    const { data: tasksData, error: tasksError } = await supabase
       .from('tasks')
       .select('*')
       .in('project_id', filteredProjects.map(p => p.id))
+
+    if (tasksError) {
+      console.error('タスクデータ読み込みエラー:', tasksError)
+      toast.error('タスクデータの読み込みに失敗しました')
+    }
+
     setTasks(tasksData || [])
 
     // 統計を計算

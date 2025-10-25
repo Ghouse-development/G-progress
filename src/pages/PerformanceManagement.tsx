@@ -10,6 +10,7 @@ import { Project } from '../types/database'
 import { useFilter } from '../contexts/FilterContext'
 import { useSettings } from '../contexts/SettingsContext'
 import { useSimplePermissions } from '../hooks/usePermissions'
+import { useToast } from '../contexts/ToastContext'
 import { generateDemoProjects, generateDemoCustomers } from '../utils/demoData'
 import Papa from 'papaparse'
 import jsPDF from 'jspdf'
@@ -40,6 +41,7 @@ export default function PerformanceManagement() {
   const { selectedFiscalYear, viewMode } = useFilter()
   const { demoMode } = useSettings()
   const { canWrite } = useSimplePermissions()
+  const toast = useToast()
   const [projects, setProjects] = useState<Project[]>([])
   const [stats, setStats] = useState<PerformanceStats | null>(null)
   const [loading, setLoading] = useState(true)
@@ -71,11 +73,18 @@ export default function PerformanceManagement() {
     }
 
     // 通常モード：Supabaseからデータを取得
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('projects')
       .select('*, customer:customers(*)')
       .eq('fiscal_year', selectedFiscalYear)
       .order('contract_date', { ascending: false })
+
+    if (error) {
+      console.error('プロジェクトデータ読み込みエラー:', error)
+      toast.error('プロジェクトデータの読み込みに失敗しました')
+      setLoading(false)
+      return
+    }
 
     if (data) {
       setProjects(data)
@@ -190,7 +199,8 @@ export default function PerformanceManagement() {
   }
 
   const exportCSV = () => {
-    const csvData = projects.map(project => ({
+    try {
+      const csvData = projects.map(project => ({
       '案件名': project.customer?.names?.[0] ? `${project.customer.names[0]}様邸` : '不明',
       '太陽光有無': project.solar_panel ? '有' : '無',
       '太陽光kW数': project.solar_kw || '-',
@@ -205,14 +215,19 @@ export default function PerformanceManagement() {
 
     const csv = Papa.unparse(csvData)
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-    const link = document.createElement('a')
-    link.href = URL.createObjectURL(blob)
-    link.download = `性能管理_${selectedFiscalYear}年度.csv`
-    link.click()
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = `性能管理_${selectedFiscalYear}年度.csv`
+      link.click()
+    } catch (error) {
+      console.error('CSV出力エラー:', error)
+      toast.error('CSV出力に失敗しました')
+    }
   }
 
   const exportPDF = () => {
-    const doc = new jsPDF('landscape')
+    try {
+      const doc = new jsPDF('landscape')
 
     // タイトル（日本語対応）
     doc.setFontSize(16)
@@ -241,7 +256,11 @@ export default function PerformanceManagement() {
       }
     })
 
-    doc.save(`性能管理_${selectedFiscalYear}年度.pdf`)
+      doc.save(`性能管理_${selectedFiscalYear}年度.pdf`)
+    } catch (error) {
+      console.error('PDF出力エラー:', error)
+      toast.error('PDF出力に失敗しました')
+    }
   }
 
   if (loading) {

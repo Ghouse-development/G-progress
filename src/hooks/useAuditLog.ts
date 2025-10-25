@@ -32,8 +32,15 @@ export function useAuditLog() {
 
     try {
       const employeeId = localStorage.getItem('selectedEmployeeId')
-      if (!employeeId) {
+      if (!employeeId || employeeId.trim() === '') {
         console.warn('No employee ID found, skipping audit log')
+        return
+      }
+
+      // UUID形式の簡易チェック
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      if (!uuidRegex.test(employeeId)) {
+        console.warn('Invalid employee ID format, skipping audit log:', employeeId)
         return
       }
 
@@ -43,15 +50,28 @@ export function useAuditLog() {
         description = generateDescription(data)
       }
 
-      await supabase.from('audit_logs').insert({
+      // record_idが空文字列の場合はundefinedにする（nullとして扱われる）
+      const recordId = data.record_id && data.record_id.trim() !== '' ? data.record_id : undefined
+
+      const { error } = await supabase.from('audit_logs').insert({
         employee_id: employeeId,
         action: data.action,
         table_name: data.table_name,
-        record_id: data.record_id,
+        record_id: recordId,
         old_values: data.old_values,
         new_values: data.new_values,
         description
       })
+
+      if (error) {
+        console.error('Failed to create audit log:', error)
+        console.error('Audit log data:', {
+          employee_id: employeeId,
+          action: data.action,
+          table_name: data.table_name,
+          record_id: recordId
+        })
+      }
     } catch (error) {
       console.error('Failed to create audit log:', error)
       // 監査ログの失敗は業務操作をブロックしない

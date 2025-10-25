@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react'
 import { TrendingUp, DollarSign, Percent, AlertCircle } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { Project, Customer } from '../types/database'
+import { useToast } from '../contexts/ToastContext'
 
 interface ProjectWithProfit extends Project {
   customer?: Customer
@@ -30,6 +31,7 @@ interface ProjectWithProfit extends Project {
 }
 
 export default function GrossProfitManagement() {
+  const { showToast } = useToast()
   const [projects, setProjects] = useState<ProjectWithProfit[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'low_margin' | 'large_diff'>('all')
@@ -41,13 +43,20 @@ export default function GrossProfitManagement() {
   const loadProjects = async () => {
     setLoading(true)
     try {
-      const { data: projectsData } = await supabase
+      const { data: projectsData, error } = await supabase
         .from('projects')
         .select(`
           *,
           customer:customers(*)
         `)
         .order('contract_date', { ascending: false })
+
+      if (error) {
+        console.error('プロジェクトデータの読み込みエラー:', error)
+        showToast(`プロジェクトデータの読み込みに失敗しました: ${error.message}`, 'error')
+        setLoading(false)
+        return
+      }
 
       if (projectsData) {
         // 仮の粗利益計算（実際はDBから取得または計算ロジックを実装）
@@ -56,22 +65,22 @@ export default function GrossProfitManagement() {
           const contractAmount = Math.random() * 20000000 + 30000000 // 3000万〜5000万
 
           // 実行予算段階（契約金額を基準に設定）
-          const budgetRevenue = contractAmount * (0.95 + Math.random() * 0.1) // 契約金額の95%〜105%
-          const budgetCost = budgetRevenue * (0.65 + Math.random() * 0.15) // 売上の65%〜80%
-          const budgetGrossProfit = budgetRevenue - budgetCost
-          const budgetGrossProfitRate = (budgetGrossProfit / budgetRevenue) * 100
+          const budgetRevenue = contractAmount * (0.95 + Math.random() * 0.1) || 0 // 契約金額の95%〜105%
+          const budgetCost = budgetRevenue * (0.65 + Math.random() * 0.15) || 0 // 売上の65%〜80%
+          const budgetGrossProfit = (budgetRevenue - budgetCost) || 0
+          const budgetGrossProfitRate = budgetRevenue > 0 ? (budgetGrossProfit / budgetRevenue) * 100 : 0
 
           // 完工段階（実行予算から多少のブレを含む）
-          const actualRevenue = budgetRevenue * (0.95 + Math.random() * 0.15) // 予算の95%〜110%
-          const actualCost = budgetCost * (0.9 + Math.random() * 0.25) // 原価は90%〜115%（オーバーランの可能性）
-          const actualGrossProfit = actualRevenue - actualCost
-          const actualGrossProfitRate = (actualGrossProfit / actualRevenue) * 100
+          const actualRevenue = budgetRevenue * (0.95 + Math.random() * 0.15) || 0 // 予算の95%〜110%
+          const actualCost = budgetCost * (0.9 + Math.random() * 0.25) || 0 // 原価は90%〜115%（オーバーランの可能性）
+          const actualGrossProfit = (actualRevenue - actualCost) || 0
+          const actualGrossProfitRate = actualRevenue > 0 ? (actualGrossProfit / actualRevenue) * 100 : 0
 
           // 差額（完工 - 実行予算）
-          const diffRevenue = actualRevenue - budgetRevenue
-          const diffCost = actualCost - budgetCost
-          const diffGrossProfit = actualGrossProfit - budgetGrossProfit
-          const diffGrossProfitRate = actualGrossProfitRate - budgetGrossProfitRate
+          const diffRevenue = (actualRevenue - budgetRevenue) || 0
+          const diffCost = (actualCost - budgetCost) || 0
+          const diffGrossProfit = (actualGrossProfit - budgetGrossProfit) || 0
+          const diffGrossProfitRate = (actualGrossProfitRate - budgetGrossProfitRate) || 0
 
           return {
             ...project,
@@ -93,8 +102,9 @@ export default function GrossProfitManagement() {
 
         setProjects(projectsWithProfit)
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('粗利益データの読み込みエラー:', error)
+      showToast(`粗利益データの読み込みに失敗しました: ${error?.message || '不明なエラー'}`, 'error')
     } finally {
       setLoading(false)
     }

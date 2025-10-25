@@ -152,12 +152,7 @@ export default function ProjectDetail() {
           }
         }
       )
-      .subscribe((status) => {
-        if (status === 'SUBSCRIPTION_ERROR') {
-          // Realtime接続エラー時の処理
-          toast.error('リアルタイム更新の接続に失敗しました')
-        }
-      })
+      .subscribe()
 
     // クリーンアップ: コンポーネントのアンマウント時にサブスクリプション解除
     return () => {
@@ -166,13 +161,24 @@ export default function ProjectDetail() {
   }, [id, project, selectedTask])
 
   const loadEmployees = async () => {
-    const { data, error } = await supabase
-      .from('employees')
-      .select('*')
-      .order('last_name')
+    try {
+      const { data, error } = await supabase
+        .from('employees')
+        .select('*')
+        .order('last_name')
 
-    if (!error && data) {
-      setEmployees(data as Employee[])
+      if (error) {
+        console.error('従業員の読み込みに失敗:', error)
+        toast.error('従業員情報の読み込みに失敗しました')
+        return
+      }
+
+      if (data) {
+        setEmployees(data as Employee[])
+      }
+    } catch (error) {
+      console.error('予期しないエラー:', error)
+      toast.error('予期しないエラーが発生しました')
     }
   }
 
@@ -478,22 +484,33 @@ export default function ProjectDetail() {
     setSelectedTask(task)
     setShowDetailModal(true)
 
-    // 編集ロックを取得
-    const lockAcquired = await taskEditLock.acquireLock()
-    if (!lockAcquired && taskEditLock.lockedBy !== currentEmployeeId) {
-      toast.warning(`${taskEditLock.lockedByName || '他のユーザー'}が編集中です。閲覧のみ可能です。`)
+    try {
+      // 編集ロックを取得
+      const lockAcquired = await taskEditLock.acquireLock()
+      if (!lockAcquired && taskEditLock.lockedBy !== currentEmployeeId) {
+        toast.warning(`${taskEditLock.lockedByName || '他のユーザー'}が編集中です。閲覧のみ可能です。`)
+      }
+    } catch (error) {
+      console.error('ロック取得に失敗:', error)
+      toast.warning('編集ロックの取得に失敗しましたが、閲覧は可能です')
     }
   }
 
   // タスク詳細モーダルを閉じる（編集ロック解放）
   const closeTaskDetail = async () => {
-    // 編集ロックを解放
-    if (taskEditLock.lockedBy === currentEmployeeId) {
-      await taskEditLock.releaseLock()
+    try {
+      // 編集ロックを解放
+      if (taskEditLock.lockedBy === currentEmployeeId) {
+        await taskEditLock.releaseLock()
+      }
+    } catch (error) {
+      console.error('ロック解放に失敗:', error)
+      toast.warning('編集ロックの解放に失敗しましたが、モーダルを閉じます')
+    } finally {
+      setSelectedTask(null)
+      setShowDetailModal(false)
+      setEditingDueDate(false)
     }
-    setSelectedTask(null)
-    setShowDetailModal(false)
-    setEditingDueDate(false)
   }
 
   const getStatusBadgeColor = (status: string) => {

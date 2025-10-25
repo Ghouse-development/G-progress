@@ -148,14 +148,18 @@ export default function TaskMasterManagement() {
             dos: formData.dos,
             donts: formData.donts,
             is_trigger_task: formData.is_trigger_task,
-            trigger_task_id: formData.trigger_task_id || null,
+            trigger_task_id: formData.trigger_task_id?.trim() || null,
             days_from_trigger: formData.days_from_trigger,
             show_in_progress: formData.show_in_progress,
             updated_at: new Date().toISOString()
           })
           .eq('id', editingTask.id)
 
-        if (error) throw error
+        if (error) {
+          console.error('タスクマスタ更新エラー:', error)
+          toast.error(`タスクマスタの更新に失敗しました: ${error.message}`)
+          return
+        }
         toast.success('タスクマスタを更新しました')
       } else {
         // 新規作成
@@ -180,7 +184,11 @@ export default function TaskMasterManagement() {
           show_in_progress: formData.show_in_progress
         })
 
-        if (error) throw error
+        if (error) {
+          console.error('タスクマスタ作成エラー:', error)
+          toast.error(`タスクマスタの作成に失敗しました: ${error.message}`)
+          return
+        }
         toast.success('タスクマスタを追加しました')
       }
 
@@ -207,13 +215,17 @@ export default function TaskMasterManagement() {
         .delete()
         .eq('id', id)
 
-      if (error) throw error
+      if (error) {
+        console.error('タスクマスタ削除エラー:', error)
+        toast.error(`タスクマスタの削除に失敗しました: ${error.message}`)
+        return
+      }
 
       toast.success('タスクマスタを削除しました')
       await loadTaskMasters()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to delete task master:', error)
-      toast.error('タスクマスタの削除に失敗しました')
+      toast.error(`タスクマスタの削除に失敗しました: ${error?.message || '不明なエラー'}`)
     }
   }
 
@@ -258,15 +270,25 @@ export default function TaskMasterManagement() {
 
     // データベースに保存
     try {
-      const updates = updatedTaskMasters.map(task =>
+      const updatePromises = updatedTaskMasters.map(task =>
         supabase
           .from('task_masters')
           .update({ task_order: task.task_order })
           .eq('id', task.id)
       )
 
-      await Promise.all(updates)
-      toast.success('並び順を保存しました')
+      const results = await Promise.all(updatePromises)
+
+      // エラーがあるかチェック
+      const errors = results.filter(result => result.error)
+      if (errors.length > 0) {
+        console.error('並び順の更新で一部エラー:', errors)
+        toast.error('並び順の保存に失敗しました')
+        // エラー時は元のデータを再読み込み
+        await loadTaskMasters()
+      } else {
+        toast.success('並び順を保存しました')
+      }
     } catch (error) {
       console.error('並び順の保存エラー:', error)
       toast.error('並び順の保存に失敗しました')

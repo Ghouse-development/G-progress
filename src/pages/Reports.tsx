@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useToast } from '../contexts/ToastContext'
 import {
   getProjectProgressStats,
   getDepartmentTaskStats,
@@ -39,6 +40,7 @@ import { ja } from 'date-fns/locale'
 
 export default function Reports() {
   const navigate = useNavigate()
+  const { showToast } = useToast()
 
   // 統計データの状態
   const [projectStats, setProjectStats] = useState<any>(null)
@@ -80,6 +82,7 @@ export default function Reports() {
       setEmployeePerformance(employees.data || [])
     } catch (error) {
       console.error('Failed to load analytics data:', error)
+      showToast('レポートデータの読み込みに失敗しました', 'error')
     } finally {
       setLoading(false)
     }

@@ -25,6 +25,7 @@ type TabType = 'basic' | 'kintone' | 'system'
 
 export default function Settings() {
   const { demoMode, setDemoMode, darkMode, setDarkMode } = useSettings()
+  const toast = useToast()
   const { showToast } = useToast()
   const [activeTab, setActiveTab] = useState<TabType>('basic')
   const [kintoneSettings, setKintoneSettings] = useState<KintoneSettings>({
@@ -44,33 +45,47 @@ export default function Settings() {
 
   const loadKintoneSettings = async () => {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('system_settings')
         .select('*')
         .eq('key', 'kintone_config')
-        .single()
+        .maybeSingle()
+
+      if (error) {
+        console.error('Failed to load kintone settings:', error)
+        showToast('Kintone設定の読み込みに失敗しました', 'error')
+        return
+      }
 
       if (data?.value) {
         setKintoneSettings(data.value)
       }
     } catch (error) {
       console.error('Failed to load kintone settings:', error)
+      showToast('予期しないエラーが発生しました', 'error')
     }
   }
 
   const loadBackupLogs = async () => {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('backup_logs')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(10)
+
+      if (error) {
+        console.error('Failed to load backup logs:', error)
+        showToast('バックアップログの読み込みに失敗しました', 'error')
+        return
+      }
 
       if (data) {
         setBackupLogs(data)
       }
     } catch (error) {
       console.error('Failed to load backup logs:', error)
+      showToast('予期しないエラーが発生しました', 'error')
     }
   }
 
@@ -248,7 +263,14 @@ export default function Settings() {
                         デモモード
                       </h3>
                       <button
-                        onClick={() => setDemoMode(!demoMode)}
+                        onClick={() => {
+                          try {
+                            setDemoMode(!demoMode)
+                          } catch (error) {
+                            console.error('デモモード切替エラー:', error)
+                            toast.error('デモモードの切替に失敗しました')
+                          }
+                        }}
                         className={`relative inline-flex h-10 w-20 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                           demoMode
                             ? 'bg-blue-600 focus:ring-blue-500'
@@ -291,7 +313,14 @@ export default function Settings() {
                         ダークモード
                       </h3>
                       <button
-                        onClick={() => setDarkMode(!darkMode)}
+                        onClick={() => {
+                          try {
+                            setDarkMode(!darkMode)
+                          } catch (error) {
+                            console.error('ダークモード切替エラー:', error)
+                            toast.error('ダークモードの切替に失敗しました')
+                          }
+                        }}
                         className={`relative inline-flex h-10 w-20 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                           darkMode
                             ? 'bg-indigo-600 focus:ring-indigo-500'

@@ -17,12 +17,12 @@ import { generateDemoProjects, generateDemoEmployees, generateDemoCustomers, gen
 import { ORGANIZATION_HIERARCHY } from '../constants/organizationHierarchy'
 
 interface ProjectWithRelations extends Project {
-  customer: Customer
-  sales: Employee
-  design: Employee
-  ic: Employee
-  construction: Employee
-  exterior: Employee
+  customer?: Customer
+  sales?: Employee
+  design?: Employee
+  ic?: Employee
+  construction?: Employee
+  exterior?: Employee
   tasks?: Task[]
 }
 
@@ -143,12 +143,7 @@ export default function ProjectList() {
           loadProjects() // タスク変更は部門ステータスに影響するため再読み込み
         }
       )
-      .subscribe((status) => {
-        if (status === 'SUBSCRIPTION_ERROR') {
-          // Realtime接続エラー時の処理
-          toast.error('リアルタイム更新の接続に失敗しました')
-        }
-      })
+      .subscribe()
 
     // クリーンアップ: コンポーネントのアンマウント時にサブスクリプション解除
     return () => {
@@ -192,10 +187,16 @@ export default function ProjectList() {
       return
     }
 
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('employees')
       .select('*')
       .order('last_name')
+
+    if (error) {
+      console.error('従業員の読み込みに失敗:', error)
+      toast.error('従業員情報の読み込みに失敗しました')
+      return
+    }
 
     if (data) {
       setEmployees(data as Employee[])
@@ -210,8 +211,12 @@ export default function ProjectList() {
       .order('task_order', { ascending: true })
 
     if (error) {
-      // タスクマスタの読み込みエラー
-    } else if (data) {
+      console.error('タスクマスタの読み込みに失敗:', error)
+      toast.error('タスクマスタの読み込みに失敗しました')
+      return
+    }
+
+    if (data) {
       setTaskMasters(data)
     }
   }
@@ -229,12 +234,12 @@ export default function ProjectList() {
 
         // プロジェクトにリレーションデータを結合
         const projectsWithRelations: ProjectWithRelations[] = demoProjects.map(project => {
-          const customer = demoCustomers.find(c => c.id === project.customer_id)!
-          const sales = demoEmployees.find(e => e.id === project.sales_staff_id) || demoEmployees.find(e => e.department === '営業')!
-          const design = demoEmployees.find(e => e.id === project.design_staff_id) || demoEmployees.find(e => e.department === '意匠設計')!
-          const ic = demoEmployees.find(e => e.id === project.ic_staff_id) || demoEmployees.find(e => e.department === 'IC')!
-          const construction = demoEmployees.find(e => e.id === project.construction_staff_id) || demoEmployees.find(e => e.department === '工事')!
-          const exterior = demoEmployees.find(e => e.id === project.exterior_staff_id) || demoEmployees.find(e => e.department === '外構工事')!
+          const customer = demoCustomers.find(c => c.id === project.customer_id) || undefined
+          const sales = demoEmployees.find(e => e.id === project.sales_staff_id) || demoEmployees.find(e => e.department === '営業') || undefined
+          const design = demoEmployees.find(e => e.id === project.design_staff_id) || demoEmployees.find(e => e.department === '意匠設計') || undefined
+          const ic = demoEmployees.find(e => e.id === project.ic_staff_id) || demoEmployees.find(e => e.department === 'IC') || undefined
+          const construction = demoEmployees.find(e => e.id === project.construction_staff_id) || demoEmployees.find(e => e.department === '工事') || undefined
+          const exterior = demoEmployees.find(e => e.id === project.exterior_staff_id) || demoEmployees.find(e => e.department === '外構工事') || undefined
           const tasks = demoTasks.filter(t => t.project_id === project.id)
 
           return {
@@ -278,18 +283,28 @@ export default function ProjectList() {
         query = query.or(`sales_staff_id.eq.${currentUserId},design_staff_id.eq.${currentUserId},ic_staff_id.eq.${currentUserId},construction_staff_id.eq.${currentUserId},exterior_staff_id.eq.${currentUserId}`)
       }
 
-      const { data: projectsData} = await query.order('contract_date', { ascending: false })
+      const { data: projectsData, error: projectsError } = await query.order('contract_date', { ascending: false })
+
+      if (projectsError) {
+        console.error('案件の取得に失敗:', projectsError)
+        toast.error('案件データの読み込みに失敗しました')
+        return
+      }
 
       if (projectsData) {
         const projectsWithTasks = await Promise.all(
           projectsData.map(async (project) => {
-            const { data: tasks } = await supabase
+            const { data: tasks, error: tasksError } = await supabase
               .from('tasks')
               .select(`
                 *,
                 task_master:task_masters!tasks_task_master_id_fkey(show_in_progress)
               `)
               .eq('project_id', project.id)
+
+            if (tasksError) {
+              console.error('タスクの取得に失敗:', tasksError)
+            }
 
             // show_in_progressがtrueのタスクのみ表示（案件一覧の進捗用）
             const filteredTasks = (tasks || []).filter((task: any) =>
@@ -308,13 +323,17 @@ export default function ProjectList() {
         // 全タスクを取得（進捗マトリクス用）
         const projectIds = projectsData.map(p => p.id)
         if (projectIds.length > 0) {
-          const { data: tasksData } = await supabase
+          const { data: tasksData, error: tasksError } = await supabase
             .from('tasks')
             .select(`
               *,
               task_master:task_masters!tasks_task_master_id_fkey(show_in_progress)
             `)
             .in('project_id', projectIds)
+
+          if (tasksError) {
+            console.error('全タスクの取得に失敗:', tasksError)
+          }
 
           if (tasksData) {
             // show_in_progressがtrueのタスクのみ表示
@@ -328,7 +347,8 @@ export default function ProjectList() {
         }
       }
     } catch (error) {
-      // Failed to fetch projects
+      console.error('予期しないエラー:', error)
+      toast.error('予期しないエラーが発生しました')
     } finally {
       setLoading(false)
     }
@@ -655,7 +675,11 @@ export default function ProjectList() {
         .select()
         .single()
 
-      if (customerError) throw customerError
+      if (customerError) {
+        console.error('顧客の作成に失敗:', customerError)
+        toast.error('顧客の作成に失敗しました')
+        return
+      }
 
       const { data: project, error: projectError} = await supabase
         .from('projects')
@@ -671,14 +695,18 @@ export default function ProjectList() {
           handover_date: formData.handoverDate || null,
           status: formData.status,
           progress_rate: formData.progressRate,
-          assigned_sales: formData.assignedSales || null,
-          assigned_design: formData.assignedDesign || null,
-          assigned_construction: formData.assignedConstruction || null
+          sales_staff_id: formData.assignedSales.trim() || null,
+          design_staff_id: formData.assignedDesign.trim() || null,
+          construction_staff_id: formData.assignedConstruction.trim() || null
         })
         .select()
         .single()
 
-      if (projectError) throw projectError
+      if (projectError) {
+        console.error('案件の作成に失敗:', projectError)
+        toast.error('案件の作成に失敗しました')
+        return
+      }
 
       // 🚀 タスクマスタから45個のタスクを自動生成
       const taskResult = await generateProjectTasks(
@@ -709,7 +737,7 @@ export default function ProjectList() {
       resetForm()
       toast.success(`案件を作成しました（${taskResult.tasksCount || 0}個のタスクを自動生成）`)
     } catch (error) {
-      // Failed to create project
+      console.error('予期しないエラー:', error)
       toast.error('案件の作成に失敗しました')
     }
   }
@@ -730,7 +758,11 @@ export default function ProjectList() {
         })
         .eq('id', editingProject.customer_id)
 
-      if (customerError) throw customerError
+      if (customerError) {
+        console.error('顧客の更新に失敗:', customerError)
+        toast.error('顧客の更新に失敗しました')
+        return
+      }
 
       const { error: projectError } = await supabase
         .from('projects')
@@ -745,13 +777,17 @@ export default function ProjectList() {
           handover_date: formData.handoverDate || null,
           status: formData.status,
           progress_rate: formData.progressRate,
-          assigned_sales: formData.assignedSales || null,
-          assigned_design: formData.assignedDesign || null,
-          assigned_construction: formData.assignedConstruction || null
+          sales_staff_id: formData.assignedSales.trim() || null,
+          design_staff_id: formData.assignedDesign.trim() || null,
+          construction_staff_id: formData.assignedConstruction.trim() || null
         })
         .eq('id', editingProject.id)
 
-      if (projectError) throw projectError
+      if (projectError) {
+        console.error('案件の更新に失敗:', projectError)
+        toast.error('案件の更新に失敗しました')
+        return
+      }
 
       // 監査ログを記録
       await logUpdate(
@@ -776,7 +812,7 @@ export default function ProjectList() {
       resetForm()
       toast.success('案件を更新しました')
     } catch (error) {
-      // Failed to update project
+      console.error('予期しないエラー:', error)
       toast.error('案件の更新に失敗しました')
     }
   }
@@ -794,7 +830,11 @@ export default function ProjectList() {
         .delete()
         .eq('id', deletingProjectId)
 
-      if (error) throw error
+      if (error) {
+        console.error('案件の削除に失敗:', error)
+        toast.error('案件の削除に失敗しました')
+        return
+      }
 
       // 監査ログを記録
       if (projectToDelete) {
@@ -815,7 +855,7 @@ export default function ProjectList() {
       setDeletingProjectId(null)
       toast.success('案件を削除しました')
     } catch (error) {
-      // Failed to delete project
+      console.error('予期しないエラー:', error)
       toast.error('案件の削除に失敗しました')
     }
   }

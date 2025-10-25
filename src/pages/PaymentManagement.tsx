@@ -45,6 +45,34 @@ export default function PaymentManagement() {
     loadPayments()
   }, [selectedMonth, selectedFiscalYear, viewMode])
 
+  // リアルタイム更新の購読
+  useEffect(() => {
+    const channel = supabase
+      .channel('payment-management-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'payments' },
+        (payload) => {
+          // 入金が変更されたらデータを再読み込み
+          loadPayments()
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'projects' },
+        (payload) => {
+          // プロジェクトが変更されたらデータを再読み込み
+          loadPayments()
+        }
+      )
+      .subscribe()
+
+    // クリーンアップ: コンポーネントのアンマウント時にサブスクリプション解除
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [selectedMonth, selectedFiscalYear, viewMode])
+
   const loadPayments = async () => {
     setLoading(true)
 

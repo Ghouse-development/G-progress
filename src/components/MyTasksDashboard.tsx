@@ -45,7 +45,6 @@ export default function MyTasksDashboard() {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'tasks' },
         (payload) => {
-          console.log('Task updated:', payload)
           loadData()
         }
       )
@@ -53,7 +52,6 @@ export default function MyTasksDashboard() {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'projects' },
         (payload) => {
-          console.log('Project updated:', payload)
           loadData()
         }
       )

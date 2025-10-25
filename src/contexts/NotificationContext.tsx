@@ -68,8 +68,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           table: 'notifications'
         },
         (payload) => {
-          console.log('Notification change received:', payload)
-
           // 新規通知が追加された場合は即座に再読み込み
           if (payload.eventType === 'INSERT') {
             loadNotifications()

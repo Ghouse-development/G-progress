@@ -122,12 +122,7 @@ export default function DashboardHome() {
           loadEmployees() // 従業員データを再読み込み
         }
       )
-      .subscribe((status) => {
-        if (status === 'SUBSCRIPTION_ERROR') {
-          // Realtime接続エラー時の処理
-          toast.error('リアルタイム更新の接続に失敗しました')
-        }
-      })
+      .subscribe()
 
     // クリーンアップ: コンポーネントのアンマウント時にサブスクリプション解除
     return () => {
@@ -189,24 +184,46 @@ export default function DashboardHome() {
   }
 
   const loadEmployees = async () => {
-    const { data } = await supabase
-      .from('employees')
-      .select('*')
-      .order('last_name')
+    try {
+      const { data, error } = await supabase
+        .from('employees')
+        .select('*')
+        .order('last_name')
 
-    if (data) {
-      setEmployees(data as Employee[])
+      if (error) {
+        console.error('従業員の読み込みに失敗:', error)
+        toast.error('従業員情報の読み込みに失敗しました')
+        return
+      }
+
+      if (data) {
+        setEmployees(data as Employee[])
+      }
+    } catch (error) {
+      console.error('予期しないエラー:', error)
+      toast.error('予期しないエラーが発生しました')
     }
   }
 
   const loadProducts = async () => {
-    const { data } = await supabase
-      .from('products')
-      .select('*')
-      .order('name')
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('name')
 
-    if (data) {
-      setProducts(data as Product[])
+      if (error) {
+        console.error('商品の読み込みに失敗:', error)
+        toast.error('商品情報の読み込みに失敗しました')
+        return
+      }
+
+      if (data) {
+        setProducts(data as Product[])
+      }
+    } catch (error) {
+      console.error('予期しないエラー:', error)
+      toast.error('予期しないエラーが発生しました')
     }
   }
 

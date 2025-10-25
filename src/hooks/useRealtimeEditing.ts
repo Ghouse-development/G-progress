@@ -39,7 +39,7 @@ export function useRealtimeEditing({
 
   // ロック状態の監視
   useEffect(() => {
-    if (!enabled || !resourceId) return
+    if (!enabled || !resourceId || resourceId.trim() === '') return
 
     checkLockStatus()
 
@@ -67,7 +67,7 @@ export function useRealtimeEditing({
 
   // オンラインユーザーの監視
   useEffect(() => {
-    if (!enabled || !resourceId) return
+    if (!enabled || !resourceId || resourceId.trim() === '') return
 
     checkOnlineUsers()
 
@@ -104,15 +104,22 @@ export function useRealtimeEditing({
   }, [isLocked, lockedBy, employeeId, enabled])
 
   const checkLockStatus = async () => {
+    if (!resourceId || resourceId.trim() === '') {
+      setIsLocked(false)
+      setLockedBy(null)
+      setLockedByName(null)
+      return
+    }
+
     const { data, error } = await supabase
       .from('edit_locks')
       .select('*, employee:employees(id, first_name, last_name)')
       .eq('resource_type', resourceType)
       .eq('resource_id', resourceId)
       .gt('expires_at', new Date().toISOString())
-      .single()
+      .maybeSingle()
 
-    if (error && error.code !== 'PGRST116') {
+    if (error) {
       console.error('Lock status check error:', error)
       return
     }
@@ -145,6 +152,11 @@ export function useRealtimeEditing({
 
   const acquireLock = async (): Promise<boolean> => {
     try {
+      if (!resourceId || resourceId.trim() === '') {
+        console.error('Cannot acquire lock: resourceId is empty')
+        return false
+      }
+
       // 既存のロックをチェック
       const { data: existingLock } = await supabase
         .from('edit_locks')
@@ -152,7 +164,7 @@ export function useRealtimeEditing({
         .eq('resource_type', resourceType)
         .eq('resource_id', resourceId)
         .gt('expires_at', new Date().toISOString())
-        .single()
+        .maybeSingle()
 
       if (existingLock && existingLock.locked_by !== employeeId) {
         warning('他のユーザーが編集中です')

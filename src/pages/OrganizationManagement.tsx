@@ -36,11 +36,15 @@ export default function OrganizationManagement() {
         .select('*')
         .order('created_at', { ascending: false })
 
-      if (error) throw error
+      if (error) {
+        console.error('組織データ読み込みエラー:', error)
+        toast.error(`組織の読み込みに失敗しました: ${error.message}`)
+        return
+      }
       setOrganizations(data || [])
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to load organizations:', error)
-      toast.error('組織の読み込みに失敗しました')
+      toast.error(`組織の読み込みに失敗しました: ${error?.message || '不明なエラー'}`)
     } finally {
       setLoading(false)
     }
@@ -96,9 +100,13 @@ export default function OrganizationManagement() {
           })
           .eq('id', editingOrg.id)
 
-        if (error) throw error
+        if (error) {
+          console.error('組織更新エラー:', error)
+          toast.error(`組織の更新に失敗しました: ${error.message}`)
+          return
+        }
         toast.success('組織を更新しました')
-      } else {
+      } else{
         // 新規作成
         const { error } = await supabase
           .from('organizations')
@@ -108,15 +116,19 @@ export default function OrganizationManagement() {
             org_status: formData.org_status
           }])
 
-        if (error) throw error
+        if (error) {
+          console.error('組織作成エラー:', error)
+          toast.error(`組織の作成に失敗しました: ${error.message}`)
+          return
+        }
         toast.success('組織を作成しました')
       }
 
       await loadOrganizations()
       handleCloseModal()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to save organization:', error)
-      toast.error('組織の保存に失敗しました')
+      toast.error(`組織の保存に失敗しました: ${error?.message || '不明なエラー'}`)
     }
   }
 
@@ -131,12 +143,16 @@ export default function OrganizationManagement() {
         .delete()
         .eq('id', id)
 
-      if (error) throw error
+      if (error) {
+        console.error('組織削除エラー:', error)
+        toast.error(`組織の削除に失敗しました: ${error.message}`)
+        return
+      }
       toast.success('組織を削除しました')
       await loadOrganizations()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to delete organization:', error)
-      toast.error('組織の削除に失敗しました')
+      toast.error(`組織の削除に失敗しました: ${error?.message || '不明なエラー'}`)
     }
   }
 

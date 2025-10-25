@@ -21,16 +21,25 @@ export default function Login() {
   // 開発モード：従業員リストを取得
   useEffect(() => {
     const loadEmployees = async () => {
-      const { data } = await supabase
-        .from('employees')
-        .select('id, last_name, first_name, department')
-        .order('last_name')
+      try {
+        const { data, error } = await supabase
+          .from('employees')
+          .select('id, last_name, first_name, department')
+          .order('last_name')
 
-      if (data) {
-        setEmployees(data)
-        if (data.length > 0) {
-          setSelectedEmployeeId(data[0].id)
+        if (error) {
+          console.error('従業員リストの読み込みに失敗:', error)
+          return
         }
+
+        if (data) {
+          setEmployees(data)
+          if (data.length > 0) {
+            setSelectedEmployeeId(data[0].id)
+          }
+        }
+      } catch (error) {
+        console.error('予期しないエラー:', error)
       }
     }
 
