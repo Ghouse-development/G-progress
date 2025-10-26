@@ -165,7 +165,7 @@ export default function DelayedTasks() {
                           <div className="flex items-center gap-2">
                             <Home size={16} className="text-gray-600" />
                             <span className="text-base font-medium text-gray-900">
-                              {task.project?.project_name || '不明'}
+                              {task.project?.customer_names?.[0] ? `${task.project.customer_names[0]}邸` : task.project?.construction_address || '不明'}
                             </span>
                           </div>
                         </td>
