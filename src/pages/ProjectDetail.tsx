@@ -1294,6 +1294,39 @@ export default function ProjectDetail() {
                   </div>
                 )}
 
+                {/* コメント */}
+                <div>
+                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                    コメント（遅延理由・進捗状況など）
+                  </label>
+                  <textarea
+                    value={selectedTask.comment || ''}
+                    onChange={async (e) => {
+                      const newComment = e.target.value
+                      try {
+                        const { error } = await supabase
+                          .from('tasks')
+                          .update({
+                            comment: newComment,
+                            updated_at: new Date().toISOString()
+                          })
+                          .eq('id', selectedTask.id)
+
+                        if (error) throw error
+
+                        setSelectedTask({ ...selectedTask, comment: newComment })
+                      } catch (error) {
+                        console.error('コメント更新エラー:', error)
+                        toast.error('コメントの更新に失敗しました')
+                      }
+                    }}
+                    disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
+                    className="prisma-textarea"
+                    placeholder="タスクに関するコメントを入力してください"
+                    rows={3}
+                  />
+                </div>
+
                 {/* Do's & Don'ts */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   {selectedTask.dos && (

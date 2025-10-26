@@ -17,6 +17,7 @@ import PaymentManagement from './PaymentManagement'
 import PerformanceManagement from './PerformanceManagement'
 import TaskMasterManagement from './TaskMasterManagement'
 import TaskByPosition from './TaskByPosition'
+import DelayedTasks from './DelayedTasks'
 import Settings from './Settings'
 import TopPage from './TopPage'
 import GrossProfitManagement from './GrossProfitManagement'
@@ -45,6 +46,7 @@ export default function Dashboard() {
                   <Route path="/performance" element={<PerformanceManagement />} />
                   <Route path="/calendar" element={<Calendar />} />
                   <Route path="/tasks-by-position" element={<TaskByPosition />} />
+                  <Route path="/delayed-tasks" element={<DelayedTasks />} />
                   <Route path="/employee-management" element={<EmployeeMaster />} />
                   <Route path="/approval-flow" element={<ApprovalFlow />} />
                   <Route path="/reports" element={<Reports />} />

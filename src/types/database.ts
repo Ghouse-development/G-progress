@@ -336,6 +336,7 @@ export interface Task {
   manual_url?: string
   video_url?: string
   task_master_id?: string // タスクマスタとの紐付け
+  comment?: string // タスクに対するコメント（遅延理由、進捗状況など）
   organization?: Organization
 }
 
