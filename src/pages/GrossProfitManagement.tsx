@@ -355,25 +355,25 @@ export default function GrossProfitManagement() {
       </div>
 
       {/* テーブル */}
-      <div className="prisma-card" style={{ padding: 0, overflow: 'visible' }}>
+      <div className="prisma-card" style={{ padding: 0, maxHeight: 'calc(100vh - 250px)', overflow: 'auto' }}>
         <div style={{ overflowX: 'auto', width: '100%' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '2000px' }}>
             <thead className="bg-gray-100 dark:bg-gray-800 sticky top-0">
               {/* 1段目ヘッダー：グループ */}
               <tr>
-                <th rowSpan={2} className="px-4 py-4 text-left text-lg font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600" style={{ minWidth: '200px' }}>
+                <th rowSpan={2} className="px-4 py-4 text-left text-lg font-bold text-gray-900 dark:text-gray-100 border-4 border-gray-400 dark:border-gray-500" style={{ minWidth: '200px' }}>
                   案件名
                 </th>
-                <th rowSpan={2} className="px-4 py-4 text-right text-lg font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-blue-100 dark:bg-blue-900/30" style={{ minWidth: '140px' }}>
+                <th rowSpan={2} className="px-4 py-4 text-right text-lg font-bold text-gray-900 dark:text-gray-100 border-4 border-gray-400 dark:border-gray-500 bg-blue-100 dark:bg-blue-900/30" style={{ minWidth: '140px' }}>
                   請負金額<br/><span className="text-sm font-normal">(税別)</span>
                 </th>
-                <th colSpan={4} className="px-4 py-3 text-center text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-green-100 dark:bg-green-900/30">
+                <th colSpan={4} className="px-4 py-3 text-center text-base font-bold text-gray-900 dark:text-gray-100 border-4 border-gray-400 dark:border-gray-500 bg-green-100 dark:bg-green-900/30">
                   実行予算
                 </th>
-                <th colSpan={4} className="px-4 py-3 text-center text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-purple-100 dark:bg-purple-900/30">
+                <th colSpan={4} className="px-4 py-3 text-center text-base font-bold text-gray-900 dark:text-gray-100 border-4 border-gray-400 dark:border-gray-500 bg-purple-100 dark:bg-purple-900/30">
                   完工
                 </th>
-                <th colSpan={4} className="px-4 py-3 text-center text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-orange-100 dark:bg-orange-900/30">
+                <th colSpan={4} className="px-4 py-3 text-center text-base font-bold text-gray-900 dark:text-gray-100 border-4 border-gray-400 dark:border-gray-500 bg-orange-100 dark:bg-orange-900/30">
                   差額
                 </th>
               </tr>

@@ -307,7 +307,16 @@ export default function PaymentManagement() {
             {paymentRows.map((row, index) => (
               <tr key={index}>
                 <td>{row.projectName}</td>
-                <td>{row.paymentType}</td>
+                <td>
+                  <div className="flex items-center gap-2">
+                    <span>{row.paymentType}</span>
+                    {row.actual > 0 && (
+                      <span className="inline-flex items-center justify-center w-7 h-7 text-xs font-bold text-white bg-green-600 rounded-full border-2 border-white shadow-lg" title="入金確定">
+                        確
+                      </span>
+                    )}
+                  </div>
+                </td>
                 <td style={{ textAlign: 'right' }}>{row.amount.toLocaleString()}</td>
                 <td style={{ textAlign: 'right' }}>{row.scheduled.toLocaleString()}</td>
                 <td style={{ textAlign: 'right' }}>{row.actual.toLocaleString()}</td>

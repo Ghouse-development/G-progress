@@ -621,43 +621,43 @@ export default function Calendar() {
           </div>
 
           {/* モード切替 */}
-          <div className="flex items-center justify-center gap-2 mb-3 flex-wrap">
+          <div className="flex items-center justify-center gap-3 mb-4 flex-wrap">
             <button
               onClick={() => setCalendarMode('tasks')}
-              className={`px-4 py-2 text-sm lg:text-base font-bold border-2 transition-colors shadow-sm ${
+              className={`px-6 py-3 text-base font-bold border-3 transition-colors shadow-lg rounded-lg ${
                 calendarMode === 'tasks'
-                  ? 'bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700'
-                  : 'bg-white text-gray-800 border-gray-400 hover:bg-gray-100'
+                  ? 'bg-blue-500 text-white border-blue-600 hover:bg-blue-600'
+                  : 'bg-white text-gray-900 border-gray-300 hover:bg-gray-50'
               }`}
             >
               通常カレンダー
             </button>
             <button
               onClick={() => setCalendarMode('payments')}
-              className={`px-4 py-2 text-sm lg:text-base font-bold border-2 transition-colors shadow-sm ${
+              className={`px-6 py-3 text-base font-bold border-3 transition-colors shadow-lg rounded-lg ${
                 calendarMode === 'payments'
-                  ? 'bg-green-600 text-white border-green-600 hover:bg-green-700'
-                  : 'bg-white text-gray-800 border-gray-400 hover:bg-gray-100'
+                  ? 'bg-green-600 text-white border-green-700 hover:bg-green-700'
+                  : 'bg-white text-gray-900 border-gray-300 hover:bg-gray-50'
               }`}
             >
               入金カレンダー
             </button>
             <button
               onClick={() => setCalendarMode('construction_start')}
-              className={`px-4 py-2 text-sm lg:text-base font-bold border-2 transition-colors shadow-sm ${
+              className={`px-6 py-3 text-base font-bold border-3 transition-colors shadow-lg rounded-lg ${
                 calendarMode === 'construction_start'
-                  ? 'bg-orange-600 text-white border-orange-600 hover:bg-orange-700'
-                  : 'bg-white text-gray-800 border-gray-400 hover:bg-gray-100'
+                  ? 'bg-orange-600 text-white border-orange-700 hover:bg-orange-700'
+                  : 'bg-white text-gray-900 border-gray-300 hover:bg-gray-50'
               }`}
             >
               着工カレンダー
             </button>
             <button
               onClick={() => setCalendarMode('handover')}
-              className={`px-4 py-2 text-sm lg:text-base font-bold border-2 transition-colors shadow-sm ${
+              className={`px-6 py-3 text-base font-bold border-3 transition-colors shadow-lg rounded-lg ${
                 calendarMode === 'handover'
-                  ? 'bg-purple-600 text-white border-purple-600 hover:bg-purple-700'
-                  : 'bg-white text-gray-800 border-gray-400 hover:bg-gray-100'
+                  ? 'bg-purple-600 text-white border-purple-700 hover:bg-purple-700'
+                  : 'bg-white text-gray-900 border-gray-300 hover:bg-gray-50'
               }`}
             >
               引き渡しカレンダー
