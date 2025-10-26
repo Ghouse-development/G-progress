@@ -315,15 +315,20 @@ export default function ProjectDetailFields({
                                       e.stopPropagation()
                                       onTaskClick && onTaskClick(task)
                                     }}
-                                    className={`text-base px-2 py-1 rounded truncate cursor-pointer mb-1 ${
+                                    className={`relative text-base px-2 py-1 rounded truncate cursor-pointer mb-1 ${
                                       isDelayed ? 'task-delayed' :
                                       task.status === 'completed' ? 'task-completed' :
                                       task.status === 'requested' ? 'task-in-progress' :
                                       'task-not-started'
                                     }`}
-                                    title={task.title}
+                                    title={`${task.title}${task.is_date_confirmed ? ' [日付確定]' : ' [予定]'}`}
                                   >
                                     {task.title}
+                                    {task.is_date_confirmed && (
+                                      <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-green-600 rounded-full border-2 border-white">
+                                        確
+                                      </span>
+                                    )}
                                   </div>
                                 )
                               })}
@@ -436,7 +441,14 @@ export default function ProjectDetailFields({
 
                                 {/* タスク名 */}
                                 <td className="border-3 border-gray-300 px-4 py-3 text-base text-gray-900 font-medium">
-                                  {task.title}
+                                  <div className="flex items-center gap-2">
+                                    {task.title}
+                                    {task.is_date_confirmed && (
+                                      <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-green-600 rounded-full border-2 border-white flex-shrink-0" title="日付確定">
+                                        確
+                                      </span>
+                                    )}
+                                  </div>
                                 </td>
 
                                 {/* 担当者 */}

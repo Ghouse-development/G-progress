@@ -11,7 +11,7 @@ import { supabase } from '../lib/supabase'
 import { KintoneClient, projectToKintoneRecord } from '../lib/kintone'
 import { useToast } from '../contexts/ToastContext'
 import SystemRoadmap from '../components/SystemRoadmap'
-import { Settings as SettingsIcon, Database, TestTube, PlayCircle, Clock, CheckCircle, Palette, Cpu } from 'lucide-react'
+import { Settings as SettingsIcon, Database, TestTube, PlayCircle, Clock, CheckCircle, Palette, Cpu, MessageSquare } from 'lucide-react'
 
 interface KintoneSettings {
   domain: string
@@ -21,7 +21,18 @@ interface KintoneSettings {
   lastBackupAt?: string
 }
 
-type TabType = 'basic' | 'kintone' | 'system'
+interface LineSettings {
+  channelId: string
+  channelSecret: string
+  channelAccessToken: string
+  webhookUrl: string
+  enabled: boolean
+  messageRetentionDays: number
+  autoReplyEnabled: boolean
+  lastSyncAt?: string
+}
+
+type TabType = 'basic' | 'kintone' | 'line' | 'system'
 
 export default function Settings() {
   const { demoMode, setDemoMode, darkMode, setDarkMode } = useSettings()
@@ -34,12 +45,22 @@ export default function Settings() {
     appId: '',
     autoBackupEnabled: false
   })
+  const [lineSettings, setLineSettings] = useState<LineSettings>({
+    channelId: '',
+    channelSecret: '',
+    channelAccessToken: '',
+    webhookUrl: '',
+    enabled: false,
+    messageRetentionDays: 365,
+    autoReplyEnabled: false
+  })
   const [testing, setTesting] = useState(false)
   const [backing, setBacking] = useState(false)
   const [backupLogs, setBackupLogs] = useState<any[]>([])
 
   useEffect(() => {
     loadKintoneSettings()
+    loadLineSettings()
     loadBackupLogs()
   }, [])
 
@@ -86,6 +107,48 @@ export default function Settings() {
     } catch (error) {
       console.error('Failed to load backup logs:', error)
       showToast('予期しないエラーが発生しました', 'error')
+    }
+  }
+
+  const loadLineSettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('system_settings')
+        .select('*')
+        .eq('key', 'line_config')
+        .maybeSingle()
+
+      if (error) {
+        console.error('Failed to load LINE settings:', error)
+        showToast('LINE設定の読み込みに失敗しました', 'error')
+        return
+      }
+
+      if (data?.value) {
+        setLineSettings(data.value)
+      }
+    } catch (error) {
+      console.error('Failed to load LINE settings:', error)
+      showToast('予期しないエラーが発生しました', 'error')
+    }
+  }
+
+  const saveLineSettings = async () => {
+    try {
+      const { error } = await supabase
+        .from('system_settings')
+        .upsert({
+          key: 'line_config',
+          value: lineSettings,
+          updated_at: new Date().toISOString()
+        })
+
+      if (error) throw error
+
+      showToast('LINE設定を保存しました', 'success')
+    } catch (error) {
+      console.error('Failed to save LINE settings:', error)
+      showToast('LINE設定の保存に失敗しました', 'error')
     }
   }
 
@@ -234,6 +297,17 @@ export default function Settings() {
           >
             <Database size={20} />
             kintone連携
+          </button>
+          <button
+            onClick={() => setActiveTab('line')}
+            className={`flex items-center gap-2 px-6 py-3 font-bold text-base transition-all ${
+              activeTab === 'line'
+                ? 'border-b-4 border-blue-600 text-blue-600'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <MessageSquare size={20} />
+            LINE連携
           </button>
           <button
             onClick={() => setActiveTab('system')}
@@ -569,6 +643,275 @@ export default function Settings() {
                     ))}
                   </div>
                 )}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* LINE連携タブ */}
+        {activeTab === 'line' && (
+          <>
+            {/* LINE連携概要 */}
+            <div className="prisma-card bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+                  <MessageSquare size={24} />
+                  LINE連携について（将来実装予定）
+                </h3>
+                <p className="text-base text-gray-700 dark:text-gray-300 mb-4">
+                  この機能は、顧客とのLINEでのやり取りをG-progressに自動保存し、一元管理するための設定です。
+                </p>
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border-3 border-green-200 dark:border-green-700">
+                  <h4 className="font-bold text-base text-gray-800 dark:text-gray-100 mb-2">実装予定の機能</h4>
+                  <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600 dark:text-green-400 font-bold">•</span>
+                      顧客からのLINEメッセージを自動受信・保存
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600 dark:text-green-400 font-bold">•</span>
+                      画像・ファイルの添付データも保存
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600 dark:text-green-400 font-bold">•</span>
+                      プロジェクト詳細画面でLINE履歴を時系列表示
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600 dark:text-green-400 font-bold">•</span>
+                      重要なメッセージをタスクに変換
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600 dark:text-green-400 font-bold">•</span>
+                      担当者変更時の引き継ぎが容易に
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* LINE API設定 */}
+            <div className="prisma-card">
+              <div className="p-6">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+                  <MessageSquare size={20} />
+                  LINE API設定
+                </h3>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-base font-bold text-gray-700 dark:text-gray-300 mb-2">
+                      チャネルID
+                    </label>
+                    <input
+                      type="text"
+                      value={lineSettings.channelId}
+                      onChange={(e) => setLineSettings({ ...lineSettings, channelId: e.target.value })}
+                      placeholder="例: 1234567890"
+                      className="prisma-input"
+                    />
+                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                      LINE Developers ConsoleのMessaging APIチャネルIDを入力
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-base font-bold text-gray-700 dark:text-gray-300 mb-2">
+                      チャネルシークレット
+                    </label>
+                    <input
+                      type="password"
+                      value={lineSettings.channelSecret}
+                      onChange={(e) => setLineSettings({ ...lineSettings, channelSecret: e.target.value })}
+                      placeholder="チャネルシークレットを入力"
+                      className="prisma-input"
+                    />
+                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                      Webhook検証に使用されるシークレットキー
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-base font-bold text-gray-700 dark:text-gray-300 mb-2">
+                      チャネルアクセストークン
+                    </label>
+                    <input
+                      type="password"
+                      value={lineSettings.channelAccessToken}
+                      onChange={(e) => setLineSettings({ ...lineSettings, channelAccessToken: e.target.value })}
+                      placeholder="チャネルアクセストークンを入力"
+                      className="prisma-input"
+                    />
+                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                      LINE APIへのアクセスに使用する長期トークン
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-base font-bold text-gray-700 dark:text-gray-300 mb-2">
+                      Webhook URL（参考）
+                    </label>
+                    <input
+                      type="text"
+                      value={lineSettings.webhookUrl || 'https://your-domain.com/api/line/webhook'}
+                      onChange={(e) => setLineSettings({ ...lineSettings, webhookUrl: e.target.value })}
+                      placeholder="https://your-domain.com/api/line/webhook"
+                      className="prisma-input"
+                    />
+                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                      LINE Developersコンソールに設定するWebhook URL（実装時に自動生成）
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-4 pt-4">
+                    <button
+                      onClick={saveLineSettings}
+                      className="prisma-btn prisma-btn-primary"
+                    >
+                      設定を保存
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 動作設定 */}
+            <div className="prisma-card">
+              <div className="p-6">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
+                  動作設定
+                </h3>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
+                    <div>
+                      <p className="font-bold text-base text-gray-800 dark:text-gray-100">LINE連携を有効化</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        ONにすると、LINEメッセージの受信を開始します
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setLineSettings({ ...lineSettings, enabled: !lineSettings.enabled })}
+                      className={`relative inline-flex h-10 w-20 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                        lineSettings.enabled
+                          ? 'bg-green-600 focus:ring-green-500'
+                          : 'bg-gray-300 dark:bg-gray-600 focus:ring-gray-400'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-8 w-8 transform rounded-full bg-white shadow-lg transition-transform ${
+                          lineSettings.enabled ? 'translate-x-10' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
+                    <div>
+                      <p className="font-bold text-base text-gray-800 dark:text-gray-100">自動返信機能</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        営業時間外などに自動返信メッセージを送信（実装予定）
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setLineSettings({ ...lineSettings, autoReplyEnabled: !lineSettings.autoReplyEnabled })}
+                      className={`relative inline-flex h-10 w-20 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                        lineSettings.autoReplyEnabled
+                          ? 'bg-blue-600 focus:ring-blue-500'
+                          : 'bg-gray-300 dark:bg-gray-600 focus:ring-gray-400'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-8 w-8 transform rounded-full bg-white shadow-lg transition-transform ${
+                          lineSettings.autoReplyEnabled ? 'translate-x-10' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  <div>
+                    <label className="block text-base font-bold text-gray-700 dark:text-gray-300 mb-2">
+                      メッセージ保存期間（日数）
+                    </label>
+                    <input
+                      type="number"
+                      value={lineSettings.messageRetentionDays}
+                      onChange={(e) => setLineSettings({ ...lineSettings, messageRetentionDays: parseInt(e.target.value) || 365 })}
+                      min="30"
+                      max="3650"
+                      className="prisma-input w-32"
+                    />
+                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                      この期間を超えたメッセージは自動的にアーカイブされます（30〜3650日）
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 設定状態 */}
+            <div className="prisma-card">
+              <div className="p-6">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
+                  現在の設定状態
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+                    <span className="text-gray-700 dark:text-gray-300 font-medium">連携ステータス</span>
+                    <span className={`px-3 py-1 rounded-lg text-sm font-bold ${
+                      lineSettings.enabled
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                        : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                    }`}>
+                      {lineSettings.enabled ? '有効' : '無効'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+                    <span className="text-gray-700 dark:text-gray-300 font-medium">チャネルID</span>
+                    <span className="text-gray-900 dark:text-gray-100 font-semibold">
+                      {lineSettings.channelId || '未設定'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+                    <span className="text-gray-700 dark:text-gray-300 font-medium">自動返信</span>
+                    <span className="text-gray-900 dark:text-gray-100 font-semibold">
+                      {lineSettings.autoReplyEnabled ? 'ON' : 'OFF'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between py-2">
+                    <span className="text-gray-700 dark:text-gray-300 font-medium">メッセージ保存期間</span>
+                    <span className="text-gray-900 dark:text-gray-100 font-semibold">
+                      {lineSettings.messageRetentionDays}日間
+                    </span>
+                  </div>
+                  {lineSettings.lastSyncAt && (
+                    <div className="flex items-center justify-between py-2 border-t border-gray-200 dark:border-gray-700">
+                      <span className="text-gray-700 dark:text-gray-300 font-medium">最終同期日時</span>
+                      <span className="text-gray-900 dark:text-gray-100 font-semibold">
+                        {new Date(lineSettings.lastSyncAt).toLocaleString('ja-JP')}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* 注意事項 */}
+            <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 p-4 rounded">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-blue-700 dark:text-blue-200 font-medium">
+                    LINE連携は将来実装予定の機能です
+                  </p>
+                  <p className="text-sm text-blue-600 dark:text-blue-300 mt-1">
+                    現時点では設定情報の保存のみ可能です。実装時にこの設定情報が使用されます。
+                    LINE Messaging APIの取得方法については、実装時に詳細な手順書を提供します。
+                  </p>
+                </div>
               </div>
             </div>
           </>

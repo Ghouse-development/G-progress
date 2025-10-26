@@ -1149,6 +1149,69 @@ export default function ProjectDetail() {
                   )}
                 </div>
 
+                {/* 日付確定/予定の切り替え */}
+                <div>
+                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                    日付ステータス
+                  </label>
+                  <div className="flex items-center gap-4 p-4 border-2 border-gray-300 rounded-lg bg-gray-50">
+                    <div className="flex items-center gap-2">
+                      <span className="text-base font-bold text-gray-700">
+                        {selectedTask.is_date_confirmed ? '確定' : '予定'}
+                      </span>
+                      {selectedTask.is_date_confirmed && (
+                        <span className="inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-green-600 rounded-full border-2 border-white">
+                          確
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      onClick={async () => {
+                        if (taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId) {
+                          toast.warning('他のユーザーが編集中です')
+                          return
+                        }
+
+                        try {
+                          const { error } = await supabase
+                            .from('tasks')
+                            .update({
+                              is_date_confirmed: !selectedTask.is_date_confirmed,
+                              updated_at: new Date().toISOString()
+                            })
+                            .eq('id', selectedTask.id)
+
+                          if (error) throw error
+
+                          toast.success(`日付を${!selectedTask.is_date_confirmed ? '確定' : '予定'}に変更しました`)
+                          setSelectedTask({
+                            ...selectedTask,
+                            is_date_confirmed: !selectedTask.is_date_confirmed
+                          })
+                          loadProjectData()
+                        } catch (error) {
+                          console.error('日付ステータス更新エラー:', error)
+                          toast.error('日付ステータスの更新に失敗しました')
+                        }
+                      }}
+                      disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
+                      className={`px-4 py-2 rounded-lg font-bold text-sm transition-all ${
+                        selectedTask.is_date_confirmed
+                          ? 'bg-gray-200 text-gray-700 hover:bg-gray-300 border-2 border-gray-400'
+                          : 'bg-green-500 text-white hover:bg-green-600 border-2 border-green-600'
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    >
+                      {selectedTask.is_date_confirmed ? '予定に戻す' : '日付を確定する'}
+                    </button>
+                    <p className="text-sm text-gray-600 flex-1">
+                      {selectedTask.is_date_confirmed
+                        ? 'この日付は確定しています。変更が必要な場合は予定に戻してください。'
+                        : 'この日付は予定です。確定する場合はボタンを押してください。'
+                      }
+                    </p>
+                  </div>
+                </div>
+
                 {/* トリガーからの日にち設定（読み取り専用） */}
                 {selectedTask.task_master?.trigger_task_id && selectedTask.task_master?.days_from_trigger !== undefined && (
                   <div>

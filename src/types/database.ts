@@ -322,6 +322,7 @@ export interface Task {
   actual_completion_date?: string
   status: TaskStatus
   priority: TaskPriority
+  is_date_confirmed?: boolean // 日付確定フラグ（false: 予定、true: 確定）
   organization_id?: string // マルチテナント対応
   created_at: string
   updated_at: string
