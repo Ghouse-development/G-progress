@@ -1125,90 +1125,102 @@ export default function ProjectDetail() {
                   <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
                     期限日
                   </label>
-                  {editingDueDate ? (
-                    <input
-                      type="date"
-                      value={selectedTask.due_date || ''}
-                      onChange={(e) => handleUpdateDueDate(e.target.value)}
-                      onBlur={() => setEditingDueDate(false)}
-                      autoFocus
-                      className="prisma-input"
-                    />
-                  ) : (
-                    <div
-                      onClick={() => setEditingDueDate(true)}
-                      className="prisma-input cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
-                    >
-                      <div className="font-medium text-gray-900">
-                        {selectedTask.due_date ? format(new Date(selectedTask.due_date), 'yyyy年MM月dd日 (E)', { locale: ja }) : '未設定'}
-                      </div>
-                      <div className="text-sm text-gray-600 mt-1">
-                        契約日から {selectedTask.dayFromContract || 0}日目
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* 日付確定/予定の切り替え */}
-                <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
-                    日付ステータス
-                  </label>
-                  <div className="flex items-center gap-4 p-4 border-2 border-gray-300 rounded-lg bg-gray-50">
-                    <div className="flex items-center gap-2">
-                      <span className="text-base font-bold text-gray-700">
-                        {selectedTask.is_date_confirmed ? '確定' : '予定'}
-                      </span>
-                      {selectedTask.is_date_confirmed && (
-                        <span className="inline-flex items-center justify-center w-8 h-8 text-sm font-bold text-white bg-green-600 rounded-full border-2 border-white shadow-lg">
-                          確
-                        </span>
+                  <div className="flex items-start gap-4">
+                    <div className="flex-1">
+                      {editingDueDate ? (
+                        <input
+                          type="date"
+                          value={selectedTask.due_date || ''}
+                          onChange={(e) => handleUpdateDueDate(e.target.value)}
+                          onBlur={() => setEditingDueDate(false)}
+                          autoFocus
+                          className="prisma-input"
+                        />
+                      ) : (
+                        <div
+                          onClick={() => setEditingDueDate(true)}
+                          className="prisma-input cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
+                        >
+                          <div className="font-medium text-gray-900">
+                            {selectedTask.due_date ? format(new Date(selectedTask.due_date), 'yyyy年MM月dd日 (E)', { locale: ja }) : '未設定'}
+                          </div>
+                          <div className="text-sm text-gray-600 mt-1">
+                            契約日から {selectedTask.dayFromContract || 0}日目
+                          </div>
+                        </div>
                       )}
                     </div>
-                    <button
-                      onClick={async () => {
-                        if (taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId) {
-                          toast.warning('他のユーザーが編集中です')
-                          return
-                        }
-
-                        try {
-                          const { error } = await supabase
-                            .from('tasks')
-                            .update({
-                              is_date_confirmed: !selectedTask.is_date_confirmed,
-                              updated_at: new Date().toISOString()
-                            })
-                            .eq('id', selectedTask.id)
-
-                          if (error) throw error
-
-                          toast.success(`日付を${!selectedTask.is_date_confirmed ? '確定' : '予定'}に変更しました`)
-                          setSelectedTask({
-                            ...selectedTask,
-                            is_date_confirmed: !selectedTask.is_date_confirmed
-                          })
-                          loadProjectData()
-                        } catch (error) {
-                          console.error('日付ステータス更新エラー:', error)
-                          toast.error('日付ステータスの更新に失敗しました')
-                        }
-                      }}
-                      disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
-                      className={`px-4 py-2 rounded-lg font-bold text-sm transition-all ${
-                        selectedTask.is_date_confirmed
-                          ? 'bg-gray-200 text-gray-700 hover:bg-gray-300 border-2 border-gray-400'
-                          : 'bg-green-500 text-white hover:bg-green-600 border-2 border-green-600'
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
-                      {selectedTask.is_date_confirmed ? '予定に戻す' : '日付を確定する'}
-                    </button>
-                    <p className="text-sm text-gray-600 flex-1">
-                      {selectedTask.is_date_confirmed
-                        ? 'この日付は確定しています。変更が必要な場合は予定に戻してください。'
-                        : 'この日付は予定です。確定する場合はボタンを押してください。'
-                      }
-                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={async () => {
+                          if (taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId) {
+                            toast.warning('他のユーザーが編集中です')
+                            return
+                          }
+                          try {
+                            const { error } = await supabase
+                              .from('tasks')
+                              .update({
+                                is_date_confirmed: false,
+                                updated_at: new Date().toISOString()
+                              })
+                              .eq('id', selectedTask.id)
+                            if (error) throw error
+                            toast.success('日付を予定に変更しました')
+                            setSelectedTask({ ...selectedTask, is_date_confirmed: false })
+                            loadProjectData()
+                          } catch (error) {
+                            console.error('日付ステータス更新エラー:', error)
+                            toast.error('日付ステータスの更新に失敗しました')
+                          }
+                        }}
+                        disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
+                        className={`px-6 py-3 rounded-lg font-bold text-base border-3 transition-all min-w-[100px] ${
+                          !selectedTask.is_date_confirmed
+                            ? 'bg-blue-500 text-white border-blue-600 shadow-lg'
+                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                        } disabled:opacity-50 disabled:cursor-not-allowed`}
+                      >
+                        予定
+                      </button>
+                      <button
+                        onClick={async () => {
+                          if (taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId) {
+                            toast.warning('他のユーザーが編集中です')
+                            return
+                          }
+                          try {
+                            const { error } = await supabase
+                              .from('tasks')
+                              .update({
+                                is_date_confirmed: true,
+                                updated_at: new Date().toISOString()
+                              })
+                              .eq('id', selectedTask.id)
+                            if (error) throw error
+                            toast.success('日付を確定しました')
+                            setSelectedTask({ ...selectedTask, is_date_confirmed: true })
+                            loadProjectData()
+                          } catch (error) {
+                            console.error('日付ステータス更新エラー:', error)
+                            toast.error('日付ステータスの更新に失敗しました')
+                          }
+                        }}
+                        disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
+                        className={`px-6 py-3 rounded-lg font-bold text-base border-3 transition-all min-w-[100px] flex items-center gap-2 ${
+                          selectedTask.is_date_confirmed
+                            ? 'bg-green-600 text-white border-green-700 shadow-lg'
+                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                        } disabled:opacity-50 disabled:cursor-not-allowed`}
+                      >
+                        {selectedTask.is_date_confirmed && (
+                          <span className="inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-green-600 rounded-full border-2 border-white">
+                            確
+                          </span>
+                        )}
+                        確定
+                      </button>
+                    </div>
                   </div>
                 </div>
 
