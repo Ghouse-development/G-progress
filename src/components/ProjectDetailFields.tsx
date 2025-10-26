@@ -341,7 +341,7 @@ export default function ProjectDetailFields({
                                       task.status === 'requested' ? 'task-in-progress' :
                                       'task-not-started'
                                     }`}
-                                    title={`${task.title}${task.is_date_confirmed ? ' [日付確定]' : ' [予定]'}`}
+                                    title={`${task.title}${task.is_date_confirmed ? ' [日付確定]' : ' [予定]'}${task.comment ? '\n\nコメント: ' + task.comment : ''}`}
                                   >
                                     {task.title}
                                     {task.is_date_confirmed && (
@@ -440,6 +440,7 @@ export default function ProjectDetailFields({
                                 key={task.id}
                                 className="hover:bg-blue-50 transition-colors cursor-pointer"
                                 onClick={() => onTaskClick && onTaskClick(task)}
+                                title={`${task.title}${task.is_date_confirmed ? ' [日付確定]' : ' [予定]'}${task.comment ? '\n\nコメント: ' + task.comment : ''}`}
                               >
                                 {/* 職種 */}
                                 {index === 0 && (
