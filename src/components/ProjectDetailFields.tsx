@@ -46,6 +46,7 @@ export default function ProjectDetailFields({
 }: ProjectDetailFieldsProps) {
   const { showToast } = useToast()
   const [activeTab, setActiveTab] = useState('grid')
+  const [positionSubTab, setPositionSubTab] = useState<'tasks' | 'staff'>('tasks')
   const [formData, setFormData] = useState(project)
   const [saving, setSaving] = useState(false)
   const deptHeaderRef = useRef<HTMLDivElement>(null)
@@ -377,12 +378,39 @@ export default function ProjectDetailFields({
 
         {/* 職種別ビュー */}
         {activeTab === 'position' && (
-          <div className="p-4" style={{ maxHeight: 'calc(100vh - 350px)', overflowY: 'auto' }}>
-            {tasks.length === 0 ? (
-              <div className="bg-white rounded-lg shadow-md p-8 text-center text-gray-500 font-medium border-2 border-gray-300">
-                タスクがありません
-              </div>
-            ) : (
+          <div>
+            {/* サブタブ */}
+            <div className="flex border-b-2 border-gray-200 bg-gray-50 px-4">
+              <button
+                onClick={() => setPositionSubTab('tasks')}
+                className={`px-6 py-3 font-bold text-base transition-colors ${
+                  positionSubTab === 'tasks'
+                    ? 'border-b-4 border-blue-600 text-blue-600 bg-white'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                タスク一覧
+              </button>
+              <button
+                onClick={() => setPositionSubTab('staff')}
+                className={`px-6 py-3 font-bold text-base transition-colors ${
+                  positionSubTab === 'staff'
+                    ? 'border-b-4 border-blue-600 text-blue-600 bg-white'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                担当者
+              </button>
+            </div>
+
+            {/* タスク一覧タブ */}
+            {positionSubTab === 'tasks' && (
+              <div className="p-4" style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto' }}>
+                {tasks.length === 0 ? (
+                  <div className="bg-white rounded-lg shadow-md p-8 text-center text-gray-500 font-medium border-2 border-gray-300">
+                    タスクがありません
+                  </div>
+                ) : (
               <div className="bg-white rounded-lg shadow-xl overflow-hidden border-2 border-gray-300">
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse">
@@ -529,6 +557,64 @@ export default function ProjectDetailFields({
                   </table>
                 </div>
               </div>
+                )}
+              </div>
+            )}
+
+            {/* 担当者タブ */}
+            {positionSubTab === 'staff' && (
+              <div className="p-4" style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto' }}>
+                <div className="bg-white rounded-lg shadow-xl overflow-hidden border-2 border-gray-300">
+                  <div className="overflow-x-auto">
+                    {DEPARTMENTS.map((dept) => (
+                      <div key={dept.name} className="mb-6 last:mb-0">
+                        <div className={`px-4 py-3 font-bold text-lg border-b-3 ${
+                          dept.name === '営業部' ? 'bg-blue-100 text-blue-900 border-blue-400' :
+                          dept.name === '設計部' ? 'bg-green-100 text-green-900 border-green-400' :
+                          dept.name === '工事部' ? 'bg-orange-100 text-orange-900 border-orange-400' :
+                          'bg-purple-100 text-purple-900 border-purple-400'
+                        }`}>
+                          {dept.name}
+                        </div>
+                        <table className="w-full border-collapse">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <th className="border-2 border-gray-300 px-4 py-3 text-left font-bold text-base text-gray-900 w-1/3">
+                                職種
+                              </th>
+                              <th className="border-2 border-gray-300 px-4 py-3 text-left font-bold text-base text-gray-900 w-2/3">
+                                担当者
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {dept.positions.map((position) => {
+                              const employee = employees.find(emp => emp.department === position)
+                              return (
+                                <tr key={position} className="hover:bg-blue-50 transition-colors">
+                                  <td className="border-2 border-gray-300 px-4 py-3 text-base font-bold text-gray-900 bg-gray-50">
+                                    {position}
+                                  </td>
+                                  <td className="border-2 border-gray-300 px-4 py-3 text-base text-gray-900">
+                                    {employee ? `${employee.last_name} ${employee.first_name}` : '未割当'}
+                                  </td>
+                                </tr>
+                              )
+                            })}
+                            {dept.positions.length === 0 && (
+                              <tr>
+                                <td colSpan={2} className="border-2 border-gray-300 px-4 py-3 text-center text-gray-500">
+                                  職種がありません
+                                </td>
+                              </tr>
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         )}
@@ -562,81 +648,6 @@ export default function ProjectDetailFields({
                 onChange={e => setFormData({ ...formData, lot_number: e.target.value })}
                 className="prisma-input"
               />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">営業</label>
-              <select
-                value={formData.sales_staff_id || ''}
-                onChange={e => setFormData({ ...formData, sales_staff_id: e.target.value || undefined })}
-                className="prisma-input"
-              >
-                <option value="">未選択</option>
-                {employees.filter(emp => emp.department === '営業').map(emp => (
-                  <option key={emp.id} value={emp.id}>
-                    {emp.last_name} {emp.first_name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">意匠設計</label>
-              <select
-                value={formData.design_staff_id || ''}
-                onChange={e => setFormData({ ...formData, design_staff_id: e.target.value || undefined })}
-                className="prisma-input"
-              >
-                <option value="">未選択</option>
-                {employees.filter(emp => emp.department === '意匠設計').map(emp => (
-                  <option key={emp.id} value={emp.id}>
-                    {emp.last_name} {emp.first_name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">IC</label>
-              <select
-                value={formData.ic_staff_id || ''}
-                onChange={e => setFormData({ ...formData, ic_staff_id: e.target.value || undefined })}
-                className="prisma-input"
-              >
-                <option value="">未選択</option>
-                {employees.filter(emp => emp.department === 'IC').map(emp => (
-                  <option key={emp.id} value={emp.id}>
-                    {emp.last_name} {emp.first_name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">工事担当</label>
-              <select
-                value={formData.construction_staff_id || ''}
-                onChange={e => setFormData({ ...formData, construction_staff_id: e.target.value || undefined })}
-                className="prisma-input"
-              >
-                <option value="">未選択</option>
-                {employees.filter(emp => emp.department === '工事').map(emp => (
-                  <option key={emp.id} value={emp.id}>
-                    {emp.last_name} {emp.first_name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">外構プランナー</label>
-              <select
-                value={formData.exterior_staff_id || ''}
-                onChange={e => setFormData({ ...formData, exterior_staff_id: e.target.value || undefined })}
-                className="prisma-input"
-              >
-                <option value="">未選択</option>
-                {employees.filter(emp => emp.department === '外構設計').map(emp => (
-                  <option key={emp.id} value={emp.id}>
-                    {emp.last_name} {emp.first_name}
-                  </option>
-                ))}
-              </select>
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">階数</label>
