@@ -1125,22 +1125,21 @@ export default function ProjectDetail() {
                   <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
                     期限日
                   </label>
-                  <div className="flex items-start gap-4">
-                    <div className="flex-1">
-                      {editingDueDate ? (
-                        <input
-                          type="date"
-                          value={selectedTask.due_date || ''}
-                          onChange={(e) => handleUpdateDueDate(e.target.value)}
-                          onBlur={() => setEditingDueDate(false)}
-                          autoFocus
-                          className="prisma-input"
-                        />
-                      ) : (
-                        <div
-                          onClick={() => setEditingDueDate(true)}
-                          className="prisma-input cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
-                        >
+                  {editingDueDate ? (
+                    <input
+                      type="date"
+                      value={selectedTask.due_date || ''}
+                      onChange={(e) => handleUpdateDueDate(e.target.value)}
+                      onBlur={() => setEditingDueDate(false)}
+                      autoFocus
+                      className="prisma-input"
+                    />
+                  ) : (
+                    <div
+                      className="prisma-input bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer relative"
+                    >
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex-1" onClick={() => setEditingDueDate(true)}>
                           <div className="font-medium text-gray-900">
                             {selectedTask.due_date ? format(new Date(selectedTask.due_date), 'yyyy年MM月dd日 (E)', { locale: ja }) : '未設定'}
                           </div>
@@ -1148,80 +1147,82 @@ export default function ProjectDetail() {
                             契約日から {selectedTask.dayFromContract || 0}日目
                           </div>
                         </div>
-                      )}
+                        <div className="flex gap-2 flex-shrink-0">
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation()
+                              if (taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId) {
+                                toast.warning('他のユーザーが編集中です')
+                                return
+                              }
+                              try {
+                                const { error } = await supabase
+                                  .from('tasks')
+                                  .update({
+                                    is_date_confirmed: false,
+                                    updated_at: new Date().toISOString()
+                                  })
+                                  .eq('id', selectedTask.id)
+                                if (error) throw error
+                                toast.success('日付を予定に変更しました')
+                                setSelectedTask({ ...selectedTask, is_date_confirmed: false })
+                                loadProjectData()
+                              } catch (error) {
+                                console.error('日付ステータス更新エラー:', error)
+                                toast.error('日付ステータスの更新に失敗しました')
+                              }
+                            }}
+                            disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
+                            className={`px-4 py-2 rounded-lg font-bold text-sm border-3 transition-all ${
+                              !selectedTask.is_date_confirmed
+                                ? 'bg-blue-500 text-white border-blue-600 shadow-lg'
+                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                          >
+                            予定
+                          </button>
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation()
+                              if (taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId) {
+                                toast.warning('他のユーザーが編集中です')
+                                return
+                              }
+                              try {
+                                const { error } = await supabase
+                                  .from('tasks')
+                                  .update({
+                                    is_date_confirmed: true,
+                                    updated_at: new Date().toISOString()
+                                  })
+                                  .eq('id', selectedTask.id)
+                                if (error) throw error
+                                toast.success('日付を確定しました')
+                                setSelectedTask({ ...selectedTask, is_date_confirmed: true })
+                                loadProjectData()
+                              } catch (error) {
+                                console.error('日付ステータス更新エラー:', error)
+                                toast.error('日付ステータスの更新に失敗しました')
+                              }
+                            }}
+                            disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
+                            className={`px-4 py-2 rounded-lg font-bold text-sm border-3 transition-all flex items-center gap-2 ${
+                              selectedTask.is_date_confirmed
+                                ? 'bg-green-600 text-white border-green-700 shadow-lg'
+                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                          >
+                            {selectedTask.is_date_confirmed && (
+                              <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-green-600 rounded-full border-2 border-white">
+                                確
+                              </span>
+                            )}
+                            確定
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={async () => {
-                          if (taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId) {
-                            toast.warning('他のユーザーが編集中です')
-                            return
-                          }
-                          try {
-                            const { error } = await supabase
-                              .from('tasks')
-                              .update({
-                                is_date_confirmed: false,
-                                updated_at: new Date().toISOString()
-                              })
-                              .eq('id', selectedTask.id)
-                            if (error) throw error
-                            toast.success('日付を予定に変更しました')
-                            setSelectedTask({ ...selectedTask, is_date_confirmed: false })
-                            loadProjectData()
-                          } catch (error) {
-                            console.error('日付ステータス更新エラー:', error)
-                            toast.error('日付ステータスの更新に失敗しました')
-                          }
-                        }}
-                        disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
-                        className={`px-6 py-3 rounded-lg font-bold text-base border-3 transition-all min-w-[100px] ${
-                          !selectedTask.is_date_confirmed
-                            ? 'bg-blue-500 text-white border-blue-600 shadow-lg'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                        } disabled:opacity-50 disabled:cursor-not-allowed`}
-                      >
-                        予定
-                      </button>
-                      <button
-                        onClick={async () => {
-                          if (taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId) {
-                            toast.warning('他のユーザーが編集中です')
-                            return
-                          }
-                          try {
-                            const { error } = await supabase
-                              .from('tasks')
-                              .update({
-                                is_date_confirmed: true,
-                                updated_at: new Date().toISOString()
-                              })
-                              .eq('id', selectedTask.id)
-                            if (error) throw error
-                            toast.success('日付を確定しました')
-                            setSelectedTask({ ...selectedTask, is_date_confirmed: true })
-                            loadProjectData()
-                          } catch (error) {
-                            console.error('日付ステータス更新エラー:', error)
-                            toast.error('日付ステータスの更新に失敗しました')
-                          }
-                        }}
-                        disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
-                        className={`px-6 py-3 rounded-lg font-bold text-base border-3 transition-all min-w-[100px] flex items-center gap-2 ${
-                          selectedTask.is_date_confirmed
-                            ? 'bg-green-600 text-white border-green-700 shadow-lg'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                        } disabled:opacity-50 disabled:cursor-not-allowed`}
-                      >
-                        {selectedTask.is_date_confirmed && (
-                          <span className="inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-green-600 rounded-full border-2 border-white">
-                            確
-                          </span>
-                        )}
-                        確定
-                      </button>
-                    </div>
-                  </div>
+                  )}
                 </div>
 
                 {/* 予定からのずれ表示 */}
@@ -1282,18 +1283,6 @@ export default function ProjectDetail() {
                   </div>
                 )}
 
-                {/* 作業内容 */}
-                {selectedTask.description && (
-                  <div>
-                    <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
-                      作業内容
-                    </label>
-                    <div className="prisma-textarea bg-gray-50" style={{ minHeight: '80px' }}>
-                      {selectedTask.description}
-                    </div>
-                  </div>
-                )}
-
                 {/* コメント */}
                 <div>
                   <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
@@ -1326,6 +1315,18 @@ export default function ProjectDetail() {
                     rows={3}
                   />
                 </div>
+
+                {/* 作業内容 */}
+                {selectedTask.description && (
+                  <div>
+                    <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                      作業内容
+                    </label>
+                    <div className="prisma-textarea bg-gray-50" style={{ minHeight: '80px' }}>
+                      {selectedTask.description}
+                    </div>
+                  </div>
+                )}
 
                 {/* Do's & Don'ts */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
