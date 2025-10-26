@@ -323,6 +323,9 @@ export interface Task {
   status: TaskStatus
   priority: TaskPriority
   is_date_confirmed?: boolean // 日付確定フラグ（false: 予定、true: 確定）
+  original_due_date?: string // 当初の予定日（最初に設定された期限日）
+  date_change_count?: number // 期限日の変更回数
+  last_date_changed_at?: string // 最終日付変更日時
   organization_id?: string // マルチテナント対応
   created_at: string
   updated_at: string

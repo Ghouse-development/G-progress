@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase'
 import { Project, Customer, Employee, Task } from '../types/database'
 import { format, differenceInDays, addDays } from 'date-fns'
 import { ja } from 'date-fns/locale'
-import { ArrowUpDown, Plus, Eye, Trash2, Table, List, Grid, RefreshCw, X, Lock, Users } from 'lucide-react'
+import { ArrowUpDown, Plus, Eye, Trash2, Table, List, Grid, RefreshCw, X, Lock, Users, AlertTriangle } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
 import { regenerateProjectTasks } from '../utils/taskGenerator'
 import { useRealtimeEditing } from '../hooks/useRealtimeEditing'
@@ -1211,6 +1211,43 @@ export default function ProjectDetail() {
                     </p>
                   </div>
                 </div>
+
+                {/* 予定からのずれ表示 */}
+                {selectedTask.original_due_date && selectedTask.due_date &&
+                 selectedTask.original_due_date !== selectedTask.due_date && (
+                  <div>
+                    <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                      予定からのずれ
+                    </label>
+                    <div className="flex items-start gap-3 p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-lg">
+                      <AlertTriangle className="text-yellow-600 flex-shrink-0 mt-0.5" size={20} />
+                      <div className="flex-1">
+                        <div className="font-bold text-yellow-900 text-base mb-1">
+                          {(() => {
+                            const daysDiff = differenceInDays(
+                              new Date(selectedTask.due_date),
+                              new Date(selectedTask.original_due_date)
+                            )
+                            const absDays = Math.abs(daysDiff)
+                            return daysDiff > 0
+                              ? `${absDays}日後ろ倒し`
+                              : `${absDays}日前倒し`
+                          })()}
+                        </div>
+                        <div className="text-sm text-yellow-800">
+                          当初予定: {format(new Date(selectedTask.original_due_date), 'yyyy年M月d日 (E)', { locale: ja })}
+                          {' → '}
+                          現在: {format(new Date(selectedTask.due_date), 'yyyy年M月d日 (E)', { locale: ja })}
+                        </div>
+                        {selectedTask.date_change_count !== undefined && selectedTask.date_change_count > 0 && (
+                          <div className="text-xs text-yellow-700 mt-1">
+                            変更回数: {selectedTask.date_change_count}回
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* トリガーからの日にち設定（読み取り専用） */}
                 {selectedTask.task_master?.trigger_task_id && selectedTask.task_master?.days_from_trigger !== undefined && (

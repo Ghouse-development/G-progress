@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Project, Employee, Task } from '../types/database'
 import { supabase } from '../lib/supabase'
 import { useToast } from '../contexts/ToastContext'
-import { Save, Eye, Trash2 } from 'lucide-react'
+import { Save, Eye, Trash2, AlertTriangle } from 'lucide-react'
 import { format, differenceInDays, addDays } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { ORGANIZATION_HIERARCHY } from '../constants/organizationHierarchy'
@@ -349,6 +349,11 @@ export default function ProjectDetailFields({
                                         確
                                       </span>
                                     )}
+                                    {task.original_due_date && task.due_date && task.original_due_date !== task.due_date && (
+                                      <span className="absolute -bottom-1 -right-1 inline-flex items-center justify-center w-6 h-6 text-white bg-yellow-500 rounded-full border-2 border-white shadow-lg" title={`当初予定から${Math.abs(differenceInDays(new Date(task.due_date), new Date(task.original_due_date)))}日${differenceInDays(new Date(task.due_date), new Date(task.original_due_date)) > 0 ? '後ろ倒し' : '前倒し'}`}>
+                                        <AlertTriangle size={12} />
+                                      </span>
+                                    )}
                                   </div>
                                 )
                               })}
@@ -453,6 +458,11 @@ export default function ProjectDetailFields({
                                     {task.is_date_confirmed && (
                                       <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-8 h-8 text-sm font-bold text-white bg-green-600 rounded-full border-2 border-white shadow-lg" title="日付確定">
                                         確
+                                      </span>
+                                    )}
+                                    {task.original_due_date && task.due_date && task.original_due_date !== task.due_date && (
+                                      <span className="absolute -bottom-1 -right-1 inline-flex items-center justify-center w-6 h-6 text-white bg-yellow-500 rounded-full border-2 border-white shadow-lg" title={`当初予定から${Math.abs(differenceInDays(new Date(task.due_date), new Date(task.original_due_date)))}日${differenceInDays(new Date(task.due_date), new Date(task.original_due_date)) > 0 ? '後ろ倒し' : '前倒し'}`}>
+                                        <AlertTriangle size={12} />
                                       </span>
                                     )}
                                   </div>
