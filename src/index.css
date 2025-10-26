@@ -2137,3 +2137,122 @@ html, body {
 .dark .grid-view-container::-webkit-scrollbar-corner {
   background: #1e293b;
 }
+
+/* ========================================
+   スマホ向け追加最適化
+   ======================================== */
+
+/* モバイル全般の基本設定 */
+@media (max-width: 767px) {
+  /* ベーステキストサイズを大きく（見やすく） */
+  body {
+    font-size: 16px;
+  }
+
+  /* 全てのテーブルをスクロール可能に */
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+
+  /* タッチターゲット最小サイズ保証（44px x 44px） */
+  button,
+  a,
+  input[type="button"],
+  input[type="submit"],
+  input[type="checkbox"],
+  input[type="radio"],
+  select {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* 入力フィールドのフォントサイズ（iOSズーム防止） */
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+
+  /* ヘッダーのパディング調整 */
+  h1 {
+    font-size: 1.5rem;
+    line-height: 1.3;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    line-height: 1.3;
+  }
+
+  h3 {
+    font-size: 1.125rem;
+    line-height: 1.3;
+  }
+
+  /* カードのマージン調整 */
+  .card,
+  [class*="card"] {
+    margin-bottom: 1rem;
+  }
+
+  /* モーダルの最大高さ調整 */
+  [class*="modal"] {
+    max-height: 95vh;
+    overflow-y: auto;
+  }
+
+  /* グリッドレイアウトを1列に */
+  [class*="grid"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* フレックスアイテムのギャップ調整 */
+  .flex {
+    gap: 0.75rem;
+  }
+
+  /* パディング・マージンの最適化 */
+  .p-8 {
+    padding: 1rem !important;
+  }
+
+  .p-6 {
+    padding: 0.75rem !important;
+  }
+
+  .px-8 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .px-6 {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  /* テキストサイズの自動調整（より見やすく） */
+  .text-xl {
+    font-size: 1.125rem !important;
+  }
+
+  .text-2xl {
+    font-size: 1.25rem !important;
+  }
+
+  .text-3xl {
+    font-size: 1.5rem !important;
+  }
+
+  /* スクロールバーの太さ調整（タッチしやすく） */
+  ::-webkit-scrollbar {
+    width: 14px;
+    height: 14px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+  }
+}
