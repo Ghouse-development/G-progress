@@ -2070,3 +2070,70 @@ html, body {
     transition: none;
   }
 }
+
+/* ===== グリッドビュー専用スクロールバースタイル ===== */
+/* グリッドビューのスクロールバーを常に表示し、使いやすく */
+.grid-view-container {
+  overflow-x: scroll !important;
+  overflow-y: scroll !important;
+  scrollbar-width: thin; /* Firefox用：細いスクロールバー */
+  scrollbar-color: #94a3b8 #e2e8f0; /* Firefox用：スクロールバーの色 */
+  overscroll-behavior: contain; /* スクロール境界での動作改善 */
+  -webkit-overflow-scrolling: touch; /* iOS用：慣性スクロール */
+}
+
+/* Chrome/Safari/Edge用のスクロールバースタイル */
+.grid-view-container::-webkit-scrollbar {
+  width: 12px; /* 縦スクロールバーの幅 */
+  height: 12px; /* 横スクロールバーの高さ */
+}
+
+.grid-view-container::-webkit-scrollbar-track {
+  background: #e2e8f0; /* スクロールバーの背景色（ライトグレー） */
+  border-radius: 6px;
+}
+
+.grid-view-container::-webkit-scrollbar-thumb {
+  background: #94a3b8; /* スクロールバーのつまみ（グレー） */
+  border-radius: 6px;
+  border: 2px solid #e2e8f0; /* つまみの周囲にスペース */
+}
+
+.grid-view-container::-webkit-scrollbar-thumb:hover {
+  background: #64748b; /* ホバー時は濃いグレー */
+}
+
+.grid-view-container::-webkit-scrollbar-thumb:active {
+  background: #475569; /* クリック時はさらに濃いグレー */
+}
+
+/* コーナー（縦横スクロールバーの交差部分） */
+.grid-view-container::-webkit-scrollbar-corner {
+  background: #e2e8f0;
+}
+
+/* ダークモード対応 */
+.dark .grid-view-container {
+  scrollbar-color: #475569 #1e293b; /* Firefox用：ダークモード */
+}
+
+.dark .grid-view-container::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+.dark .grid-view-container::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-color: #1e293b;
+}
+
+.dark .grid-view-container::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+.dark .grid-view-container::-webkit-scrollbar-thumb:active {
+  background: #94a3b8;
+}
+
+.dark .grid-view-container::-webkit-scrollbar-corner {
+  background: #1e293b;
+}

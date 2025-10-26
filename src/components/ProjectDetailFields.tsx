@@ -48,6 +48,8 @@ export default function ProjectDetailFields({
   const [activeTab, setActiveTab] = useState('grid')
   const [formData, setFormData] = useState(project)
   const [saving, setSaving] = useState(false)
+  const deptHeaderRef = useRef<HTMLDivElement>(null)
+  const [deptHeaderHeight, setDeptHeaderHeight] = useState(48) // デフォルト値
 
   const handleSave = async () => {
     setSaving(true)
@@ -68,6 +70,24 @@ export default function ProjectDetailFields({
       setSaving(false)
     }
   }
+
+  // 部門ヘッダーの高さを動的に取得
+  useEffect(() => {
+    const updateHeaderHeight = () => {
+      if (deptHeaderRef.current) {
+        const height = deptHeaderRef.current.offsetHeight
+        setDeptHeaderHeight(height)
+      }
+    }
+
+    // 初回とリサイズ時に高さを更新
+    updateHeaderHeight()
+    window.addEventListener('resize', updateHeaderHeight)
+
+    return () => {
+      window.removeEventListener('resize', updateHeaderHeight)
+    }
+  }, [activeTab]) // activeTabが変わった時も再計算
 
   const tabs = [
     { id: 'grid', label: 'グリッドビュー' },
@@ -196,10 +216,10 @@ export default function ProjectDetailFields({
               </button>
             </div>
 
-            <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: 'calc(100vh - 350px)', WebkitOverflowScrolling: 'touch' }}>
+            <div className="grid-view-container" style={{ maxHeight: 'calc(100vh - 350px)' }}>
               <div style={{ minWidth: 'fit-content', width: '100%' }}>
                 {/* 部門ヘッダー */}
-                <div className="flex border-b-2 border-gray-200 sticky top-0 z-30 bg-white">
+                <div ref={deptHeaderRef} className="flex border-b-2 border-gray-200 sticky top-0 z-30 bg-white">
                   <div className="w-28 flex-shrink-0 border-r-2 border-gray-200 p-3 text-center font-bold text-base text-gray-800 bg-white sticky left-0 z-40">
                     日付
                   </div>
@@ -226,7 +246,7 @@ export default function ProjectDetailFields({
                 </div>
 
                 {/* 職種ヘッダー */}
-                <div className="flex border-b-2 border-gray-200 bg-white sticky z-20" style={{ top: '48px' }}>
+                <div className="flex border-b-2 border-gray-200 bg-white sticky z-20" style={{ top: `${deptHeaderHeight}px` }}>
                   <div className="w-28 flex-shrink-0 border-r-2 border-gray-200 p-2 text-center text-base font-bold bg-gray-50 sticky left-0 z-40">
                     日付
                   </div>
