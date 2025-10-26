@@ -1126,14 +1126,71 @@ export default function ProjectDetail() {
                     期限日
                   </label>
                   {editingDueDate ? (
-                    <input
-                      type="date"
-                      value={selectedTask.due_date || ''}
-                      onChange={(e) => handleUpdateDueDate(e.target.value)}
-                      onBlur={() => setEditingDueDate(false)}
-                      autoFocus
-                      className="prisma-input"
-                    />
+                    <div>
+                      <input
+                        type="date"
+                        value={selectedTask.due_date || ''}
+                        onChange={(e) => handleUpdateDueDate(e.target.value)}
+                        onBlur={(e) => {
+                          // ボタンクリック時はonBlurをスキップ
+                          if (e.relatedTarget?.classList.contains('date-shortcut-btn')) {
+                            return
+                          }
+                          setEditingDueDate(false)
+                        }}
+                        autoFocus
+                        className="prisma-input"
+                      />
+                      <div className="flex gap-2 mt-2 flex-wrap">
+                        <button
+                          type="button"
+                          className="date-shortcut-btn px-3 py-1 text-sm border-2 border-blue-300 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 font-bold"
+                          onClick={() => {
+                            const today = new Date()
+                            today.setHours(0, 0, 0, 0)
+                            handleUpdateDueDate(format(today, 'yyyy-MM-dd'))
+                          }}
+                        >
+                          今日
+                        </button>
+                        <button
+                          type="button"
+                          className="date-shortcut-btn px-3 py-1 text-sm border-2 border-blue-300 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 font-bold"
+                          onClick={() => {
+                            const tomorrow = new Date()
+                            tomorrow.setDate(tomorrow.getDate() + 1)
+                            tomorrow.setHours(0, 0, 0, 0)
+                            handleUpdateDueDate(format(tomorrow, 'yyyy-MM-dd'))
+                          }}
+                        >
+                          明日
+                        </button>
+                        <button
+                          type="button"
+                          className="date-shortcut-btn px-3 py-1 text-sm border-2 border-blue-300 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 font-bold"
+                          onClick={() => {
+                            const nextWeek = new Date()
+                            nextWeek.setDate(nextWeek.getDate() + 7)
+                            nextWeek.setHours(0, 0, 0, 0)
+                            handleUpdateDueDate(format(nextWeek, 'yyyy-MM-dd'))
+                          }}
+                        >
+                          1週間後
+                        </button>
+                        <button
+                          type="button"
+                          className="date-shortcut-btn px-3 py-1 text-sm border-2 border-blue-300 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 font-bold"
+                          onClick={() => {
+                            const nextMonth = new Date()
+                            nextMonth.setMonth(nextMonth.getMonth() + 1)
+                            nextMonth.setHours(0, 0, 0, 0)
+                            handleUpdateDueDate(format(nextMonth, 'yyyy-MM-dd'))
+                          }}
+                        >
+                          1ヶ月後
+                        </button>
+                      </div>
+                    </div>
                   ) : (
                     <div
                       className="prisma-input bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer relative"
@@ -1166,7 +1223,8 @@ export default function ProjectDetail() {
                                 if (error) throw error
                                 toast.success('日付を予定に変更しました')
                                 setSelectedTask({ ...selectedTask, is_date_confirmed: false })
-                                loadProjectData()
+                                // tasksステートも更新してグリッド表示に反映
+                                setTasks(tasks.map(t => t.id === selectedTask.id ? { ...t, is_date_confirmed: false } : t))
                               } catch (error) {
                                 console.error('日付ステータス更新エラー:', error)
                                 toast.error('日付ステータスの更新に失敗しました')
@@ -1199,7 +1257,8 @@ export default function ProjectDetail() {
                                 if (error) throw error
                                 toast.success('日付を確定しました')
                                 setSelectedTask({ ...selectedTask, is_date_confirmed: true })
-                                loadProjectData()
+                                // tasksステートも更新してグリッド表示に反映
+                                setTasks(tasks.map(t => t.id === selectedTask.id ? { ...t, is_date_confirmed: true } : t))
                               } catch (error) {
                                 console.error('日付ステータス更新エラー:', error)
                                 toast.error('日付ステータスの更新に失敗しました')

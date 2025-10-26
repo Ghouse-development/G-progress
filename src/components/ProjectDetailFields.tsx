@@ -254,7 +254,6 @@ export default function ProjectDetailFields({
                     日
                   </div>
                   {ALL_POSITIONS.map((position) => {
-                    const employee = getEmployeeByPosition(position)
                     const completionRate = getCompletionRateByPosition(position)
                     return (
                       <div
@@ -262,14 +261,11 @@ export default function ProjectDetailFields({
                         className="border-r border-gray-200 p-2 text-center bg-white"
                         style={{ flex: '1 1 0%', minWidth: '80px' }}
                       >
-                        <div className="font-bold text-base text-gray-800 mb-1 truncate">{position}</div>
-                        <div className="text-base text-gray-600 truncate" title={employee ? `${employee.last_name} ${employee.first_name}` : '未割当'}>
-                          {employee ? `${employee.last_name}` : '-'}
-                        </div>
-                        <div className="flex items-center gap-1 mt-1">
-                          <div className="flex-1 bg-gray-200 rounded-full h-1">
+                        <div className="font-bold text-base text-gray-800 mb-2 truncate">{position}</div>
+                        <div className="flex items-center gap-1">
+                          <div className="flex-1 bg-gray-200 rounded-full h-1.5">
                             <div
-                              className="bg-green-500 h-1 rounded-full"
+                              className="bg-green-500 h-1.5 rounded-full"
                               style={{ width: `${completionRate}%` }}
                             ></div>
                           </div>
