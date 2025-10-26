@@ -153,7 +153,7 @@ export function useRealtimeEditing({
   const acquireLock = async (): Promise<boolean> => {
     try {
       if (!resourceId || resourceId.trim() === '') {
-        console.error('Cannot acquire lock: resourceId is empty')
+        // resourceIdが空の場合は静かに失敗（正常な状態）
         return false
       }
 

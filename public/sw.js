@@ -44,29 +44,42 @@ self.addEventListener('fetch', (event) => {
   const isGetOrHead = request.method === 'GET' || request.method === 'HEAD'
 
   if (!isHttpRequest || !isGetOrHead) {
-    // キャッシュ不可能なリクエストはそのまま通す
-    event.respondWith(fetch(request))
+    // キャッシュ不可能なリクエストはそのまま通す（エラーハンドリング追加）
+    event.respondWith(
+      fetch(request).catch((error) => {
+        console.warn('Fetch failed for non-cacheable request:', error)
+        return new Response('Network error', { status: 408, statusText: 'Request Timeout' })
+      })
+    )
     return
   }
 
   event.respondWith(
     fetch(request)
       .then((response) => {
-        // レスポンスをクローンしてキャッシュに保存
-        const responseToCache = response.clone()
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(request, responseToCache)
-        })
+        // レスポンスが正常な場合のみキャッシュに保存
+        if (response && response.status === 200) {
+          const responseToCache = response.clone()
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(request, responseToCache)
+          }).catch((error) => {
+            // キャッシュ保存エラーは無視（静かに失敗）
+            console.warn('Cache put failed:', error)
+          })
+        }
         return response
       })
-      .catch(() => {
+      .catch((error) => {
+        console.warn('Network fetch failed, trying cache:', error)
         // ネットワークが利用できない場合はキャッシュから取得
         return caches.match(request).then((cachedResponse) => {
           if (cachedResponse) {
             return cachedResponse
           }
           // キャッシュにも無い場合はオフラインページを表示
-          return caches.match('/index.html')
+          return caches.match('/index.html').then((fallback) => {
+            return fallback || new Response('Offline', { status: 503, statusText: 'Service Unavailable' })
+          })
         })
       })
   )
