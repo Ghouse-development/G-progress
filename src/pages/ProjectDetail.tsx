@@ -1160,7 +1160,7 @@ export default function ProjectDetail() {
                         {selectedTask.is_date_confirmed ? '確定' : '予定'}
                       </span>
                       {selectedTask.is_date_confirmed && (
-                        <span className="inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-green-600 rounded-full border-2 border-white">
+                        <span className="inline-flex items-center justify-center w-8 h-8 text-sm font-bold text-white bg-green-600 rounded-full border-2 border-white shadow-lg">
                           確
                         </span>
                       )}

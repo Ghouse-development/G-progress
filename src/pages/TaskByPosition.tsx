@@ -290,7 +290,7 @@ export default function TaskByPosition() {
                         }}
                         title={`期限: ${task.due_date ? format(new Date(task.due_date), 'M月d日(E)', { locale: ja }) : '未設定'}\n乖離: ${daysText}`}
                       >
-                        <div className="flex items-center justify-center">
+                        <div className="flex items-center justify-center gap-1">
                           <span
                             className={`px-2 py-1 rounded-md text-xs font-bold whitespace-nowrap ${
                               task.status === 'completed'
@@ -310,6 +310,11 @@ export default function TaskByPosition() {
                               ? '遅延'
                               : '未着手'}
                           </span>
+                          {task.is_date_confirmed && (
+                            <span className="inline-flex items-center justify-center w-8 h-8 text-sm font-bold text-white bg-green-600 rounded-full border-2 border-white shadow-lg" title="日付確定">
+                              確
+                            </span>
+                          )}
                         </div>
                       </td>
                     )

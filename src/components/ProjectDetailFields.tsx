@@ -345,7 +345,7 @@ export default function ProjectDetailFields({
                                   >
                                     {task.title}
                                     {task.is_date_confirmed && (
-                                      <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-green-600 rounded-full border-2 border-white">
+                                      <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-8 h-8 text-sm font-bold text-white bg-green-600 rounded-full border-2 border-white shadow-lg">
                                         確
                                       </span>
                                     )}
@@ -378,37 +378,34 @@ export default function ProjectDetailFields({
         {activeTab === 'position' && (
           <div className="p-4" style={{ maxHeight: 'calc(100vh - 350px)', overflowY: 'auto' }}>
             {tasks.length === 0 ? (
-              <div className="bg-white rounded-lg shadow-md p-8 text-center text-gray-500 font-medium border-3 border-gray-300">
+              <div className="bg-white rounded-lg shadow-md p-8 text-center text-gray-500 font-medium border-4 border-gray-300">
                 タスクがありません
               </div>
             ) : (
-              <div className="bg-white rounded-lg shadow-xl overflow-hidden border-3 border-gray-300">
+              <div className="bg-white rounded-lg shadow-xl overflow-hidden border-4 border-gray-300">
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse">
                     <thead className="bg-gray-100 border-b-2 border-gray-400 sticky top-0 z-10">
                       <tr>
-                        <th className="border-3 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '100px' }}>
-                          部門
-                        </th>
-                        <th className="border-3 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '100px' }}>
+                        <th className="border-4 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '100px' }}>
                           職種
                         </th>
-                        <th className="border-3 border-gray-300 px-4 py-3 text-left font-bold text-base text-gray-900" style={{ minWidth: '250px' }}>
+                        <th className="border-4 border-gray-300 px-4 py-3 text-left font-bold text-base text-gray-900" style={{ minWidth: '250px' }}>
                           タスク名
                         </th>
-                        <th className="border-3 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '120px' }}>
+                        <th className="border-4 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '120px' }}>
                           担当者
                         </th>
-                        <th className="border-3 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '110px' }}>
+                        <th className="border-4 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '110px' }}>
                           期限
                         </th>
-                        <th className="border-3 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '90px' }}>
+                        <th className="border-4 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '90px' }}>
                           経過日数
                         </th>
-                        <th className="border-3 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '100px' }}>
+                        <th className="border-4 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '100px' }}>
                           ステータス
                         </th>
-                        <th className="border-3 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '120px' }}>
+                        <th className="border-4 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '120px' }}>
                           操作
                         </th>
                       </tr>
@@ -439,32 +436,22 @@ export default function ProjectDetailFields({
                                 className="hover:bg-blue-50 transition-colors cursor-pointer"
                                 onClick={() => onTaskClick && onTaskClick(task)}
                               >
-                                {/* 部門 */}
-                                {index === 0 && (
-                                  <td
-                                    rowSpan={positionTasks.length}
-                                    className="border-3 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900 bg-blue-50"
-                                  >
-                                    {dept.name}
-                                  </td>
-                                )}
-
                                 {/* 職種 */}
                                 {index === 0 && (
                                   <td
                                     rowSpan={positionTasks.length}
-                                    className="border-3 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900 bg-green-50"
+                                    className="border-4 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900 bg-green-50"
                                   >
                                     {position}
                                   </td>
                                 )}
 
                                 {/* タスク名 */}
-                                <td className="border-3 border-gray-300 px-4 py-3 text-base text-gray-900 font-medium">
+                                <td className="border-4 border-gray-300 px-4 py-3 text-base text-gray-900 font-medium">
                                   <div className="flex items-center gap-2">
                                     {task.title}
                                     {task.is_date_confirmed && (
-                                      <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-green-600 rounded-full border-2 border-white flex-shrink-0" title="日付確定">
+                                      <span className="inline-flex items-center justify-center w-8 h-8 text-sm font-bold text-white bg-green-600 rounded-full border-2 border-white flex-shrink-0 shadow-lg" title="日付確定">
                                         確
                                       </span>
                                     )}
@@ -472,7 +459,7 @@ export default function ProjectDetailFields({
                                 </td>
 
                                 {/* 担当者 */}
-                                <td className="border-3 border-gray-300 px-4 py-3 text-center text-base text-gray-900">
+                                <td className="border-4 border-gray-300 px-4 py-3 text-center text-base text-gray-900">
                                   {task.assigned_employee
                                     ? `${task.assigned_employee.last_name} ${task.assigned_employee.first_name}`
                                     : '未割当'
@@ -480,7 +467,7 @@ export default function ProjectDetailFields({
                                 </td>
 
                                 {/* 期限 */}
-                                <td className="border-3 border-gray-300 px-4 py-3 text-center text-base font-bold text-gray-900">
+                                <td className="border-4 border-gray-300 px-4 py-3 text-center text-base font-bold text-gray-900">
                                   {task.due_date
                                     ? format(new Date(task.due_date), 'M/d (E)', { locale: ja })
                                     : '未設定'
@@ -488,12 +475,12 @@ export default function ProjectDetailFields({
                                 </td>
 
                                 {/* 経過日数 */}
-                                <td className="border-3 border-gray-300 px-4 py-3 text-center text-base font-bold text-blue-700">
+                                <td className="border-4 border-gray-300 px-4 py-3 text-center text-base font-bold text-blue-700">
                                   {task.dayFromContract || 0}日
                                 </td>
 
                                 {/* ステータス */}
-                                <td className="border-3 border-gray-300 px-4 py-3 text-center">
+                                <td className="border-4 border-gray-300 px-4 py-3 text-center">
                                   <span className={`px-3 py-1 rounded-lg font-bold text-base border-2 ${
                                     isDelayed ? 'task-delayed' : getStatusBadgeColor(task.status)
                                   }`}>
@@ -502,7 +489,7 @@ export default function ProjectDetailFields({
                                 </td>
 
                                 {/* 操作 */}
-                                <td className="border-3 border-gray-300 px-4 py-3 text-center">
+                                <td className="border-4 border-gray-300 px-4 py-3 text-center">
                                   <div className="flex items-center justify-center gap-1">
                                     <button
                                       onClick={(e) => {
