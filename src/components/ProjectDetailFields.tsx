@@ -448,10 +448,10 @@ export default function ProjectDetailFields({
 
                                 {/* タスク名 */}
                                 <td className="border-2 border-gray-300 px-4 py-3 text-base text-gray-900 font-medium">
-                                  <div className="flex items-center gap-2">
+                                  <div className="relative inline-block">
                                     {task.title}
                                     {task.is_date_confirmed && (
-                                      <span className="inline-flex items-center justify-center w-8 h-8 text-sm font-bold text-white bg-green-600 rounded-full border-2 border-white flex-shrink-0 shadow-lg" title="日付確定">
+                                      <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-8 h-8 text-sm font-bold text-white bg-green-600 rounded-full border-2 border-white shadow-lg" title="日付確定">
                                         確
                                       </span>
                                     )}
