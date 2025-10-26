@@ -2255,4 +2255,38 @@ html, body {
   ::-webkit-scrollbar-thumb {
     border: 3px solid transparent;
   }
+
+  /* 横スクロール可能な要素に視覚的ヒントを追加 */
+  .prisma-table-container,
+  .overflow-x-auto,
+  .grid-view-container {
+    position: relative;
+  }
+
+  /* 右端にスクロール可能を示すグラデーション */
+  .prisma-table-container::after,
+  .overflow-x-auto::after {
+    content: '';
+    position: sticky;
+    right: 0;
+    top: 0;
+    width: 40px;
+    height: 100%;
+    background: linear-gradient(to left, rgba(255, 255, 255, 0.9), transparent);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* グリッドビューのスクロールヒント */
+  .grid-view-container::after {
+    content: '';
+    position: sticky;
+    right: 0;
+    top: 0;
+    width: 30px;
+    height: 100%;
+    background: linear-gradient(to left, rgba(243, 244, 246, 0.95), transparent);
+    pointer-events: none;
+    z-index: 1;
+  }
 }
