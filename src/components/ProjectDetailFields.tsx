@@ -585,97 +585,93 @@ export default function ProjectDetailFields({
             {/* 担当者タブ */}
             {positionSubTab === 'staff' && (
               <div className="p-4" style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto' }}>
-                {/* 拠点選択 */}
-                <div className="mb-4 bg-gray-50 rounded-lg p-4 border-2 border-gray-300">
-                  <div className="max-w-md">
-                    <label className="block text-base font-bold text-gray-700 mb-2">
-                      拠点
-                    </label>
-                    <select
-                      value={selectedBranchId}
-                      onChange={(e) => setSelectedBranchId(e.target.value)}
-                      className="prisma-select w-full"
-                    >
-                      <option value="all">すべての拠点</option>
-                      {branches.map(branch => (
-                        <option key={branch.id} value={branch.id}>
-                          {branch.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                {/* 拠点選択（コンパクト） */}
+                <div className="mb-3 flex items-center gap-3 bg-gray-50 rounded-lg px-3 py-2 border-2 border-gray-300">
+                  <label className="text-base font-bold text-gray-700 whitespace-nowrap">
+                    拠点:
+                  </label>
+                  <select
+                    value={selectedBranchId}
+                    onChange={(e) => setSelectedBranchId(e.target.value)}
+                    className="prisma-select flex-1"
+                    style={{ maxWidth: '300px' }}
+                  >
+                    <option value="all">すべての拠点</option>
+                    {branches.map(branch => (
+                      <option key={branch.id} value={branch.id}>
+                        {branch.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-xl overflow-hidden border-2 border-gray-300">
-                  <div className="overflow-x-auto">
-                    {DEPARTMENTS.map((dept) => (
-                      <div key={dept.name} className="mb-6 last:mb-0">
-                        <div className={`px-4 py-3 font-bold text-lg border-b-3 ${
-                          dept.name === '営業部' ? 'bg-blue-100 text-blue-900 border-blue-400' :
-                          dept.name === '設計部' ? 'bg-green-100 text-green-900 border-green-400' :
-                          dept.name === '工事部' ? 'bg-orange-100 text-orange-900 border-orange-400' :
-                          'bg-purple-100 text-purple-900 border-purple-400'
-                        }`}>
-                          {dept.name}
-                        </div>
-                        <div className="p-4 space-y-3">
-                          {dept.positions.map((position) => {
-                            const employee = employees.find(emp => emp.department === position)
-                            return (
-                              <div key={position} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg border-2 border-gray-300">
-                                <div className="flex-1">
-                                  <span className="text-base font-bold text-gray-900">{position}</span>
-                                </div>
-                                <div className="flex-1">
-                                  <select
-                                    value={employee?.id || ''}
-                                    onChange={async (e) => {
-                                      const newEmployeeId = e.target.value
-                                      if (!newEmployeeId) return
-
-                                      try {
-                                        // 既存の担当者がいる場合、その担当者のdepartmentをクリア
-                                        if (employee) {
-                                          await supabase
-                                            .from('employees')
-                                            .update({ department: 'その他' })
-                                            .eq('id', employee.id)
-                                        }
-
-                                        // 新しい担当者のdepartmentを更新
-                                        const { error } = await supabase
-                                          .from('employees')
-                                          .update({ department: position })
-                                          .eq('id', newEmployeeId)
-
-                                        if (error) throw error
-
-                                        showToast('担当者を設定しました', 'success')
-                                        onUpdate()
-                                      } catch (error) {
-                                        console.error('Failed to update employee:', error)
-                                        showToast('設定に失敗しました', 'error')
-                                      }
-                                    }}
-                                    className="prisma-select w-full"
-                                  >
-                                    <option value="">未割当</option>
-                                    {employees
-                                      .filter(emp => selectedBranchId === 'all' || emp.branch_id === selectedBranchId)
-                                      .map(emp => (
-                                        <option key={emp.id} value={emp.id}>
-                                          {emp.last_name} {emp.first_name}
-                                        </option>
-                                      ))}
-                                  </select>
-                                </div>
-                              </div>
-                            )
-                          })}
-                        </div>
+                {/* 2列グリッドレイアウト */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {DEPARTMENTS.map((dept) => (
+                    <div key={dept.name} className="bg-white rounded-lg shadow-lg overflow-hidden border-3 border-gray-300">
+                      {/* 部門ヘッダー（コンパクト） */}
+                      <div className={`px-3 py-2 font-bold text-base border-b-3 ${
+                        dept.name === '営業部' ? 'bg-blue-100 text-blue-900 border-blue-400' :
+                        dept.name === '設計部' ? 'bg-green-100 text-green-900 border-green-400' :
+                        dept.name === '工事部' ? 'bg-orange-100 text-orange-900 border-orange-400' :
+                        'bg-purple-100 text-purple-900 border-purple-400'
+                      }`}>
+                        {dept.name}
                       </div>
-                    ))}
-                  </div>
+                      {/* 職種リスト */}
+                      <div className="p-3 space-y-2">
+                        {dept.positions.map((position) => {
+                          const employee = employees.find(emp => emp.department === position)
+                          return (
+                            <div key={position} className="border-2 border-gray-300 rounded-lg p-2 bg-gray-50">
+                              <div className="text-base font-bold text-gray-900 mb-1">{position}</div>
+                              <select
+                                value={employee?.id || ''}
+                                onChange={async (e) => {
+                                  const newEmployeeId = e.target.value
+                                  if (!newEmployeeId) return
+
+                                  try {
+                                    // 既存の担当者がいる場合、その担当者のdepartmentをクリア
+                                    if (employee) {
+                                      await supabase
+                                        .from('employees')
+                                        .update({ department: 'その他' })
+                                        .eq('id', employee.id)
+                                    }
+
+                                    // 新しい担当者のdepartmentを更新
+                                    const { error } = await supabase
+                                      .from('employees')
+                                      .update({ department: position })
+                                      .eq('id', newEmployeeId)
+
+                                    if (error) throw error
+
+                                    showToast('担当者を設定しました', 'success')
+                                    onUpdate()
+                                  } catch (error) {
+                                    console.error('Failed to update employee:', error)
+                                    showToast('設定に失敗しました', 'error')
+                                  }
+                                }}
+                                className="prisma-select w-full"
+                              >
+                                <option value="">未割当</option>
+                                {employees
+                                  .filter(emp => selectedBranchId === 'all' || emp.branch_id === selectedBranchId)
+                                  .map(emp => (
+                                    <option key={emp.id} value={emp.id}>
+                                      {emp.last_name} {emp.first_name}
+                                    </option>
+                                  ))}
+                              </select>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
