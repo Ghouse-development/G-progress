@@ -180,16 +180,16 @@ export default function Reports() {
             </button>
 
             {showExportMenu && (
-              <div className="absolute top-full right-0 mt-2 bg-white border-3 border-black rounded-lg shadow-lg z-10 min-w-[220px]">
+              <div className="absolute top-full right-0 mt-2 bg-white border-2 border-gray-300 rounded-lg shadow-lg z-10 min-w-[220px]">
                 <button
                   onClick={handleExportPDF}
-                  className="w-full px-4 py-3 text-left text-base font-semibold border-b-2 border-gray-200 hover:bg-gray-50 transition-colors"
+                  className="w-full px-4 py-3 text-left text-base font-semibold border-b border-gray-200 hover:bg-gray-50 transition-colors"
                 >
                   総合レポート (PDF)
                 </button>
                 <button
                   onClick={handleExportEmployeeExcel}
-                  className="w-full px-4 py-3 text-left text-base font-semibold border-b-2 border-gray-200 hover:bg-gray-50 transition-colors"
+                  className="w-full px-4 py-3 text-left text-base font-semibold border-b border-gray-200 hover:bg-gray-50 transition-colors"
                 >
                   従業員データ (Excel)
                 </button>
@@ -207,7 +207,7 @@ export default function Reports() {
 
       <div className="prisma-content">
         <div className="prisma-card mb-4">
-          <p className="text-sm text-gray-600">
+          <p className="text-base text-gray-600">
             プロジェクト全体の統計情報とパフォーマンス分析
           </p>
         </div>
@@ -215,65 +215,65 @@ export default function Reports() {
         {/* サマリーカード */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         {/* 総プロジェクト数 */}
-        <div className="p-6 bg-gradient-to-br from-purple-500 to-purple-700 border-4 border-black rounded-xl text-white">
+        <div className="p-6 bg-gradient-to-br from-purple-500 to-purple-700 border-2 border-purple-600 rounded-xl text-white shadow-lg">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-base mb-2 opacity-90">総プロジェクト数</p>
-              <p className="text-5xl font-bold">
+              <p className="text-base mb-2 opacity-90 font-bold">総プロジェクト数</p>
+              <p className="text-5xl font-black">
                 {projectStats?.total || 0}
               </p>
             </div>
             <TrendingUp size={40} />
           </div>
-          <p className="text-sm mt-3 opacity-80">
+          <p className="text-base mt-3 opacity-80">
             平均進捗率: {projectStats?.averageProgress.toFixed(1) || 0}%
           </p>
         </div>
 
         {/* 遅延タスク */}
-        <div className="p-6 bg-gradient-to-br from-pink-400 to-red-500 border-4 border-black rounded-xl text-white">
+        <div className="p-6 bg-gradient-to-br from-pink-400 to-red-500 border-2 border-red-600 rounded-xl text-white shadow-lg">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-base mb-2 opacity-90">遅延タスク</p>
-              <p className="text-5xl font-bold">
+              <p className="text-base mb-2 opacity-90 font-bold">遅延タスク</p>
+              <p className="text-5xl font-black">
                 {delayedStats?.total || 0}
               </p>
             </div>
             <AlertCircle size={40} />
           </div>
-          <p className="text-sm mt-3 opacity-80">
+          <p className="text-base mt-3 opacity-80">
             平均遅延日数: {delayedStats?.averageDelayDays.toFixed(1) || 0}日
           </p>
         </div>
 
         {/* 入金状況 */}
-        <div className="p-6 bg-gradient-to-br from-cyan-400 to-cyan-600 border-4 border-black rounded-xl text-white">
+        <div className="p-6 bg-gradient-to-br from-cyan-400 to-cyan-600 border-2 border-cyan-700 rounded-xl text-white shadow-lg">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-base mb-2 opacity-90">入金済み額</p>
-              <p className="text-4xl font-bold">
+              <p className="text-base mb-2 opacity-90 font-bold">入金済み額</p>
+              <p className="text-4xl font-black">
                 ¥{((paymentStats?.totalReceived || 0) / 10000).toFixed(0)}万
               </p>
             </div>
             <DollarSign size={40} />
           </div>
-          <p className="text-sm mt-3 opacity-80">
+          <p className="text-base mt-3 opacity-80">
             未入金: ¥{((paymentStats?.pending || 0) / 10000).toFixed(0)}万円
           </p>
         </div>
 
         {/* 従業員数 */}
-        <div className="p-6 bg-gradient-to-br from-pink-500 to-yellow-400 border-4 border-black rounded-xl text-white">
+        <div className="p-6 bg-gradient-to-br from-pink-500 to-yellow-400 border-2 border-yellow-500 rounded-xl text-white shadow-lg">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-base mb-2 opacity-90">アクティブ従業員</p>
-              <p className="text-5xl font-bold">
+              <p className="text-base mb-2 opacity-90 font-bold">アクティブ従業員</p>
+              <p className="text-5xl font-black">
                 {employeePerformance?.length || 0}
               </p>
             </div>
             <Users size={40} />
           </div>
-          <p className="text-sm mt-3 opacity-80">
+          <p className="text-base mt-3 opacity-80">
             全部門
           </p>
         </div>
@@ -299,7 +299,7 @@ export default function Reports() {
                 dataKey="value"
               >
                 {projectChartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} stroke="black" strokeWidth={2} />
+                  <Cell key={`cell-${index}`} fill={entry.color} stroke="#374151" strokeWidth={2} />
                 ))}
               </Pie>
               <Tooltip />
@@ -319,14 +319,14 @@ export default function Reports() {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="完了率" fill="#2563EB" stroke="black" strokeWidth={2} />
+              <Bar dataKey="完了率" fill="#2563EB" stroke="#374151" strokeWidth={2} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       {/* 月次レポート */}
-      <div className="p-6 bg-gradient-to-br from-orange-100 to-orange-300 border-4 border-black rounded-xl">
+      <div className="p-6 bg-gradient-to-br from-orange-100 to-orange-300 border-2 border-orange-400 rounded-xl shadow-lg">
         <div className="flex justify-between items-center mb-5">
           <h2 className="text-2xl font-bold text-gray-900">
             月次レポート
@@ -354,21 +354,21 @@ export default function Reports() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-4 bg-white border-3 border-black rounded-lg">
-            <p className="text-sm text-gray-600 mb-2">新規契約</p>
-            <p className="text-3xl font-bold text-gray-900">{monthlyReport?.newContracts || 0}</p>
+          <div className="p-4 bg-white border-2 border-gray-300 rounded-lg shadow-md">
+            <p className="text-base font-bold text-gray-600 mb-2">新規契約</p>
+            <p className="text-3xl font-black text-gray-900">{monthlyReport?.newContracts || 0}</p>
           </div>
-          <div className="p-4 bg-white border-3 border-black rounded-lg">
-            <p className="text-sm text-gray-600 mb-2">完了プロジェクト</p>
-            <p className="text-3xl font-bold text-gray-900">{monthlyReport?.completedProjects || 0}</p>
+          <div className="p-4 bg-white border-2 border-gray-300 rounded-lg shadow-md">
+            <p className="text-base font-bold text-gray-600 mb-2">完了プロジェクト</p>
+            <p className="text-3xl font-black text-gray-900">{monthlyReport?.completedProjects || 0}</p>
           </div>
-          <div className="p-4 bg-white border-3 border-black rounded-lg">
-            <p className="text-sm text-gray-600 mb-2">完了タスク</p>
-            <p className="text-3xl font-bold text-gray-900">{monthlyReport?.completedTasks || 0}</p>
+          <div className="p-4 bg-white border-2 border-gray-300 rounded-lg shadow-md">
+            <p className="text-base font-bold text-gray-600 mb-2">完了タスク</p>
+            <p className="text-3xl font-black text-gray-900">{monthlyReport?.completedTasks || 0}</p>
           </div>
-          <div className="p-4 bg-white border-3 border-black rounded-lg">
-            <p className="text-sm text-gray-600 mb-2">売上</p>
-            <p className="text-2xl font-bold text-gray-900">
+          <div className="p-4 bg-white border-2 border-gray-300 rounded-lg shadow-md">
+            <p className="text-base font-bold text-gray-600 mb-2">売上</p>
+            <p className="text-2xl font-black text-gray-900">
               ¥{((monthlyReport?.totalRevenue || 0) / 10000).toFixed(0)}万
             </p>
           </div>
@@ -377,7 +377,7 @@ export default function Reports() {
 
       {/* 遅延タスク詳細 */}
       {delayedStats && delayedStats.total > 0 && (
-        <div className="prisma-card border-4 border-red-600">
+        <div className="prisma-card border-2 border-red-600">
           <h2 className="text-2xl font-bold text-red-600 mb-5">
             遅延タスク詳細（上位10件）
           </h2>

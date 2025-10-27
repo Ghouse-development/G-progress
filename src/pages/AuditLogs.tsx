@@ -224,7 +224,7 @@ export default function AuditLogs() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* 検索 */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-base font-semibold text-gray-700 mb-2">
               検索
             </label>
             <div className="relative">
@@ -241,7 +241,7 @@ export default function AuditLogs() {
 
           {/* アクションフィルター */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-base font-semibold text-gray-700 mb-2">
               アクション
             </label>
             <select
@@ -258,7 +258,7 @@ export default function AuditLogs() {
 
           {/* テーブルフィルター */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-base font-semibold text-gray-700 mb-2">
               テーブル
             </label>
             <select
@@ -274,23 +274,23 @@ export default function AuditLogs() {
           </div>
         </div>
 
-        <div className="mt-3 text-sm text-gray-600">
+        <div className="mt-3 text-base text-gray-600">
           {filteredLogs.length}件の結果を表示中
         </div>
       </div>
 
       {/* 監査ログテーブル */}
-      <div className="prisma-card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="prisma-card p-0 overflow-hidden">
         <div className="prisma-table-container">
           <table className="prisma-table">
             <thead className="bg-gray-100 sticky top-0">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">日時</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">ユーザー</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">部門</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">案件</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">アクション</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900" style={{ minWidth: '300px' }}>変更内容</th>
+                <th className="px-4 py-3 text-left text-base font-semibold text-gray-900">日時</th>
+                <th className="px-4 py-3 text-left text-base font-semibold text-gray-900">ユーザー</th>
+                <th className="px-4 py-3 text-left text-base font-semibold text-gray-900">部門</th>
+                <th className="px-4 py-3 text-left text-base font-semibold text-gray-900">案件</th>
+                <th className="px-4 py-3 text-left text-base font-semibold text-gray-900">アクション</th>
+                <th className="px-4 py-3 text-left text-base font-semibold text-gray-900 min-w-[300px]">変更内容</th>
               </tr>
             </thead>
             <tbody className="bg-white">
@@ -299,19 +299,19 @@ export default function AuditLogs() {
                   key={log.id}
                   className={idx % 2 === 0 ? '' : 'bg-gray-50'}
                 >
-                  <td className="px-3 py-3 text-sm text-gray-900">
+                  <td className="px-3 py-3 text-base text-gray-900">
                     {format(new Date(log.created_at), 'yyyy/MM/dd HH:mm:ss', { locale: ja })}
                   </td>
-                  <td className="px-3 py-3 text-sm font-bold text-gray-900">
+                  <td className="px-3 py-3 text-base font-bold text-gray-900">
                     {log.employee ? `${log.employee.last_name} ${log.employee.first_name}` : '不明'}
                   </td>
-                  <td className="px-3 py-3 text-sm text-gray-900">
+                  <td className="px-3 py-3 text-base text-gray-900">
                     {log.employee?.department || '-'}
                   </td>
-                  <td className="px-3 py-3 text-sm font-bold text-gray-900">
+                  <td className="px-3 py-3 text-base font-bold text-gray-900">
                     {log.changes?.project_name || '-'}
                   </td>
-                  <td className="px-3 py-3 text-sm">
+                  <td className="px-3 py-3 text-base">
                     <span className={`px-3 py-1 rounded-md text-xs font-bold ${
                       (log.action === 'INSERT' || log.action === 'create') ? 'bg-green-100 text-green-800' :
                       (log.action === 'UPDATE' || log.action === 'update') ? 'bg-yellow-100 text-yellow-800' :
@@ -323,7 +323,7 @@ export default function AuditLogs() {
                       {getActionLabel(log.action)}
                     </span>
                   </td>
-                  <td className="px-3 py-3 text-sm text-gray-900 leading-relaxed">
+                  <td className="px-3 py-3 text-base text-gray-900 leading-relaxed">
                     {log.changes?.description || (log.old_values || log.new_values ? 'データを変更' : '-')}
                   </td>
                 </tr>
@@ -347,7 +347,7 @@ export default function AuditLogs() {
               前へ
             </button>
 
-            <span className="px-4 text-sm font-bold text-gray-900">
+            <span className="px-4 text-base font-bold text-gray-900">
               {currentPage} / {totalPages}
             </span>
 

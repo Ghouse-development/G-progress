@@ -955,25 +955,24 @@ export default function ProjectList() {
         </div>
       </div>
 
-      <div className="prisma-content" style={{ padding: '12px 12px 0 12px' }}>
+      <div className="prisma-content p-3 pb-0">
         {/* 進捗マトリクス表示 */}
-        <div className="prisma-card" style={{ overflow: 'hidden', marginBottom: 0 }}>
+        <div className="prisma-card overflow-hidden mb-0">
           {/* マトリクスヘッダー */}
-          <div className="prisma-card-header" style={{ padding: '16px' }}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+          <div className="prisma-card-header p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               {/* 左側：タイトルと並び順・絞込 */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px' }}>
-                <h3 className="prisma-card-title" style={{ fontSize: '18px', marginBottom: 0 }}>全案件進捗マトリクス</h3>
+              <div className="flex flex-wrap items-center gap-3">
+                <h3 className="prisma-card-title text-lg mb-0">全案件進捗マトリクス</h3>
 
                 {/* 並び順 */}
                 <div className="flex items-center gap-2">
                   <ArrowUpDown size={16} className="text-gray-600" />
-                  <span className="text-gray-700 text-sm">並び:</span>
+                  <span className="text-gray-700 text-base">並び:</span>
                   <select
                     value={sortField}
                     onChange={(e) => setSortField(e.target.value as SortField)}
-                    className="prisma-select"
-                    style={{ width: 'auto' }}
+                    className="prisma-select w-auto"
                   >
                     <option value="contract_date">契約日順</option>
                     <option value="construction_start_date">着工日順</option>
@@ -992,7 +991,7 @@ export default function ProjectList() {
                 {/* 絞込 */}
                 <div className="flex items-center gap-2">
                   <Filter size={16} className="text-gray-600" />
-                  <span className="text-gray-700 text-sm">絞込:</span>
+                  <span className="text-gray-700 text-base">絞込:</span>
                   <button
                     onClick={() => setFilterStatus('all')}
                     className={`prisma-btn prisma-btn-sm ${
@@ -1005,13 +1004,12 @@ export default function ProjectList() {
               </div>
 
               {/* 右側：着工フィルタ */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => setConstructionFilter('pre')}
                   className={`prisma-btn ${
                     constructionFilter === 'pre' ? 'prisma-btn-primary' : 'prisma-btn-secondary'
-                  }`}
-                  style={{ fontSize: '15px', padding: '10px 16px', minHeight: '44px' }}
+                  } text-base px-4 py-2.5 min-h-[44px]`}
                 >
                   着工前 ({displayProjects.filter(p => p.status === 'post_contract').length})
                 </button>
@@ -1019,8 +1017,7 @@ export default function ProjectList() {
                   onClick={() => setConstructionFilter('post')}
                   className={`prisma-btn ${
                     constructionFilter === 'post' ? 'prisma-btn-primary' : 'prisma-btn-secondary'
-                  }`}
-                  style={{ fontSize: '15px', padding: '10px 16px', minHeight: '44px' }}
+                  } text-base px-4 py-2.5 min-h-[44px]`}
                 >
                   着工後 ({displayProjects.filter(p => p.status === 'construction' || p.status === 'completed').length})
                 </button>
@@ -1103,7 +1100,7 @@ export default function ProjectList() {
                       className="transition-colors hover:bg-gray-50"
                     >
                       <td
-                        className="bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-sm cursor-pointer hover:bg-blue-50 shadow-sm"
+                        className="bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-base cursor-pointer hover:bg-blue-50 shadow-sm"
                         style={{ position: 'sticky', left: 0, zIndex: 20, width: '200px' }}
                         onClick={() => navigate(`/projects/${project.id}`)}
                       >
@@ -1111,12 +1108,12 @@ export default function ProjectList() {
                           {project.customer?.names?.join('・') || '顧客名なし'}様
                         </div>
                         {project.product && (
-                          <div className="text-xs text-gray-600 font-medium">
+                          <div className="text-sm text-gray-600 font-medium">
                             {project.product.name}
                           </div>
                         )}
                       </td>
-                      <td className="bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-sm shadow-sm" style={{ position: 'sticky', left: '200px', zIndex: 20, width: '110px' }}>
+                      <td className="bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-base shadow-sm" style={{ position: 'sticky', left: '200px', zIndex: 20, width: '110px' }}>
                         {project.sales ? (
                           <div className="font-semibold text-gray-900" title={`${project.sales.last_name} ${project.sales.first_name}`}>
                             {project.sales.last_name}
@@ -1125,7 +1122,7 @@ export default function ProjectList() {
                           <div className="font-semibold text-gray-400">-</div>
                         )}
                       </td>
-                      <td className="bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-sm shadow-sm" style={{ position: 'sticky', left: '310px', zIndex: 20, width: '110px' }}>
+                      <td className="bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-base shadow-sm" style={{ position: 'sticky', left: '310px', zIndex: 20, width: '110px' }}>
                         {project.design ? (
                           <div className="font-semibold text-gray-900" title={`${project.design.last_name} ${project.design.first_name}`}>
                             {project.design.last_name}
@@ -1134,7 +1131,7 @@ export default function ProjectList() {
                           <div className="font-semibold text-gray-400">-</div>
                         )}
                       </td>
-                      <td className="bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-sm shadow-sm" style={{ position: 'sticky', left: '420px', zIndex: 20, width: '110px' }}>
+                      <td className="bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-base shadow-sm" style={{ position: 'sticky', left: '420px', zIndex: 20, width: '110px' }}>
                         {project.ic ? (
                           <div className="font-semibold text-gray-900" title={`${project.ic.last_name} ${project.ic.first_name}`}>
                             {project.ic.last_name}
@@ -1143,7 +1140,7 @@ export default function ProjectList() {
                           <div className="font-semibold text-gray-400">-</div>
                         )}
                       </td>
-                      <td className="bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-sm shadow-sm" style={{ position: 'sticky', left: '530px', zIndex: 20, width: '110px' }}>
+                      <td className="bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-base shadow-sm" style={{ position: 'sticky', left: '530px', zIndex: 20, width: '110px' }}>
                         {project.construction ? (
                           <div className="font-semibold text-gray-900" title={`${project.construction.last_name} ${project.construction.first_name}`}>
                             {project.construction.last_name}
@@ -1152,7 +1149,7 @@ export default function ProjectList() {
                           <div className="font-semibold text-gray-400">-</div>
                         )}
                       </td>
-                      <td className="bg-white border border-gray-100 border-r-4 border-r-gray-700 px-3 py-3 text-center text-sm shadow-md" style={{ position: 'sticky', left: '640px', zIndex: 20, width: '110px' }}>
+                      <td className="bg-white border border-gray-100 border-r-4 border-r-gray-700 px-3 py-3 text-center text-base shadow-md" style={{ position: 'sticky', left: '640px', zIndex: 20, width: '110px' }}>
                         {project.exterior ? (
                           <div className="font-semibold text-gray-900" title={`${project.exterior.last_name} ${project.exterior.first_name}`}>
                             {project.exterior.last_name}
@@ -1762,7 +1759,7 @@ export default function ProjectList() {
               {/* 責任者 */}
               {selectedTask.assigned_employee && (
                 <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                  <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                     責任者
                   </label>
                   <div className="prisma-input bg-gray-50 dark:bg-gray-700">
@@ -1773,13 +1770,13 @@ export default function ProjectList() {
 
               {/* ステータス変更ボタン */}
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                   ステータス
                 </label>
                 <div className="grid grid-cols-4 gap-2">
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'not_started')}
-                    className={`px-3 py-2 rounded-lg font-bold text-sm transition-all ${
+                    className={`px-3 py-2 rounded-lg font-bold text-base transition-all ${
                       selectedTask.status === 'not_started'
                         ? 'task-not-started'
                         : 'bg-white text-gray-900 hover:bg-gray-50 border-2 border-gray-300'
@@ -1789,7 +1786,7 @@ export default function ProjectList() {
                   </button>
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'requested')}
-                    className={`px-3 py-2 rounded-lg font-bold text-sm transition-all ${
+                    className={`px-3 py-2 rounded-lg font-bold text-base transition-all ${
                       selectedTask.status === 'requested'
                         ? 'task-in-progress'
                         : 'bg-white text-yellow-900 hover:bg-yellow-50 border-2 border-yellow-300'
@@ -1799,7 +1796,7 @@ export default function ProjectList() {
                   </button>
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'delayed')}
-                    className={`px-3 py-2 rounded-lg font-bold text-sm transition-all ${
+                    className={`px-3 py-2 rounded-lg font-bold text-base transition-all ${
                       selectedTask.status === 'delayed'
                         ? 'task-delayed'
                         : 'bg-white text-red-900 hover:bg-red-50 border-2 border-red-300'
@@ -1809,7 +1806,7 @@ export default function ProjectList() {
                   </button>
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'completed')}
-                    className={`px-3 py-2 rounded-lg font-bold text-sm transition-all ${
+                    className={`px-3 py-2 rounded-lg font-bold text-base transition-all ${
                       selectedTask.status === 'completed'
                         ? 'task-completed'
                         : 'bg-white text-blue-900 hover:bg-blue-50 border-2 border-blue-300'
@@ -1822,7 +1819,7 @@ export default function ProjectList() {
 
               {/* 期限日 */}
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                   期限日
                 </label>
                 {editingDueDate ? (
@@ -1843,7 +1840,7 @@ export default function ProjectList() {
                       {selectedTask.due_date ? format(new Date(selectedTask.due_date), 'yyyy年MM月dd日 (E)', { locale: ja }) : '未設定'}
                     </div>
                     {selectedTask.due_date && selectedTaskProject.contract_date && (
-                      <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      <div className="text-base text-gray-600 dark:text-gray-400 mt-1">
                         契約日から {differenceInDays(new Date(selectedTask.due_date), new Date(selectedTaskProject.contract_date))}日目
                       </div>
                     )}
@@ -1854,7 +1851,7 @@ export default function ProjectList() {
               {/* 作業内容 */}
               {selectedTask.description && (
                 <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                  <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                     作業内容
                   </label>
                   <div className="prisma-input bg-gray-50 dark:bg-gray-700 whitespace-pre-wrap" style={{ minHeight: '60px' }}>
@@ -1868,7 +1865,7 @@ export default function ProjectList() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   {selectedTask.dos && (
                     <div>
-                      <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                      <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                         Do's（推奨事項）
                       </label>
                       <div className="prisma-input bg-gray-50 dark:bg-gray-700 whitespace-pre-wrap" style={{ minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
@@ -1879,7 +1876,7 @@ export default function ProjectList() {
 
                   {selectedTask.donts && (
                     <div>
-                      <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                      <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                         Don'ts（禁止事項）
                       </label>
                       <div className="prisma-input bg-gray-50 dark:bg-gray-700 whitespace-pre-wrap" style={{ minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
@@ -1892,7 +1889,7 @@ export default function ProjectList() {
 
               {/* コメント */}
               <div className="mt-4 pt-4 border-t-2 border-gray-200 dark:border-gray-700">
-                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-2">
+                <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-2">
                   コメント
                 </label>
                 <div className="space-y-3">
@@ -1926,21 +1923,21 @@ export default function ProjectList() {
                         {taskComments.map((comment) => (
                           <div key={comment.id} className="pb-3 border-b border-gray-200 dark:border-gray-700 last:border-0">
                             <div className="flex items-start justify-between gap-2 mb-1">
-                              <div className="font-medium text-sm text-gray-900 dark:text-gray-100">
+                              <div className="font-medium text-base text-gray-900 dark:text-gray-100">
                                 {comment.user?.last_name} {comment.user?.first_name}
                               </div>
-                              <div className="text-xs text-gray-500 dark:text-gray-500 whitespace-nowrap">
+                              <div className="text-sm text-gray-500 dark:text-gray-500 whitespace-nowrap">
                                 {format(new Date(comment.created_at), 'MM/dd HH:mm')}
                               </div>
                             </div>
-                            <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                            <div className="text-base text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                               {comment.content}
                             </div>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="text-center text-gray-500 dark:text-gray-500 py-4 text-sm">
+                      <div className="text-center text-gray-500 dark:text-gray-500 py-4 text-base">
                         コメントがありません
                       </div>
                     )}
@@ -1950,7 +1947,7 @@ export default function ProjectList() {
 
               {/* 変更履歴 */}
               <div className="mt-4 pt-4 border-t-2 border-gray-200 dark:border-gray-700">
-                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-2">
+                <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-2">
                   変更履歴（最新5件）
                 </label>
                 <div className="prisma-input bg-gray-50 dark:bg-gray-800" style={{ maxHeight: '200px', overflowY: 'auto' }}>
@@ -1960,11 +1957,11 @@ export default function ProjectList() {
                         <div key={log.id} className="pb-2 border-b border-gray-200 dark:border-gray-700 last:border-0">
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex-1">
-                              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                              <div className="text-base font-medium text-gray-900 dark:text-gray-100">
                                 {log.action === 'update' ? '更新' : log.action === 'create' ? '作成' : log.action}
                               </div>
                               {log.changes && (
-                                <div className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                                <div className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">
                                   {Object.keys(log.changes).map(key => {
                                     const change = log.changes[key]
                                     return (
@@ -1979,12 +1976,12 @@ export default function ProjectList() {
                                 </div>
                               )}
                             </div>
-                            <div className="text-xs text-gray-500 dark:text-gray-500 whitespace-nowrap">
+                            <div className="text-sm text-gray-500 dark:text-gray-500 whitespace-nowrap">
                               {format(new Date(log.created_at), 'MM/dd HH:mm')}
                             </div>
                           </div>
                           {log.user && (
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                               {log.user.last_name} {log.user.first_name}
                             </div>
                           )}
@@ -1992,7 +1989,7 @@ export default function ProjectList() {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center text-gray-500 dark:text-gray-500 py-4 text-sm">
+                    <div className="text-center text-gray-500 dark:text-gray-500 py-4 text-base">
                       変更履歴がありません
                     </div>
                   )}
@@ -2001,12 +1998,12 @@ export default function ProjectList() {
 
               {/* マニュアル・動画 */}
               <div className="mt-4 pt-4 border-t-2 border-gray-200 dark:border-gray-700">
-                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-2">
+                <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-2">
                   マニュアル・動画
                 </label>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                    <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                       マニュアル
                     </label>
                     {selectedTask.manual_url ? (
@@ -2019,12 +2016,12 @@ export default function ProjectList() {
                         開く
                       </a>
                     ) : (
-                      <div className="text-gray-500 dark:text-gray-400 text-sm">未設定</div>
+                      <div className="text-gray-500 dark:text-gray-400 text-base">未設定</div>
                     )}
                   </div>
 
                   <div>
-                    <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                    <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                       動画
                     </label>
                     {selectedTask.video_url ? (
@@ -2037,7 +2034,7 @@ export default function ProjectList() {
                         再生
                       </a>
                     ) : (
-                      <div className="text-gray-500 dark:text-gray-400 text-sm">未設定</div>
+                      <div className="text-gray-500 dark:text-gray-400 text-base">未設定</div>
                     )}
                   </div>
                 </div>

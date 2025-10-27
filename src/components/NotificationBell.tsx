@@ -90,7 +90,7 @@ export default function NotificationBell() {
               {unreadCount > 0 && (
                 <button
                   onClick={() => markAllAsRead()}
-                  className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                  className="text-base text-blue-600 hover:text-blue-800 font-medium"
                   title="すべて既読にする"
                 >
                   すべて既読
@@ -131,13 +131,13 @@ export default function NotificationBell() {
 
                     {/* 通知内容 */}
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-gray-900 mb-1">
+                      <p className="text-base font-bold text-gray-900 mb-1">
                         {notification.title}
                       </p>
-                      <p className="text-sm text-gray-700 mb-2">
+                      <p className="text-base text-gray-700 mb-2">
                         {notification.message}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-base text-gray-500">
                         {format(new Date(notification.created_at), 'M月d日 HH:mm', {
                           locale: ja
                         })}
@@ -177,7 +177,7 @@ export default function NotificationBell() {
                   setIsOpen(false)
                   // TODO: 通知一覧ページに遷移
                 }}
-                className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                className="text-base text-blue-600 hover:text-blue-800 font-medium"
               >
                 すべての通知を見る
               </button>

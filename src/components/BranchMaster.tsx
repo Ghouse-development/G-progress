@@ -143,10 +143,10 @@ export default function BranchMaster() {
           <table className="w-full">
             <thead className="bg-pastel-blue-light">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-base font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
                   拠点名
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-base font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
                   操作
                 </th>
               </tr>
@@ -161,7 +161,7 @@ export default function BranchMaster() {
               ) : (
                 branches.map((branch) => (
                   <tr key={branch.id} className="hover:bg-pastel-blue-light transition-colors">
-                    <td className="px-6 py-4 text-sm font-bold text-gray-900">
+                    <td className="px-6 py-4 text-base font-bold text-gray-900">
                       {branch.name}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
@@ -193,7 +193,7 @@ export default function BranchMaster() {
       {/* 拠点追加/編集モーダル */}
       {showModal && (
         <div className="prisma-modal-overlay">
-          <div className="prisma-modal" style={{ maxWidth: '450px' }}>
+          <div className="prisma-modal max-w-[450px]">
             {/* ヘッダー */}
             <div className="prisma-modal-header">
               <div className="flex items-center justify-between">
@@ -212,7 +212,7 @@ export default function BranchMaster() {
             {/* コンテンツ */}
             <div className="prisma-modal-content">
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                <label className="block text-base font-medium text-gray-700 mb-2">
                   拠点名 <span className="text-red-500">*</span>
                 </label>
                 <input

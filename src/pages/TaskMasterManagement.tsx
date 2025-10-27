@@ -340,7 +340,7 @@ export default function TaskMasterManagement() {
       <div className="bg-white p-4 rounded-lg border-2 border-gray-200 shadow-sm">
         <div className="flex items-center justify-between mb-3">
           <label className="text-base font-semibold text-gray-700">表示職種</label>
-          <span className="text-sm text-gray-500">
+          <span className="text-base text-gray-500">
             （{filteredTaskMasters.length}件）
           </span>
         </div>
@@ -370,16 +370,16 @@ export default function TaskMasterManagement() {
 
       {/* タスク一覧テーブル */}
       <div className="bg-white rounded-lg border-2 border-pastel-blue shadow-pastel-lg overflow-hidden">
-        <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-350px)]" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-350px)] [-webkit-overflow-scrolling:touch]">
           <table className="w-full prisma-table min-w-max table-fixed">
             <colgroup>
-              <col style={{ width: '25%' }} />
-              <col style={{ width: '12%' }} />
-              <col style={{ width: '10%' }} />
-              <col style={{ width: '10%' }} />
-              <col style={{ width: '20%' }} />
-              <col style={{ width: '10%' }} />
-              <col style={{ width: '13%' }} />
+              <col className="w-[ '25%]" />
+              <col className="w-[ '12%]" />
+              <col className="w-[ '10%]" />
+              <col className="w-[ '10%]" />
+              <col className="w-[ '20%]" />
+              <col className="w-[ '10%]" />
+              <col className="w-[ '13%]" />
             </colgroup>
             <thead className="bg-pastel-blue-light">
               <tr>
@@ -427,7 +427,7 @@ export default function TaskMasterManagement() {
                   >
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-gray-900 whitespace-nowrap">{task.title}</span>
+                        <span className="text-base font-bold text-gray-900 whitespace-nowrap">{task.title}</span>
                         {task.is_trigger_task && (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border-2 border-blue-300 whitespace-nowrap">
                             トリガー
@@ -436,20 +436,20 @@ export default function TaskMasterManagement() {
                       </div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-600">{task.responsible_department || '未設定'}</div>
+                      <div className="text-base text-gray-600">{task.responsible_department || '未設定'}</div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-600">{task.phase || '未設定'}</div>
+                      <div className="text-base text-gray-600">{task.phase || '未設定'}</div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-right">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-base font-medium text-gray-900">
                         {task.days_from_contract !== null && task.days_from_contract !== undefined
                           ? `${task.days_from_contract}日`
                           : '-'}
                       </div>
                     </td>
                     <td className="px-4 py-4">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-base font-medium text-gray-900">
                         {task.trigger_task_id ? (
                           <div className="flex items-center gap-2">
                             <span className="text-xs text-gray-600">
@@ -467,7 +467,7 @@ export default function TaskMasterManagement() {
                       </div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-center">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-base font-medium text-gray-900">
                         {task.show_in_progress ? (
                           <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold bg-blue-100 text-blue-800 border-2 border-blue-300">
                             掲載
@@ -530,7 +530,7 @@ export default function TaskMasterManagement() {
             <div className="prisma-modal-content space-y-4">
               {/* タスク名 */}
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                <label className="block prisma-text-base font-medium text-gray-700 prisma-mb-1">
                   タスク名 <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -544,7 +544,7 @@ export default function TaskMasterManagement() {
 
               {/* フェーズ */}
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                <label className="block prisma-text-base font-medium text-gray-700 prisma-mb-1">
                   フェーズ
                 </label>
                 <select
@@ -562,7 +562,7 @@ export default function TaskMasterManagement() {
 
               {/* 責任職種 */}
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                <label className="block prisma-text-base font-medium text-gray-700 prisma-mb-1">
                   責任職種
                 </label>
                 <select
@@ -585,7 +585,7 @@ export default function TaskMasterManagement() {
 
               {/* 目的 */}
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                <label className="block prisma-text-base font-medium text-gray-700 prisma-mb-1">
                   目的
                 </label>
                 <textarea
@@ -599,7 +599,7 @@ export default function TaskMasterManagement() {
 
               {/* マニュアルURL */}
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                <label className="block prisma-text-base font-medium text-gray-700 prisma-mb-1">
                   マニュアルURL
                 </label>
                 <input
@@ -613,7 +613,7 @@ export default function TaskMasterManagement() {
 
               {/* Do's */}
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                <label className="block prisma-text-base font-medium text-gray-700 prisma-mb-1">
                   Do's（推奨事項）
                 </label>
                 <textarea
@@ -627,7 +627,7 @@ export default function TaskMasterManagement() {
 
               {/* Don'ts */}
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                <label className="block prisma-text-base font-medium text-gray-700 prisma-mb-1">
                   Don'ts（禁止事項）
                 </label>
                 <textarea
@@ -657,7 +657,7 @@ export default function TaskMasterManagement() {
                       トリガー設定の有無
                     </label>
                   </div>
-                  <p className="text-sm text-gray-600 mt-2 ml-8">
+                  <p className="text-base text-gray-600 mt-2 ml-8">
                     ※ONにすると、他のタスクの起点（トリガー）として選択できるようになります
                   </p>
                 </div>
@@ -668,7 +668,7 @@ export default function TaskMasterManagement() {
 
                   {/* トリガー選択 */}
                   <div className="mb-4">
-                    <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                    <label className="block prisma-text-base font-medium text-gray-700 prisma-mb-1">
                       トリガー（このタスクの起点となるタスク）
                     </label>
                     <select
@@ -693,7 +693,7 @@ export default function TaskMasterManagement() {
                   {/* トリガーからの日数 */}
                   {formData.trigger_task_id && (
                     <div>
-                      <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                      <label className="block prisma-text-base font-medium text-gray-700 prisma-mb-1">
                         日数（トリガーからの相対日数）
                       </label>
                       <input
@@ -730,7 +730,7 @@ export default function TaskMasterManagement() {
                   {/* トリガーなしの場合の日数入力 */}
                   {!formData.trigger_task_id && (
                     <div>
-                      <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                      <label className="block prisma-text-base font-medium text-gray-700 prisma-mb-1">
                         契約日からの日数 <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -750,7 +750,7 @@ export default function TaskMasterManagement() {
 
               {/* 進捗管理表に掲載するか */}
               <div className="border-t-2 border-gray-200 pt-4 mt-4">
-                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                <label className="block prisma-text-base font-medium text-gray-700 prisma-mb-1">
                   進捗管理表に掲載するか
                 </label>
                 <div className="flex items-center space-x-4 mt-2">
@@ -762,7 +762,7 @@ export default function TaskMasterManagement() {
                       onChange={() => setFormData({ ...formData, show_in_progress: true })}
                       className="mr-2"
                     />
-                    <span className="text-sm">掲載する</span>
+                    <span className="text-base">掲載する</span>
                   </label>
                   <label className="flex items-center cursor-pointer">
                     <input
@@ -772,7 +772,7 @@ export default function TaskMasterManagement() {
                       onChange={() => setFormData({ ...formData, show_in_progress: false })}
                       className="mr-2"
                     />
-                    <span className="text-sm">掲載しない</span>
+                    <span className="text-base">掲載しない</span>
                   </label>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
@@ -782,7 +782,7 @@ export default function TaskMasterManagement() {
 
               {/* 契約日からの日数（自動計算） */}
               <div className="border-t-2 border-gray-200 pt-4 mt-4">
-                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                <label className="block prisma-text-base font-medium text-gray-700 prisma-mb-1">
                   契約日からの日数（自動計算）
                 </label>
                 <div className="bg-gray-50 border-2 border-gray-200 rounded-lg p-4">

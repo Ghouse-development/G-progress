@@ -100,13 +100,13 @@ export default function Login() {
 
           {error && (
             <div className="mb-4 p-4 bg-red-50 border-2 border-red-200 rounded-xl">
-              <p className="text-sm text-red-800 font-medium">{error}</p>
+              <p className="text-base text-red-800 font-medium">{error}</p>
             </div>
           )}
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
+              <label className="block text-base font-bold text-gray-700 mb-2">
                 メールアドレス
               </label>
               <input
@@ -121,7 +121,7 @@ export default function Login() {
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
+              <label className="block text-base font-bold text-gray-700 mb-2">
                 パスワード
               </label>
               <input
@@ -151,7 +151,7 @@ export default function Login() {
                 開発モード専用
               </p>
               <div className="mb-3">
-                <label className="block text-sm font-bold text-gray-700 mb-2">
+                <label className="block text-base font-bold text-gray-700 mb-2">
                   ログインするユーザーを選択
                 </label>
                 <select
@@ -168,7 +168,7 @@ export default function Login() {
               </div>
               <button
                 onClick={handleDevLogin}
-                className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-xl hover:bg-gray-200 transition font-bold text-sm border-2 border-gray-300"
+                className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-xl hover:bg-gray-200 transition font-bold text-base border-2 border-gray-300"
               >
                 クイックログイン（認証なし）
               </button>
@@ -178,7 +178,7 @@ export default function Login() {
 
         {/* フッター */}
         <div className="mt-6 text-center">
-          <p className="text-sm text-gray-500">
+          <p className="text-base text-gray-500">
             © 2025 G-progress by Gハウス
           </p>
         </div>

@@ -156,13 +156,13 @@ export default function RoleMaster() {
           <table className="w-full">
             <thead className="bg-pastel-blue-light">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-base font-bold text-gray-800 uppercase tracking-wider">
                   役職コード
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-base font-bold text-gray-800 uppercase tracking-wider">
                   役職名
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-bold text-gray-800 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-base font-bold text-gray-800 uppercase tracking-wider">
                   操作
                 </th>
               </tr>
@@ -177,10 +177,10 @@ export default function RoleMaster() {
               ) : (
                 roles.map((role) => (
                   <tr key={role.id} className="hover:bg-pastel-blue-light transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">
                       {role.code}
                     </td>
-                    <td className="px-6 py-4 text-sm font-bold text-gray-900">
+                    <td className="px-6 py-4 text-base font-bold text-gray-900">
                       {role.name}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
@@ -212,7 +212,7 @@ export default function RoleMaster() {
       {/* 役職追加/編集モーダル */}
       {showModal && (
         <div className="prisma-modal-overlay">
-          <div className="prisma-modal" style={{ maxWidth: '450px' }}>
+          <div className="prisma-modal max-w-[450px]">
             {/* ヘッダー */}
             <div className="prisma-modal-header">
               <div className="flex items-center justify-between">
@@ -231,7 +231,7 @@ export default function RoleMaster() {
             {/* コンテンツ */}
             <div className="prisma-modal-content space-y-4">
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                <label className="block text-base font-medium text-gray-700 mb-2">
                   役職コード <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -248,7 +248,7 @@ export default function RoleMaster() {
               </div>
 
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                <label className="block text-base font-medium text-gray-700 mb-2">
                   役職名 <span className="text-red-500">*</span>
                 </label>
                 <input

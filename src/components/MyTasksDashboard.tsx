@@ -154,7 +154,7 @@ export default function MyTasksDashboard() {
         <h1 className="text-xl font-bold text-gray-900">
           {currentEmployee.last_name} {currentEmployee.first_name}さんの業務
         </h1>
-        <div className="text-sm text-gray-600">
+        <div className="text-base text-gray-600">
           担当案件: {myProjects.length}件
         </div>
       </div>
@@ -197,7 +197,7 @@ export default function MyTasksDashboard() {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-gray-600">今日期限のタスクはありません</p>
+          <p className="text-base text-gray-600">今日期限のタスクはありません</p>
         )}
       </section>
 
@@ -224,7 +224,7 @@ export default function MyTasksDashboard() {
             )}
           </div>
         ) : (
-          <p className="text-sm text-gray-600">今週期限のタスクはありません</p>
+          <p className="text-base text-gray-600">今週期限のタスクはありません</p>
         )}
       </section>
 
@@ -267,12 +267,12 @@ function TaskCard({ task, variant, onClick }: TaskCardProps) {
         <div className="flex-1">
           <h3 className="font-bold text-gray-900 text-base mb-1">{task.title}</h3>
 
-          <p className="text-sm text-gray-600 mb-1">
+          <p className="text-base text-gray-600 mb-1">
             {task.project?.customer?.names?.[0] || '案件名不明'}様邸
           </p>
 
           {task.due_date && (
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-2 text-base text-gray-600">
               <span>
                 期限: {format(new Date(task.due_date), 'M月d日(E)', { locale: ja })}
               </span>
@@ -286,7 +286,7 @@ function TaskCard({ task, variant, onClick }: TaskCardProps) {
         </div>
 
         <button
-          className="px-3 py-1 bg-black text-white text-sm hover:bg-gray-800"
+          className="px-3 py-1 bg-black text-white text-base hover:bg-gray-800"
           onClick={(e) => {
             e.stopPropagation()
             onClick()
@@ -316,7 +316,7 @@ function ProjectCard({ project, onClick }: ProjectCardProps) {
       onClick={onClick}
     >
       <h3 className="font-bold text-gray-900 text-base mb-2">{customerName}様邸</h3>
-      <div className="text-sm text-gray-600 space-y-1">
+      <div className="text-base text-gray-600 space-y-1">
         <p>契約日: {format(new Date(project.contract_date), 'M月d日')}</p>
         <p>進捗: {project.progress_rate}%</p>
       </div>

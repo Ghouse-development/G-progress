@@ -35,7 +35,13 @@
       "Bash(vercel ls:*)",
       "Bash(npx vercel --prod)",
       "Bash(npx vercel:*)",
-      "Bash(xargs:*)"
+      "Bash(xargs:*)",
+      "Bash(for file in src/pages/OrganizationManagement.tsx src/pages/PaymentManagement.tsx src/pages/GrossProfitManagement.tsx src/pages/PerformanceManagement.tsx src/pages/TaskMasterManagement.tsx src/pages/Settings.tsx)",
+      "Bash(done)",
+      "Bash(for file in NewDashboard.tsx Dashboard.tsx ProjectList.tsx DelayedTasks.tsx TaskByPosition.tsx ImportCSV.tsx Login.tsx)",
+      "Bash(do test -f src/pages/$file)",
+      "Bash(echo:*)",
+      "Bash(awk:*)"
     ],
     "deny": [],
     "ask": []

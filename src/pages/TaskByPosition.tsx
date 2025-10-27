@@ -222,7 +222,7 @@ export default function TaskByPosition() {
       </div>
       <div className="prisma-content">
         <div className="prisma-card mb-4">
-          <p className="text-sm text-gray-600">部署ごとの職種別タスク状況</p>
+          <p className="text-base text-gray-600">部署ごとの職種別タスク状況</p>
         </div>
 
       {/* タブナビゲーション */}
@@ -239,19 +239,18 @@ export default function TaskByPosition() {
       </div>
 
       {/* タスクテーブル */}
-      <div className="prisma-card" style={{ padding: 0, overflow: 'hidden' }}>
-        <div className="prisma-table-container" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+      <div className="prisma-card p-0 overflow-hidden">
+        <div className="prisma-table-container max-h-[calc(100vh-280px)]">
           <table className="prisma-table">
             <thead className="sticky top-0 bg-gray-100 z-10">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 border-b-2 border-gray-300" style={{ minWidth: '200px' }}>
+                <th className="px-4 py-3 text-left text-base font-semibold text-gray-900 border-b-2 border-gray-300 min-w-[200px]">
                   タスク名
                 </th>
                 {currentPositions.map(position => (
                   <th
                     key={position}
-                    className="px-3 py-3 text-center text-sm font-semibold text-gray-900 border-b-2 border-gray-300 whitespace-nowrap"
-                    style={{ minWidth: '100px' }}
+                    className="px-3 py-3 text-center text-base font-semibold text-gray-900 border-b-2 border-gray-300 whitespace-nowrap min-w-[100px]"
                   >
                     {position}
                   </th>
@@ -261,7 +260,7 @@ export default function TaskByPosition() {
             <tbody className="bg-white">
               {Array.from(new Set(tasks.map(t => t.title))).map((taskTitle, rowIndex) => (
                 <tr key={taskTitle} className={rowIndex % 2 === 0 ? '' : 'bg-gray-50'}>
-                  <td className="px-4 py-2 text-sm font-medium text-gray-900 border-b border-gray-200">
+                  <td className="px-4 py-2 text-base font-medium text-gray-900 border-b border-gray-200">
                     {taskTitle}
                   </td>
                   {currentPositions.map(position => {
@@ -313,7 +312,7 @@ export default function TaskByPosition() {
                               : '未着手'}
                           </span>
                           {task.is_date_confirmed && (
-                            <span className="inline-flex items-center justify-center w-8 h-8 text-sm font-bold text-white bg-green-600 rounded-full border-2 border-white shadow-lg" title="日付確定">
+                            <span className="inline-flex items-center justify-center w-8 h-8 text-base font-bold text-white bg-green-600 rounded-full border-2 border-white shadow-lg" title="日付確定">
                               確
                             </span>
                           )}
@@ -331,7 +330,7 @@ export default function TaskByPosition() {
       {/* タスク詳細モーダル */}
       {showDetailModal && selectedTask && (
         <div className="prisma-modal-overlay">
-          <div className="prisma-modal" style={{ maxWidth: '800px' }}>
+          <div className="prisma-modal max-w-[800px]">
             {/* ヘッダー */}
             <div className="prisma-modal-header">
               <div className="flex items-center justify-between">
@@ -399,7 +398,7 @@ export default function TaskByPosition() {
               {/* タスク情報 */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-1">
                     期限日
                   </label>
                   <p className="text-base text-gray-900 dark:text-gray-100">
@@ -409,7 +408,7 @@ export default function TaskByPosition() {
                   </p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-1">
                     乖離日数
                   </label>
                   <p className={`text-base font-bold ${getDaysColor(getDaysFromToday(selectedTask.due_date || null))}`}>
@@ -419,7 +418,7 @@ export default function TaskByPosition() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-1">
                   プロジェクト
                 </label>
                 <p className="text-base text-gray-900 dark:text-gray-100">
@@ -428,7 +427,7 @@ export default function TaskByPosition() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-1">
                   説明
                 </label>
                 <p className="text-base text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
@@ -438,7 +437,7 @@ export default function TaskByPosition() {
 
               {selectedTask.dos && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Do's（やるべきこと）
                   </label>
                   <p className="text-base text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
@@ -449,7 +448,7 @@ export default function TaskByPosition() {
 
               {selectedTask.donts && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Don'ts（やってはいけないこと）
                   </label>
                   <p className="text-base text-gray-900 dark:text-gray-100 whitespace-pre-wrap">

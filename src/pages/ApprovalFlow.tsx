@@ -4,7 +4,7 @@
  */
 
 import { useState } from 'react'
-import { CheckCircle, XCircle, Clock, FileText, AlertCircle } from 'lucide-react'
+import { CheckCircle, XCircle, Clock, FileText, AlertCircle, Layers } from 'lucide-react'
 import { useSimplePermissions } from '../hooks/usePermissions'
 
 interface ApprovalRequest {
@@ -134,27 +134,39 @@ export default function ApprovalFlow() {
 
       {/* 統計カード */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="prisma-card">
-          <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">全申請</div>
-          <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border-2 border-purple-300 shadow-lg">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-base font-bold text-purple-900">全申請</div>
+            <Layers className="text-purple-600" size={28} />
+          </div>
+          <div className="text-4xl font-black text-purple-900">
             {requests.length}
           </div>
         </div>
-        <div className="prisma-card bg-yellow-50 dark:bg-yellow-900/20">
-          <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">承認待ち</div>
-          <div className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">
+        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 border-2 border-yellow-300 shadow-lg">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-base font-bold text-yellow-900">承認待ち</div>
+            <Clock className="text-yellow-600" size={28} />
+          </div>
+          <div className="text-4xl font-black text-yellow-600">
             {requests.filter(r => r.status === 'pending').length}
           </div>
         </div>
-        <div className="prisma-card bg-green-50 dark:bg-green-900/20">
-          <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">承認済み</div>
-          <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border-2 border-green-300 shadow-lg">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-base font-bold text-green-900">承認済み</div>
+            <CheckCircle className="text-green-600" size={28} />
+          </div>
+          <div className="text-4xl font-black text-green-600">
             {requests.filter(r => r.status === 'approved').length}
           </div>
         </div>
-        <div className="prisma-card bg-red-50 dark:bg-red-900/20">
-          <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">却下</div>
-          <div className="text-3xl font-bold text-red-600 dark:text-red-400">
+        <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 border-2 border-red-300 shadow-lg">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-base font-bold text-red-900">却下</div>
+            <XCircle className="text-red-600" size={28} />
+          </div>
+          <div className="text-4xl font-black text-red-600">
             {requests.filter(r => r.status === 'rejected').length}
           </div>
         </div>
@@ -219,7 +231,7 @@ export default function ApprovalFlow() {
                           <span className="prisma-badge prisma-badge-gray text-xs">
                             {request.type}
                           </span>
-                          <span className={`flex items-center gap-1 text-sm font-semibold ${config.color}`}>
+                          <span className={`flex items-center gap-1 text-base font-semibold ${config.color}`}>
                             <StatusIcon size={16} />
                             {config.label}
                           </span>
@@ -230,7 +242,7 @@ export default function ApprovalFlow() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-base">
                       <div>
                         <div className="text-gray-600 dark:text-gray-400">申請者</div>
                         <div className="font-semibold text-gray-900 dark:text-gray-100">
@@ -259,12 +271,12 @@ export default function ApprovalFlow() {
                       )}
                     </div>
 
-                    <div className="mt-3 text-sm text-gray-600 dark:text-gray-400">
+                    <div className="mt-3 text-base text-gray-600 dark:text-gray-400">
                       {request.description}
                     </div>
 
                     {request.status === 'pending' && (
-                      <div className="mt-3 text-sm">
+                      <div className="mt-3 text-base">
                         <span className="text-gray-600 dark:text-gray-400">現在の承認者: </span>
                         <span className="font-semibold text-gray-900 dark:text-gray-100">
                           {request.currentApprover}
@@ -294,7 +306,7 @@ export default function ApprovalFlow() {
       <div className="prisma-card bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300 dark:border-blue-700">
         <div className="flex items-start gap-3">
           <AlertCircle className="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-1" size={20} />
-          <div className="text-sm text-blue-800 dark:text-blue-200">
+          <div className="text-base text-blue-800 dark:text-blue-200">
             <p className="font-semibold mb-1">開発中の機能</p>
             <p>
               承認フロー機能は現在開発中です。表示されているデータはサンプルです。

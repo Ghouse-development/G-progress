@@ -77,27 +77,36 @@ export default function DelayedTasks() {
       </div>
       <div className="prisma-content">
         <div className="prisma-card mb-4">
-          <p className="text-sm text-gray-600">
+          <p className="text-base text-gray-600">
             期限日を過ぎている未完了のタスクを表示しています
           </p>
         </div>
 
           {/* 統計情報 */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-red-500">
-              <div className="text-sm text-gray-600 mb-1">総遅延タスク数</div>
-              <div className="text-3xl font-bold text-red-600">{delayedTasks.length}</div>
+            <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 border-2 border-red-300 shadow-lg">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-base font-bold text-red-900">総遅延タスク数</div>
+                <AlertTriangle className="text-red-600" size={28} />
+              </div>
+              <div className="text-4xl font-black text-red-600">{delayedTasks.length}件</div>
             </div>
-            <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-yellow-500">
-              <div className="text-sm text-gray-600 mb-1">未着手</div>
-              <div className="text-3xl font-bold text-yellow-600">
-                {delayedTasks.filter(t => t.status === 'not_started').length}
+            <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 border-2 border-yellow-300 shadow-lg">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-base font-bold text-yellow-900">未着手</div>
+                <Clock className="text-yellow-600" size={28} />
+              </div>
+              <div className="text-4xl font-black text-yellow-600">
+                {delayedTasks.filter(t => t.status === 'not_started').length}件
               </div>
             </div>
-            <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-orange-500">
-              <div className="text-sm text-gray-600 mb-1">着手中</div>
-              <div className="text-3xl font-bold text-orange-600">
-                {delayedTasks.filter(t => t.status === 'requested').length}
+            <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border-2 border-orange-300 shadow-lg">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-base font-bold text-orange-900">着手中</div>
+                <Clock className="text-orange-600" size={28} />
+              </div>
+              <div className="text-4xl font-black text-orange-600">
+                {delayedTasks.filter(t => t.status === 'requested').length}件
               </div>
             </div>
           </div>
@@ -112,29 +121,29 @@ export default function DelayedTasks() {
             <div className="bg-white rounded-lg shadow-md p-12 text-center">
               <AlertTriangle className="mx-auto text-gray-400 mb-4" size={48} />
               <p className="text-xl text-gray-600">遅延タスクはありません</p>
-              <p className="text-sm text-gray-500 mt-2">すべてのタスクが予定通りです</p>
+              <p className="text-base text-gray-500 mt-2">すべてのタスクが予定通りです</p>
             </div>
           ) : (
-            <div className="bg-white rounded-lg shadow-xl overflow-hidden">
+            <div className="bg-white rounded-lg border-2 border-gray-300 shadow-md overflow-hidden">
               <table className="w-full border-collapse">
-                <thead className="bg-gray-100 border-b-3 border-gray-400">
+                <thead className="bg-gray-100 border-b-2 border-gray-300">
                   <tr>
-                    <th className="border-2 border-gray-300 px-4 py-3 text-left font-bold text-base text-gray-900">
+                    <th className="border border-gray-300 px-4 py-3 text-left font-bold text-base text-gray-900">
                       担当者
                     </th>
-                    <th className="border-2 border-gray-300 px-4 py-3 text-left font-bold text-base text-gray-900">
+                    <th className="border border-gray-300 px-4 py-3 text-left font-bold text-base text-gray-900">
                       邸名（案件名）
                     </th>
-                    <th className="border-2 border-gray-300 px-4 py-3 text-left font-bold text-base text-gray-900">
+                    <th className="border border-gray-300 px-4 py-3 text-left font-bold text-base text-gray-900">
                       タスク名
                     </th>
-                    <th className="border-2 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900">
+                    <th className="border border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900">
                       予定日
                     </th>
-                    <th className="border-2 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900">
+                    <th className="border border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900">
                       遅れ
                     </th>
-                    <th className="border-2 border-gray-300 px-4 py-3 text-left font-bold text-base text-gray-900">
+                    <th className="border border-gray-300 px-4 py-3 text-left font-bold text-base text-gray-900">
                       コメント
                     </th>
                   </tr>
@@ -148,7 +157,7 @@ export default function DelayedTasks() {
                         className={`hover:bg-blue-50 transition-colors ${getStatusColor(task.status)}`}
                       >
                         {/* 担当者 */}
-                        <td className="border-2 border-gray-300 px-4 py-3">
+                        <td className="border border-gray-300 px-4 py-3">
                           <div className="flex items-center gap-2">
                             <User size={16} className="text-gray-600" />
                             <span className="text-base font-medium text-gray-900">
@@ -160,7 +169,7 @@ export default function DelayedTasks() {
                         </td>
 
                         {/* 邸名（案件名） */}
-                        <td className="border-2 border-gray-300 px-4 py-3">
+                        <td className="border border-gray-300 px-4 py-3">
                           <div className="flex items-center gap-2">
                             <Home size={16} className="text-gray-600" />
                             <span className="text-base font-medium text-gray-900">
@@ -170,14 +179,14 @@ export default function DelayedTasks() {
                         </td>
 
                         {/* タスク名 */}
-                        <td className="border-2 border-gray-300 px-4 py-3">
+                        <td className="border border-gray-300 px-4 py-3">
                           <span className="text-base font-medium text-gray-900">
                             {task.title}
                           </span>
                         </td>
 
                         {/* 予定日 */}
-                        <td className="border-2 border-gray-300 px-4 py-3 text-center">
+                        <td className="border border-gray-300 px-4 py-3 text-center">
                           <div className="flex items-center justify-center gap-2">
                             <Calendar size={16} className="text-gray-600" />
                             <span className="text-base font-bold text-gray-900">
@@ -189,7 +198,7 @@ export default function DelayedTasks() {
                         </td>
 
                         {/* 遅れ */}
-                        <td className="border-2 border-gray-300 px-4 py-3 text-center">
+                        <td className="border border-gray-300 px-4 py-3 text-center">
                           <div className="flex items-center justify-center gap-2">
                             <Clock size={16} className="text-red-600" />
                             <span className="text-base font-bold text-red-600">
@@ -199,10 +208,10 @@ export default function DelayedTasks() {
                         </td>
 
                         {/* コメント */}
-                        <td className="border-2 border-gray-300 px-4 py-3">
+                        <td className="border border-gray-300 px-4 py-3">
                           <div className="flex items-start gap-2">
                             <MessageSquare size={16} className="text-gray-600 flex-shrink-0 mt-0.5" />
-                            <span className="text-sm text-gray-700 whitespace-pre-wrap">
+                            <span className="text-base text-gray-700 whitespace-pre-wrap">
                               {task.comment || '—'}
                             </span>
                           </div>

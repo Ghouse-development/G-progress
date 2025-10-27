@@ -41,26 +41,9 @@ export default function TopPage() {
   ]
 
   return (
-    <div style={{
-      flex: 1,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      overflow: 'auto',
-      background: 'var(--main-bg)',
-      padding: '20px'
-    }}>
+    <div className="flex-1 flex items-center justify-center overflow-auto bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 p-6">
       {/* メニューカードグリッド - レスポンシブ対応 */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: '16px',
-        width: '100%',
-        maxWidth: '1200px',
-        padding: '20px 0'
-      }}
-      className="top-page-grid"
-      >
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-[1200px] py-6">
         {menuItems.map((item) => {
           const Icon = item.icon
           const isActive = item.status === 'active'
@@ -69,56 +52,18 @@ export default function TopPage() {
             <div
               className={`
                 prisma-card
-                ${isActive ? 'cursor-pointer' : 'opacity-40 cursor-not-allowed'}
+                flex flex-row items-center gap-4
+                p-6 min-h-[120px] h-full
+                transition-all duration-200 ease-in-out
+                ${isActive ? 'cursor-pointer hover:transform hover:-translate-y-1 hover:scale-[1.02] hover:shadow-2xl hover:border-blue-500' : 'opacity-40 cursor-not-allowed'}
               `}
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: '16px',
-                padding: '24px',
-                minHeight: '120px',
-                height: '100%',
-                transition: 'all 0.2s ease',
-                ...(isActive && {
-                  ':hover': {
-                    transform: 'translateY(-4px) scale(1.02)',
-                    boxShadow: '0 12px 24px rgba(0, 0, 0, 0.15)',
-                    borderColor: '#3b82f6'
-                  }
-                })
-              }}
-              onMouseEnter={(e) => {
-                if (isActive) {
-                  e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)'
-                  e.currentTarget.style.boxShadow = '0 12px 24px rgba(0, 0, 0, 0.15)'
-                  e.currentTarget.style.borderColor = '#3b82f6'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (isActive) {
-                  e.currentTarget.style.transform = 'translateY(0) scale(1)'
-                  e.currentTarget.style.boxShadow = ''
-                  e.currentTarget.style.borderColor = ''
-                }
-              }}
             >
               <Icon
                 size={48}
-                className={isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500'}
-                style={{ flexShrink: 0 }}
+                className={`flex-shrink-0 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500'}`}
                 strokeWidth={2.5}
               />
-              <h2 style={{
-                fontSize: '18px',
-                fontWeight: 'bold',
-                color: isActive ? '#111827' : '#6b7280',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                lineHeight: '1.4',
-                flex: 1
-              }}>
+              <h2 className={`text-lg font-bold whitespace-nowrap overflow-hidden text-ellipsis leading-relaxed flex-1 ${isActive ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500'}`}>
                 {item.name}
               </h2>
             </div>

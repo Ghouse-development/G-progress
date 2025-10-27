@@ -196,10 +196,10 @@ export default function ProductMaster() {
       </div>
 
       {/* テーブル */}
-      <div className="bg-white rounded-lg border-3 border-black shadow-lg overflow-hidden">
+      <div className="bg-white rounded-lg border border-gray-300 shadow-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gradient-to-r from-purple-100 to-purple-50 border-b-3 border-black">
+            <thead className="bg-gradient-to-r from-purple-100 to-purple-50 border-b border-gray-300">
               <tr>
                 <th className="px-2 py-4 text-center text-base font-bold text-gray-900 w-12"></th>
                 <th className="px-6 py-4 text-left text-base font-bold text-gray-900">商品名</th>
@@ -239,7 +239,7 @@ export default function ProductMaster() {
                     <td className="px-6 py-4 text-base text-gray-900 font-bold">{product.name}</td>
                     <td className="px-6 py-4 text-base text-gray-700 font-medium">{product.category || '-'}</td>
                     <td className="px-6 py-4 text-center">
-                      <span className={`px-3 py-1 rounded-full text-sm font-bold ${
+                      <span className={`px-3 py-1 rounded-full text-base font-bold ${
                         product.is_active
                           ? 'bg-green-100 text-green-800 border-2 border-green-600'
                           : 'bg-gray-100 text-gray-600 border-2 border-gray-400'
@@ -276,7 +276,7 @@ export default function ProductMaster() {
       {/* モーダル */}
       {showModal && (
         <div className="prisma-modal-overlay">
-          <div className="prisma-modal" style={{ maxWidth: '600px' }}>
+          <div className="prisma-modal max-w-[600px]">
             {/* ヘッダー */}
             <div className="prisma-modal-header">
               <div className="flex items-center justify-between">
@@ -296,7 +296,7 @@ export default function ProductMaster() {
             <div className="prisma-modal-content space-y-4">
               {/* 商品名 */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-base font-semibold text-gray-700 dark:text-gray-300 mb-2">
                   商品名 <span className="text-red-600">*</span>
                 </label>
                 <input
@@ -310,7 +310,7 @@ export default function ProductMaster() {
 
               {/* カテゴリ */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-base font-semibold text-gray-700 dark:text-gray-300 mb-2">
                   カテゴリ
                 </label>
                 <select
@@ -329,7 +329,7 @@ export default function ProductMaster() {
 
               {/* 商品説明 */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-base font-semibold text-gray-700 dark:text-gray-300 mb-2">
                   商品説明
                 </label>
                 <textarea
@@ -350,7 +350,7 @@ export default function ProductMaster() {
                   onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                   className="w-4 h-4"
                 />
-                <label htmlFor="is_active" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label htmlFor="is_active" className="text-base font-medium text-gray-700 dark:text-gray-300">
                   この商品を有効にする
                 </label>
               </div>

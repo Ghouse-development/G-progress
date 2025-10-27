@@ -211,7 +211,7 @@ export default function ProjectDetailFields({
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-6 py-3 font-semibold text-sm whitespace-nowrap transition-colors ${
+            className={`px-6 py-3 font-semibold text-base whitespace-nowrap transition-colors ${
               activeTab === tab.id
                 ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600'
                 : 'text-gray-600 hover:bg-gray-50'
@@ -435,27 +435,27 @@ export default function ProjectDetailFields({
               <div className="bg-white rounded-lg shadow-xl overflow-hidden border-2 border-gray-300">
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse">
-                    <thead className="bg-gray-100 border-b-2 border-gray-400 sticky top-0 z-10">
+                    <thead className="bg-gray-100 border-b border-gray-400 sticky top-0 z-10">
                       <tr>
-                        <th className="border-2 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '100px' }}>
+                        <th className="border border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900 min-w-[100px]">
                           職種
                         </th>
-                        <th className="border-2 border-gray-300 px-4 py-3 text-left font-bold text-base text-gray-900" style={{ minWidth: '250px' }}>
+                        <th className="border border-gray-300 px-4 py-3 text-left font-bold text-base text-gray-900 min-w-[250px]">
                           タスク名
                         </th>
-                        <th className="border-2 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '120px' }}>
+                        <th className="border border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900 min-w-[120px]">
                           担当者
                         </th>
-                        <th className="border-2 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '110px' }}>
+                        <th className="border border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900 min-w-[110px]">
                           期限
                         </th>
-                        <th className="border-2 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '90px' }}>
+                        <th className="border border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900 min-w-[90px]">
                           経過日数
                         </th>
-                        <th className="border-2 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '100px' }}>
+                        <th className="border border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900 min-w-[100px]">
                           ステータス
                         </th>
-                        <th className="border-2 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900" style={{ minWidth: '120px' }}>
+                        <th className="border border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900 min-w-[120px]">
                           操作
                         </th>
                       </tr>
@@ -491,14 +491,14 @@ export default function ProjectDetailFields({
                                 {index === 0 && (
                                   <td
                                     rowSpan={positionTasks.length}
-                                    className="border-2 border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900 bg-green-50"
+                                    className="border border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900 bg-green-50"
                                   >
                                     {position}
                                   </td>
                                 )}
 
                                 {/* タスク名 */}
-                                <td className="border-2 border-gray-300 px-4 py-3 text-base text-gray-900 font-medium">
+                                <td className="border border-gray-300 px-4 py-3 text-base text-gray-900 font-medium">
                                   <div className="relative inline-block">
                                     {task.title}
                                     {task.is_date_confirmed && (
@@ -515,7 +515,7 @@ export default function ProjectDetailFields({
                                 </td>
 
                                 {/* 担当者 */}
-                                <td className="border-2 border-gray-300 px-4 py-3 text-center text-base text-gray-900">
+                                <td className="border border-gray-300 px-4 py-3 text-center text-base text-gray-900">
                                   {task.assigned_employee
                                     ? `${task.assigned_employee.last_name} ${task.assigned_employee.first_name}`
                                     : '未割当'
@@ -523,7 +523,7 @@ export default function ProjectDetailFields({
                                 </td>
 
                                 {/* 期限 */}
-                                <td className="border-2 border-gray-300 px-4 py-3 text-center text-base font-bold text-gray-900">
+                                <td className="border border-gray-300 px-4 py-3 text-center text-base font-bold text-gray-900">
                                   {task.due_date
                                     ? format(new Date(task.due_date), 'M/d (E)', { locale: ja })
                                     : '未設定'
@@ -531,12 +531,12 @@ export default function ProjectDetailFields({
                                 </td>
 
                                 {/* 経過日数 */}
-                                <td className="border-2 border-gray-300 px-4 py-3 text-center text-base font-bold text-blue-700">
+                                <td className="border border-gray-300 px-4 py-3 text-center text-base font-bold text-blue-700">
                                   {task.dayFromContract || 0}日
                                 </td>
 
                                 {/* ステータス */}
-                                <td className="border-2 border-gray-300 px-4 py-3 text-center">
+                                <td className="border border-gray-300 px-4 py-3 text-center">
                                   <span className={`px-3 py-1 rounded-lg font-bold text-base border-2 ${
                                     isDelayed ? 'task-delayed' : getStatusBadgeColor(task.status)
                                   }`}>
@@ -545,7 +545,7 @@ export default function ProjectDetailFields({
                                 </td>
 
                                 {/* 操作 */}
-                                <td className="border-2 border-gray-300 px-4 py-3 text-center">
+                                <td className="border border-gray-300 px-4 py-3 text-center">
                                   <div className="flex items-center justify-center gap-1">
                                     <button
                                       onClick={(e) => {
@@ -682,7 +682,7 @@ export default function ProjectDetailFields({
         {activeTab === 'basic' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">契約番号</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">契約番号</label>
               <input
                 type="text"
                 value={formData.contract_number || ''}
@@ -691,7 +691,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">建設地（住所）</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">建設地（住所）</label>
               <input
                 type="text"
                 value={formData.construction_address || ''}
@@ -700,7 +700,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">地番</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">地番</label>
               <input
                 type="text"
                 value={formData.lot_number || ''}
@@ -709,7 +709,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">階数</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">階数</label>
               <input
                 type="number"
                 value={formData.floors || ''}
@@ -718,7 +718,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">坪数（施工）</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">坪数（施工）</label>
               <input
                 type="number"
                 step="0.01"
@@ -728,7 +728,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-gray-700 mb-1">進捗状況（問題点・アクションプラン）</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">進捗状況（問題点・アクションプラン）</label>
               <textarea
                 value={formData.progress_status || ''}
                 onChange={e => setFormData({ ...formData, progress_status: e.target.value })}
@@ -737,7 +737,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-gray-700 mb-1">備考（お客様個別情報・注意点）</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">備考（お客様個別情報・注意点）</label>
               <textarea
                 value={formData.notes || ''}
                 onChange={e => setFormData({ ...formData, notes: e.target.value })}
@@ -752,7 +752,7 @@ export default function ProjectDetailFields({
         {activeTab === 'schedule' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">設計ヒアリング</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">設計ヒアリング</label>
               <input
                 type="date"
                 value={formData.design_hearing_date || ''}
@@ -761,7 +761,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">プラン確定</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">プラン確定</label>
               <input
                 type="date"
                 value={formData.plan_finalized_date || ''}
@@ -770,7 +770,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">資金計画書送付</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">資金計画書送付</label>
               <input
                 type="date"
                 value={formData.plan_financial_sent_date || ''}
@@ -779,7 +779,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">構造GO</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">構造GO</label>
               <input
                 type="date"
                 value={formData.structure_go_date || ''}
@@ -788,7 +788,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">申請GO</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">申請GO</label>
               <input
                 type="date"
                 value={formData.application_go_date || ''}
@@ -797,7 +797,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">最終打合</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">最終打合</label>
               <input
                 type="date"
                 value={formData.final_meeting_date || ''}
@@ -806,7 +806,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">図面UP</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">図面UP</label>
               <input
                 type="date"
                 value={formData.drawing_upload_date || ''}
@@ -815,7 +815,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">着工許可</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">着工許可</label>
               <input
                 type="date"
                 value={formData.construction_permit_date || ''}
@@ -837,7 +837,7 @@ export default function ProjectDetailFields({
                 onChange={e => setFormData({ ...formData, long_term_loan: e.target.checked })}
                 className="w-4 h-4"
               />
-              <label htmlFor="long_term_loan" className="text-sm font-medium text-gray-700">
+              <label htmlFor="long_term_loan" className="text-base font-medium text-gray-700">
                 長期融資
               </label>
             </div>
@@ -849,12 +849,12 @@ export default function ProjectDetailFields({
                 onChange={e => setFormData({ ...formData, flat_loan: e.target.checked })}
                 className="w-4 h-4"
               />
-              <label htmlFor="flat_loan" className="text-sm font-medium text-gray-700">
+              <label htmlFor="flat_loan" className="text-base font-medium text-gray-700">
                 フラット融資
               </label>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">銀行名</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">銀行名</label>
               <input
                 type="text"
                 value={formData.bank_name || ''}
@@ -863,7 +863,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">補助金種別</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">補助金種別</label>
               <input
                 type="text"
                 value={formData.subsidy_type || ''}
@@ -872,7 +872,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-gray-700 mb-1">長期要件</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">長期要件</label>
               <textarea
                 value={formData.long_term_requirements || ''}
                 onChange={e => setFormData({ ...formData, long_term_requirements: e.target.value })}
@@ -881,7 +881,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-gray-700 mb-1">GX要件</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">GX要件</label>
               <textarea
                 value={formData.gx_requirements || ''}
                 onChange={e => setFormData({ ...formData, gx_requirements: e.target.value })}
@@ -903,12 +903,12 @@ export default function ProjectDetailFields({
                 onChange={e => setFormData({ ...formData, demolition: e.target.checked })}
                 className="w-4 h-4"
               />
-              <label htmlFor="demolition" className="text-sm font-medium text-gray-700">
+              <label htmlFor="demolition" className="text-base font-medium text-gray-700">
                 解体工事あり
               </label>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">解体業者</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">解体業者</label>
               <input
                 type="text"
                 value={formData.demolition_contractor || ''}
@@ -917,7 +917,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">解体開始日</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">解体開始日</label>
               <input
                 type="date"
                 value={formData.demolition_start_date || ''}
@@ -926,7 +926,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">解体完了日</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">解体完了日</label>
               <input
                 type="date"
                 value={formData.demolition_completion_date || ''}
@@ -935,7 +935,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">土地決済</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">土地決済</label>
               <input
                 type="date"
                 value={formData.land_settlement_date || ''}
@@ -951,12 +951,12 @@ export default function ProjectDetailFields({
                 onChange={e => setFormData({ ...formData, subdivision: e.target.checked })}
                 className="w-4 h-4"
               />
-              <label htmlFor="subdivision" className="text-sm font-medium text-gray-700">
+              <label htmlFor="subdivision" className="text-base font-medium text-gray-700">
                 分筆あり
               </label>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">分筆完了日</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">分筆完了日</label>
               <input
                 type="date"
                 value={formData.subdivision_completion_date || ''}
@@ -971,7 +971,7 @@ export default function ProjectDetailFields({
         {activeTab === 'construction' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">基礎着工日</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">基礎着工日</label>
               <input
                 type="date"
                 value={formData.foundation_start_date || ''}
@@ -980,7 +980,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">上棟日</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">上棟日</label>
               <input
                 type="date"
                 value={formData.roof_raising_date || ''}
@@ -989,7 +989,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">中間検査</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">中間検査</label>
               <input
                 type="date"
                 value={formData.interim_inspection_date || ''}
@@ -998,7 +998,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">完了検査</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">完了検査</label>
               <input
                 type="date"
                 value={formData.completion_inspection_date || ''}
@@ -1007,7 +1007,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">引渡日</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">引渡日</label>
               <input
                 type="date"
                 value={formData.handover_date || ''}
@@ -1016,7 +1016,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">外構工事開始日</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">外構工事開始日</label>
               <input
                 type="date"
                 value={formData.exterior_work_start_date || ''}
@@ -1025,7 +1025,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">外構工事完了日</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">外構工事完了日</label>
               <input
                 type="date"
                 value={formData.exterior_work_completion_date || ''}
@@ -1040,7 +1040,7 @@ export default function ProjectDetailFields({
         {activeTab === 'payment' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-gray-700 mb-1">契約金額</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">契約金額</label>
               <input
                 type="number"
                 value={formData.contract_amount || ''}
@@ -1050,7 +1050,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">申込金日付</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">申込金日付</label>
               <input
                 type="date"
                 value={formData.application_fee_date || ''}
@@ -1059,7 +1059,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">申込金金額</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">申込金金額</label>
               <input
                 type="number"
                 value={formData.application_fee_amount || ''}
@@ -1069,7 +1069,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">着工金日付</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">着工金日付</label>
               <input
                 type="date"
                 value={formData.construction_start_payment_date || ''}
@@ -1078,7 +1078,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">着工金金額</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">着工金金額</label>
               <input
                 type="number"
                 value={formData.construction_start_payment_amount || ''}
@@ -1088,7 +1088,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">上棟金日付</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">上棟金日付</label>
               <input
                 type="date"
                 value={formData.roof_raising_payment_date || ''}
@@ -1097,7 +1097,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">上棟金金額</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">上棟金金額</label>
               <input
                 type="number"
                 value={formData.roof_raising_payment_amount || ''}
@@ -1107,7 +1107,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">最終金日付</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">最終金日付</label>
               <input
                 type="date"
                 value={formData.final_payment_date || ''}
@@ -1116,7 +1116,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">最終金金額</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">最終金金額</label>
               <input
                 type="number"
                 value={formData.final_payment_amount || ''}
@@ -1132,7 +1132,7 @@ export default function ProjectDetailFields({
         {activeTab === 'performance' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">C値</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">C値</label>
               <input
                 type="number"
                 step="0.01"
@@ -1142,7 +1142,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">UA値</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">UA値</label>
               <input
                 type="number"
                 step="0.01"
@@ -1152,7 +1152,7 @@ export default function ProjectDetailFields({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">ηAC値</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">ηAC値</label>
               <input
                 type="number"
                 step="0.01"
@@ -1169,7 +1169,7 @@ export default function ProjectDetailFields({
                 onChange={e => setFormData({ ...formData, zeh_certified: e.target.checked })}
                 className="w-4 h-4"
               />
-              <label htmlFor="zeh_certified" className="text-sm font-medium text-gray-700">
+              <label htmlFor="zeh_certified" className="text-base font-medium text-gray-700">
                 ZEH認証
               </label>
             </div>

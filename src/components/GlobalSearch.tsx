@@ -191,8 +191,8 @@ export default function GlobalSearch() {
         title="グローバル検索 (Ctrl+K)"
       >
         <Search size={18} className="text-gray-600" />
-        <span className="text-sm font-medium text-gray-600 hidden md:inline">検索</span>
-        <kbd className="hidden lg:inline-block px-2 py-0.5 text-xs bg-gray-100 border border-gray-300 rounded font-mono">Ctrl+K</kbd>
+        <span className="text-base font-medium text-gray-600 hidden md:inline">検索</span>
+        <kbd className="hidden lg:inline-block px-2 py-0.5 text-base bg-gray-100 border border-gray-300 rounded font-mono">Ctrl+K</kbd>
       </button>
 
       {/* 検索モーダル */}
@@ -241,7 +241,7 @@ export default function GlobalSearch() {
                   </div>
                 </div>
               ))}
-              <p className="text-center text-sm text-gray-500 font-medium mt-4">検索中...</p>
+              <p className="text-center text-base text-gray-500 font-medium mt-4">検索中...</p>
             </div>
           )}
 
@@ -249,7 +249,7 @@ export default function GlobalSearch() {
             <div className="text-center py-8">
               <Search size={48} className="mx-auto text-gray-400 mb-3" />
               <p className="text-gray-600 font-medium">「{query}」の検索結果が見つかりませんでした</p>
-              <p className="text-sm text-gray-500 mt-2">別のキーワードで検索してください</p>
+              <p className="text-base text-gray-500 mt-2">別のキーワードで検索してください</p>
             </div>
           )}
 
@@ -257,7 +257,7 @@ export default function GlobalSearch() {
             <div className="text-center py-8">
               <Search size={48} className="mx-auto text-gray-400 mb-3" />
               <p className="text-gray-600 font-medium">2文字以上入力して検索してください</p>
-              <p className="text-sm text-gray-500 mt-2">案件、タスク、従業員を検索できます</p>
+              <p className="text-base text-gray-500 mt-2">案件、タスク、従業員を検索できます</p>
             </div>
           )}
 
@@ -279,12 +279,12 @@ export default function GlobalSearch() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className={`px-2 py-0.5 rounded text-xs font-bold ${getTypeBadgeClass(result.type)}`}>
+                        <span className={`px-2 py-0.5 rounded text-base font-bold ${getTypeBadgeClass(result.type)}`}>
                           {getTypeLabel(result.type)}
                         </span>
                         <div className="font-bold text-gray-900 truncate">{result.title}</div>
                       </div>
-                      <div className="text-sm text-gray-600 line-clamp-1">{result.subtitle}</div>
+                      <div className="text-base text-gray-600 line-clamp-1">{result.subtitle}</div>
                     </div>
                   </div>
                 </div>
@@ -294,7 +294,7 @@ export default function GlobalSearch() {
         </div>
 
         {/* フッター（キーボードヒント） */}
-        <div className="p-3 bg-gray-50 border-t-2 border-gray-300 flex items-center justify-between text-xs text-gray-600 rounded-b-xl">
+        <div className="p-3 bg-gray-50 border-t-2 border-gray-300 flex items-center justify-between text-base text-gray-600 rounded-b-xl">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1">
               <kbd className="px-2 py-1 bg-white border border-gray-300 rounded font-mono">↑↓</kbd>

@@ -95,12 +95,12 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
         {/* ロゴ */}
         <div className="prisma-sidebar-header">
           <div className="flex items-center justify-center w-full">
-            <Link to="/" className="prisma-sidebar-logo" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <Link to="/" className="prisma-sidebar-logo no-underline">
               G-progress
             </Link>
           </div>
           {/* オンラインユーザー数 */}
-          <div className="flex items-center justify-center gap-1 mt-2 text-xs text-gray-500">
+          <div className="flex items-center justify-center gap-1 mt-2 text-base text-gray-500">
             <Users size={14} />
             <span>{onlineCount}人がオンライン</span>
           </div>
@@ -112,8 +112,7 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
           <select
             value={mode}
             onChange={(e) => setMode(e.target.value as any)}
-            className="prisma-select"
-            style={{ margin: '0 12px', width: 'calc(100% - 24px)' }}
+            className="prisma-select mx-3 w-[calc(100%-24px)]"
           >
             <option value="my_tasks">担当者モード</option>
             <option value="branch">拠点モード</option>
@@ -127,8 +126,7 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
           <select
             value={selectedYear}
             onChange={(e) => setSelectedYear(e.target.value)}
-            className="prisma-select"
-            style={{ margin: '0 12px', width: 'calc(100% - 24px)' }}
+            className="prisma-select mx-3 w-[calc(100%-24px)]"
           >
             {fiscalYears.map((fy) => (
               <option key={fy.id} value={fy.year}>
@@ -181,11 +179,10 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
         </div>
 
         {/* ログアウト */}
-        <div style={{ marginTop: 'auto', padding: '16px' }}>
+        <div className="mt-auto p-4">
           <button
             onClick={handleLogout}
-            className="prisma-btn prisma-btn-secondary"
-            style={{ width: '100%' }}
+            className="prisma-btn prisma-btn-secondary w-full"
           >
             ログアウト
           </button>

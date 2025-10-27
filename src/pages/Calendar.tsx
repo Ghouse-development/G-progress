@@ -592,8 +592,8 @@ export default function Calendar() {
   const weekdays = ['月', '火', '水', '木', '金', '土', '日']
 
   return (
-    <div className="w-full flex flex-col" style={{ height: '100vh', overflow: 'hidden' }}>
-      <div id="calendar-content" className="w-full flex-1 flex flex-col px-4 py-3" style={{ overflow: 'auto', WebkitOverflowScrolling: 'touch' }}>
+    <div className="w-full flex flex-col h-screen overflow-hidden">
+      <div id="calendar-content" className="w-full flex-1 flex flex-col px-4 py-3 overflow-auto [-webkit-overflow-scrolling:touch]">
         {/* ヘッダー */}
         <div className="prisma-header mb-3 flex-shrink-0">
           <h1 className="prisma-header-title">カレンダー</h1>
@@ -625,7 +625,7 @@ export default function Calendar() {
           <div className="flex items-center justify-center gap-3 mb-4 flex-wrap">
             <button
               onClick={() => setCalendarMode('tasks')}
-              className={`px-6 py-3 text-base font-bold border-3 transition-colors shadow-lg rounded-lg ${
+              className={`px-6 py-3 text-base font-bold border transition-colors shadow-lg rounded-lg ${
                 calendarMode === 'tasks'
                   ? 'bg-blue-500 text-white border-blue-600 hover:bg-blue-600'
                   : 'bg-white text-gray-900 border-gray-300 hover:bg-gray-50'
@@ -635,7 +635,7 @@ export default function Calendar() {
             </button>
             <button
               onClick={() => setCalendarMode('payments')}
-              className={`px-6 py-3 text-base font-bold border-3 transition-colors shadow-lg rounded-lg ${
+              className={`px-6 py-3 text-base font-bold border transition-colors shadow-lg rounded-lg ${
                 calendarMode === 'payments'
                   ? 'bg-green-600 text-white border-green-700 hover:bg-green-700'
                   : 'bg-white text-gray-900 border-gray-300 hover:bg-gray-50'
@@ -645,7 +645,7 @@ export default function Calendar() {
             </button>
             <button
               onClick={() => setCalendarMode('construction_start')}
-              className={`px-6 py-3 text-base font-bold border-3 transition-colors shadow-lg rounded-lg ${
+              className={`px-6 py-3 text-base font-bold border transition-colors shadow-lg rounded-lg ${
                 calendarMode === 'construction_start'
                   ? 'bg-orange-600 text-white border-orange-700 hover:bg-orange-700'
                   : 'bg-white text-gray-900 border-gray-300 hover:bg-gray-50'
@@ -655,7 +655,7 @@ export default function Calendar() {
             </button>
             <button
               onClick={() => setCalendarMode('handover')}
-              className={`px-6 py-3 text-base font-bold border-3 transition-colors shadow-lg rounded-lg ${
+              className={`px-6 py-3 text-base font-bold border transition-colors shadow-lg rounded-lg ${
                 calendarMode === 'handover'
                   ? 'bg-purple-600 text-white border-purple-700 hover:bg-purple-700'
                   : 'bg-white text-gray-900 border-gray-300 hover:bg-gray-50'
@@ -694,7 +694,7 @@ export default function Calendar() {
             {weekdays.map((day, index) => (
               <div
                 key={day}
-                className={`p-1 lg:p-2 text-center text-sm lg:text-lg font-bold border-r border-gray-100 ${
+                className={`p-1 lg:p-2 text-center text-base lg:text-lg font-bold border-r border-gray-100 ${
                   index === 5 ? 'text-blue-700 bg-blue-50' : // 土曜
                   index === 6 ? 'text-red-700 bg-red-50' : // 日曜
                   'text-gray-900 bg-gray-100'
@@ -708,8 +708,8 @@ export default function Calendar() {
         </div>
 
         {/* カレンダーグリッド */}
-        <div className="bg-white rounded-b-lg shadow-md flex-1" style={{ minHeight: 0, overflow: 'hidden' }}>
-          <div className="h-full overflow-auto" style={{ scrollbarWidth: 'thin', WebkitOverflowScrolling: 'touch' }}>
+        <div className="bg-white rounded-b-lg shadow-md flex-1 min-h-0 overflow-hidden">
+          <div className="h-full overflow-auto [scrollbar-width:thin] [-webkit-overflow-scrolling:touch]">
 
           {/* カレンダーグリッド：全ての日を1つのグリッドに配置 */}
           <div className="calendar-grid">
@@ -773,7 +773,7 @@ export default function Calendar() {
                             // 変更履歴を取得
                             await loadTaskAuditLogs(task.id)
                           }}
-                          className={`text-sm md:text-base lg:text-lg px-2 py-2 rounded cursor-pointer mb-1 ${
+                          className={`text-base md:text-base lg:text-lg px-2 py-2 rounded cursor-pointer mb-1 ${
                             isMilestone ? 'bg-red-600 text-white font-bold shadow-lg hover:bg-red-700' :
                             task.status === 'completed' ? 'bg-blue-200 text-blue-900 font-bold hover:bg-blue-300' :
                             task.status === 'requested' ? 'bg-yellow-200 text-yellow-900 font-bold hover:bg-yellow-300' :
@@ -821,7 +821,7 @@ export default function Calendar() {
                         >
                           {customerName && <div className="text-xs font-semibold mb-0.5">【{truncateTaskName(customerName, 8)}様】</div>}
                           <div className="font-bold leading-tight">{payment.payment_type}</div>
-                          <div className="text-sm font-bold">{Math.floor(amount || 0).toLocaleString()}円</div>
+                          <div className="text-base font-bold">{Math.floor(amount || 0).toLocaleString()}円</div>
                         </div>
                       )
                     })}
@@ -852,7 +852,7 @@ export default function Calendar() {
                         >
                           {customerName && <div className="text-xs font-semibold mb-0.5">【{truncateTaskName(customerName, 8)}様】</div>}
                           <div className="font-bold leading-tight">着工日</div>
-                          {project.construction_start_date && <div className="text-sm font-semibold">{format(new Date(project.construction_start_date), 'yyyy/MM/dd')}</div>}
+                          {project.construction_start_date && <div className="text-base font-semibold">{format(new Date(project.construction_start_date), 'yyyy/MM/dd')}</div>}
                         </div>
                       )
                     })}
@@ -883,7 +883,7 @@ export default function Calendar() {
                         >
                           {customerName && <div className="text-xs font-semibold mb-0.5">【{truncateTaskName(customerName, 8)}様】</div>}
                           <div className="font-bold leading-tight">引き渡し日</div>
-                          {project.contract_amount && <div className="text-sm font-semibold">契約額: {Math.floor(project.contract_amount).toLocaleString()}円</div>}
+                          {project.contract_amount && <div className="text-base font-semibold">契約額: {Math.floor(project.contract_amount).toLocaleString()}円</div>}
                         </div>
                       )
                     })}
@@ -970,7 +970,7 @@ export default function Calendar() {
                 <div>
                   <h2 className="prisma-modal-title">{selectedTask.title}</h2>
                   {selectedTask.project?.customer?.names && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    <p className="text-base text-gray-600 dark:text-gray-400 mt-1">
                       {selectedTask.project.customer.names.join('・')}様邸
                     </p>
                   )}
@@ -993,7 +993,7 @@ export default function Calendar() {
               {/* 責任者 */}
               {(selectedTask.assigned_employee || selectedTask.project?.sales) && (
                 <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                  <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                     責任者
                   </label>
                   <div className="prisma-input bg-gray-50 dark:bg-gray-700">
@@ -1009,7 +1009,7 @@ export default function Calendar() {
 
               {/* ステータス変更ボタン */}
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">ステータス</label>
+                <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">ステータス</label>
                 <div className="grid grid-cols-4 gap-2">
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'not_started')}
@@ -1056,7 +1056,7 @@ export default function Calendar() {
 
               {/* 期限日 */}
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">期限日</label>
+                <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">期限日</label>
                 {editingDueDate ? (
                   <input
                     type="date"
@@ -1075,7 +1075,7 @@ export default function Calendar() {
                       {selectedTask.due_date ? format(new Date(selectedTask.due_date), 'yyyy年MM月dd日 (E)', { locale: ja }) : '未設定'}
                     </div>
                     {selectedTask.due_date && selectedTask.project?.contract_date && (
-                      <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      <div className="text-base text-gray-600 dark:text-gray-400 mt-1">
                         契約日から {differenceInDays(new Date(selectedTask.due_date), new Date(selectedTask.project.contract_date))}日目
                       </div>
                     )}
@@ -1086,7 +1086,7 @@ export default function Calendar() {
               {/* 作業内容 */}
               {selectedTask.description && (
                 <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">作業内容</label>
+                  <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">作業内容</label>
                   <div className="bg-gray-50 dark:bg-gray-800 p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg text-base leading-relaxed text-gray-800 dark:text-gray-200">
                     {selectedTask.description}
                   </div>
@@ -1098,7 +1098,7 @@ export default function Calendar() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                   {selectedTask.dos && (
                     <div>
-                      <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">Do's (推奨事項)</label>
+                      <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">Do's (推奨事項)</label>
                       <div className="bg-green-50 dark:bg-green-900/20 p-3 border-2 border-green-300 dark:border-green-700 rounded-lg text-base leading-relaxed text-gray-800 dark:text-gray-200 whitespace-pre-wrap max-h-32 overflow-y-auto">
                         {selectedTask.dos}
                       </div>
@@ -1107,7 +1107,7 @@ export default function Calendar() {
 
                   {selectedTask.donts && (
                     <div>
-                      <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">Don'ts (禁止事項)</label>
+                      <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">Don'ts (禁止事項)</label>
                       <div className="bg-red-50 dark:bg-red-900/20 p-3 border-2 border-red-300 dark:border-red-700 rounded-lg text-base leading-relaxed text-gray-800 dark:text-gray-200 whitespace-pre-wrap max-h-32 overflow-y-auto">
                         {selectedTask.donts}
                       </div>
@@ -1120,11 +1120,11 @@ export default function Calendar() {
               <div className="mt-4 pt-4 border-t-2 border-gray-200 dark:border-gray-700">
                 <div className="flex items-center gap-2 mb-3">
                   <History size={20} className="text-gray-600 dark:text-gray-400" />
-                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300">変更履歴（最新5件）</label>
+                  <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300">変更履歴（最新5件）</label>
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-lg p-3 max-h-48 overflow-y-auto">
                   {taskAuditLogs.length > 0 ? (
-                    <div className="space-y-2 text-sm">
+                    <div className="space-y-2 text-base">
                       {taskAuditLogs.map((log) => (
                         <div key={log.id} className="flex items-start gap-2 pb-2 border-b border-gray-200 dark:border-gray-700 last:border-0">
                           <div className="text-gray-500 dark:text-gray-500 whitespace-nowrap">
@@ -1205,7 +1205,7 @@ export default function Calendar() {
                 <div>
                   <h2 className="prisma-modal-title">入金詳細</h2>
                   {selectedPayment.project?.customer?.names && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    <p className="text-base text-gray-600 dark:text-gray-400 mt-1">
                       {selectedPayment.project.customer.names.join('・')}様邸
                     </p>
                   )}
@@ -1226,7 +1226,7 @@ export default function Calendar() {
             <div className="prisma-modal-content space-y-4">
               {/* 名目 */}
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">名目</label>
+                <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">名目</label>
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-3 border-2 border-blue-300 dark:border-blue-700 rounded-lg text-center">
                   <div className="text-lg font-bold text-blue-900 dark:text-blue-100">
                     {selectedPayment.payment_type}
@@ -1238,13 +1238,13 @@ export default function Calendar() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 {/* 予定 */}
                 <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">予定額</label>
+                  <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">予定額</label>
                   <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 border-2 border-yellow-300 dark:border-yellow-700 rounded-lg text-center">
                     <div className="text-xl font-bold text-yellow-900 dark:text-yellow-100">
                       {selectedPayment.scheduled_amount?.toLocaleString() || '0'}円
                     </div>
                     {selectedPayment.scheduled_date && (
-                      <div className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+                      <div className="text-base text-yellow-700 dark:text-yellow-300 mt-1">
                         {format(new Date(selectedPayment.scheduled_date), 'yyyy/MM/dd (E)', { locale: ja })}
                       </div>
                     )}
@@ -1253,13 +1253,13 @@ export default function Calendar() {
 
                 {/* 実績 */}
                 <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">入金実績</label>
+                  <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">入金実績</label>
                   <div className="bg-green-50 dark:bg-green-900/20 p-3 border-2 border-green-300 dark:border-green-700 rounded-lg text-center">
                     <div className="text-xl font-bold text-green-900 dark:text-green-100">
                       {selectedPayment.actual_amount?.toLocaleString() || '0'}円
                     </div>
                     {selectedPayment.actual_date && (
-                      <div className="text-sm text-green-700 dark:text-green-300 mt-1">
+                      <div className="text-base text-green-700 dark:text-green-300 mt-1">
                         {format(new Date(selectedPayment.actual_date), 'yyyy/MM/dd (E)', { locale: ja })}
                       </div>
                     )}
@@ -1269,7 +1269,7 @@ export default function Calendar() {
 
               {/* 合計金額 */}
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">合計金額</label>
+                <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">合計金額</label>
                 <div className="bg-gray-100 dark:bg-gray-800 p-3 border-2 border-gray-400 dark:border-gray-600 rounded-lg text-center">
                   <div className="text-2xl font-black text-gray-900 dark:text-gray-100">
                     {selectedPayment.amount?.toLocaleString() || '0'}円

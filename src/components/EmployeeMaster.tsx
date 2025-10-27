@@ -272,22 +272,22 @@ export default function EmployeeMaster() {
           <table className="w-full">
             <thead className="bg-pastel-blue-light dark:bg-gray-700">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-base font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
                   氏名
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-base font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
                   メールアドレス
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-base font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
                   部門
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-base font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
                   拠点
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-base font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
                   役職
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-base font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
                   操作
                 </th>
               </tr>
@@ -303,21 +303,21 @@ export default function EmployeeMaster() {
                 employees.map((employee) => (
                   <tr key={employee.id} className="hover:bg-pastel-blue-light transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{employee.last_name} {employee.first_name}</div>
+                      <div className="text-base font-bold text-gray-900 dark:text-gray-100">{employee.last_name} {employee.first_name}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-600 dark:text-gray-300">{employee.email}</div>
+                      <div className="text-base text-gray-600 dark:text-gray-300">{employee.email}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{employee.department}</div>
+                      <div className="text-base font-medium text-gray-900 dark:text-gray-100">{employee.department}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-600 dark:text-gray-300">
+                      <div className="text-base text-gray-600 dark:text-gray-300">
                         {employee.branch?.name || '未設定'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-3 py-1 text-xs font-bold rounded-full border-2 ${getRoleBadgeClass(employee.role)}`}>
+                      <span className={`inline-flex px-3 py-1 text-base font-bold rounded-full border-2 ${getRoleBadgeClass(employee.role)}`}>
                         {roleLabels[employee.role]}
                       </span>
                     </td>
@@ -350,7 +350,7 @@ export default function EmployeeMaster() {
       {/* 従業員追加/編集モーダル */}
       {showModal && (
         <div className="prisma-modal-overlay">
-          <div className="prisma-modal" style={{ maxWidth: '500px' }}>
+          <div className="prisma-modal max-w-[500px]">
             {/* ヘッダー */}
             <div className="prisma-modal-header">
               <div className="flex items-center justify-between">
@@ -370,7 +370,7 @@ export default function EmployeeMaster() {
             <div className="prisma-modal-content space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                  <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
                     姓 <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -382,7 +382,7 @@ export default function EmployeeMaster() {
                   />
                 </div>
                 <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                  <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
                     名 <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -396,7 +396,7 @@ export default function EmployeeMaster() {
               </div>
 
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
                   メールアドレス <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -409,7 +409,7 @@ export default function EmployeeMaster() {
               </div>
 
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
                   部門 <span className="text-red-500">*</span>
                 </label>
                 <select
@@ -426,7 +426,7 @@ export default function EmployeeMaster() {
               </div>
 
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
                   役職 <span className="text-red-500">*</span>
                 </label>
                 <select
@@ -443,7 +443,7 @@ export default function EmployeeMaster() {
               </div>
 
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
                   拠点
                 </label>
                 <select
@@ -461,7 +461,7 @@ export default function EmployeeMaster() {
               </div>
 
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
                   アバターURL
                 </label>
                 <input

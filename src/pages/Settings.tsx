@@ -275,7 +275,7 @@ export default function Settings() {
 
       {/* タブナビゲーション */}
       <div className="mb-6">
-        <div className="flex gap-2 border-b-3 border-gray-200">
+        <div className="flex gap-2 border-b-2 border-gray-300">
           <button
             onClick={() => setActiveTab('basic')}
             className={`flex items-center gap-2 px-6 py-3 font-bold text-base transition-all ${
@@ -465,10 +465,10 @@ export default function Settings() {
                     </svg>
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm text-yellow-700 dark:text-yellow-200 font-medium">
+                    <p className="text-base text-yellow-700 dark:text-yellow-200 font-medium">
                       デモモードが有効です
                     </p>
-                    <p className="text-sm text-yellow-600 dark:text-yellow-300 mt-1">
+                    <p className="text-base text-yellow-600 dark:text-yellow-300 mt-1">
                       現在表示されているデータはサンプルです。実際のデータベースには接続されていません。
                       本番データに戻すには、デモモードをオフにしてください。
                     </p>
@@ -502,7 +502,7 @@ export default function Settings() {
                       placeholder="例: yourcompany.cybozu.com"
                       className="prisma-input"
                     />
-                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                    <p className="mt-1 text-base text-gray-600 dark:text-gray-400">
                       https:// は不要です。ドメイン名のみを入力してください
                     </p>
                   </div>
@@ -518,7 +518,7 @@ export default function Settings() {
                       placeholder="APIトークンを入力"
                       className="prisma-input"
                     />
-                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                    <p className="mt-1 text-base text-gray-600 dark:text-gray-400">
                       kintoneアプリの設定から生成したAPIトークンを入力
                     </p>
                   </div>
@@ -534,7 +534,7 @@ export default function Settings() {
                       placeholder="例: 123"
                       className="prisma-input"
                     />
-                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                    <p className="mt-1 text-base text-gray-600 dark:text-gray-400">
                       バックアップ先のkintoneアプリのID
                     </p>
                   </div>
@@ -570,7 +570,7 @@ export default function Settings() {
                   現在のすべての案件データをkintoneにバックアップします。
                 </p>
                 {kintoneSettings.lastBackupAt && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  <p className="text-base text-gray-600 dark:text-gray-400 mb-4">
                     最終バックアップ: {new Date(kintoneSettings.lastBackupAt).toLocaleString('ja-JP')}
                   </p>
                 )}
@@ -617,7 +617,7 @@ export default function Settings() {
                             <p className="font-bold text-gray-900 dark:text-gray-100">
                               {new Date(log.created_at).toLocaleString('ja-JP')}
                             </p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                            <p className="text-base text-gray-600 dark:text-gray-400">
                               {log.success_count || 0}件成功
                               {log.error_count > 0 && ` / ${log.error_count}件失敗`}
                               {log.duration_seconds && ` (${log.duration_seconds}秒)`}
@@ -625,7 +625,7 @@ export default function Settings() {
                           </div>
                         </div>
                         <span
-                          className={`px-3 py-1 rounded-lg text-sm font-bold ${
+                          className={`px-3 py-1 rounded-lg text-base font-bold ${
                             log.status === 'success'
                               ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                               : log.status === 'partial'
@@ -661,7 +661,7 @@ export default function Settings() {
                 <p className="text-base text-gray-700 dark:text-gray-300 mb-4">
                   この機能は、顧客とのLINEでのやり取りをG-progressに自動保存し、一元管理するための設定です。
                 </p>
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border-3 border-green-200 dark:border-green-700">
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border-2 border-green-300 dark:border-green-700">
                   <h4 className="font-bold text-base text-gray-800 dark:text-gray-100 mb-2">実装予定の機能</h4>
                   <ul className="space-y-2 text-gray-700 dark:text-gray-300">
                     <li className="flex items-start gap-2">
@@ -709,7 +709,7 @@ export default function Settings() {
                       placeholder="例: 1234567890"
                       className="prisma-input"
                     />
-                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                    <p className="mt-1 text-base text-gray-600 dark:text-gray-400">
                       LINE Developers ConsoleのMessaging APIチャネルIDを入力
                     </p>
                   </div>
@@ -725,7 +725,7 @@ export default function Settings() {
                       placeholder="チャネルシークレットを入力"
                       className="prisma-input"
                     />
-                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                    <p className="mt-1 text-base text-gray-600 dark:text-gray-400">
                       Webhook検証に使用されるシークレットキー
                     </p>
                   </div>
@@ -741,7 +741,7 @@ export default function Settings() {
                       placeholder="チャネルアクセストークンを入力"
                       className="prisma-input"
                     />
-                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                    <p className="mt-1 text-base text-gray-600 dark:text-gray-400">
                       LINE APIへのアクセスに使用する長期トークン
                     </p>
                   </div>
@@ -757,7 +757,7 @@ export default function Settings() {
                       placeholder="https://your-domain.com/api/line/webhook"
                       className="prisma-input"
                     />
-                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                    <p className="mt-1 text-base text-gray-600 dark:text-gray-400">
                       LINE Developersコンソールに設定するWebhook URL（実装時に自動生成）
                     </p>
                   </div>
@@ -785,7 +785,7 @@ export default function Settings() {
                   <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
                     <div>
                       <p className="font-bold text-base text-gray-800 dark:text-gray-100">LINE連携を有効化</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      <p className="text-base text-gray-600 dark:text-gray-400 mt-1">
                         ONにすると、LINEメッセージの受信を開始します
                       </p>
                     </div>
@@ -808,7 +808,7 @@ export default function Settings() {
                   <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
                     <div>
                       <p className="font-bold text-base text-gray-800 dark:text-gray-100">自動返信機能</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      <p className="text-base text-gray-600 dark:text-gray-400 mt-1">
                         営業時間外などに自動返信メッセージを送信（実装予定）
                       </p>
                     </div>
@@ -840,7 +840,7 @@ export default function Settings() {
                       max="3650"
                       className="prisma-input w-32"
                     />
-                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                    <p className="mt-1 text-base text-gray-600 dark:text-gray-400">
                       この期間を超えたメッセージは自動的にアーカイブされます（30〜3650日）
                     </p>
                   </div>
@@ -857,7 +857,7 @@ export default function Settings() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
                     <span className="text-gray-700 dark:text-gray-300 font-medium">連携ステータス</span>
-                    <span className={`px-3 py-1 rounded-lg text-sm font-bold ${
+                    <span className={`px-3 py-1 rounded-lg text-base font-bold ${
                       lineSettings.enabled
                         ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                         : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
@@ -904,10 +904,10 @@ export default function Settings() {
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm text-blue-700 dark:text-blue-200 font-medium">
+                  <p className="text-base text-blue-700 dark:text-blue-200 font-medium">
                     LINE連携は将来実装予定の機能です
                   </p>
-                  <p className="text-sm text-blue-600 dark:text-blue-300 mt-1">
+                  <p className="text-base text-blue-600 dark:text-blue-300 mt-1">
                     現時点では設定情報の保存のみ可能です。実装時にこの設定情報が使用されます。
                     LINE Messaging APIの取得方法については、実装時に詳細な手順書を提供します。
                   </p>

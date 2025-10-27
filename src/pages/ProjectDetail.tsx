@@ -660,7 +660,7 @@ export default function ProjectDetail() {
         <div className="mb-4 h-10 w-40 bg-gray-200 rounded-lg animate-pulse"></div>
 
         {/* プロジェクト情報カードスケルトン */}
-        <div className="bg-white rounded-lg shadow-xl border-2 border-gray-300 overflow-hidden mb-2">
+        <div className="bg-white rounded-lg shadow-xl border border-gray-300 overflow-hidden mb-2">
           <div className="p-4 bg-gradient-to-r from-blue-50 to-blue-100 border-b-2 border-gray-300">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -692,7 +692,7 @@ export default function ProjectDetail() {
         </div>
 
         {/* ツールバースケルトン */}
-        <div className="bg-white rounded-lg shadow-md p-4 mb-2 border-2 border-gray-300">
+        <div className="bg-white rounded-lg shadow-md p-4 mb-2 border border-gray-300">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="h-8 w-32 bg-gray-200 rounded-lg animate-pulse"></div>
@@ -713,33 +713,33 @@ export default function ProjectDetail() {
         </div>
 
         {/* テーブルスケルトン */}
-        <div className="bg-white rounded-lg shadow-xl overflow-hidden border-2 border-gray-300">
+        <div className="bg-white rounded-lg shadow-xl overflow-hidden border border-gray-300">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-100 border-b-2 border-gray-400">
                 <tr>
-                  <th className="border-2 border-gray-300 p-3">
+                  <th className="border border-gray-300 p-3">
                     <div className="h-4 w-12 bg-gray-200 rounded animate-pulse mx-auto"></div>
                   </th>
-                  <th className="border-2 border-gray-300 p-3">
+                  <th className="border border-gray-300 p-3">
                     <div className="h-4 w-32 bg-gray-200 rounded animate-pulse mx-auto"></div>
                   </th>
-                  <th className="border-2 border-gray-300 p-3">
+                  <th className="border border-gray-300 p-3">
                     <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mx-auto"></div>
                   </th>
-                  <th className="border-2 border-gray-300 p-3">
+                  <th className="border border-gray-300 p-3">
                     <div className="h-4 w-20 bg-gray-200 rounded animate-pulse mx-auto"></div>
                   </th>
-                  <th className="border-2 border-gray-300 p-3">
+                  <th className="border border-gray-300 p-3">
                     <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mx-auto"></div>
                   </th>
-                  <th className="border-2 border-gray-300 p-3">
+                  <th className="border border-gray-300 p-3">
                     <div className="h-4 w-28 bg-gray-200 rounded animate-pulse mx-auto"></div>
                   </th>
-                  <th className="border-2 border-gray-300 p-3">
+                  <th className="border border-gray-300 p-3">
                     <div className="h-4 w-20 bg-gray-200 rounded animate-pulse mx-auto"></div>
                   </th>
-                  <th className="border-2 border-gray-300 p-3">
+                  <th className="border border-gray-300 p-3">
                     <div className="h-4 w-20 bg-gray-200 rounded animate-pulse mx-auto"></div>
                   </th>
                 </tr>
@@ -747,28 +747,28 @@ export default function ProjectDetail() {
               <tbody>
                 {Array.from({ length: 8 }).map((_, i) => (
                   <tr key={i}>
-                    <td className="border-2 border-gray-300 p-3">
+                    <td className="border border-gray-300 p-3">
                       <div className="h-4 w-8 bg-gray-200 rounded animate-pulse mx-auto"></div>
                     </td>
-                    <td className="border-2 border-gray-300 p-3">
+                    <td className="border border-gray-300 p-3">
                       <div className="h-4 w-40 bg-gray-200 rounded animate-pulse"></div>
                     </td>
-                    <td className="border-2 border-gray-300 p-3">
+                    <td className="border border-gray-300 p-3">
                       <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mx-auto"></div>
                     </td>
-                    <td className="border-2 border-gray-300 p-3">
+                    <td className="border border-gray-300 p-3">
                       <div className="h-4 w-28 bg-gray-200 rounded animate-pulse mx-auto"></div>
                     </td>
-                    <td className="border-2 border-gray-300 p-3">
+                    <td className="border border-gray-300 p-3">
                       <div className="h-4 w-16 bg-gray-200 rounded animate-pulse mx-auto"></div>
                     </td>
-                    <td className="border-2 border-gray-300 p-3">
+                    <td className="border border-gray-300 p-3">
                       <div className="h-6 w-20 bg-gray-200 rounded-lg animate-pulse mx-auto"></div>
                     </td>
-                    <td className="border-2 border-gray-300 p-3">
+                    <td className="border border-gray-300 p-3">
                       <div className="h-6 w-16 bg-gray-200 rounded-lg animate-pulse mx-auto"></div>
                     </td>
-                    <td className="border-2 border-gray-300 p-3">
+                    <td className="border border-gray-300 p-3">
                       <div className="flex items-center justify-center gap-2">
                         <div className="h-8 w-8 bg-gray-200 rounded-lg animate-pulse"></div>
                         <div className="h-8 w-8 bg-gray-200 rounded-lg animate-pulse"></div>
@@ -798,13 +798,13 @@ export default function ProjectDetail() {
         {/* 戻るボタン */}
         <button
           onClick={() => navigate('/projects')}
-          className="mb-2 px-3 py-1.5 bg-white text-gray-700 rounded-lg shadow-md border-2 border-gray-300 hover:bg-gray-50 transition-all duration-200 font-bold text-base"
+          className="mb-2 px-4 py-2 bg-white text-gray-700 rounded-lg shadow-md border border-gray-300 hover:bg-gray-50 transition-all duration-200 font-bold text-base"
         >
           ← 案件一覧に戻る
         </button>
 
         {/* 統合カード：プロジェクト情報 + ツールバー */}
-        <div className="bg-white rounded-lg shadow-xl border-2 border-gray-300 overflow-hidden mb-2">
+        <div className="bg-white rounded-lg shadow-xl border border-gray-300 overflow-hidden mb-2">
           {/* プロジェクト情報（1行） */}
           <div className="px-3 py-2 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-gray-300">
             <div className="flex items-center gap-3 flex-wrap text-base">
@@ -817,10 +817,10 @@ export default function ProjectDetail() {
               <span className="text-gray-700">
                 {project.customer?.building_site || '-'}
               </span>
-              <span className={`px-2 py-1 rounded-lg font-bold ${
-                project.status === 'post_contract' ? 'bg-blue-100 text-blue-800 border-2 border-blue-300' :
-                project.status === 'construction' ? 'bg-orange-100 text-orange-800 border-2 border-orange-300' :
-                'bg-green-100 text-green-800 border-2 border-green-300'
+              <span className={`px-3 py-2 rounded-lg font-bold ${
+                project.status === 'post_contract' ? 'bg-blue-100 text-blue-800 border-3 border-blue-300' :
+                project.status === 'construction' ? 'bg-orange-100 text-orange-800 border-3 border-orange-300' :
+                'bg-green-100 text-green-800 border-3 border-green-300'
               }`}>
                 {project.status === 'post_contract' ? '契約後' :
                  project.status === 'construction' ? '着工後' : '引き渡し済'}
@@ -849,7 +849,7 @@ export default function ProjectDetail() {
                 <select
                   value={sortField}
                   onChange={(e) => setSortField(e.target.value as SortField)}
-                  className="px-2 py-1.5 border border-gray-300 rounded-lg bg-white text-base text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-base text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="business_no">業務フロー順</option>
                   <option value="dayFromContract">契約日からの日数</option>
@@ -858,7 +858,7 @@ export default function ProjectDetail() {
                 </select>
                 <button
                   onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                  className="px-2 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-base font-medium hover:bg-gray-200 transition-colors"
+                  className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-base font-medium hover:bg-gray-200 transition-colors"
                   title={sortOrder === 'asc' ? '昇順' : '降順'}
                 >
                   <ArrowUpDown size={16} />
@@ -870,7 +870,7 @@ export default function ProjectDetail() {
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
-                  className="px-2 py-1.5 border border-gray-300 rounded-lg bg-white text-base text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-base text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="all">全て ({tasks.length})</option>
                   <option value="not_started">未着手 ({tasks.filter(t => t.status === 'not_started').length})</option>
@@ -900,7 +900,7 @@ export default function ProjectDetail() {
         {/* タスク追加モーダル */}
         {showTaskModal && (
           <div className="prisma-modal-overlay">
-            <div className="prisma-modal" style={{ maxWidth: '600px' }}>
+            <div className="prisma-modal max-w-[600px]">
               {/* ヘッダー */}
               <div className="prisma-modal-header">
                 <div className="flex items-center justify-between">
@@ -926,7 +926,7 @@ export default function ProjectDetail() {
               {/* コンテンツ */}
               <div className="prisma-modal-content space-y-4">
                 <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                  <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
                     タスク名 <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -939,7 +939,7 @@ export default function ProjectDetail() {
                 </div>
 
                 <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                  <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
                     期限 <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -951,7 +951,7 @@ export default function ProjectDetail() {
                 </div>
 
                 <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                  <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
                     担当者
                   </label>
                   <select
@@ -969,7 +969,7 @@ export default function ProjectDetail() {
                 </div>
 
                 <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                  <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
                     優先度
                   </label>
                   <select
@@ -984,7 +984,7 @@ export default function ProjectDetail() {
                 </div>
 
                 <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                  <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
                     詳細説明
                   </label>
                   <textarea
@@ -1028,7 +1028,7 @@ export default function ProjectDetail() {
         {/* タスク詳細モーダル */}
         {showDetailModal && selectedTask && (
           <div className="prisma-modal-overlay">
-            <div className="prisma-modal" style={{ maxWidth: '800px' }}>
+            <div className="prisma-modal max-w-[800px]">
               {/* ヘッダー */}
               <div className="prisma-modal-header">
                 <div className="flex items-center justify-between">
@@ -1043,22 +1043,22 @@ export default function ProjectDetail() {
 
                 {/* 編集ロック状態表示 */}
                 {taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId && (
-                  <div className="mt-3 p-3 bg-yellow-50 border-2 border-yellow-400 rounded-lg flex items-center gap-2">
-                    <Lock size={18} className="text-yellow-700" />
+                  <div className="mt-3 p-4 bg-yellow-50 border-3 border-yellow-400 rounded-lg flex items-center gap-2">
+                    <Lock size={20} className="text-yellow-700" />
                     <div className="flex-1">
-                      <p className="text-sm font-bold text-yellow-900">
+                      <p className="text-base font-bold text-yellow-900">
                         {taskEditLock.lockedByName}が編集中です
                       </p>
-                      <p className="text-xs text-yellow-700">閲覧のみ可能です。編集はできません。</p>
+                      <p className="text-base text-yellow-700">閲覧のみ可能です。編集はできません。</p>
                     </div>
                   </div>
                 )}
 
                 {/* オンラインユーザー表示 */}
                 {taskEditLock.onlineUsers.length > 0 && (
-                  <div className="mt-2 p-2 bg-blue-50 border border-blue-300 rounded-lg flex items-center gap-2">
-                    <Users size={16} className="text-blue-700" />
-                    <p className="text-xs text-blue-900">
+                  <div className="mt-2 p-3 bg-blue-50 border-3 border-blue-300 rounded-lg flex items-center gap-2">
+                    <Users size={18} className="text-blue-700" />
+                    <p className="text-base text-blue-900">
                       他に{taskEditLock.onlineUsers.length}人が閲覧中
                     </p>
                   </div>
@@ -1069,17 +1069,17 @@ export default function ProjectDetail() {
               <div className="prisma-modal-content space-y-4">
                 {/* ステータス変更ボタン */}
                 <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                  <label className="block text-base font-medium text-gray-700 mb-2">
                     ステータス
                   </label>
                   <div className="grid grid-cols-4 gap-2">
                     <button
                       onClick={() => handleUpdateTaskStatus(selectedTask.id, 'not_started')}
                       disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
-                      className={`px-3 py-2 rounded-lg font-bold text-sm transition-all ${
+                      className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
                         selectedTask.status === 'not_started'
                           ? 'task-not-started'
-                          : 'bg-white text-gray-900 hover:bg-gray-50 border-2 border-gray-300'
+                          : 'bg-white text-gray-900 hover:bg-gray-50 border border-gray-300'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                       未着手
@@ -1087,10 +1087,10 @@ export default function ProjectDetail() {
                     <button
                       onClick={() => handleUpdateTaskStatus(selectedTask.id, 'requested')}
                       disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
-                      className={`px-3 py-2 rounded-lg font-bold text-sm transition-all ${
+                      className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
                         selectedTask.status === 'requested'
                           ? 'task-in-progress'
-                          : 'bg-white text-yellow-900 hover:bg-yellow-50 border-2 border-yellow-300'
+                          : 'bg-white text-yellow-900 hover:bg-yellow-50 border-3 border-yellow-300'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                       着手中
@@ -1098,10 +1098,10 @@ export default function ProjectDetail() {
                     <button
                       onClick={() => handleUpdateTaskStatus(selectedTask.id, 'delayed')}
                       disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
-                      className={`px-3 py-2 rounded-lg font-bold text-sm transition-all ${
+                      className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
                         selectedTask.status === 'delayed'
                           ? 'task-delayed'
-                          : 'bg-white text-red-900 hover:bg-red-50 border-2 border-red-300'
+                          : 'bg-white text-red-900 hover:bg-red-50 border-3 border-red-300'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                       遅延
@@ -1109,10 +1109,10 @@ export default function ProjectDetail() {
                     <button
                       onClick={() => handleUpdateTaskStatus(selectedTask.id, 'completed')}
                       disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
-                      className={`px-3 py-2 rounded-lg font-bold text-sm transition-all ${
+                      className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
                         selectedTask.status === 'completed'
                           ? 'task-completed'
-                          : 'bg-white text-blue-900 hover:bg-blue-50 border-2 border-blue-300'
+                          : 'bg-white text-blue-900 hover:bg-blue-50 border-3 border-blue-300'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                       完了
@@ -1122,7 +1122,7 @@ export default function ProjectDetail() {
 
                 {/* 期限日 */}
                 <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                  <label className="block text-base font-medium text-gray-700 mb-2">
                     期限日
                   </label>
                   {editingDueDate ? (
@@ -1144,7 +1144,7 @@ export default function ProjectDetail() {
                       <div className="flex gap-2 mt-2 flex-wrap">
                         <button
                           type="button"
-                          className="date-shortcut-btn px-3 py-1 text-sm border-2 border-blue-300 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 font-bold"
+                          className="date-shortcut-btn px-4 py-2 text-base border-3 border-blue-300 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 font-bold"
                           onClick={() => {
                             const today = new Date()
                             today.setHours(0, 0, 0, 0)
@@ -1155,7 +1155,7 @@ export default function ProjectDetail() {
                         </button>
                         <button
                           type="button"
-                          className="date-shortcut-btn px-3 py-1 text-sm border-2 border-blue-300 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 font-bold"
+                          className="date-shortcut-btn px-4 py-2 text-base border-3 border-blue-300 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 font-bold"
                           onClick={() => {
                             const tomorrow = new Date()
                             tomorrow.setDate(tomorrow.getDate() + 1)
@@ -1167,7 +1167,7 @@ export default function ProjectDetail() {
                         </button>
                         <button
                           type="button"
-                          className="date-shortcut-btn px-3 py-1 text-sm border-2 border-blue-300 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 font-bold"
+                          className="date-shortcut-btn px-4 py-2 text-base border-3 border-blue-300 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 font-bold"
                           onClick={() => {
                             const nextWeek = new Date()
                             nextWeek.setDate(nextWeek.getDate() + 7)
@@ -1179,7 +1179,7 @@ export default function ProjectDetail() {
                         </button>
                         <button
                           type="button"
-                          className="date-shortcut-btn px-3 py-1 text-sm border-2 border-blue-300 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 font-bold"
+                          className="date-shortcut-btn px-4 py-2 text-base border-3 border-blue-300 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 font-bold"
                           onClick={() => {
                             const nextMonth = new Date()
                             nextMonth.setMonth(nextMonth.getMonth() + 1)
@@ -1200,7 +1200,7 @@ export default function ProjectDetail() {
                           <div className="font-medium text-gray-900">
                             {selectedTask.due_date ? format(new Date(selectedTask.due_date), 'yyyy年MM月dd日 (E)', { locale: ja }) : '未設定'}
                           </div>
-                          <div className="text-sm text-gray-600 mt-1">
+                          <div className="text-base text-gray-600 mt-1">
                             契約日から {selectedTask.dayFromContract || 0}日目
                           </div>
                         </div>
@@ -1231,7 +1231,7 @@ export default function ProjectDetail() {
                               }
                             }}
                             disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
-                            className={`px-4 py-2 rounded-lg font-bold text-sm border-3 transition-all ${
+                            className={`px-4 py-2 rounded-lg font-bold text-base border-3 transition-all ${
                               !selectedTask.is_date_confirmed
                                 ? 'bg-blue-500 text-white border-blue-600 shadow-lg'
                                 : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
@@ -1265,14 +1265,14 @@ export default function ProjectDetail() {
                               }
                             }}
                             disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
-                            className={`px-4 py-2 rounded-lg font-bold text-sm border-3 transition-all flex items-center gap-2 ${
+                            className={`px-4 py-2 rounded-lg font-bold text-base border-3 transition-all flex items-center gap-2 ${
                               selectedTask.is_date_confirmed
                                 ? 'bg-green-600 text-white border-green-700 shadow-lg'
                                 : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                             } disabled:opacity-50 disabled:cursor-not-allowed`}
                           >
                             {selectedTask.is_date_confirmed && (
-                              <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-green-600 rounded-full border-2 border-white">
+                              <span className="inline-flex items-center justify-center w-6 h-6 text-sm font-bold text-white bg-green-600 rounded-full border-3 border-white">
                                 確
                               </span>
                             )}
@@ -1288,7 +1288,7 @@ export default function ProjectDetail() {
                 {selectedTask.original_due_date && selectedTask.due_date &&
                  selectedTask.original_due_date !== selectedTask.due_date && (
                   <div>
-                    <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                    <label className="block text-base font-medium text-gray-700 mb-2">
                       予定からのずれ
                     </label>
                     <div className="flex items-start gap-3 p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-lg">
@@ -1306,13 +1306,13 @@ export default function ProjectDetail() {
                               : `${absDays}日前倒し`
                           })()}
                         </div>
-                        <div className="text-sm text-yellow-800">
+                        <div className="text-base text-yellow-800">
                           当初予定: {format(new Date(selectedTask.original_due_date), 'yyyy年M月d日 (E)', { locale: ja })}
                           {' → '}
                           現在: {format(new Date(selectedTask.due_date), 'yyyy年M月d日 (E)', { locale: ja })}
                         </div>
                         {selectedTask.date_change_count !== undefined && selectedTask.date_change_count > 0 && (
-                          <div className="text-xs text-yellow-700 mt-1">
+                          <div className="text-base text-yellow-700 mt-1">
                             変更回数: {selectedTask.date_change_count}回
                           </div>
                         )}
@@ -1324,7 +1324,7 @@ export default function ProjectDetail() {
                 {/* トリガーからの日にち設定（読み取り専用） */}
                 {selectedTask.task_master?.trigger_task_id && selectedTask.task_master?.days_from_trigger !== undefined && (
                   <div>
-                    <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                    <label className="block text-base font-medium text-gray-700 mb-2">
                       トリガー設定
                     </label>
                     <div className="prisma-input bg-gray-50">
@@ -1335,7 +1335,7 @@ export default function ProjectDetail() {
                         {selectedTask.task_master.days_from_trigger < 0 && `から ${Math.abs(selectedTask.task_master.days_from_trigger)}日前`}
                         {selectedTask.task_master.days_from_trigger === 0 && '完了時'}
                       </div>
-                      <div className="text-sm text-gray-600 mt-1">
+                      <div className="text-base text-gray-600 mt-1">
                         このタスクは上記タスクの完了を起点として期限が設定されます
                       </div>
                     </div>
@@ -1344,7 +1344,7 @@ export default function ProjectDetail() {
 
                 {/* コメント */}
                 <div>
-                  <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                  <label className="block text-base font-medium text-gray-700 mb-2">
                     コメント（遅延理由・進捗状況など）
                   </label>
                   <textarea
@@ -1378,10 +1378,10 @@ export default function ProjectDetail() {
                 {/* 作業内容 */}
                 {selectedTask.description && (
                   <div>
-                    <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                    <label className="block text-base font-medium text-gray-700 mb-2">
                       作業内容
                     </label>
-                    <div className="prisma-textarea bg-gray-50" style={{ minHeight: '80px' }}>
+                    <div className="prisma-textarea bg-gray-50 min-h-[80px]">
                       {selectedTask.description}
                     </div>
                   </div>
@@ -1391,10 +1391,10 @@ export default function ProjectDetail() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   {selectedTask.dos && (
                     <div>
-                      <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                      <label className="block text-base font-medium text-gray-700 mb-2">
                         Do's（推奨事項）
                       </label>
-                      <div className="prisma-textarea bg-gray-50 whitespace-pre-wrap" style={{ minHeight: '120px', maxHeight: '200px', overflowY: 'auto' }}>
+                      <div className="prisma-textarea bg-gray-50 whitespace-pre-wrap min-h-[120px] max-h-[200px] overflow-y-auto">
                         {selectedTask.dos}
                       </div>
                     </div>
@@ -1402,10 +1402,10 @@ export default function ProjectDetail() {
 
                   {selectedTask.donts && (
                     <div>
-                      <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                      <label className="block text-base font-medium text-gray-700 mb-2">
                         Don'ts（禁止事項）
                       </label>
-                      <div className="prisma-textarea bg-gray-50 whitespace-pre-wrap" style={{ minHeight: '120px', maxHeight: '200px', overflowY: 'auto' }}>
+                      <div className="prisma-textarea bg-gray-50 whitespace-pre-wrap min-h-[120px] max-h-[200px] overflow-y-auto">
                         {selectedTask.donts}
                       </div>
                     </div>
@@ -1415,7 +1415,7 @@ export default function ProjectDetail() {
                 {/* マニュアル・動画 */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                    <label className="block text-base font-medium text-gray-700 mb-2">
                       マニュアル
                     </label>
                     {selectedTask.manual_url ? (
@@ -1428,12 +1428,12 @@ export default function ProjectDetail() {
                         開く
                       </a>
                     ) : (
-                      <div className="text-gray-500 text-sm">未設定</div>
+                      <div className="text-gray-500 text-base">未設定</div>
                     )}
                   </div>
 
                   <div>
-                    <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                    <label className="block text-base font-medium text-gray-700 mb-2">
                       動画
                     </label>
                     {selectedTask.video_url ? (
@@ -1446,7 +1446,7 @@ export default function ProjectDetail() {
                         再生
                       </a>
                     ) : (
-                      <div className="text-gray-500 text-sm">未設定</div>
+                      <div className="text-gray-500 text-base">未設定</div>
                     )}
                   </div>
                 </div>

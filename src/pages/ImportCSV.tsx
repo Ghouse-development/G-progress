@@ -142,7 +142,7 @@ export default function ImportCSV() {
             <div className="flex items-center gap-3 p-4 bg-blue-50 border-2 border-blue-200 rounded-xl">
               <FileText className="h-5 w-5 text-blue-600" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900">{file.name}</p>
+                <p className="text-base font-medium text-gray-900">{file.name}</p>
                 <p className="text-xs text-gray-500">
                   {(file.size / 1024).toFixed(2)} KB
                 </p>
@@ -157,31 +157,31 @@ export default function ImportCSV() {
         <div className="prisma-card">
           <div className="mb-4">
             <h3 className="text-xl font-bold text-gray-900">2. データプレビュー</h3>
-            <p className="text-sm text-gray-600 mt-1">{preview.length}件を表示中</p>
+            <p className="text-base text-gray-600 mt-1">{preview.length}件を表示中</p>
           </div>
           <div className="prisma-table-container">
             <table className="prisma-table">
               <thead>
                 <tr className="bg-gray-100">
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">契約番号</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">お客様名</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">建設地</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">商品</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">契約日</th>
+                  <th className="px-4 py-3 text-left text-base font-semibold text-gray-900">契約番号</th>
+                  <th className="px-4 py-3 text-left text-base font-semibold text-gray-900">お客様名</th>
+                  <th className="px-4 py-3 text-left text-base font-semibold text-gray-900">建設地</th>
+                  <th className="px-4 py-3 text-left text-base font-semibold text-gray-900">商品</th>
+                  <th className="px-4 py-3 text-left text-base font-semibold text-gray-900">契約日</th>
                 </tr>
               </thead>
               <tbody>
                 {preview.map((row, index) => (
                   <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                    <td className="px-4 py-3 text-sm text-gray-900">{row['契約\n番号'] || row['契約番号'] || '-'}</td>
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                    <td className="px-4 py-3 text-base text-gray-900">{row['契約\n番号'] || row['契約番号'] || '-'}</td>
+                    <td className="px-4 py-3 text-base font-medium text-gray-900">
                       {row['お客様名\n※敬称略'] || row['お客様名'] || '-'}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-600">
+                    <td className="px-4 py-3 text-base text-gray-600">
                       {row['建設地（住所）\n※住所不在地域は、地番'] || row['建設地'] || '-'}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-900">{row['商品'] || '-'}</td>
-                    <td className="px-4 py-3 text-sm text-gray-900">{row['請負\n契約'] || row['請負契約'] || '-'}</td>
+                    <td className="px-4 py-3 text-base text-gray-900">{row['商品'] || '-'}</td>
+                    <td className="px-4 py-3 text-base text-gray-900">{row['請負\n契約'] || row['請負契約'] || '-'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -198,9 +198,9 @@ export default function ImportCSV() {
             <div className="p-4 bg-yellow-50 border-2 border-yellow-200 rounded-xl">
               <div className="flex items-start gap-3">
                 <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-                <div className="text-sm text-yellow-800">
+                <div className="text-base text-yellow-800">
                   <p className="font-semibold mb-2">インポート前の注意事項</p>
-                  <ul className="list-disc list-inside space-y-1 text-sm">
+                  <ul className="list-disc list-inside space-y-1 text-base">
                     <li>既存データとの重複チェックは行われません</li>
                     <li>すべて新規データとして登録されます</li>
                     <li>商品名が存在しない場合、商品は「未設定」になります</li>
@@ -232,7 +232,7 @@ export default function ImportCSV() {
                 <div className="flex items-center gap-3">
                   <CheckCircle className="h-6 w-6 text-green-600" />
                   <div>
-                    <p className="text-sm text-gray-600">成功</p>
+                    <p className="text-base text-gray-600">成功</p>
                     <p className="text-3xl font-bold text-green-900">{result.success}件</p>
                   </div>
                 </div>
@@ -242,7 +242,7 @@ export default function ImportCSV() {
                 <div className="flex items-center gap-3">
                   <XCircle className="h-6 w-6 text-red-600" />
                   <div>
-                    <p className="text-sm text-gray-600">失敗</p>
+                    <p className="text-base text-gray-600">失敗</p>
                     <p className="text-3xl font-bold text-red-900">{result.failed}件</p>
                   </div>
                 </div>
@@ -251,15 +251,15 @@ export default function ImportCSV() {
 
             {result.errors.length > 0 && (
               <div className="p-4 bg-red-50 border-2 border-red-200 rounded-xl">
-                <p className="text-sm font-semibold text-red-900 mb-2">エラー詳細:</p>
+                <p className="text-base font-semibold text-red-900 mb-2">エラー詳細:</p>
                 <div className="max-h-40 overflow-y-auto">
                   {result.errors.slice(0, 20).map((error, index) => (
-                    <p key={index} className="text-sm text-red-700 py-1">
+                    <p key={index} className="text-base text-red-700 py-1">
                       • {error}
                     </p>
                   ))}
                   {result.errors.length > 20 && (
-                    <p className="text-sm text-red-600 mt-2">
+                    <p className="text-base text-red-600 mt-2">
                       ...他{result.errors.length - 20}件のエラー
                     </p>
                   )}

@@ -204,7 +204,7 @@ export default function OrganizationManagement() {
             <p className="text-gray-700 mb-4">
               この機能は管理者（社長、役員、部門長）のみがアクセスできます。
             </p>
-            <p className="text-sm text-gray-600">
+            <p className="text-base text-gray-600">
               アクセスが必要な場合は、システム管理者にお問い合わせください。
             </p>
           </div>
@@ -229,7 +229,7 @@ export default function OrganizationManagement() {
       </div>
       <div className="prisma-content">
         <div className="prisma-card mb-4">
-          <p className="text-sm text-gray-600">組織（本社、フランチャイズ）の管理</p>
+          <p className="text-base text-gray-600">組織（本社、フランチャイズ）の管理</p>
         </div>
 
       {/* 統計情報 */}
@@ -238,7 +238,7 @@ export default function OrganizationManagement() {
           <div className="flex items-center gap-3">
             <Building2 size={24} className="text-blue-600" />
             <div>
-              <p className="text-sm text-gray-600">総組織数</p>
+              <p className="text-base text-gray-600">総組織数</p>
               <p className="text-2xl font-bold text-gray-900">{organizations.length}</p>
             </div>
           </div>
@@ -247,7 +247,7 @@ export default function OrganizationManagement() {
           <div className="flex items-center gap-3">
             <Building2 size={24} className="text-green-600" />
             <div>
-              <p className="text-sm text-gray-600">稼働中</p>
+              <p className="text-base text-gray-600">稼働中</p>
               <p className="text-2xl font-bold text-gray-900">
                 {organizations.filter(o => o.org_status === 'active').length}
               </p>
@@ -258,7 +258,7 @@ export default function OrganizationManagement() {
           <div className="flex items-center gap-3">
             <Building2 size={24} className="text-orange-600" />
             <div>
-              <p className="text-sm text-gray-600">フランチャイズ</p>
+              <p className="text-base text-gray-600">フランチャイズ</p>
               <p className="text-2xl font-bold text-gray-900">
                 {organizations.filter(o => o.org_type === 'franchise').length}
               </p>
@@ -272,11 +272,11 @@ export default function OrganizationManagement() {
         <table className="w-full">
           <thead className="bg-gray-50 border-b-2 border-gray-200">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-bold text-gray-900">組織名</th>
-              <th className="px-4 py-3 text-left text-sm font-bold text-gray-900">種別</th>
-              <th className="px-4 py-3 text-left text-sm font-bold text-gray-900">ステータス</th>
-              <th className="px-4 py-3 text-left text-sm font-bold text-gray-900">作成日</th>
-              <th className="px-4 py-3 text-right text-sm font-bold text-gray-900">操作</th>
+              <th className="px-4 py-3 text-left text-base font-bold text-gray-900">組織名</th>
+              <th className="px-4 py-3 text-left text-base font-bold text-gray-900">種別</th>
+              <th className="px-4 py-3 text-left text-base font-bold text-gray-900">ステータス</th>
+              <th className="px-4 py-3 text-left text-base font-bold text-gray-900">作成日</th>
+              <th className="px-4 py-3 text-right text-base font-bold text-gray-900">操作</th>
             </tr>
           </thead>
           <tbody>
@@ -289,12 +289,12 @@ export default function OrganizationManagement() {
                   </div>
                 </td>
                 <td className="px-4 py-3">
-                  <span className="px-3 py-1 rounded-lg text-sm font-medium bg-blue-100 text-blue-800 border border-blue-300">
+                  <span className="px-3 py-1 rounded-lg text-base font-medium bg-blue-100 text-blue-800 border border-blue-300">
                     {getOrgTypeLabel(org.org_type)}
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <span className={`px-3 py-1 rounded-lg text-sm font-medium border ${getOrgStatusColor(org.org_status)}`}>
+                  <span className={`px-3 py-1 rounded-lg text-base font-medium border ${getOrgStatusColor(org.org_status)}`}>
                     {getOrgStatusLabel(org.org_status)}
                   </span>
                 </td>
@@ -328,7 +328,7 @@ export default function OrganizationManagement() {
           <div className="p-8 text-center text-gray-500">
             <Building2 size={48} className="mx-auto mb-4 text-gray-400" />
             <p className="text-lg font-medium">組織が登録されていません</p>
-            <p className="text-sm">「新規組織」ボタンから組織を追加してください</p>
+            <p className="text-base">「新規組織」ボタンから組織を追加してください</p>
           </div>
         )}
       </div>
@@ -336,7 +336,7 @@ export default function OrganizationManagement() {
       {/* モーダル */}
       {showModal && (
         <div className="prisma-modal-overlay">
-          <div className="prisma-modal" style={{ maxWidth: '600px' }}>
+          <div className="prisma-modal max-w-[600px]">
             <div className="prisma-modal-header">
               <div className="flex items-center justify-between">
                 <h2 className="prisma-modal-title">
@@ -355,7 +355,7 @@ export default function OrganizationManagement() {
               <div className="prisma-modal-content space-y-4">
                 {/* 組織名 */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-base font-medium text-gray-700 mb-1">
                     組織名 <span className="text-red-600">*</span>
                   </label>
                   <input
@@ -370,7 +370,7 @@ export default function OrganizationManagement() {
 
                 {/* 種別 */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-base font-medium text-gray-700 mb-1">
                     種別 <span className="text-red-600">*</span>
                   </label>
                   <select
@@ -385,7 +385,7 @@ export default function OrganizationManagement() {
 
                 {/* ステータス */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-base font-medium text-gray-700 mb-1">
                     ステータス <span className="text-red-600">*</span>
                   </label>
                   <select

@@ -285,42 +285,42 @@ export default function PerformanceManagement() {
         </div>
       </div>
 
-      <div className="prisma-content" style={{ paddingLeft: '24px', paddingRight: '24px' }}>
+      <div className="prisma-content px-6">
         {stats && (
           <>
             {/* 統計サマリー */}
             <div className="prisma-card">
               <h2 className="prisma-card-title">統計サマリー</h2>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
                 <div>
-                  <div className="prisma-text-sm prisma-text-secondary">太陽光パネル採用率</div>
-                  <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '4px' }}>{stats.solarPanelPercentage.toFixed(1)}%</div>
+                  <div className="prisma-text-base prisma-text-secondary">太陽光パネル採用率</div>
+                  <div className="text-3xl font-bold mt-1">{stats.solarPanelPercentage.toFixed(1)}%</div>
                   <div className="prisma-text-xs prisma-text-secondary">（{stats.solarPanelCount}/{stats.totalProjects}件）</div>
                 </div>
                 <div>
-                  <div className="prisma-text-sm prisma-text-secondary">平均太陽光kW数</div>
-                  <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '4px' }}>{stats.avgSolarKw.toFixed(2)}kW</div>
+                  <div className="prisma-text-base prisma-text-secondary">平均太陽光kW数</div>
+                  <div className="text-3xl font-bold mt-1">{stats.avgSolarKw.toFixed(2)}kW</div>
                 </div>
                 <div>
-                  <div className="prisma-text-sm prisma-text-secondary">蓄電池採用率</div>
-                  <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '4px' }}>{stats.batteryPercentage.toFixed(1)}%</div>
+                  <div className="prisma-text-base prisma-text-secondary">蓄電池採用率</div>
+                  <div className="text-3xl font-bold mt-1">{stats.batteryPercentage.toFixed(1)}%</div>
                   <div className="prisma-text-xs prisma-text-secondary">（{stats.batteryCount}/{stats.totalProjects}件）</div>
                 </div>
                 <div>
-                  <div className="prisma-text-sm prisma-text-secondary">BELS採用率</div>
-                  <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '4px' }}>{stats.belsPercentage.toFixed(1)}%</div>
+                  <div className="prisma-text-base prisma-text-secondary">BELS採用率</div>
+                  <div className="text-3xl font-bold mt-1">{stats.belsPercentage.toFixed(1)}%</div>
                   <div className="prisma-text-xs prisma-text-secondary">（{stats.belsCount}/{stats.totalProjects}件）</div>
                 </div>
                 <div>
-                  <div className="prisma-text-sm prisma-text-secondary">平均UA値</div>
-                  <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '4px' }}>{stats.avgUaValue.toFixed(3)}</div>
+                  <div className="prisma-text-base prisma-text-secondary">平均UA値</div>
+                  <div className="text-3xl font-bold mt-1">{stats.avgUaValue.toFixed(3)}</div>
                   <div className="prisma-text-xs prisma-text-secondary">
                     最小: {stats.minUaValue.toFixed(3)} / 最大: {stats.maxUaValue.toFixed(3)}
                   </div>
                 </div>
                 <div>
-                  <div className="prisma-text-sm prisma-text-secondary">平均C値</div>
-                  <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '4px' }}>{stats.avgCValue.toFixed(3)}</div>
+                  <div className="prisma-text-base prisma-text-secondary">平均C値</div>
+                  <div className="text-3xl font-bold mt-1">{stats.avgCValue.toFixed(3)}</div>
                   <div className="prisma-text-xs prisma-text-secondary">
                     最小: {stats.minCValue.toFixed(3)} / 最大: {stats.maxCValue.toFixed(3)}
                   </div>
@@ -331,20 +331,20 @@ export default function PerformanceManagement() {
             {/* 詳細テーブル */}
             <div className="prisma-card">
               <h2 className="prisma-card-title">案件別詳細</h2>
-              <div style={{ overflowX: 'auto' }}>
+              <div className="overflow-x-auto">
                 <table className="prisma-table">
                   <thead>
                     <tr>
                       <th>案件名</th>
-                      <th style={{ textAlign: 'center' }}>太陽光</th>
-                      <th style={{ textAlign: 'right' }}>kW数</th>
-                      <th style={{ textAlign: 'center' }}>蓄電池</th>
-                      <th style={{ textAlign: 'right' }}>UA値</th>
-                      <th style={{ textAlign: 'center' }}>BELS</th>
-                      <th style={{ textAlign: 'right' }}>1次①</th>
-                      <th style={{ textAlign: 'right' }}>1次②</th>
-                      <th style={{ textAlign: 'right' }}>1次③</th>
-                      <th style={{ textAlign: 'right' }}>C値</th>
+                      <th className="text-center">太陽光</th>
+                      <th className="text-right">kW数</th>
+                      <th className="text-center">蓄電池</th>
+                      <th className="text-right">UA値</th>
+                      <th className="text-center">BELS</th>
+                      <th className="text-right">1次①</th>
+                      <th className="text-right">1次②</th>
+                      <th className="text-right">1次③</th>
+                      <th className="text-right">C値</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -353,31 +353,31 @@ export default function PerformanceManagement() {
                         <td>
                           {project.customer?.names?.[0] || '不明'}様邸
                         </td>
-                        <td style={{ textAlign: 'center' }}>
+                        <td className="text-center">
                           {project.solar_panel ? <span className="prisma-badge prisma-badge-green">有</span> : <span className="prisma-badge prisma-badge-gray">無</span>}
                         </td>
-                        <td style={{ textAlign: 'right' }}>
+                        <td className="text-right">
                           {project.solar_kw ? `${project.solar_kw}kW` : '-'}
                         </td>
-                        <td style={{ textAlign: 'center' }}>
+                        <td className="text-center">
                           {project.battery ? <span className="prisma-badge prisma-badge-green">有</span> : <span className="prisma-badge prisma-badge-gray">無</span>}
                         </td>
-                        <td style={{ textAlign: 'right' }}>
+                        <td className="text-right">
                           {project.ua_value ? project.ua_value.toFixed(3) : '-'}
                         </td>
-                        <td style={{ textAlign: 'center' }}>
+                        <td className="text-center">
                           {project.bels ? <span className="prisma-badge prisma-badge-green">有</span> : <span className="prisma-badge prisma-badge-gray">無</span>}
                         </td>
-                        <td style={{ textAlign: 'right' }}>
+                        <td className="text-right">
                           {project.primary_energy_1 ? project.primary_energy_1.toFixed(1) : '-'}
                         </td>
-                        <td style={{ textAlign: 'right' }}>
+                        <td className="text-right">
                           {project.primary_energy_2 ? project.primary_energy_2.toFixed(1) : '-'}
                         </td>
-                        <td style={{ textAlign: 'right' }}>
+                        <td className="text-right">
                           {project.primary_energy_3 ? project.primary_energy_3.toFixed(1) : '-'}
                         </td>
-                        <td style={{ textAlign: 'right' }}>
+                        <td className="text-right">
                           {project.c_value ? project.c_value.toFixed(3) : '-'}
                         </td>
                       </tr>
@@ -386,15 +386,15 @@ export default function PerformanceManagement() {
                   <tfoot>
                     <tr style={{ background: '#f3f4f6', fontWeight: 'bold' }}>
                       <td>平均</td>
-                      <td style={{ textAlign: 'center' }}>-</td>
-                      <td style={{ textAlign: 'right' }}>{stats.avgSolarKw.toFixed(2)}kW</td>
-                      <td style={{ textAlign: 'center' }}>-</td>
-                      <td style={{ textAlign: 'right' }}>{stats.avgUaValue.toFixed(3)}</td>
-                      <td style={{ textAlign: 'center' }}>-</td>
-                      <td style={{ textAlign: 'right' }}>{stats.avgPrimaryEnergy1.toFixed(1)}</td>
-                      <td style={{ textAlign: 'right' }}>{stats.avgPrimaryEnergy2.toFixed(1)}</td>
-                      <td style={{ textAlign: 'right' }}>{stats.avgPrimaryEnergy3.toFixed(1)}</td>
-                      <td style={{ textAlign: 'right' }}>{stats.avgCValue.toFixed(3)}</td>
+                      <td className="text-center">-</td>
+                      <td className="text-right">{stats.avgSolarKw.toFixed(2)}kW</td>
+                      <td className="text-center">-</td>
+                      <td className="text-right">{stats.avgUaValue.toFixed(3)}</td>
+                      <td className="text-center">-</td>
+                      <td className="text-right">{stats.avgPrimaryEnergy1.toFixed(1)}</td>
+                      <td className="text-right">{stats.avgPrimaryEnergy2.toFixed(1)}</td>
+                      <td className="text-right">{stats.avgPrimaryEnergy3.toFixed(1)}</td>
+                      <td className="text-right">{stats.avgCValue.toFixed(3)}</td>
                     </tr>
                   </tfoot>
                 </table>

@@ -228,18 +228,18 @@ export default function CommentSection({ projectId, taskId, currentUserId }: Com
     return (
       <div
         key={comment.id}
-        className={`border-2 border-black rounded-lg p-4 ${isReply ? 'ml-12 mt-2 bg-gray-50' : 'bg-white'}`}
+        className={`border border-gray-300 rounded-lg p-4 ${isReply ? 'ml-12 mt-2 bg-gray-50' : 'bg-white'}`}
       >
         <div className="flex items-start justify-between mb-2">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold border-2 border-black">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold border border-gray-300">
               {comment.user?.last_name?.charAt(0) || '?'}
             </div>
             <div>
-              <div className="font-bold text-sm">
+              <div className="font-bold text-base">
                 {comment.user?.last_name} {comment.user?.first_name}
               </div>
-              <div className="text-xs text-gray-600">
+              <div className="text-base text-gray-600">
                 {format(new Date(comment.created_at), 'yyyy/MM/dd HH:mm', { locale: ja })}
                 {comment.edited && ' (編集済み)'}
               </div>
@@ -272,13 +272,13 @@ export default function CommentSection({ projectId, taskId, currentUserId }: Com
             <textarea
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
-              className="w-full p-2 border-2 border-black rounded-lg resize-none"
+              className="w-full p-2 border border-gray-300 rounded-lg resize-none"
               rows={3}
             />
             <div className="flex gap-2 mt-2">
               <button
                 onClick={() => handleEditComment(comment.id)}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg border-2 border-black font-bold"
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg border border-gray-300 font-bold"
               >
                 保存
               </button>
@@ -287,7 +287,7 @@ export default function CommentSection({ projectId, taskId, currentUserId }: Com
                   setEditingComment(null)
                   setEditContent('')
                 }}
-                className="px-4 py-2 bg-gray-200 rounded-lg border-2 border-black font-bold"
+                className="px-4 py-2 bg-gray-200 rounded-lg border border-gray-300 font-bold"
               >
                 キャンセル
               </button>
@@ -299,7 +299,7 @@ export default function CommentSection({ projectId, taskId, currentUserId }: Com
             {!isReply && (
               <button
                 onClick={() => setReplyingTo(comment.id)}
-                className="mt-2 text-sm text-blue-600 hover:underline flex items-center gap-1"
+                className="mt-2 text-base text-blue-600 hover:underline flex items-center gap-1"
               >
                 <Reply size={14} />
                 返信
@@ -315,15 +315,15 @@ export default function CommentSection({ projectId, taskId, currentUserId }: Com
         )}
 
         {replyingTo === comment.id && (
-          <div className="mt-4 ml-12 border-2 border-blue-500 rounded-lg p-3 bg-blue-50">
-            <div className="text-sm font-bold mb-2">返信中...</div>
+          <div className="mt-4 ml-12 border border-blue-500 rounded-lg p-3 bg-blue-50">
+            <div className="text-base font-bold mb-2">返信中...</div>
             <textarea
               ref={textareaRef}
               value={newComment}
               onChange={(e) => handleCommentChange(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Enterで送信、Shift+Enterで改行、@ユーザー名でメンション可能"
-              className="w-full p-2 border-2 border-black rounded-lg resize-none"
+              className="w-full p-2 border border-gray-300 rounded-lg resize-none"
               rows={3}
             />
             <button
@@ -331,7 +331,7 @@ export default function CommentSection({ projectId, taskId, currentUserId }: Com
                 setReplyingTo(null)
                 setNewComment('')
               }}
-              className="mt-2 px-4 py-2 bg-gray-200 rounded-lg border-2 border-black font-bold"
+              className="mt-2 px-4 py-2 bg-gray-200 rounded-lg border border-gray-300 font-bold"
             >
               キャンセル
             </button>
@@ -350,30 +350,30 @@ export default function CommentSection({ projectId, taskId, currentUserId }: Com
 
       {/* 新規コメント入力 */}
       {!replyingTo && (
-        <div className="mb-6 border-2 border-black rounded-lg p-4 bg-white relative">
+        <div className="mb-6 border border-gray-300 rounded-lg p-4 bg-white relative">
           <textarea
             ref={textareaRef}
             value={newComment}
             onChange={(e) => handleCommentChange(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="コメントを入力... (Enterで送信、Shift+Enterで改行、@ユーザー名でメンション可能)"
-            className="w-full p-3 border-2 border-black rounded-lg resize-none text-base"
+            className="w-full p-3 border border-gray-300 rounded-lg resize-none text-base"
             rows={4}
           />
 
           {/* メンションドロップダウン */}
           {showMentionDropdown && (
-            <div className="absolute z-10 bg-white border-2 border-black rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto w-64">
+            <div className="absolute z-10 bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto w-64">
               {filteredEmployees.slice(0, 10).map((emp) => (
                 <div
                   key={emp.id}
                   onClick={() => insertMention(emp)}
                   className="p-2 hover:bg-blue-100 cursor-pointer border-b border-gray-200"
                 >
-                  <div className="font-bold text-sm">
+                  <div className="font-bold text-base">
                     {emp.last_name} {emp.first_name}
                   </div>
-                  <div className="text-xs text-gray-600">{emp.department}</div>
+                  <div className="text-base text-gray-600">{emp.department}</div>
                 </div>
               ))}
             </div>

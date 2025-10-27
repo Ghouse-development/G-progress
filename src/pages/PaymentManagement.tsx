@@ -280,8 +280,7 @@ export default function PaymentManagement() {
             type="month"
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(e.target.value)}
-            className="prisma-input"
-            style={{ width: '200px' }}
+            className="prisma-input w-[200px]"
           />
           <button onClick={exportCSV} className="prisma-btn prisma-btn-secondary prisma-btn-sm">
             CSV出力
@@ -298,9 +297,9 @@ export default function PaymentManagement() {
             <tr>
               <th>案件</th>
               <th>名目</th>
-              <th style={{ textAlign: 'right' }}>金額</th>
-              <th style={{ textAlign: 'right' }}>予定</th>
-              <th style={{ textAlign: 'right' }}>実績</th>
+              <th className="text-right">金額</th>
+              <th className="text-right">予定</th>
+              <th className="text-right">実績</th>
             </tr>
           </thead>
           <tbody>
@@ -311,27 +310,27 @@ export default function PaymentManagement() {
                   <div className="flex items-center gap-2">
                     <span>{row.paymentType}</span>
                     {row.actual > 0 && (
-                      <span className="inline-flex items-center justify-center w-7 h-7 text-xs font-bold text-white bg-green-600 rounded-full border-2 border-white shadow-lg" title="入金確定">
+                      <span className="inline-flex items-center justify-center w-7 h-7 text-sm font-bold text-white bg-green-600 rounded-full border-2 border-white shadow-lg" title="入金確定">
                         確
                       </span>
                     )}
                   </div>
                 </td>
-                <td style={{ textAlign: 'right' }}>{row.amount.toLocaleString()}</td>
-                <td style={{ textAlign: 'right' }}>{row.scheduled.toLocaleString()}</td>
-                <td style={{ textAlign: 'right' }}>{row.actual.toLocaleString()}</td>
+                <td className="text-right">{row.amount.toLocaleString()}</td>
+                <td className="text-right">{row.scheduled.toLocaleString()}</td>
+                <td className="text-right">{row.actual.toLocaleString()}</td>
               </tr>
             ))}
           </tbody>
           <tfoot>
-            <tr style={{ background: '#f3f4f6', fontWeight: 'bold' }}>
+            <tr className="bg-gray-100 font-bold">
               <td colSpan={3}>合計</td>
-              <td style={{ textAlign: 'right' }}>{totalScheduled.toLocaleString()}</td>
-              <td style={{ textAlign: 'right' }}>{totalActual.toLocaleString()}</td>
+              <td className="text-right">{totalScheduled.toLocaleString()}</td>
+              <td className="text-right">{totalActual.toLocaleString()}</td>
             </tr>
-            <tr style={{ background: '#e5e7eb', fontWeight: 'bold' }}>
+            <tr className="bg-gray-200 font-bold">
               <td colSpan={3}>総計</td>
-              <td style={{ textAlign: 'right' }} colSpan={2}>{grandTotal.toLocaleString()}</td>
+              <td className="text-right" colSpan={2}>{grandTotal.toLocaleString()}</td>
             </tr>
           </tfoot>
         </table>

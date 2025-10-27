@@ -702,7 +702,7 @@ export default function DashboardHome() {
               <Bar dataKey="actualAmount" fill="#EF4444" name="実績（税込）" />
             </BarChart>
           </ResponsiveContainer>
-          <p className="text-sm text-gray-600 mt-2">※税別売上高は各月の合計を1.1で割った値</p>
+          <p className="text-base text-gray-600 mt-2">※税別売上高は各月の合計を1.1で割った値</p>
         </div>
 
         {/* 月別粗利益 */}
@@ -718,7 +718,7 @@ export default function DashboardHome() {
               <Bar dataKey="grossProfit" fill="#F59E0B" name="粗利益" />
             </BarChart>
           </ResponsiveContainer>
-          <p className="text-sm text-gray-600 mt-2">合計粗利益: ¥{monthlyStats.reduce((sum, m) => sum + m.grossProfit, 0).toLocaleString()}</p>
+          <p className="text-base text-gray-600 mt-2">合計粗利益: ¥{monthlyStats.reduce((sum, m) => sum + m.grossProfit, 0).toLocaleString()}</p>
         </div>
 
         {/* 商品構成 */}
@@ -1354,7 +1354,7 @@ export default function DashboardHome() {
                     <p className="text-base text-gray-600 mb-4">
                       {viewMode === 'personal' ? '自分の担当案件の遅延タスク' : '全案件の遅延タスク'}
                     </p>
-                    <div className="bg-white rounded-lg border-3 border-gray-300 overflow-hidden">
+                    <div className="bg-white rounded-lg border border-gray-300 overflow-hidden">
                       <table className="w-full text-base">
                         <thead className="bg-gray-100">
                           <tr>

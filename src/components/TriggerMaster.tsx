@@ -117,7 +117,7 @@ export default function TriggerMaster({ onClose }: TriggerMasterProps) {
 
   return (
     <div className="prisma-modal-overlay">
-      <div className="prisma-modal" style={{ maxWidth: '500px' }}>
+      <div className="prisma-modal max-w-[500px]">
         {/* ヘッダー */}
         <div className="prisma-modal-header">
           <div className="flex items-center justify-between">
@@ -134,12 +134,12 @@ export default function TriggerMaster({ onClose }: TriggerMasterProps) {
         {/* コンテンツ */}
         <div className="prisma-modal-content">
           <div className="flex items-center justify-between mb-4">
-            <p className="prisma-text-sm prisma-text-secondary">
+            <p className="text-base text-gray-600">
               タスクのトリガーとなる日付を管理します
             </p>
             <button
               onClick={() => handleOpenModal()}
-              className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
+              className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-base"
             >
               <Plus size={16} />
               追加
@@ -150,10 +150,10 @@ export default function TriggerMaster({ onClose }: TriggerMasterProps) {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-2 text-left text-xs font-bold text-gray-800">
+                  <th className="px-4 py-2 text-left text-base font-bold text-gray-800">
                     トリガー名
                   </th>
-                  <th className="px-4 py-2 text-center text-xs font-bold text-gray-800" style={{ width: '100px' }}>
+                  <th className="px-4 py-2 text-center text-base font-bold text-gray-800 w-[100px]">
                     操作
                   </th>
                 </tr>
@@ -161,14 +161,14 @@ export default function TriggerMaster({ onClose }: TriggerMasterProps) {
               <tbody className="divide-y divide-gray-200">
                 {triggers.length === 0 ? (
                   <tr>
-                    <td colSpan={2} className="px-4 py-6 text-center text-gray-500 text-sm">
+                    <td colSpan={2} className="px-4 py-6 text-center text-gray-500 text-base">
                       トリガーが登録されていません
                     </td>
                   </tr>
                 ) : (
                   triggers.map((trigger) => (
                     <tr key={trigger.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-2 text-sm font-medium text-gray-900">
+                      <td className="px-4 py-2 text-base font-medium text-gray-900">
                         {trigger.name}
                       </td>
                       <td className="px-4 py-2 whitespace-nowrap text-center">
@@ -210,8 +210,8 @@ export default function TriggerMaster({ onClose }: TriggerMasterProps) {
 
       {/* トリガー追加/編集モーダル */}
       {showModal && (
-        <div className="prisma-modal-overlay" style={{ zIndex: 60 }}>
-          <div className="prisma-modal" style={{ maxWidth: '400px' }}>
+        <div className="prisma-modal-overlay z-[60]">
+          <div className="prisma-modal max-w-[400px]">
             <div className="prisma-modal-header">
               <div className="flex items-center justify-between">
                 <h2 className="prisma-modal-title">
@@ -228,7 +228,7 @@ export default function TriggerMaster({ onClose }: TriggerMasterProps) {
 
             <div className="prisma-modal-content">
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 prisma-mb-1">
+                <label className="block text-base font-medium text-gray-700 mb-2">
                   トリガー名 <span className="text-red-500">*</span>
                 </label>
                 <input

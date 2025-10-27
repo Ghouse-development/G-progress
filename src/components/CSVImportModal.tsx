@@ -177,7 +177,7 @@ export default function CSVImportModal({ onClose, onSuccess }: CSVImportModalPro
 
   return (
     <div className="prisma-modal-overlay">
-      <div className="prisma-modal" style={{ maxWidth: '500px' }}>
+      <div className="prisma-modal max-w-[500px]">
         <div className="prisma-modal-header">
           <div className="flex items-center justify-between">
             <h2 className="prisma-modal-title">CSVインポート</h2>
@@ -194,16 +194,16 @@ export default function CSVImportModal({ onClose, onSuccess }: CSVImportModalPro
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <div className="flex items-start gap-2">
               <FileText size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-blue-800">
+              <div className="text-base text-blue-800">
                 <p className="font-semibold mb-1">CSVフォーマット</p>
-                <p className="text-xs">契約番号をキーとして案件情報を更新します。</p>
-                <p className="text-xs mt-1">対応フィールド: 契約番号、お客様名、建設地、各種日付、金額など</p>
+                <p className="text-base">契約番号をキーとして案件情報を更新します。</p>
+                <p className="text-base mt-1">対応フィールド: 契約番号、お客様名、建設地、各種日付、金額など</p>
               </div>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-base font-semibold text-gray-700 dark:text-gray-300 mb-2">
               CSVファイル選択
             </label>
             <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
@@ -220,7 +220,7 @@ export default function CSVImportModal({ onClose, onSuccess }: CSVImportModalPro
                 className="cursor-pointer flex flex-col items-center gap-2"
               >
                 <Upload size={32} className="text-gray-400" />
-                <span className="text-sm text-gray-600 dark:text-gray-400">
+                <span className="text-base text-gray-600 dark:text-gray-400">
                   {file ? file.name : 'CSVファイルを選択してください'}
                 </span>
               </label>
@@ -229,7 +229,7 @@ export default function CSVImportModal({ onClose, onSuccess }: CSVImportModalPro
 
           {importing && (
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-              <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              <div className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 インポート中...
               </div>
               <div className="grid grid-cols-3 gap-2 text-xs">
