@@ -1443,7 +1443,7 @@ export default function ProjectDetail() {
                     }}
                     disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
                     className="prisma-textarea"
-                    placeholder="タスクに関するコメントを入力してください"
+                    placeholder="コメント"
                     rows={3}
                   />
                 </div>

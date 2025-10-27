@@ -11,7 +11,7 @@ import { supabase } from '../lib/supabase'
 import { KintoneClient, projectToKintoneRecord } from '../lib/kintone'
 import { useToast } from '../contexts/ToastContext'
 import SystemRoadmap from '../components/SystemRoadmap'
-import { Settings as SettingsIcon, Database, TestTube, PlayCircle, Clock, CheckCircle, Palette, Cpu, MessageSquare } from 'lucide-react'
+import { Settings as SettingsIcon, Database, TestTube, PlayCircle, Clock, CheckCircle, Palette, Cpu, MessageSquare, Cloud } from 'lucide-react'
 
 interface KintoneSettings {
   domain: string
@@ -32,7 +32,7 @@ interface LineSettings {
   lastSyncAt?: string
 }
 
-type TabType = 'basic' | 'kintone' | 'line' | 'system'
+type TabType = 'basic' | 'kintone' | 'line' | 'system' | 'aws'
 
 export default function Settings() {
   const { demoMode, setDemoMode, darkMode, setDarkMode } = useSettings()
@@ -320,6 +320,17 @@ export default function Settings() {
             <Cpu size={20} />
             システム構想
           </button>
+          <button
+            onClick={() => setActiveTab('aws')}
+            className={`flex items-center gap-2 px-6 py-3 font-bold text-base transition-all ${
+              activeTab === 'aws'
+                ? 'border-b-4 border-blue-600 text-blue-600'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <Cloud size={20} />
+            AWS移行
+          </button>
         </div>
       </div>
 
@@ -468,9 +479,8 @@ export default function Settings() {
                     <p className="text-base text-yellow-700 dark:text-yellow-200 font-medium">
                       デモモードが有効です
                     </p>
-                    <p className="text-base text-yellow-600 dark:text-yellow-300 mt-1">
-                      現在表示されているデータはサンプルです。実際のデータベースには接続されていません。
-                      本番データに戻すには、デモモードをオフにしてください。
+                    <p className="text-base text-yellow-600 dark:text-yellow-300 mt-1 font-bold">
+                      サンプルデータ表示中（実際のDBには未接続）
                     </p>
                   </div>
                 </div>
@@ -502,9 +512,6 @@ export default function Settings() {
                       placeholder="例: yourcompany.cybozu.com"
                       className="prisma-input"
                     />
-                    <p className="mt-1 text-base text-gray-600 dark:text-gray-400">
-                      https:// は不要です。ドメイン名のみを入力してください
-                    </p>
                   </div>
 
                   <div>
@@ -920,6 +927,155 @@ export default function Settings() {
         {/* システム構想タブ */}
         {activeTab === 'system' && (
           <SystemRoadmap />
+        )}
+
+        {/* AWS移行タブ */}
+        {activeTab === 'aws' && (
+          <div className="space-y-6">
+            {/* 現状 */}
+            <div className="bg-white border-4 border-blue-500 rounded-xl p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                <h2 className="text-2xl font-black text-gray-900">現在の運用</h2>
+              </div>
+              <div className="bg-green-50 border-3 border-green-500 rounded-lg p-6">
+                <p className="text-xl font-bold text-green-900 mb-2">Supabase（PostgreSQL）で運用中</p>
+                <p className="text-lg text-green-800">✅ 現在の規模では最適　✅ 高パフォーマンス　✅ コスト効率◎</p>
+              </div>
+            </div>
+
+            {/* 移行タイミング */}
+            <div className="bg-white border-4 border-gray-300 rounded-xl p-8">
+              <h2 className="text-2xl font-black text-gray-900 mb-6">AWS移行を検討するタイミング</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gray-50 border-3 border-gray-300 rounded-lg p-5">
+                  <div className="text-3xl font-black text-blue-600 mb-2">1,000人</div>
+                  <div className="text-lg font-bold text-gray-700">ユーザー数</div>
+                </div>
+                <div className="bg-gray-50 border-3 border-gray-300 rounded-lg p-5">
+                  <div className="text-3xl font-black text-blue-600 mb-2">20店舗</div>
+                  <div className="text-lg font-bold text-gray-700">FC展開</div>
+                </div>
+                <div className="bg-gray-50 border-3 border-gray-300 rounded-lg p-5">
+                  <div className="text-3xl font-black text-blue-600 mb-2">10万件/月</div>
+                  <div className="text-lg font-bold text-gray-700">トランザクション</div>
+                </div>
+                <div className="bg-gray-50 border-3 border-gray-300 rounded-lg p-5">
+                  <div className="text-3xl font-black text-blue-600 mb-2">$500/月</div>
+                  <div className="text-lg font-bold text-gray-700">Supabase料金</div>
+                </div>
+              </div>
+            </div>
+
+            {/* 移行手順 */}
+            <div className="bg-white border-4 border-gray-300 rounded-xl p-8">
+              <h2 className="text-2xl font-black text-gray-900 mb-6">移行の流れ（3〜5ヶ月）</h2>
+              <div className="space-y-4">
+                {/* Phase 1 */}
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center">
+                    <span className="text-2xl font-black text-white">1</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="bg-blue-50 border-3 border-blue-300 rounded-lg p-5">
+                      <div className="text-xl font-black text-blue-900 mb-2">準備期間（1〜2ヶ月）</div>
+                      <div className="text-base text-blue-800">AWS環境構築・スキーマ移行・アプリ調整</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Phase 2 */}
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-16 h-16 bg-yellow-600 rounded-full flex items-center justify-center">
+                    <span className="text-2xl font-black text-white">2</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="bg-yellow-50 border-3 border-yellow-300 rounded-lg p-5">
+                      <div className="text-xl font-black text-yellow-900 mb-2">レプリケーション（2週間〜1ヶ月）</div>
+                      <div className="text-base text-yellow-800">Supabase ⇔ AWS自動同期・データ整合性チェック</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Phase 3 */}
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-16 h-16 bg-red-600 rounded-full flex items-center justify-center">
+                    <span className="text-2xl font-black text-white">3</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="bg-red-50 border-3 border-red-300 rounded-lg p-5">
+                      <div className="text-xl font-black text-red-900 mb-2">カットオーバー（5分）</div>
+                      <div className="text-base text-red-800 font-bold">⚠️ ダウンタイム0秒・DNS切替のみ</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Phase 4 */}
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-16 h-16 bg-green-600 rounded-full flex items-center justify-center">
+                    <span className="text-2xl font-black text-white">4</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="bg-green-50 border-3 border-green-300 rounded-lg p-5">
+                      <div className="text-xl font-black text-green-900 mb-2">安定化（1ヶ月）</div>
+                      <div className="text-base text-green-800">24時間監視・パフォーマンスチェック</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 保証内容 */}
+            <div className="bg-gradient-to-r from-green-50 to-blue-50 border-4 border-green-500 rounded-xl p-8">
+              <h2 className="text-2xl font-black text-gray-900 mb-6">基幹システムとしての保証</h2>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <CheckCircle size={28} className="text-green-600 flex-shrink-0" />
+                  <span className="text-xl font-bold text-gray-900">ダウンタイム0秒（Blue-Green デプロイ）</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle size={28} className="text-green-600 flex-shrink-0" />
+                  <span className="text-xl font-bold text-gray-900">データ完全性保証（継続的レプリケーション）</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle size={28} className="text-green-600 flex-shrink-0" />
+                  <span className="text-xl font-bold text-gray-900">60秒以内ロールバック可能（1週間保証）</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 注意事項 */}
+            <div className="bg-red-50 border-4 border-red-500 rounded-xl p-8">
+              <h2 className="text-2xl font-black text-red-900 mb-4">重要</h2>
+              <ul className="space-y-2 text-lg text-red-800">
+                <li className="flex items-start gap-2">
+                  <span className="text-2xl">•</span>
+                  <span className="font-bold">移行中もシステムは通常通り稼働</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-2xl">•</span>
+                  <span className="font-bold">コストは月$128増（年間$1,536増）</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-2xl">•</span>
+                  <span className="font-bold">現時点では移行不要（条件達成時に再検討）</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* 詳細情報リンク */}
+            <div className="text-center py-6">
+              <a
+                href="https://github.com/Ghouse-development/G-progress/blob/master/docs/%E8%A6%81%E4%BB%B6%E5%AE%9A%E7%BE%A9%E6%9B%B8_%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E6%A7%8B%E6%83%B3%E3%83%84%E3%83%AA%E3%83%BC.md#16-%E3%82%A4%E3%83%B3%E3%83%95%E3%83%A9%E3%82%B9%E3%83%88%E3%83%A9%E3%82%AF%E3%83%81%E3%83%A3%E6%88%A6%E7%95%A5aws%E7%A7%BB%E8%A1%8C%E8%A8%88%E7%94%BB"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-lg transition-colors border-3 border-blue-800"
+              >
+                <Database size={24} />
+                詳細な技術仕様を見る
+              </a>
+            </div>
+          </div>
         )}
       </div>
     </div>
