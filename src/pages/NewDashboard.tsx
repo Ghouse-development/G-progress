@@ -30,10 +30,14 @@ interface MonthlyStats {
 interface BranchStats {
   branchId: string
   branchName: string
+  employeeCount: number
   contractCount: number
   revenue: number
   grossProfit: number
   grossProfitRate: number
+  ongoingProjects: number
+  contractsPerEmployee: number
+  revenuePerEmployee: number
 }
 
 export default function NewDashboard() {
@@ -44,6 +48,7 @@ export default function NewDashboard() {
   const [projects, setProjects] = useState<Project[]>([])
   const [payments, setPayments] = useState<Payment[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
+  const [employees, setEmployees] = useState<Employee[]>([])
   const [branches, setBranches] = useState<Branch[]>([])
   const [branchStats, setBranchStats] = useState<BranchStats[]>([])
   const [loading, setLoading] = useState(true)
@@ -142,7 +147,7 @@ export default function NewDashboard() {
     }
   }
 
-  const calculateBranchStats = (projects: Project[], payments: Payment[]) => {
+  const calculateBranchStats = (projects: Project[], payments: Payment[], employees: Employee[]) => {
     const stats: BranchStats[] = branches.map(branch => {
       // 拠点ごとのプロジェクトを抽出（営業担当者の拠点で判定）
       const branchProjects = projects.filter(p => {
@@ -157,8 +162,15 @@ export default function NewDashboard() {
         return false
       })
 
+      // 拠点の従業員数
+      const branchEmployees = employees.filter(emp => emp.branch_id === branch.id)
+      const employeeCount = branchEmployees.length
+
       // 契約数
       const contractCount = branchProjects.length
+
+      // 進行中案件数（完了以外）
+      const ongoingProjects = branchProjects.filter(p => p.status !== 'completed').length
 
       // 売上高（契約金額の合計）
       const revenue = branchProjects.reduce((sum, p) => sum + (p.contract_amount || 0), 0)
@@ -175,13 +187,21 @@ export default function NewDashboard() {
       // 粗利益率
       const grossProfitRate = revenue > 0 ? (grossProfit / revenue) * 100 : 0
 
+      // 1人あたり指標
+      const contractsPerEmployee = employeeCount > 0 ? contractCount / employeeCount : 0
+      const revenuePerEmployee = employeeCount > 0 ? revenue / employeeCount : 0
+
       return {
         branchId: branch.id,
         branchName: branch.name,
+        employeeCount,
         contractCount,
         revenue,
         grossProfit,
-        grossProfitRate
+        grossProfitRate,
+        ongoingProjects,
+        contractsPerEmployee,
+        revenuePerEmployee
       }
     })
 
@@ -204,8 +224,9 @@ export default function NewDashboard() {
       setCurrentEmployee(demoEmployees[0]) // 最初の従業員をカレントユーザーとして使用
 
       // 統計を計算
+      setEmployees(demoEmployees)
       calculateStats(demoProjects, demoPayments, demoTasks)
-      calculateBranchStats(demoProjects, demoPayments)
+      calculateBranchStats(demoProjects, demoPayments, demoEmployees)
       setLoading(false)
       return
     }
@@ -272,9 +293,20 @@ export default function NewDashboard() {
 
     setTasks(tasksData || [])
 
+    // 従業員データを取得
+    const { data: employeesData, error: employeesError } = await supabase
+      .from('employees')
+      .select('*')
+
+    if (employeesError) {
+      console.error('従業員データ読み込みエラー:', employeesError)
+    }
+
+    setEmployees(employeesData || [])
+
     // 統計を計算
     calculateStats(filteredProjects, paymentsData || [], tasksData || [])
-    calculateBranchStats(filteredProjects, paymentsData || [])
+    calculateBranchStats(filteredProjects, paymentsData || [], employeesData || [])
 
     setLoading(false)
   }
@@ -859,63 +891,140 @@ export default function NewDashboard() {
           {/* 拠点別経営状況 */}
           <div className="prisma-card">
             <h2 className="prisma-card-title">拠点別経営状況（独立採算確認）</h2>
-            <div className="mt-4">
+
+            {/* 全社サマリー */}
+            <div className="mt-4 mb-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">📊 全社サマリー</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg border-3 border-blue-400">
+                  <div className="text-sm text-gray-600 mb-1">総従業員数</div>
+                  <div className="text-2xl font-bold text-blue-900">
+                    {branchStats.reduce((sum, s) => sum + s.employeeCount, 0)}人
+                  </div>
+                </div>
+                <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg border-3 border-green-400">
+                  <div className="text-sm text-gray-600 mb-1">総契約数</div>
+                  <div className="text-2xl font-bold text-green-900">
+                    {branchStats.reduce((sum, s) => sum + s.contractCount, 0)}棟
+                  </div>
+                </div>
+                <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg border-3 border-purple-400">
+                  <div className="text-sm text-gray-600 mb-1">進行中案件</div>
+                  <div className="text-2xl font-bold text-purple-900">
+                    {branchStats.reduce((sum, s) => sum + s.ongoingProjects, 0)}件
+                  </div>
+                </div>
+                <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 p-4 rounded-lg border-3 border-yellow-400">
+                  <div className="text-sm text-gray-600 mb-1">総売上高</div>
+                  <div className="text-xl font-bold text-yellow-900">
+                    ¥{Math.floor(branchStats.reduce((sum, s) => sum + s.revenue, 0) / 100000000).toLocaleString()}億
+                  </div>
+                </div>
+                <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 rounded-lg border-3 border-emerald-400">
+                  <div className="text-sm text-gray-600 mb-1">総粗利益</div>
+                  <div className="text-xl font-bold text-emerald-900">
+                    ¥{Math.floor(branchStats.reduce((sum, s) => sum + s.grossProfit, 0) / 10000000).toLocaleString()}千万
+                  </div>
+                </div>
+                <div className="bg-gradient-to-br from-rose-50 to-rose-100 p-4 rounded-lg border-3 border-rose-400">
+                  <div className="text-sm text-gray-600 mb-1">全社粗利率</div>
+                  <div className="text-2xl font-bold text-rose-900">
+                    {branchStats.reduce((sum, s) => sum + s.revenue, 0) > 0
+                      ? ((branchStats.reduce((sum, s) => sum + s.grossProfit, 0) / branchStats.reduce((sum, s) => sum + s.revenue, 0)) * 100).toFixed(1)
+                      : '0.0'}%
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 各拠点カード */}
+            <div className="mt-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">🏢 各拠点の状況</h3>
               {branchStats.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">拠点データがありません</div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="prisma-table">
-                    <thead>
-                      <tr>
-                        <th>拠点名</th>
-                        <th className="text-center">契約数</th>
-                        <th className="text-right">売上高</th>
-                        <th className="text-right">粗利益</th>
-                        <th className="text-center">粗利益率</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {branchStats.map(stat => (
-                        <tr key={stat.branchId}>
-                          <td className="font-bold">{stat.branchName}</td>
-                          <td className="text-center">{stat.contractCount}棟</td>
-                          <td className="text-right font-bold">
-                            ¥{Math.floor(stat.revenue).toLocaleString()}
-                          </td>
-                          <td className="text-right font-bold" style={{
-                            color: stat.grossProfit >= 0 ? '#059669' : '#DC2626'
-                          }}>
-                            ¥{Math.floor(stat.grossProfit).toLocaleString()}
-                          </td>
-                          <td className="text-center font-bold" style={{
-                            color: stat.grossProfitRate >= 15 ? '#059669' : stat.grossProfitRate >= 10 ? '#F59E0B' : '#DC2626'
-                          }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {branchStats.map(stat => (
+                    <div key={stat.branchId} className="bg-white rounded-lg border-4 border-gray-300 shadow-lg overflow-hidden">
+                      {/* 拠点名ヘッダー */}
+                      <div className="bg-gradient-to-r from-gray-100 to-gray-200 px-5 py-4 border-b-4 border-gray-300">
+                        <h4 className="text-xl font-bold text-gray-900">{stat.branchName}</h4>
+                      </div>
+
+                      {/* 指標 */}
+                      <div className="p-5 space-y-3">
+                        {/* 従業員数 */}
+                        <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border-2 border-blue-200">
+                          <span className="text-sm font-bold text-gray-700">従業員数</span>
+                          <span className="text-lg font-bold text-blue-900">{stat.employeeCount}人</span>
+                        </div>
+
+                        {/* 契約数 */}
+                        <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border-2 border-green-200">
+                          <span className="text-sm font-bold text-gray-700">契約数</span>
+                          <span className="text-lg font-bold text-green-900">{stat.contractCount}棟</span>
+                        </div>
+
+                        {/* 進行中案件 */}
+                        <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg border-2 border-purple-200">
+                          <span className="text-sm font-bold text-gray-700">進行中案件</span>
+                          <span className="text-lg font-bold text-purple-900">{stat.ongoingProjects}件</span>
+                        </div>
+
+                        {/* 売上高 */}
+                        <div className="p-3 bg-yellow-50 rounded-lg border-2 border-yellow-200">
+                          <div className="text-sm font-bold text-gray-700 mb-1">売上高</div>
+                          <div className="text-xl font-bold text-yellow-900">
+                            ¥{Math.floor(stat.revenue / 10000).toLocaleString()}万
+                          </div>
+                        </div>
+
+                        {/* 粗利益 */}
+                        <div className="p-3 bg-emerald-50 rounded-lg border-2 border-emerald-200">
+                          <div className="text-sm font-bold text-gray-700 mb-1">粗利益</div>
+                          <div className="text-xl font-bold text-emerald-900">
+                            ¥{Math.floor(stat.grossProfit / 10000).toLocaleString()}万
+                          </div>
+                        </div>
+
+                        {/* 粗利益率 */}
+                        <div className={`p-3 rounded-lg border-3 ${
+                          stat.grossProfitRate >= 15 ? 'bg-green-50 border-green-400' :
+                          stat.grossProfitRate >= 10 ? 'bg-yellow-50 border-yellow-400' :
+                          'bg-red-50 border-red-400'
+                        }`}>
+                          <div className="text-sm font-bold text-gray-700 mb-1">粗利益率</div>
+                          <div className={`text-2xl font-bold ${
+                            stat.grossProfitRate >= 15 ? 'text-green-900' :
+                            stat.grossProfitRate >= 10 ? 'text-yellow-900' :
+                            'text-red-900'
+                          }`}>
                             {stat.grossProfitRate.toFixed(1)}%
-                          </td>
-                        </tr>
-                      ))}
-                      <tr className="bg-gray-100 font-bold">
-                        <td>合計</td>
-                        <td className="text-center">
-                          {branchStats.reduce((sum, s) => sum + s.contractCount, 0)}棟
-                        </td>
-                        <td className="text-right">
-                          ¥{Math.floor(branchStats.reduce((sum, s) => sum + s.revenue, 0)).toLocaleString()}
-                        </td>
-                        <td className="text-right">
-                          ¥{Math.floor(branchStats.reduce((sum, s) => sum + s.grossProfit, 0)).toLocaleString()}
-                        </td>
-                        <td className="text-center">
-                          {branchStats.reduce((sum, s) => sum + s.revenue, 0) > 0
-                            ? ((branchStats.reduce((sum, s) => sum + s.grossProfit, 0) / branchStats.reduce((sum, s) => sum + s.revenue, 0)) * 100).toFixed(1)
-                            : '0.0'}%
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                          </div>
+                        </div>
+
+                        {/* 1人あたり指標 */}
+                        <div className="pt-3 border-t-2 border-gray-200">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs text-gray-600">1人あたり契約数</span>
+                            <span className="text-base font-bold text-gray-900">
+                              {stat.contractsPerEmployee.toFixed(1)}棟/人
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-gray-600">1人あたり売上</span>
+                            <span className="text-base font-bold text-gray-900">
+                              ¥{Math.floor(stat.revenuePerEmployee / 10000).toLocaleString()}万/人
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
-              <div className="mt-3 p-3 bg-blue-50 border-2 border-blue-200 rounded-lg">
+
+              <div className="mt-4 p-3 bg-blue-50 border-2 border-blue-200 rounded-lg">
                 <p className="text-sm text-gray-700">
                   <strong>粗利益率の目安：</strong>
                   <span className="text-green-600 font-bold ml-2">15%以上（良好）</span>
