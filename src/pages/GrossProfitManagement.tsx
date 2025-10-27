@@ -174,246 +174,133 @@ export default function GrossProfitManagement() {
 
       <div className="prisma-content">
 
-      {/* サマリーカード */}
-      <div className="grid grid-cols-4 gap-4">
-        {/* 売上 */}
-        <div className="prisma-card bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
+      {/* コンパクトなサマリー */}
+      <div className="prisma-card mb-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {/* 売上 */}
           <div className="text-center">
-            <DollarSign className="text-blue-600 dark:text-blue-400 mx-auto mb-2" size={32} />
-            <p className="text-base font-bold text-gray-900 dark:text-gray-100 mb-3">売上</p>
-            <div className="space-y-3">
-              <div>
-                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">実行予算</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {formatCurrency(totalBudgetRevenue)}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">完工</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {formatCurrency(totalActualRevenue)}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">差額</p>
-                <p className={`text-xl font-bold ${totalDiffRevenue >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                  {totalDiffRevenue >= 0 ? '+' : ''}{formatCurrency(totalDiffRevenue)}
-                </p>
-              </div>
-            </div>
+            <p className="text-sm font-bold text-gray-600 mb-1">売上（完工）</p>
+            <p className="text-lg font-bold text-gray-900">{formatCurrency(totalActualRevenue)}</p>
           </div>
-        </div>
-
-        {/* 原価 */}
-        <div className="prisma-card bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20">
+          {/* 原価 */}
           <div className="text-center">
-            <TrendingUp className="text-orange-600 dark:text-orange-400 mx-auto mb-2" size={32} />
-            <p className="text-base font-bold text-gray-900 dark:text-gray-100 mb-3">原価</p>
-            <div className="space-y-3">
-              <div>
-                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">実行予算</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {formatCurrency(totalBudgetCost)}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">完工</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {formatCurrency(totalActualCost)}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">差額</p>
-                <p className={`text-xl font-bold ${totalDiffCost <= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                  {totalDiffCost >= 0 ? '+' : ''}{formatCurrency(totalDiffCost)}
-                </p>
-              </div>
-            </div>
+            <p className="text-sm font-bold text-gray-600 mb-1">原価（完工）</p>
+            <p className="text-lg font-bold text-gray-900">{formatCurrency(totalActualCost)}</p>
           </div>
-        </div>
-
-        {/* 粗利益 */}
-        <div className="prisma-card bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
+          {/* 粗利益 */}
           <div className="text-center">
-            <TrendingUp className="text-green-600 dark:text-green-400 mx-auto mb-2" size={32} />
-            <p className="text-base font-bold text-gray-900 dark:text-gray-100 mb-3">粗利益</p>
-            <div className="space-y-3">
-              <div>
-                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">実行予算</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {formatCurrency(totalBudgetGrossProfit)}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">完工</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {formatCurrency(totalActualGrossProfit)}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">差額</p>
-                <p className={`text-xl font-bold ${totalDiffGrossProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                  {totalDiffGrossProfit >= 0 ? '+' : ''}{formatCurrency(totalDiffGrossProfit)}
-                </p>
-              </div>
-            </div>
+            <p className="text-sm font-bold text-gray-600 mb-1">粗利益（完工）</p>
+            <p className="text-lg font-bold text-green-600">{formatCurrency(totalActualGrossProfit)}</p>
           </div>
-        </div>
-
-        {/* 粗利益率 */}
-        <div className="prisma-card bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
+          {/* 粗利益率 */}
           <div className="text-center">
-            <Percent className="text-purple-600 dark:text-purple-400 mx-auto mb-2" size={32} />
-            <p className="text-base font-bold text-gray-900 dark:text-gray-100 mb-3">粗利益率</p>
-            <div className="space-y-3">
-              <div>
-                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">実行予算</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {totalBudgetGrossProfitRate.toFixed(1)}%
-                </p>
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">完工</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {totalActualGrossProfitRate.toFixed(1)}%
-                </p>
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">差額</p>
-                <p className={`text-xl font-bold ${totalDiffGrossProfitRate >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                  {totalDiffGrossProfitRate >= 0 ? '+' : ''}{totalDiffGrossProfitRate.toFixed(1)}pt
-                </p>
-              </div>
-            </div>
+            <p className="text-sm font-bold text-gray-600 mb-1">粗利益率（完工）</p>
+            <p className="text-lg font-bold text-purple-600">{totalActualGrossProfitRate.toFixed(1)}%</p>
           </div>
         </div>
       </div>
 
-      {/* 警告カード */}
-      <div className="grid grid-cols-2 gap-4">
-        {/* 粗利率20%未満の物件 */}
-        <div className="prisma-card bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border-3 border-yellow-400 dark:border-yellow-600">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">⚠️ 粗利益率20%未満</p>
-              <p className="text-base text-gray-700 dark:text-gray-300">
-                実行予算または完工時点で粗利益率が20%を下回る物件
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-4xl font-bold text-orange-600 dark:text-orange-400">{lowMarginCount}</p>
-              <p className="text-lg font-semibold text-orange-700 dark:text-orange-300">
-                {lowMarginRate.toFixed(1)}%
-              </p>
-            </div>
+      {/* 警告サマリー（コンパクト） */}
+      <div className="prisma-card mb-4">
+        <div className="flex items-center justify-around text-center">
+          <div>
+            <p className="text-sm font-bold text-gray-600 mb-1">粗利率20%未満</p>
+            <p className="text-2xl font-bold text-orange-600">{lowMarginCount}件</p>
           </div>
-        </div>
-
-        {/* 予算と完工の差が大きい物件 */}
-        <div className="prisma-card bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border-3 border-red-400 dark:border-red-600">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">🚨 予算との差異大</p>
-              <p className="text-base text-gray-700 dark:text-gray-300">
-                予算と完工の粗利益率の差が5%以上ある物件
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-4xl font-bold text-red-600 dark:text-red-400">{largeDiffCount}</p>
-              <p className="text-lg font-semibold text-red-700 dark:text-red-300">
-                {largeDiffRate.toFixed(1)}%
-              </p>
-            </div>
+          <div className="h-8 w-px bg-gray-300"></div>
+          <div>
+            <p className="text-sm font-bold text-gray-600 mb-1">予算差5%以上</p>
+            <p className="text-2xl font-bold text-red-600">{largeDiffCount}件</p>
           </div>
         </div>
       </div>
 
       {/* フィルター */}
-      <div className="prisma-card">
-        <div className="flex items-center gap-4">
-          <label className="text-lg font-bold text-gray-900 dark:text-gray-100">表示フィルター:</label>
-          <div className="flex gap-3">
+      <div className="prisma-card mb-4">
+        <div className="flex items-center gap-3">
+          <label className="text-sm font-bold text-gray-700">フィルター:</label>
+          <div className="flex gap-2">
             <button
               onClick={() => setFilter('all')}
-              className={`prisma-btn text-base px-6 py-3 ${filter === 'all' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
+              className={`prisma-btn text-sm px-4 py-2 ${filter === 'all' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
             >
-              全て ({projects.length}件)
+              全て ({projects.length})
             </button>
             <button
               onClick={() => setFilter('low_margin')}
-              className={`prisma-btn text-base px-6 py-3 ${filter === 'low_margin' ? 'prisma-btn-primary' : 'prisma-btn-secondary'} ${lowMarginCount > 0 ? 'border-3 border-orange-400' : ''}`}
+              className={`prisma-btn text-sm px-4 py-2 ${filter === 'low_margin' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
             >
-              ⚠️ 粗利率20%未満 ({lowMarginCount}件 / {lowMarginRate.toFixed(1)}%)
+              粗利率20%未満 ({lowMarginCount})
             </button>
             <button
               onClick={() => setFilter('large_diff')}
-              className={`prisma-btn text-base px-6 py-3 ${filter === 'large_diff' ? 'prisma-btn-primary' : 'prisma-btn-secondary'} ${largeDiffCount > 0 ? 'border-3 border-red-400' : ''}`}
+              className={`prisma-btn text-sm px-4 py-2 ${filter === 'large_diff' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
             >
-              🚨 予算差5%以上 ({largeDiffCount}件 / {largeDiffRate.toFixed(1)}%)
+              予算差5%以上 ({largeDiffCount})
             </button>
           </div>
         </div>
       </div>
 
       {/* テーブル */}
-      <div className="prisma-card" style={{ padding: 0, maxHeight: 'calc(100vh - 250px)', overflow: 'auto' }}>
+      <div className="prisma-card" style={{ padding: 0, maxHeight: 'calc(100vh - 200px)', overflow: 'auto' }}>
         <div style={{ overflowX: 'auto', width: '100%' }}>
           <table className="prisma-table" style={{ minWidth: '2000px' }}>
             <thead className="bg-gray-100 dark:bg-gray-800 sticky top-0">
               {/* 1段目ヘッダー：グループ */}
               <tr>
-                <th rowSpan={2} className="px-4 py-4 text-left text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300" style={{ minWidth: '200px' }}>
+                <th rowSpan={2} className="px-3 py-2 text-left text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-300" style={{ minWidth: '180px' }}>
                   案件名
                 </th>
-                <th rowSpan={2} className="px-4 py-4 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-blue-50" style={{ minWidth: '140px' }}>
-                  請負金額<br/><span className="text-sm font-normal">(税別)</span>
+                <th rowSpan={2} className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-300 bg-blue-50" style={{ minWidth: '120px' }}>
+                  請負金額<br/><span className="text-xs font-normal">(税別)</span>
                 </th>
-                <th colSpan={4} className="px-4 py-3 text-center text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-green-50">
+                <th colSpan={4} className="px-3 py-2 text-center text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-300 bg-green-50">
                   実行予算
                 </th>
-                <th colSpan={4} className="px-4 py-3 text-center text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-purple-50">
+                <th colSpan={4} className="px-3 py-2 text-center text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-300 bg-purple-50">
                   完工
                 </th>
-                <th colSpan={4} className="px-4 py-3 text-center text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-orange-50">
+                <th colSpan={4} className="px-3 py-2 text-center text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-300 bg-orange-50">
                   差額
                 </th>
               </tr>
               {/* 2段目ヘッダー：詳細項目 */}
               <tr>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-green-50" style={{ minWidth: '130px' }}>
+                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-green-50" style={{ minWidth: '110px' }}>
                   売上
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-green-50" style={{ minWidth: '130px' }}>
+                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-green-50" style={{ minWidth: '110px' }}>
                   原価
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-green-50" style={{ minWidth: '130px' }}>
+                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-green-50" style={{ minWidth: '110px' }}>
                   粗利益
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-green-50" style={{ minWidth: '90px' }}>
+                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-green-50" style={{ minWidth: '80px' }}>
                   粗利率
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-purple-50" style={{ minWidth: '130px' }}>
+                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-purple-50" style={{ minWidth: '110px' }}>
                   売上
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-purple-50" style={{ minWidth: '130px' }}>
+                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-purple-50" style={{ minWidth: '110px' }}>
                   原価
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-purple-50" style={{ minWidth: '130px' }}>
+                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-purple-50" style={{ minWidth: '110px' }}>
                   粗利益
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-purple-50" style={{ minWidth: '90px' }}>
+                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-purple-50" style={{ minWidth: '80px' }}>
                   粗利率
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-orange-50" style={{ minWidth: '130px' }}>
+                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-orange-50" style={{ minWidth: '110px' }}>
                   売上
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-orange-50" style={{ minWidth: '130px' }}>
+                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-orange-50" style={{ minWidth: '110px' }}>
                   原価
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-orange-50" style={{ minWidth: '130px' }}>
+                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-orange-50" style={{ minWidth: '110px' }}>
                   粗利益
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-orange-50" style={{ minWidth: '90px' }}>
+                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-orange-50" style={{ minWidth: '80px' }}>
                   粗利率
                 </th>
               </tr>
@@ -439,79 +326,79 @@ export default function GrossProfitManagement() {
                       } ${hasLargeDiff ? 'border-r-8 border-r-red-400' : ''}`}
                     >
                       {/* 案件名 */}
-                      <td className="px-4 py-4 text-base font-medium text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600">
+                      <td className="px-3 py-2 text-sm font-medium text-gray-900 dark:text-gray-100 border border-gray-200">
                         {project.construction_address || '-'}
                       </td>
                       {/* 請負金額 */}
-                      <td className="px-4 py-4 text-base text-right text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-blue-50 dark:bg-blue-900/20 font-semibold">
+                      <td className="px-3 py-2 text-sm text-right text-gray-900 dark:text-gray-100 border border-gray-200 bg-blue-50 font-semibold">
                         {formatCurrency(project.contractAmount)}
                       </td>
                       {/* 実行予算 */}
-                      <td className="px-4 py-4 text-base text-right text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600">
+                      <td className="px-3 py-2 text-sm text-right text-gray-900 dark:text-gray-100 border border-gray-200">
                         {formatCurrency(project.budgetRevenue)}
                       </td>
-                      <td className="px-4 py-4 text-base text-right text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600">
+                      <td className="px-3 py-2 text-sm text-right text-gray-900 dark:text-gray-100 border border-gray-200">
                         {formatCurrency(project.budgetCost)}
                       </td>
-                      <td className="px-4 py-4 text-base text-right font-semibold border-3 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100">
+                      <td className="px-3 py-2 text-sm text-right font-semibold border border-gray-200 text-gray-900">
                         {formatCurrency(project.budgetGrossProfit)}
                       </td>
-                      <td className={`px-4 py-4 text-base text-right font-bold border-3 border-gray-300 dark:border-gray-600 ${
+                      <td className={`px-3 py-2 text-sm text-right font-bold border border-gray-200 ${
                         project.budgetGrossProfitRate < 20
-                          ? 'bg-orange-200 dark:bg-orange-900/50 text-orange-900 dark:text-orange-100'
-                          : 'text-gray-900 dark:text-gray-100'
+                          ? 'bg-orange-200 text-orange-900'
+                          : 'text-gray-900'
                       }`}>
                         {project.budgetGrossProfitRate.toFixed(1)}%
                       </td>
                       {/* 完工 */}
-                      <td className="px-4 py-4 text-base text-right text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600">
+                      <td className="px-3 py-2 text-sm text-right text-gray-900 border border-gray-200">
                         {formatCurrency(project.actualRevenue)}
                       </td>
-                      <td className="px-4 py-4 text-base text-right text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600">
+                      <td className="px-3 py-2 text-sm text-right text-gray-900 border border-gray-200">
                         {formatCurrency(project.actualCost)}
                       </td>
                       <td
-                        className={`px-4 py-4 text-base text-right font-bold border-3 border-gray-300 dark:border-gray-600 ${
+                        className={`px-3 py-2 text-sm text-right font-bold border border-gray-200 ${
                           project.actualGrossProfit > 0
-                            ? 'text-green-600 dark:text-green-400'
-                            : 'text-red-600 dark:text-red-400'
+                            ? 'text-green-600'
+                            : 'text-red-600'
                         }`}
                       >
                         {formatCurrency(project.actualGrossProfit)}
                       </td>
                       <td
-                        className={`px-4 py-4 text-base text-right font-bold border-3 border-gray-300 dark:border-gray-600 ${
+                        className={`px-3 py-2 text-sm text-right font-bold border border-gray-200 ${
                           project.actualGrossProfitRate < 20
-                            ? 'bg-orange-200 dark:bg-orange-900/50 text-orange-900 dark:text-orange-100'
+                            ? 'bg-orange-200 text-orange-900'
                             : project.actualGrossProfitRate > 20
-                            ? 'text-green-600 dark:text-green-400'
-                            : 'text-gray-900 dark:text-gray-100'
+                            ? 'text-green-600'
+                            : 'text-gray-900'
                         }`}
                       >
                         {project.actualGrossProfitRate.toFixed(1)}%
                       </td>
                       {/* 差額 */}
-                      <td className={`px-4 py-4 text-base text-right font-semibold border-3 border-gray-300 dark:border-gray-600 ${
-                        project.diffRevenue >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                      <td className={`px-3 py-2 text-sm text-right font-semibold border border-gray-200 ${
+                        project.diffRevenue >= 0 ? 'text-green-600' : 'text-red-600'
                       }`}>
                         {project.diffRevenue >= 0 ? '+' : ''}{formatCurrency(project.diffRevenue)}
                       </td>
-                      <td className={`px-4 py-4 text-base text-right font-semibold border-3 border-gray-300 dark:border-gray-600 ${
-                        project.diffCost <= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                      <td className={`px-3 py-2 text-sm text-right font-semibold border border-gray-200 ${
+                        project.diffCost <= 0 ? 'text-green-600' : 'text-red-600'
                       }`}>
                         {project.diffCost >= 0 ? '+' : ''}{formatCurrency(project.diffCost)}
                       </td>
-                      <td className={`px-4 py-4 text-base text-right font-bold border-3 border-gray-300 dark:border-gray-600 ${
-                        project.diffGrossProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                      <td className={`px-3 py-2 text-sm text-right font-bold border border-gray-200 ${
+                        project.diffGrossProfit >= 0 ? 'text-green-600' : 'text-red-600'
                       }`}>
                         {project.diffGrossProfit >= 0 ? '+' : ''}{formatCurrency(project.diffGrossProfit)}
                       </td>
-                      <td className={`px-4 py-4 text-base text-right font-bold border-3 border-gray-300 dark:border-gray-600 ${
+                      <td className={`px-3 py-2 text-sm text-right font-bold border border-gray-200 ${
                         Math.abs(project.diffGrossProfitRate) >= 5
-                          ? 'bg-red-200 dark:bg-red-900/50 text-red-900 dark:text-red-100'
+                          ? 'bg-red-200 text-red-900'
                           : project.diffGrossProfitRate >= 0
-                          ? 'text-green-600 dark:text-green-400'
-                          : 'text-red-600 dark:text-red-400'
+                          ? 'text-green-600'
+                          : 'text-red-600'
                       }`}>
                         {project.diffGrossProfitRate >= 0 ? '+' : ''}{project.diffGrossProfitRate.toFixed(1)}pt
                       </td>
