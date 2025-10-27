@@ -714,7 +714,7 @@ export default function ProjectDetail() {
 
         {/* テーブルスケルトン */}
         <div className="bg-white rounded-lg shadow-xl overflow-hidden border border-gray-300">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-scroll">
             <table className="w-full">
               <thead className="bg-gray-100 border-b-2 border-gray-400">
                 <tr>

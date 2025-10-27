@@ -244,7 +244,7 @@ export default function GrossProfitManagement() {
 
       {/* テーブル */}
       <div className="prisma-card" style={{ padding: 0, maxHeight: 'calc(100vh - 200px)', overflow: 'auto' }}>
-        <div style={{ overflowX: 'auto', width: '100%' }}>
+        <div style={{ overflowX: 'scroll', width: '100%' }}>
           <table className="prisma-table" style={{ minWidth: '2000px' }}>
             <thead className="bg-gray-100 dark:bg-gray-800 sticky top-0">
               {/* 1段目ヘッダー：グループ */}
