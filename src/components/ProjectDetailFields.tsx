@@ -279,7 +279,18 @@ export default function ProjectDetailFields({
 
                 {/* グリッドボディ */}
                 <div>
-                  {Array.from({ length: getDeliveryDays(tasks) + 1 }, (_, index) => index).map((day) => {
+                  {(() => {
+                    // タスクがある日のみを抽出してソート
+                    const daysWithTasks = Array.from(
+                      new Set(
+                        tasks
+                          .map(t => t.dayFromContract)
+                          .filter(d => d !== undefined && d !== null)
+                      )
+                    ).sort((a, b) => (a as number) - (b as number)) as number[]
+
+                    return daysWithTasks
+                  })().map((day) => {
                     const hasTask = tasks.some(t => t.dayFromContract === day)
                     const currentDate = addDays(new Date(project.contract_date), day)
                     const todayDay = getTodayFromContract(project.contract_date)
@@ -369,7 +380,8 @@ export default function ProjectDetailFields({
               <div className="flex items-center gap-4">
                 <span className="font-bold">使い方:</span>
                 <span>• タスククリック → 詳細表示</span>
-                <span>• セルダブルクリック → タスク追加</span>
+                <span>• セルダブルクリック → その日にタスク追加</span>
+                <span>• タスクがある日のみ表示</span>
                 <span>• 縦軸: 契約日からの日数 / 横軸: 職種</span>
               </div>
             </div>
