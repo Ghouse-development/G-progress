@@ -6,7 +6,7 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { Project, Payment, Task, Employee } from '../types/database'
+import { Project, Payment, Task, Employee, Branch } from '../types/database'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 import { differenceInDays } from 'date-fns'
 import { useMode } from '../contexts/ModeContext'
@@ -27,6 +27,15 @@ interface MonthlyStats {
   grossProfit: number
 }
 
+interface BranchStats {
+  branchId: string
+  branchName: string
+  contractCount: number
+  revenue: number
+  grossProfit: number
+  grossProfitRate: number
+}
+
 export default function NewDashboard() {
   const { mode } = useMode()
   const { selectedYear } = useFiscalYear()
@@ -35,6 +44,8 @@ export default function NewDashboard() {
   const [projects, setProjects] = useState<Project[]>([])
   const [payments, setPayments] = useState<Payment[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
+  const [branches, setBranches] = useState<Branch[]>([])
+  const [branchStats, setBranchStats] = useState<BranchStats[]>([])
   const [loading, setLoading] = useState(true)
 
   // 統計データ
@@ -68,6 +79,7 @@ export default function NewDashboard() {
   useEffect(() => {
     loadData()
     loadTargets()
+    loadBranches()
   }, [selectedYear, mode, demoMode])
 
   const loadTargets = () => {
@@ -116,6 +128,66 @@ export default function NewDashboard() {
     setShowSettingsModal(true)
   }
 
+  const loadBranches = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('branches')
+        .select('*')
+        .order('name')
+
+      if (error) throw error
+      setBranches(data || [])
+    } catch (error) {
+      console.error('拠点データ読み込みエラー:', error)
+    }
+  }
+
+  const calculateBranchStats = (projects: Project[], payments: Payment[]) => {
+    const stats: BranchStats[] = branches.map(branch => {
+      // 拠点ごとのプロジェクトを抽出（営業担当者の拠点で判定）
+      const branchProjects = projects.filter(p => {
+        // sales_staffリレーションから拠点を取得
+        if (p.sales_staff && p.sales_staff.branch_id === branch.id) {
+          return true
+        }
+        // sales_staffがない場合、sales（旧フィールド）で判定
+        if (p.sales && p.sales.branch_id === branch.id) {
+          return true
+        }
+        return false
+      })
+
+      // 契約数
+      const contractCount = branchProjects.length
+
+      // 売上高（契約金額の合計）
+      const revenue = branchProjects.reduce((sum, p) => sum + (p.contract_amount || 0), 0)
+
+      // 粗利益（gross_profitフィールドがあればそれを使用、なければ契約金額の20%と仮定）
+      const grossProfit = branchProjects.reduce((sum, p) => {
+        if (p.gross_profit !== undefined && p.gross_profit !== null) {
+          return sum + p.gross_profit
+        }
+        // gross_profitがない場合は契約金額の20%と仮定
+        return sum + (p.contract_amount || 0) * 0.2
+      }, 0)
+
+      // 粗利益率
+      const grossProfitRate = revenue > 0 ? (grossProfit / revenue) * 100 : 0
+
+      return {
+        branchId: branch.id,
+        branchName: branch.name,
+        contractCount,
+        revenue,
+        grossProfit,
+        grossProfitRate
+      }
+    })
+
+    setBranchStats(stats)
+  }
+
   const loadData = async () => {
     setLoading(true)
 
@@ -133,6 +205,7 @@ export default function NewDashboard() {
 
       // 統計を計算
       calculateStats(demoProjects, demoPayments, demoTasks)
+      calculateBranchStats(demoProjects, demoPayments)
       setLoading(false)
       return
     }
@@ -201,6 +274,7 @@ export default function NewDashboard() {
 
     // 統計を計算
     calculateStats(filteredProjects, paymentsData || [], tasksData || [])
+    calculateBranchStats(filteredProjects, paymentsData || [])
 
     setLoading(false)
   }
@@ -778,6 +852,76 @@ export default function NewDashboard() {
                 <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
                   {monthlyStats.length > 0 ? Math.floor(monthlyStats[monthlyStats.length - 1].grossProfit).toLocaleString() : '0'}円
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 拠点別経営状況 */}
+          <div className="prisma-card">
+            <h2 className="prisma-card-title">拠点別経営状況（独立採算確認）</h2>
+            <div className="mt-4">
+              {branchStats.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">拠点データがありません</div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="prisma-table">
+                    <thead>
+                      <tr>
+                        <th>拠点名</th>
+                        <th className="text-center">契約数</th>
+                        <th className="text-right">売上高</th>
+                        <th className="text-right">粗利益</th>
+                        <th className="text-center">粗利益率</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {branchStats.map(stat => (
+                        <tr key={stat.branchId}>
+                          <td className="font-bold">{stat.branchName}</td>
+                          <td className="text-center">{stat.contractCount}棟</td>
+                          <td className="text-right font-bold">
+                            ¥{Math.floor(stat.revenue).toLocaleString()}
+                          </td>
+                          <td className="text-right font-bold" style={{
+                            color: stat.grossProfit >= 0 ? '#059669' : '#DC2626'
+                          }}>
+                            ¥{Math.floor(stat.grossProfit).toLocaleString()}
+                          </td>
+                          <td className="text-center font-bold" style={{
+                            color: stat.grossProfitRate >= 15 ? '#059669' : stat.grossProfitRate >= 10 ? '#F59E0B' : '#DC2626'
+                          }}>
+                            {stat.grossProfitRate.toFixed(1)}%
+                          </td>
+                        </tr>
+                      ))}
+                      <tr className="bg-gray-100 font-bold">
+                        <td>合計</td>
+                        <td className="text-center">
+                          {branchStats.reduce((sum, s) => sum + s.contractCount, 0)}棟
+                        </td>
+                        <td className="text-right">
+                          ¥{Math.floor(branchStats.reduce((sum, s) => sum + s.revenue, 0)).toLocaleString()}
+                        </td>
+                        <td className="text-right">
+                          ¥{Math.floor(branchStats.reduce((sum, s) => sum + s.grossProfit, 0)).toLocaleString()}
+                        </td>
+                        <td className="text-center">
+                          {branchStats.reduce((sum, s) => sum + s.revenue, 0) > 0
+                            ? ((branchStats.reduce((sum, s) => sum + s.grossProfit, 0) / branchStats.reduce((sum, s) => sum + s.revenue, 0)) * 100).toFixed(1)
+                            : '0.0'}%
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              <div className="mt-3 p-3 bg-blue-50 border-2 border-blue-200 rounded-lg">
+                <p className="text-sm text-gray-700">
+                  <strong>粗利益率の目安：</strong>
+                  <span className="text-green-600 font-bold ml-2">15%以上（良好）</span>
+                  <span className="text-yellow-600 font-bold ml-2">10-15%（標準）</span>
+                  <span className="text-red-600 font-bold ml-2">10%未満（要改善）</span>
+                </p>
               </div>
             </div>
           </div>

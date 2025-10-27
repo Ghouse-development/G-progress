@@ -141,263 +141,217 @@ export default function TaskBoard() {
 
   if (loading) {
     return (
-      <div className="p-6">
-        <div className="text-center text-gray-500 text-xl font-bold">読み込み中...</div>
+      <div className="prisma-content">
+        <div className="prisma-empty">読み込み中...</div>
       </div>
     )
   }
 
   return (
     <>
-      <div className="p-6 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 min-h-screen">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold text-gray-900 mb-8 text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            タスクボード
-          </h1>
+      {/* ヘッダー */}
+      <div className="prisma-header">
+        <h1 className="prisma-header-title">タスクボード</h1>
+      </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* 遅延ボックス */}
-            <div className="group bg-white rounded-2xl border-4 border-red-400 shadow-2xl hover:shadow-3xl transform hover:-translate-y-1 transition-all duration-300 overflow-hidden">
-              <div className="bg-gradient-to-r from-red-500 to-red-600 px-6 py-5 border-b-4 border-red-700">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-white bg-opacity-20 p-2 rounded-lg">
-                      <AlertTriangle size={32} className="text-white" strokeWidth={2.5} />
-                    </div>
-                    <h2 className="text-2xl font-bold text-white tracking-wide">遅延</h2>
-                  </div>
-                  <div className="bg-white bg-opacity-20 px-4 py-2 rounded-xl">
-                    <span className="text-3xl font-bold text-white">{delayedTasks.length}</span>
-                  </div>
-                </div>
+      {/* メインコンテンツ */}
+      <div className="prisma-content">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* 遅延ボックス */}
+          <div className="bg-white rounded-lg border-4 border-red-400 shadow-md overflow-hidden">
+            <div className="bg-red-100 px-6 py-4 border-b-4 border-red-400 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <AlertTriangle size={24} className="text-red-700" strokeWidth={2.5} />
+                <h2 className="text-xl font-bold text-red-900">遅延</h2>
               </div>
-              <div className="p-5 max-h-[500px] overflow-y-auto custom-scrollbar">
-                {delayedTasks.length === 0 ? (
-                  <div className="text-center py-12">
-                    <CheckCircle size={48} className="mx-auto mb-3 text-gray-300" />
-                    <p className="text-gray-400 font-semibold text-lg">遅延タスクはありません</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {delayedTasks.map(task => (
-                      <div
-                        key={task.id}
-                        onClick={() => handleTaskClick(task)}
-                        className="group/card p-5 bg-gradient-to-br from-red-50 to-red-100 rounded-xl border-3 border-red-300 hover:border-red-500 hover:shadow-lg cursor-pointer transition-all duration-200 transform hover:scale-[1.02]"
-                      >
-                        <div className="flex items-start justify-between mb-3">
-                          <h3 className="text-lg font-bold text-gray-900 flex-1 pr-2">{task.title}</h3>
-                          <div className="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold whitespace-nowrap flex items-center gap-1">
-                            <AlertTriangle size={14} />
-                            {task.due_date && `${differenceInDays(new Date(), new Date(task.due_date))}日遅れ`}
-                          </div>
-                        </div>
-                        {task.project && (
-                          <p className="text-base text-gray-700 mb-2 font-medium">
-                            {task.project.customer_names.join('・')}様
-                          </p>
-                        )}
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Clock size={16} />
-                          <span>期限: {task.due_date && format(new Date(task.due_date), 'M月d日 (E)', { locale: ja })}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <span className="text-2xl font-bold text-red-700">{delayedTasks.length}</span>
             </div>
-
-            {/* 期日が近いボックス */}
-            <div className="group bg-white rounded-2xl border-4 border-yellow-400 shadow-2xl hover:shadow-3xl transform hover:-translate-y-1 transition-all duration-300 overflow-hidden">
-              <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 px-6 py-5 border-b-4 border-yellow-700">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-white bg-opacity-20 p-2 rounded-lg">
-                      <Clock size={32} className="text-white" strokeWidth={2.5} />
-                    </div>
-                    <h2 className="text-2xl font-bold text-white tracking-wide">期日が近い</h2>
-                  </div>
-                  <div className="bg-white bg-opacity-20 px-4 py-2 rounded-xl">
-                    <span className="text-3xl font-bold text-white">{upcomingTasks.length}</span>
-                  </div>
-                </div>
-              </div>
-              <div className="p-5 max-h-[500px] overflow-y-auto custom-scrollbar">
-                {upcomingTasks.length === 0 ? (
-                  <div className="text-center py-12">
-                    <CheckCircle size={48} className="mx-auto mb-3 text-gray-300" />
-                    <p className="text-gray-400 font-semibold text-lg">期日が近いタスクはありません</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {upcomingTasks.map(task => (
-                      <div
-                        key={task.id}
-                        onClick={() => handleTaskClick(task)}
-                        className="group/card p-5 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl border-3 border-yellow-300 hover:border-yellow-500 hover:shadow-lg cursor-pointer transition-all duration-200 transform hover:scale-[1.02]"
-                      >
-                        <div className="flex items-start justify-between mb-3">
-                          <h3 className="text-lg font-bold text-gray-900 flex-1 pr-2">{task.title}</h3>
-                          <div className="bg-yellow-600 text-white px-3 py-1 rounded-full text-sm font-bold whitespace-nowrap flex items-center gap-1">
-                            <Clock size={14} />
-                            {task.due_date && `あと${differenceInDays(new Date(task.due_date), new Date())}日`}
-                          </div>
-                        </div>
-                        {task.project && (
-                          <p className="text-base text-gray-700 mb-2 font-medium">
-                            {task.project.customer_names.join('・')}様
-                          </p>
-                        )}
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Clock size={16} />
-                          <span>期限: {task.due_date && format(new Date(task.due_date), 'M月d日 (E)', { locale: ja })}</span>
-                        </div>
+            <div className="p-4 max-h-96 overflow-y-auto">
+              {delayedTasks.length === 0 ? (
+                <p className="text-center text-gray-500 py-8 text-base">遅延タスクはありません</p>
+              ) : (
+                <div className="space-y-3">
+                  {delayedTasks.map(task => (
+                    <div
+                      key={task.id}
+                      onClick={() => handleTaskClick(task)}
+                      className="p-4 bg-red-50 rounded-lg border-3 border-red-300 hover:bg-red-100 cursor-pointer transition-colors"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 className="text-base font-bold text-gray-900 flex-1">{task.title}</h3>
+                        <span className="text-sm font-bold text-red-700 ml-2">
+                          {task.due_date && `${differenceInDays(new Date(), new Date(task.due_date))}日遅れ`}
+                        </span>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                      {task.project && (
+                        <p className="text-sm text-gray-600 mb-1">
+                          {task.project.customer_names.join('・')}様
+                        </p>
+                      )}
+                      <p className="text-sm text-gray-600">
+                        期限: {task.due_date && format(new Date(task.due_date), 'M月d日 (E)', { locale: ja })}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
+          </div>
 
-            {/* 入金ボックス */}
-            <div className="group bg-white rounded-2xl border-4 border-green-400 shadow-2xl hover:shadow-3xl transform hover:-translate-y-1 transition-all duration-300 overflow-hidden">
-              <div className="bg-gradient-to-r from-green-500 to-green-600 px-6 py-5 border-b-4 border-green-700">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-white bg-opacity-20 p-2 rounded-lg">
-                      <DollarSign size={32} className="text-white" strokeWidth={2.5} />
-                    </div>
-                    <h2 className="text-2xl font-bold text-white tracking-wide">入金予定</h2>
-                  </div>
-                  <div className="bg-white bg-opacity-20 px-4 py-2 rounded-xl">
-                    <span className="text-3xl font-bold text-white">{upcomingPayments.length}</span>
-                  </div>
-                </div>
+          {/* 期日が近いボックス */}
+          <div className="bg-white rounded-lg border-4 border-yellow-400 shadow-md overflow-hidden">
+            <div className="bg-yellow-100 px-6 py-4 border-b-4 border-yellow-400 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Clock size={24} className="text-yellow-700" strokeWidth={2.5} />
+                <h2 className="text-xl font-bold text-yellow-900">期日が近い（7日以内）</h2>
               </div>
-              <div className="p-5 max-h-[500px] overflow-y-auto custom-scrollbar">
-                {upcomingPayments.length === 0 ? (
-                  <div className="text-center py-12">
-                    <CheckCircle size={48} className="mx-auto mb-3 text-gray-300" />
-                    <p className="text-gray-400 font-semibold text-lg">入金予定はありません</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {upcomingPayments.map(payment => (
-                      <div
-                        key={payment.id}
-                        onClick={() => payment.project_id && handleNavigateToProject(payment.project_id)}
-                        className="group/card p-5 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border-3 border-green-300 hover:border-green-500 hover:shadow-lg cursor-pointer transition-all duration-200 transform hover:scale-[1.02]"
-                      >
-                        <div className="flex items-start justify-between mb-3">
-                          <h3 className="text-lg font-bold text-gray-900">{payment.payment_type}</h3>
-                          <div className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-bold whitespace-nowrap flex items-center gap-1">
-                            <Clock size={14} />
-                            {payment.scheduled_date && `あと${differenceInDays(new Date(payment.scheduled_date), new Date())}日`}
-                          </div>
-                        </div>
-                        {payment.project && (
-                          <p className="text-base text-gray-700 mb-2 font-medium">
-                            {payment.project.customer_names.join('・')}様
-                          </p>
-                        )}
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Clock size={16} />
-                            <span>{payment.scheduled_date && format(new Date(payment.scheduled_date), 'M月d日 (E)', { locale: ja })}</span>
-                          </div>
-                          <div className="text-lg font-bold text-green-700">
-                            ¥{payment.scheduled_amount?.toLocaleString()}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <span className="text-2xl font-bold text-yellow-700">{upcomingTasks.length}</span>
             </div>
-
-            {/* 完了ボックス */}
-            <div className="group bg-white rounded-2xl border-4 border-blue-400 shadow-2xl hover:shadow-3xl transform hover:-translate-y-1 transition-all duration-300 overflow-hidden">
-              <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-5 border-b-4 border-blue-700">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-white bg-opacity-20 p-2 rounded-lg">
-                      <CheckCircle size={32} className="text-white" strokeWidth={2.5} />
+            <div className="p-4 max-h-96 overflow-y-auto">
+              {upcomingTasks.length === 0 ? (
+                <p className="text-center text-gray-500 py-8 text-base">期日が近いタスクはありません</p>
+              ) : (
+                <div className="space-y-3">
+                  {upcomingTasks.map(task => (
+                    <div
+                      key={task.id}
+                      onClick={() => handleTaskClick(task)}
+                      className="p-4 bg-yellow-50 rounded-lg border-3 border-yellow-300 hover:bg-yellow-100 cursor-pointer transition-colors"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 className="text-base font-bold text-gray-900 flex-1">{task.title}</h3>
+                        <span className="text-sm font-bold text-yellow-700 ml-2">
+                          {task.due_date && `あと${differenceInDays(new Date(task.due_date), new Date())}日`}
+                        </span>
+                      </div>
+                      {task.project && (
+                        <p className="text-sm text-gray-600 mb-1">
+                          {task.project.customer_names.join('・')}様
+                        </p>
+                      )}
+                      <p className="text-sm text-gray-600">
+                        期限: {task.due_date && format(new Date(task.due_date), 'M月d日 (E)', { locale: ja })}
+                      </p>
                     </div>
-                    <h2 className="text-2xl font-bold text-white tracking-wide">完了</h2>
-                  </div>
-                  <div className="bg-white bg-opacity-20 px-4 py-2 rounded-xl">
-                    <span className="text-3xl font-bold text-white">
-                      {completedTasks.length + completedPayments.length}
-                    </span>
-                  </div>
+                  ))}
                 </div>
+              )}
+            </div>
+          </div>
+
+          {/* 入金ボックス */}
+          <div className="bg-white rounded-lg border-4 border-green-400 shadow-md overflow-hidden">
+            <div className="bg-green-100 px-6 py-4 border-b-4 border-green-400 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <DollarSign size={24} className="text-green-700" strokeWidth={2.5} />
+                <h2 className="text-xl font-bold text-green-900">入金予定（31日以内）</h2>
               </div>
-              <div className="p-5 max-h-[500px] overflow-y-auto custom-scrollbar">
-                {completedTasks.length === 0 && completedPayments.length === 0 ? (
-                  <div className="text-center py-12">
-                    <CheckCircle size={48} className="mx-auto mb-3 text-gray-300" />
-                    <p className="text-gray-400 font-semibold text-lg">完了したタスク・入金はありません</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {completedTasks.map(task => (
-                      <div
-                        key={task.id}
-                        onClick={() => handleTaskClick(task)}
-                        className="group/card p-5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border-3 border-blue-300 hover:border-blue-500 hover:shadow-lg cursor-pointer transition-all duration-200 transform hover:scale-[1.02]"
-                      >
-                        <div className="flex items-start justify-between mb-3">
-                          <h3 className="text-lg font-bold text-gray-900 flex-1 pr-2">{task.title}</h3>
-                          <div className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-bold whitespace-nowrap flex items-center gap-1">
-                            <CheckCircle size={14} />
-                            完了
-                          </div>
-                        </div>
-                        {task.project && (
-                          <p className="text-base text-gray-700 mb-2 font-medium">
-                            {task.project.customer_names.join('・')}様
-                          </p>
-                        )}
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <CheckCircle size={16} />
-                          <span>完了: {task.updated_at && format(new Date(task.updated_at), 'M月d日 (E)', { locale: ja })}</span>
-                        </div>
+              <span className="text-2xl font-bold text-green-700">{upcomingPayments.length}</span>
+            </div>
+            <div className="p-4 max-h-96 overflow-y-auto">
+              {upcomingPayments.length === 0 ? (
+                <p className="text-center text-gray-500 py-8 text-base">入金予定はありません</p>
+              ) : (
+                <div className="space-y-3">
+                  {upcomingPayments.map(payment => (
+                    <div
+                      key={payment.id}
+                      onClick={() => payment.project_id && handleNavigateToProject(payment.project_id)}
+                      className="p-4 bg-green-50 rounded-lg border-3 border-green-300 hover:bg-green-100 cursor-pointer transition-colors"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 className="text-base font-bold text-gray-900">{payment.payment_type}</h3>
+                        <span className="text-sm font-bold text-green-700">
+                          {payment.scheduled_date && `あと${differenceInDays(new Date(payment.scheduled_date), new Date())}日`}
+                        </span>
                       </div>
-                    ))}
-                    {completedPayments.map(payment => (
-                      <div
-                        key={payment.id}
-                        onClick={() => payment.project_id && handleNavigateToProject(payment.project_id)}
-                        className="group/card p-5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border-3 border-blue-300 hover:border-blue-500 hover:shadow-lg cursor-pointer transition-all duration-200 transform hover:scale-[1.02]"
-                      >
-                        <div className="flex items-start justify-between mb-3">
-                          <h3 className="text-lg font-bold text-gray-900">{payment.payment_type}</h3>
-                          <div className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-bold whitespace-nowrap flex items-center gap-1">
-                            <CheckCircle size={14} />
-                            入金済
-                          </div>
-                        </div>
-                        {payment.project && (
-                          <p className="text-base text-gray-700 mb-2 font-medium">
-                            {payment.project.customer_names.join('・')}様
-                          </p>
-                        )}
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <CheckCircle size={16} />
-                            <span>{payment.actual_date && format(new Date(payment.actual_date), 'M月d日 (E)', { locale: ja })}</span>
-                          </div>
-                          <div className="text-lg font-bold text-blue-700">
-                            ¥{payment.actual_amount?.toLocaleString()}
-                          </div>
-                        </div>
+                      {payment.project && (
+                        <p className="text-sm text-gray-600 mb-1">
+                          {payment.project.customer_names.join('・')}様
+                        </p>
+                      )}
+                      <div className="flex items-center justify-between mt-2">
+                        <p className="text-sm text-gray-600">
+                          {payment.scheduled_date && format(new Date(payment.scheduled_date), 'M月d日 (E)', { locale: ja })}
+                        </p>
+                        <p className="text-base font-bold text-green-700">
+                          ¥{payment.scheduled_amount?.toLocaleString()}
+                        </p>
                       </div>
-                    ))}
-                  </div>
-                )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 完了ボックス */}
+          <div className="bg-white rounded-lg border-4 border-blue-400 shadow-md overflow-hidden">
+            <div className="bg-blue-100 px-6 py-4 border-b-4 border-blue-400 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <CheckCircle size={24} className="text-blue-700" strokeWidth={2.5} />
+                <h2 className="text-xl font-bold text-blue-900">完了（7日以内）</h2>
               </div>
+              <span className="text-2xl font-bold text-blue-700">
+                {completedTasks.length + completedPayments.length}
+              </span>
+            </div>
+            <div className="p-4 max-h-96 overflow-y-auto">
+              {completedTasks.length === 0 && completedPayments.length === 0 ? (
+                <p className="text-center text-gray-500 py-8 text-base">完了したタスク・入金はありません</p>
+              ) : (
+                <div className="space-y-3">
+                  {completedTasks.map(task => (
+                    <div
+                      key={task.id}
+                      onClick={() => handleTaskClick(task)}
+                      className="p-4 bg-blue-50 rounded-lg border-3 border-blue-300 hover:bg-blue-100 cursor-pointer transition-colors"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 className="text-base font-bold text-gray-900 flex-1">{task.title}</h3>
+                        <span className="px-2 py-1 bg-blue-500 text-white text-xs font-bold rounded">
+                          完了
+                        </span>
+                      </div>
+                      {task.project && (
+                        <p className="text-sm text-gray-600 mb-1">
+                          {task.project.customer_names.join('・')}様
+                        </p>
+                      )}
+                      <p className="text-sm text-gray-600">
+                        完了: {task.updated_at && format(new Date(task.updated_at), 'M月d日 (E)', { locale: ja })}
+                      </p>
+                    </div>
+                  ))}
+                  {completedPayments.map(payment => (
+                    <div
+                      key={payment.id}
+                      onClick={() => payment.project_id && handleNavigateToProject(payment.project_id)}
+                      className="p-4 bg-blue-50 rounded-lg border-3 border-blue-300 hover:bg-blue-100 cursor-pointer transition-colors"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 className="text-base font-bold text-gray-900">{payment.payment_type}</h3>
+                        <span className="px-2 py-1 bg-blue-500 text-white text-xs font-bold rounded">
+                          入金済
+                        </span>
+                      </div>
+                      {payment.project && (
+                        <p className="text-sm text-gray-600 mb-1">
+                          {payment.project.customer_names.join('・')}様
+                        </p>
+                      )}
+                      <div className="flex items-center justify-between mt-2">
+                        <p className="text-sm text-gray-600">
+                          {payment.actual_date && format(new Date(payment.actual_date), 'M月d日 (E)', { locale: ja })}
+                        </p>
+                        <p className="text-base font-bold text-blue-700">
+                          ¥{payment.actual_amount?.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -405,65 +359,65 @@ export default function TaskBoard() {
 
       {/* タスク詳細モーダル */}
       {showTaskModal && selectedTask && (
-        <div className="prisma-modal-overlay backdrop-blur-sm">
-          <div className="prisma-modal animate-fadeIn" style={{ maxWidth: '700px' }}>
+        <div className="prisma-modal-overlay">
+          <div className="prisma-modal" style={{ maxWidth: '600px' }}>
             {/* ヘッダー */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6 border-b-4 border-purple-700">
+            <div className="prisma-modal-header">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-white">{selectedTask.title}</h2>
+                <h2 className="prisma-modal-title">{selectedTask.title}</h2>
                 <button
                   onClick={() => setShowTaskModal(false)}
-                  className="text-white hover:text-gray-200 transition-colors p-2 hover:bg-white hover:bg-opacity-20 rounded-lg"
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  <X size={24} strokeWidth={2.5} />
+                  <X size={20} />
                 </button>
               </div>
             </div>
 
             {/* コンテンツ */}
-            <div className="prisma-modal-content space-y-6 p-8">
+            <div className="prisma-modal-content space-y-4">
               {/* ステータス変更ボタン */}
               <div>
-                <label className="block text-lg font-bold text-gray-700 mb-3">
+                <label className="block text-base font-bold text-gray-700 mb-2">
                   ステータス変更
                 </label>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'not_started')}
-                    className={`px-4 py-3 rounded-xl font-bold text-base transition-all transform hover:scale-105 ${
+                    className={`px-3 py-2 rounded-lg font-bold text-sm transition-all ${
                       selectedTask.status === 'not_started'
-                        ? 'task-not-started shadow-lg'
-                        : 'bg-white text-gray-700 hover:bg-gray-100 border-3 border-gray-300'
+                        ? 'task-not-started'
+                        : 'bg-white text-gray-900 hover:bg-gray-50 border-2 border-gray-300'
                     }`}
                   >
                     未着手
                   </button>
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'requested')}
-                    className={`px-4 py-3 rounded-xl font-bold text-base transition-all transform hover:scale-105 ${
+                    className={`px-3 py-2 rounded-lg font-bold text-sm transition-all ${
                       selectedTask.status === 'requested'
-                        ? 'task-in-progress shadow-lg'
-                        : 'bg-white text-yellow-700 hover:bg-yellow-50 border-3 border-yellow-300'
+                        ? 'task-in-progress'
+                        : 'bg-white text-yellow-900 hover:bg-yellow-50 border-2 border-yellow-300'
                     }`}
                   >
                     着手中
                   </button>
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'delayed')}
-                    className={`px-4 py-3 rounded-xl font-bold text-base transition-all transform hover:scale-105 ${
+                    className={`px-3 py-2 rounded-lg font-bold text-sm transition-all ${
                       selectedTask.status === 'delayed'
-                        ? 'task-delayed shadow-lg'
-                        : 'bg-white text-red-700 hover:bg-red-50 border-3 border-red-300'
+                        ? 'task-delayed'
+                        : 'bg-white text-red-900 hover:bg-red-50 border-2 border-red-300'
                     }`}
                   >
                     遅延
                   </button>
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'completed')}
-                    className={`px-4 py-3 rounded-xl font-bold text-base transition-all transform hover:scale-105 ${
+                    className={`px-3 py-2 rounded-lg font-bold text-sm transition-all ${
                       selectedTask.status === 'completed'
-                        ? 'task-completed shadow-lg'
-                        : 'bg-white text-blue-700 hover:bg-blue-50 border-3 border-blue-300'
+                        ? 'task-completed'
+                        : 'bg-white text-blue-900 hover:bg-blue-50 border-2 border-blue-300'
                     }`}
                   >
                     完了
@@ -472,10 +426,10 @@ export default function TaskBoard() {
               </div>
 
               {/* タスク情報 */}
-              <div className="space-y-4">
-                <div className="bg-gray-50 rounded-xl p-4 border-2 border-gray-200">
-                  <label className="block text-sm font-bold text-gray-500 mb-1">期限</label>
-                  <p className="text-xl font-bold text-gray-900">
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">期限</label>
+                  <p className="text-base text-gray-900">
                     {selectedTask.due_date
                       ? format(new Date(selectedTask.due_date), 'yyyy年M月d日 (E)', { locale: ja })
                       : '未設定'}
@@ -483,23 +437,23 @@ export default function TaskBoard() {
                 </div>
 
                 {selectedTask.description && (
-                  <div className="bg-gray-50 rounded-xl p-4 border-2 border-gray-200">
-                    <label className="block text-sm font-bold text-gray-500 mb-1">説明</label>
-                    <p className="text-base text-gray-900 leading-relaxed">{selectedTask.description}</p>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">説明</label>
+                    <p className="text-base text-gray-900">{selectedTask.description}</p>
                   </div>
                 )}
 
                 {selectedTask.project && (
-                  <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-4 border-2 border-blue-200">
-                    <label className="block text-sm font-bold text-gray-500 mb-2">案件</label>
-                    <p className="text-xl font-bold text-gray-900 mb-3">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">案件</label>
+                    <p className="text-base text-gray-900 mb-2">
                       {selectedTask.project.customer_names.join('・')}様
                     </p>
                     <button
                       onClick={() => handleNavigateToProject(selectedTask.project!.id)}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-bold"
+                      className="prisma-btn prisma-btn-secondary text-sm inline-flex items-center gap-2"
                     >
-                      <ExternalLink size={18} />
+                      <ExternalLink size={16} />
                       案件詳細を見る
                     </button>
                   </div>
@@ -508,10 +462,10 @@ export default function TaskBoard() {
             </div>
 
             {/* フッター */}
-            <div className="prisma-modal-footer bg-gray-50 px-8 py-4">
+            <div className="prisma-modal-footer">
               <button
                 onClick={() => setShowTaskModal(false)}
-                className="w-full px-6 py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors font-bold text-lg"
+                className="prisma-btn prisma-btn-secondary flex-1"
               >
                 閉じる
               </button>
@@ -519,36 +473,6 @@ export default function TaskBoard() {
           </div>
         </div>
       )}
-
-      <style>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: #f1f5f9;
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #cbd5e1;
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #94a3b8;
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.2s ease-in-out;
-        }
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-      `}</style>
     </>
   )
 }
