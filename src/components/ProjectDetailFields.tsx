@@ -205,10 +205,7 @@ export default function ProjectDetailFields({
         {activeTab === 'grid' && (
           <div>
             {/* 今日へジャンプボタン */}
-            <div className="p-3 bg-gray-50 border-b-2 border-gray-300 flex items-center justify-between">
-              <div className="text-base font-bold text-gray-700">
-                グリッドビュー（縦軸:日数、横軸:職種）
-              </div>
+            <div className="p-3 bg-gray-50 border-b-2 border-gray-300 flex items-center justify-end">
               <button
                 onClick={scrollToToday}
                 className="px-4 py-2 bg-red-500 text-white rounded-lg text-base font-bold hover:bg-red-600 transition-colors"
@@ -372,17 +369,6 @@ export default function ProjectDetailFields({
                     )
                   })}
                 </div>
-              </div>
-            </div>
-
-            {/* グリッド説明 */}
-            <div className="p-2 bg-blue-50 border-t-2 border-gray-300 text-base text-gray-700">
-              <div className="flex items-center gap-4">
-                <span className="font-bold">使い方:</span>
-                <span>• タスククリック → 詳細表示</span>
-                <span>• セルダブルクリック → その日にタスク追加</span>
-                <span>• タスクがある日のみ表示</span>
-                <span>• 縦軸: 契約日からの日数 / 横軸: 職種</span>
               </div>
             </div>
           </div>
@@ -1130,17 +1116,19 @@ export default function ProjectDetailFields({
         )}
       </div>
 
-      {/* 保存ボタン */}
-      <div className="border-t-2 border-gray-200 px-6 py-4 bg-gray-50">
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="prisma-btn prisma-btn-primary"
-        >
-          <Save size={16} />
-          {saving ? '保存中...' : '保存'}
-        </button>
-      </div>
+      {/* 保存ボタン（グリッドビューと職種別ビューでは非表示） */}
+      {activeTab !== 'grid' && activeTab !== 'position' && (
+        <div className="border-t-2 border-gray-200 px-6 py-4 bg-gray-50">
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="prisma-btn prisma-btn-primary"
+          >
+            <Save size={16} />
+            {saving ? '保存中...' : '保存'}
+          </button>
+        </div>
+      )}
     </div>
   )
 }
