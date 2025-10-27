@@ -216,12 +216,14 @@ export default function TaskByPosition() {
   }
 
   return (
-    <div className="space-y-4">
-      {/* ヘッダー */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">職種別タスク一覧</h1>
-        <p className="text-gray-600 mt-1">部署ごとの職種別タスク状況</p>
+    <>
+      <div className="prisma-header">
+        <h1 className="prisma-header-title">職種別タスク一覧</h1>
       </div>
+      <div className="prisma-content">
+        <div className="prisma-card mb-4">
+          <p className="text-sm text-gray-600">部署ごとの職種別タスク状況</p>
+        </div>
 
       {/* タブナビゲーション */}
       <div className="prisma-tabs">
@@ -469,6 +471,7 @@ export default function TaskByPosition() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   )
 }

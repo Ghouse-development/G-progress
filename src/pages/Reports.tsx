@@ -158,36 +158,25 @@ export default function Reports() {
   }
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto p-6">
-      {/* ヘッダー */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            レポート・分析
-          </h1>
-          <p className="text-base text-gray-600">
-            プロジェクト全体の統計情報とパフォーマンス分析
-          </p>
-        </div>
-
-        <div className="flex gap-3">
+    <>
+      <div className="prisma-header">
+        <h1 className="prisma-header-title">レポート・分析</h1>
+        <div className="prisma-header-actions">
           <button
             onClick={loadAllData}
-            className="prisma-btn prisma-btn-secondary flex items-center gap-2"
+            className="prisma-btn prisma-btn-secondary prisma-btn-sm"
           >
-            <RefreshCw size={20} />
-            更新
+            <RefreshCw size={18} />
           </button>
 
           {/* エクスポートドロップダウン */}
           <div className="relative">
             <button
               onClick={() => setShowExportMenu(!showExportMenu)}
-              className="prisma-btn prisma-btn-primary flex items-center gap-2"
+              className="prisma-btn prisma-btn-primary prisma-btn-sm"
             >
-              <Download size={20} />
+              <Download size={18} />
               エクスポート
-              <ChevronDown size={16} />
             </button>
 
             {showExportMenu && (
@@ -216,8 +205,15 @@ export default function Reports() {
         </div>
       </div>
 
-      {/* サマリーカード */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="prisma-content">
+        <div className="prisma-card mb-4">
+          <p className="text-sm text-gray-600">
+            プロジェクト全体の統計情報とパフォーマンス分析
+          </p>
+        </div>
+
+        {/* サマリーカード */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         {/* 総プロジェクト数 */}
         <div className="p-6 bg-gradient-to-br from-purple-500 to-purple-700 border-4 border-black rounded-xl text-white">
           <div className="flex justify-between items-start">
@@ -469,6 +465,7 @@ export default function Reports() {
           </table>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }

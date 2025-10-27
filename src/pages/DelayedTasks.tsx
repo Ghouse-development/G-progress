@@ -4,7 +4,6 @@ import { Task, Employee, Project } from '../types/database'
 import { format, differenceInDays } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { AlertTriangle, User, Home, Calendar, Clock, MessageSquare } from 'lucide-react'
-import LayoutPrisma from '../components/LayoutPrisma'
 
 interface DelayedTaskWithDetails extends Task {
   assigned_employee?: Employee
@@ -69,19 +68,19 @@ export default function DelayedTasks() {
   }
 
   return (
-    <LayoutPrisma>
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="max-w-7xl mx-auto">
-          {/* ヘッダー */}
-          <div className="mb-8">
-            <div className="flex items-center gap-3 mb-2">
-              <AlertTriangle className="text-red-600" size={32} />
-              <h1 className="text-3xl font-bold text-gray-900">遅延タスク</h1>
-            </div>
-            <p className="text-base text-gray-600">
-              期限日を過ぎている未完了のタスクを表示しています
-            </p>
-          </div>
+    <>
+      <div className="prisma-header">
+        <h1 className="prisma-header-title">遅延タスク</h1>
+        <div className="prisma-header-actions">
+          <AlertTriangle className="text-red-600" size={24} />
+        </div>
+      </div>
+      <div className="prisma-content">
+        <div className="prisma-card mb-4">
+          <p className="text-sm text-gray-600">
+            期限日を過ぎている未完了のタスクを表示しています
+          </p>
+        </div>
 
           {/* 統計情報 */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -215,8 +214,7 @@ export default function DelayedTasks() {
               </table>
             </div>
           )}
-        </div>
       </div>
-    </LayoutPrisma>
+    </>
   )
 }

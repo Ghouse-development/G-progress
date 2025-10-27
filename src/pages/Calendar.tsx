@@ -595,30 +595,31 @@ export default function Calendar() {
     <div className="w-full flex flex-col" style={{ height: '100vh', overflow: 'hidden' }}>
       <div id="calendar-content" className="w-full flex-1 flex flex-col px-4 py-3" style={{ overflow: 'auto', WebkitOverflowScrolling: 'touch' }}>
         {/* ヘッダー */}
-        <div className="prisma-card mb-3 flex-shrink-0">
-          <div className="flex items-center justify-between mb-3">
-            <h1 className="text-xl lg:text-2xl font-bold text-canva-purple">カレンダー</h1>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={exportToCSV}
-                className="px-2 py-1 lg:px-3 lg:py-2 bg-white border text-xs lg:text-sm hover:bg-gray-50"
-              >
-                CSV出力
-              </button>
-              <button
-                onClick={exportToPDF}
-                className="px-2 py-1 lg:px-3 lg:py-2 bg-white border text-xs lg:text-sm hover:bg-gray-50"
-              >
-                PDF出力
-              </button>
-              <button
-                onClick={exportToICal}
-                className="px-2 py-1 lg:px-3 lg:py-2 bg-white border text-xs lg:text-sm hover:bg-gray-50"
-              >
-                iCal出力
-              </button>
-            </div>
+        <div className="prisma-header mb-3 flex-shrink-0">
+          <h1 className="prisma-header-title">カレンダー</h1>
+          <div className="prisma-header-actions">
+            <button
+              onClick={exportToCSV}
+              className="prisma-btn prisma-btn-secondary prisma-btn-sm"
+            >
+              CSV出力
+            </button>
+            <button
+              onClick={exportToPDF}
+              className="prisma-btn prisma-btn-secondary prisma-btn-sm"
+            >
+              PDF出力
+            </button>
+            <button
+              onClick={exportToICal}
+              className="prisma-btn prisma-btn-secondary prisma-btn-sm"
+            >
+              iCal出力
+            </button>
           </div>
+        </div>
+
+        <div className="prisma-card mb-3 flex-shrink-0">
 
           {/* モード切替 */}
           <div className="flex items-center justify-center gap-3 mb-4 flex-wrap">

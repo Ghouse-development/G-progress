@@ -214,23 +214,23 @@ export default function OrganizationManagement() {
   }
 
   return (
-    <div className="p-6">
-      {/* ヘッダー */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">マルチテナント管理</h1>
-            <p className="text-gray-600">組織（本社、フランチャイズ）の管理</p>
-          </div>
+    <>
+      <div className="prisma-header">
+        <h1 className="prisma-header-title">マルチテナント管理</h1>
+        <div className="prisma-header-actions">
           <button
             onClick={() => handleOpenModal()}
-            className="prisma-btn prisma-btn-primary flex items-center gap-2"
+            className="prisma-btn prisma-btn-primary prisma-btn-sm"
           >
-            <Plus size={20} />
+            <Plus size={18} />
             新規組織
           </button>
         </div>
       </div>
+      <div className="prisma-content">
+        <div className="prisma-card mb-4">
+          <p className="text-sm text-gray-600">組織（本社、フランチャイズ）の管理</p>
+        </div>
 
       {/* 統計情報 */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -420,6 +420,7 @@ export default function OrganizationManagement() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   )
 }

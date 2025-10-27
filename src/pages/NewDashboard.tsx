@@ -551,111 +551,58 @@ export default function NewDashboard() {
           </div>
         </div>
 
-        {/* === 入金状況サマリー（1枚のカードに統合） ===  */}
+        {/* === その他の重要指標（コンパクト統合） ===  */}
         <div className="prisma-card" style={{ marginBottom: '16px' }}>
-          <h2 className="prisma-card-title">入金状況</h2>
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* 入金予定 */}
-            <div>
-              <div className="text-sm font-bold text-gray-600 mb-2">入金予定</div>
-              <div className="text-2xl font-bold text-gray-900">
-                {Math.floor(totalScheduledPayment).toLocaleString()}円
-                <span className="text-sm font-normal text-gray-500 ml-2">（税込）</span>
+          <h2 className="prisma-card-title">その他の重要指標</h2>
+          <div className="mt-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 text-center">
+              {/* 入金予定 */}
+              <div className="p-2 bg-gray-50 rounded border border-gray-200">
+                <div className="text-xs text-gray-600 mb-1">入金予定</div>
+                <div className="text-base font-bold text-gray-900">{Math.floor(totalScheduledPayment / 1.1 / 1000000)}百万円</div>
               </div>
-              <div className="text-base text-gray-600 mt-1">
-                税別: {Math.floor(totalScheduledPayment / 1.1).toLocaleString()}円
+              {/* 入金実績 */}
+              <div className="p-2 bg-gray-50 rounded border border-gray-200">
+                <div className="text-xs text-gray-600 mb-1">入金実績</div>
+                <div className="text-base font-bold text-green-600">{Math.floor(totalActualPayment / 1.1 / 1000000)}百万円</div>
               </div>
-            </div>
-
-            {/* 入金実績 */}
-            <div>
-              <div className="text-sm font-bold text-gray-600 mb-2">入金実績</div>
-              <div className="text-2xl font-bold text-green-600">
-                {Math.floor(totalActualPayment).toLocaleString()}円
-                <span className="text-sm font-normal text-gray-500 ml-2">（税込）</span>
+              {/* 変更契約 */}
+              <div className="p-2 bg-gray-50 rounded border border-gray-200">
+                <div className="text-xs text-gray-600 mb-1">変更契約</div>
+                <div className="text-base font-bold text-gray-900">{totalChangeContracts}件</div>
               </div>
-              <div className="text-base text-gray-600 mt-1">
-                税別: {Math.floor(totalActualPayment / 1.1).toLocaleString()}円
+              {/* 遅延タスク */}
+              <div className={`p-2 rounded border ${delayedTaskCount > 0 ? 'bg-red-50 border-red-300' : 'bg-gray-50 border-gray-200'}`}>
+                <div className="text-xs text-gray-600 mb-1">遅延タスク</div>
+                <div className={`text-base font-bold ${delayedTaskCount > 0 ? 'text-red-600' : 'text-gray-900'}`}>{delayedTaskCount}件</div>
+              </div>
+              {/* 平均坪数 */}
+              <div className="p-2 bg-gray-50 rounded border border-gray-200">
+                <div className="text-xs text-gray-600 mb-1">平均坪数</div>
+                <div className="text-base font-bold text-gray-900">{avgFloorArea.toFixed(1)}坪</div>
+              </div>
+              {/* 平均契約額 */}
+              <div className="p-2 bg-gray-50 rounded border border-gray-200">
+                <div className="text-xs text-gray-600 mb-1">平均契約額</div>
+                <div className="text-base font-bold text-gray-900">{Math.floor(avgContractAmount / 1000000)}百万円</div>
+              </div>
+              {/* 契約～引渡 */}
+              <div className="p-2 bg-gray-50 rounded border border-gray-200">
+                <div className="text-xs text-gray-600 mb-1">契約→引渡</div>
+                <div className="text-base font-bold text-blue-600">
+                  {countContractToHandover > 0 ? Math.round(avgDaysContractToHandover) : '-'}日
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* === その他サマリーエリア ===  */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginBottom: '16px' }}>
-          {/* 変更契約完了数 */}
-          <div className="prisma-card">
-            <h2 className="prisma-card-title">変更契約完了数</h2>
-            <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>{totalChangeContracts}件</div>
-          </div>
-
-          {/* 遅れタスク数 */}
-          <div className="prisma-card">
-            <h2 className="prisma-card-title">遅れタスク数</h2>
-            <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>{delayedTaskCount}件</div>
-            {delayedTaskCount > 0 && (
-              <div style={{ fontSize: '14px', color: '#ef4444', marginTop: '8px' }}>
-                期限超過タスクがあります
-              </div>
-            )}
-          </div>
-
-          {/* 平均坪数 */}
-          <div className="prisma-card">
-            <h2 className="prisma-card-title">平均坪数</h2>
-            <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>{avgFloorArea.toFixed(2)}坪</div>
-          </div>
-
-          {/* 平均契約金額 */}
-          <div className="prisma-card">
-            <h2 className="prisma-card-title">平均契約金額</h2>
-            <div style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '8px' }}>{Math.floor(avgContractAmount).toLocaleString()}円</div>
-            <div className="prisma-text-sm prisma-text-secondary" style={{ marginTop: '4px' }}>（税別: {Math.floor(avgContractAmount / 1.1).toLocaleString()}円）</div>
-          </div>
-        </div>
-
-        {/* === 平均日数統計エリア === */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '16px' }}>
-          {/* 契約～着工許可までの平均日数 */}
-          <div className="prisma-card">
-            <h2 className="prisma-card-title">契約～着工許可</h2>
-            <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px', color: '#2563EB' }}>
-              {countContractToPermission > 0 ? Math.round(avgDaysContractToPermission) : '-'}日
-            </div>
-            <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '8px' }}>
-              平均日数 (N={countContractToPermission})
-            </div>
-          </div>
-
-          {/* 着工～完了検査までの平均日数 */}
-          <div className="prisma-card">
-            <h2 className="prisma-card-title">着工～完了検査</h2>
-            <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px', color: '#2563EB' }}>
-              {countConstructionToInspection > 0 ? Math.round(avgDaysConstructionToInspection) : '-'}日
-            </div>
-            <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '8px' }}>
-              平均日数 (N={countConstructionToInspection})
-            </div>
-          </div>
-
-          {/* 契約～引き渡しまでの平均日数 */}
-          <div className="prisma-card">
-            <h2 className="prisma-card-title">契約～引き渡し</h2>
-            <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px', color: '#2563EB' }}>
-              {countContractToHandover > 0 ? Math.round(avgDaysContractToHandover) : '-'}日
-            </div>
-            <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '8px' }}>
-              平均日数 (N={countContractToHandover})
-            </div>
-          </div>
-        </div>
-
-        {/* === 商品構成（円グラフ） ===  */}
+        {/* === 商品構成（コンパクト） ===  */}
         <div className="prisma-card" style={{ marginBottom: '16px' }}>
           <h2 className="prisma-card-title">商品構成</h2>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '32px', marginTop: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '24px', marginTop: '12px' }}>
             {/* 円グラフ */}
-            <ResponsiveContainer width={300} height={300}>
+            <ResponsiveContainer width={240} height={240}>
               <PieChart>
                 <Pie
                   data={productComposition}
@@ -663,9 +610,9 @@ export default function NewDashboard() {
                   nameKey="name"
                   cx="50%"
                   cy="50%"
-                  outerRadius={100}
-                  label={(entry) => `${entry.count}件 (${entry.percentage}%)`}
-                  labelLine={true}
+                  outerRadius={80}
+                  label={(entry) => `${entry.percentage}%`}
+                  labelLine={false}
                 >
                   {productComposition.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
@@ -676,23 +623,14 @@ export default function NewDashboard() {
             </ResponsiveContainer>
 
             {/* 凡例 */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               {productComposition.map((item, index) => (
-                <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <div style={{ width: '16px', height: '16px', backgroundColor: PIE_COLORS[index % PIE_COLORS.length], borderRadius: '2px' }}></div>
-                  <span style={{ fontSize: '14px', fontWeight: 600 }}>{item.name}</span>
-                  <span style={{ fontSize: '14px', color: '#6b7280' }}>{item.count}件 ({item.percentage}%)</span>
+                <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{ width: '12px', height: '12px', backgroundColor: PIE_COLORS[index % PIE_COLORS.length], borderRadius: '2px' }}></div>
+                  <span style={{ fontSize: '13px', fontWeight: 600 }}>{item.name}</span>
+                  <span style={{ fontSize: '13px', color: '#6b7280' }}>{item.count}件 ({item.percentage}%)</span>
                 </div>
               ))}
-              <div style={{ borderTop: '2px solid #e5e7eb', paddingTop: '8px', marginTop: '4px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <div style={{ width: '16px', height: '16px' }}></div>
-                  <span style={{ fontSize: '14px', fontWeight: 'bold' }}>合計</span>
-                  <span style={{ fontSize: '14px', fontWeight: 'bold' }}>
-                    {productComposition.reduce((sum, item) => sum + item.count, 0)}件 (100.0%)
-                  </span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -702,26 +640,25 @@ export default function NewDashboard() {
           {/* 請負契約数 */}
           <div className="prisma-card">
             <h2 className="prisma-card-title">請負契約数</h2>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={220}>
               <BarChart data={monthlyStats}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
+                <XAxis dataKey="month" style={{ fontSize: '12px' }} />
+                <YAxis style={{ fontSize: '12px' }} />
                 <Tooltip />
-                <Legend />
                 <Bar dataKey="contracts" fill="#000000" name="請負契約数" />
               </BarChart>
             </ResponsiveContainer>
-            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '2px solid #e5e7eb', display: 'flex', gap: '24px', justifyContent: 'center' }}>
+            <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid #e5e7eb', display: 'flex', gap: '16px', justifyContent: 'center' }}>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>年度累計</div>
-                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>年度累計</div>
+                <div style={{ fontSize: '16px', fontWeight: 'bold' }}>
                   {monthlyStats.reduce((sum, s) => sum + s.contracts, 0)}件
                 </div>
               </div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>当月</div>
-                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>当月</div>
+                <div style={{ fontSize: '16px', fontWeight: 'bold' }}>
                   {monthlyStats.length > 0 ? monthlyStats[monthlyStats.length - 1].contracts : 0}件
                 </div>
               </div>
@@ -731,26 +668,25 @@ export default function NewDashboard() {
           {/* 変更契約数 */}
           <div className="prisma-card">
             <h2 className="prisma-card-title">変更契約数</h2>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={220}>
               <BarChart data={monthlyStats}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
+                <XAxis dataKey="month" style={{ fontSize: '12px' }} />
+                <YAxis style={{ fontSize: '12px' }} />
                 <Tooltip />
-                <Legend />
                 <Bar dataKey="changeContracts" fill="#4b5563" name="変更契約数" />
               </BarChart>
             </ResponsiveContainer>
-            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '2px solid #e5e7eb', display: 'flex', gap: '24px', justifyContent: 'center' }}>
+            <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid #e5e7eb', display: 'flex', gap: '16px', justifyContent: 'center' }}>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>年度累計</div>
-                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>年度累計</div>
+                <div style={{ fontSize: '16px', fontWeight: 'bold' }}>
                   {monthlyStats.reduce((sum, s) => sum + s.changeContracts, 0)}件
                 </div>
               </div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>当月</div>
-                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>当月</div>
+                <div style={{ fontSize: '16px', fontWeight: 'bold' }}>
                   {monthlyStats.length > 0 ? monthlyStats[monthlyStats.length - 1].changeContracts : 0}件
                 </div>
               </div>
@@ -760,26 +696,25 @@ export default function NewDashboard() {
           {/* 着工数 */}
           <div className="prisma-card">
             <h2 className="prisma-card-title">着工数</h2>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={220}>
               <BarChart data={monthlyStats}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
+                <XAxis dataKey="month" style={{ fontSize: '12px' }} />
+                <YAxis style={{ fontSize: '12px' }} />
                 <Tooltip />
-                <Legend />
                 <Bar dataKey="construction" fill="#000000" name="着工数" />
               </BarChart>
             </ResponsiveContainer>
-            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '2px solid #e5e7eb', display: 'flex', gap: '24px', justifyContent: 'center' }}>
+            <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid #e5e7eb', display: 'flex', gap: '16px', justifyContent: 'center' }}>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>年度累計</div>
-                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>年度累計</div>
+                <div style={{ fontSize: '16px', fontWeight: 'bold' }}>
                   {monthlyStats.reduce((sum, s) => sum + s.construction, 0)}件
                 </div>
               </div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>当月</div>
-                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>当月</div>
+                <div style={{ fontSize: '16px', fontWeight: 'bold' }}>
                   {monthlyStats.length > 0 ? monthlyStats[monthlyStats.length - 1].construction : 0}件
                 </div>
               </div>
@@ -789,44 +724,43 @@ export default function NewDashboard() {
           {/* 引き渡し数 */}
           <div className="prisma-card">
             <h2 className="prisma-card-title">引き渡し数</h2>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={220}>
               <BarChart data={monthlyStats}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
+                <XAxis dataKey="month" style={{ fontSize: '12px' }} />
+                <YAxis style={{ fontSize: '12px' }} />
                 <Tooltip />
-                <Legend />
                 <Bar dataKey="handover" fill="#000000" name="引き渡し数" />
               </BarChart>
             </ResponsiveContainer>
-            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '2px solid #e5e7eb', display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid #e5e7eb', display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Q1 (8-10月)</div>
-                <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
+                <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>Q1</div>
+                <div style={{ fontSize: '14px', fontWeight: 'bold' }}>
                   {monthlyStats.slice(0, 3).reduce((sum, s) => sum + s.handover, 0)}棟
                 </div>
               </div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Q2 (11-1月)</div>
-                <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
+                <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>Q2</div>
+                <div style={{ fontSize: '14px', fontWeight: 'bold' }}>
                   {monthlyStats.slice(3, 6).reduce((sum, s) => sum + s.handover, 0)}棟
                 </div>
               </div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Q3 (2-4月)</div>
-                <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
+                <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>Q3</div>
+                <div style={{ fontSize: '14px', fontWeight: 'bold' }}>
                   {monthlyStats.slice(6, 9).reduce((sum, s) => sum + s.handover, 0)}棟
                 </div>
               </div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Q4 (5-7月)</div>
-                <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
+                <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>Q4</div>
+                <div style={{ fontSize: '14px', fontWeight: 'bold' }}>
                   {monthlyStats.slice(9, 12).reduce((sum, s) => sum + s.handover, 0)}棟
                 </div>
               </div>
-              <div style={{ textAlign: 'center', width: '100%', paddingTop: '8px', borderTop: '1px solid #d1d5db' }}>
-                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>年度累計</div>
-                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+              <div style={{ textAlign: 'center', paddingLeft: '12px', borderLeft: '1px solid #d1d5db' }}>
+                <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>年度累計</div>
+                <div style={{ fontSize: '16px', fontWeight: 'bold' }}>
                   {monthlyStats.reduce((sum, s) => sum + s.handover, 0)}棟
                 </div>
               </div>
@@ -835,41 +769,28 @@ export default function NewDashboard() {
 
           {/* 入金予定・実績 */}
           <div className="prisma-card">
-            <h2 className="prisma-card-title">入金予定・実績（月次推移）</h2>
-            <ResponsiveContainer width="100%" height={300}>
+            <h2 className="prisma-card-title">入金予定・実績（月次）</h2>
+            <ResponsiveContainer width="100%" height={220}>
               <BarChart data={monthlyStats}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip formatter={(value: number) => Math.floor(value).toLocaleString() + '円'} />
-                <Legend />
-                <Bar dataKey="scheduledPayment" fill="#2563eb" name="予定（税込）" />
-                <Bar dataKey="actualPayment" fill="#dc2626" name="実績（税込）" />
+                <XAxis dataKey="month" style={{ fontSize: '12px' }} />
+                <YAxis style={{ fontSize: '12px' }} />
+                <Tooltip formatter={(value: number) => Math.floor(value / 1000000).toLocaleString() + '百万円'} />
+                <Bar dataKey="scheduledPayment" fill="#2563eb" name="予定" />
+                <Bar dataKey="actualPayment" fill="#dc2626" name="実績" />
               </BarChart>
             </ResponsiveContainer>
-            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '2px solid #e5e7eb', display: 'flex', gap: '24px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid #e5e7eb', display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>年度累計（予定）</div>
-                <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#2563eb' }}>
-                  {Math.floor(monthlyStats.reduce((sum, s) => sum + s.scheduledPayment, 0)).toLocaleString()}円
+                <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>累計予定</div>
+                <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#2563eb' }}>
+                  {Math.floor(monthlyStats.reduce((sum, s) => sum + s.scheduledPayment, 0) / 1000000)}百万円
                 </div>
               </div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>年度累計（実績）</div>
-                <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#dc2626' }}>
-                  {Math.floor(monthlyStats.reduce((sum, s) => sum + s.actualPayment, 0)).toLocaleString()}円
-                </div>
-              </div>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>当月（予定）</div>
-                <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#2563eb' }}>
-                  {monthlyStats.length > 0 ? Math.floor(monthlyStats[monthlyStats.length - 1].scheduledPayment).toLocaleString() : '0'}円
-                </div>
-              </div>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>当月（実績）</div>
-                <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#dc2626' }}>
-                  {monthlyStats.length > 0 ? Math.floor(monthlyStats[monthlyStats.length - 1].actualPayment).toLocaleString() : '0'}円
+                <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>累計実績</div>
+                <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#dc2626' }}>
+                  {Math.floor(monthlyStats.reduce((sum, s) => sum + s.actualPayment, 0) / 1000000)}百万円
                 </div>
               </div>
             </div>
@@ -877,28 +798,27 @@ export default function NewDashboard() {
 
           {/* 粗利益高 */}
           <div className="prisma-card">
-            <h2 className="prisma-card-title">粗利益高（月次推移）</h2>
-            <ResponsiveContainer width="100%" height={300}>
+            <h2 className="prisma-card-title">粗利益高（月次）</h2>
+            <ResponsiveContainer width="100%" height={220}>
               <BarChart data={monthlyStats}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip formatter={(value: number) => Math.floor(value).toLocaleString() + '円'} />
-                <Legend />
+                <XAxis dataKey="month" style={{ fontSize: '12px' }} />
+                <YAxis style={{ fontSize: '12px' }} />
+                <Tooltip formatter={(value: number) => Math.floor(value / 1000000).toLocaleString() + '百万円'} />
                 <Bar dataKey="grossProfit" fill="#000000" name="粗利益高" />
               </BarChart>
             </ResponsiveContainer>
-            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '2px solid #e5e7eb', display: 'flex', gap: '24px', justifyContent: 'center' }}>
+            <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid #e5e7eb', display: 'flex', gap: '16px', justifyContent: 'center' }}>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>年度累計</div>
-                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
-                  {Math.floor(monthlyStats.reduce((sum, s) => sum + s.grossProfit, 0)).toLocaleString()}円
+                <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>年度累計</div>
+                <div style={{ fontSize: '16px', fontWeight: 'bold' }}>
+                  {Math.floor(monthlyStats.reduce((sum, s) => sum + s.grossProfit, 0) / 1000000)}百万円
                 </div>
               </div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>当月</div>
-                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
-                  {monthlyStats.length > 0 ? Math.floor(monthlyStats[monthlyStats.length - 1].grossProfit).toLocaleString() : '0'}円
+                <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>当月</div>
+                <div style={{ fontSize: '16px', fontWeight: 'bold' }}>
+                  {monthlyStats.length > 0 ? Math.floor(monthlyStats[monthlyStats.length - 1].grossProfit / 1000000) : 0}百万円
                 </div>
               </div>
             </div>
@@ -908,43 +828,43 @@ export default function NewDashboard() {
           <div className="prisma-card">
             <h2 className="prisma-card-title">拠点別経営状況（独立採算確認）</h2>
 
-            {/* 全社サマリー */}
-            <div className="mt-4 mb-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">📊 全社サマリー</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg border-3 border-blue-400">
-                  <div className="text-sm text-gray-600 mb-1">総従業員数</div>
-                  <div className="text-2xl font-bold text-blue-900">
+            {/* 全社サマリー（コンパクト） */}
+            <div className="mt-3 mb-4">
+              <h3 className="text-sm font-bold text-gray-700 mb-2">全社サマリー</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+                <div className="bg-blue-50 p-2 rounded border border-blue-200 text-center">
+                  <div className="text-xs text-gray-600">従業員</div>
+                  <div className="text-base font-bold text-blue-900">
                     {branchStats.reduce((sum, s) => sum + s.employeeCount, 0)}人
                   </div>
                 </div>
-                <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg border-3 border-green-400">
-                  <div className="text-sm text-gray-600 mb-1">総契約数</div>
-                  <div className="text-2xl font-bold text-green-900">
+                <div className="bg-green-50 p-2 rounded border border-green-200 text-center">
+                  <div className="text-xs text-gray-600">契約数</div>
+                  <div className="text-base font-bold text-green-900">
                     {branchStats.reduce((sum, s) => sum + s.contractCount, 0)}棟
                   </div>
                 </div>
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg border-3 border-purple-400">
-                  <div className="text-sm text-gray-600 mb-1">進行中案件</div>
-                  <div className="text-2xl font-bold text-purple-900">
+                <div className="bg-purple-50 p-2 rounded border border-purple-200 text-center">
+                  <div className="text-xs text-gray-600">進行中</div>
+                  <div className="text-base font-bold text-purple-900">
                     {branchStats.reduce((sum, s) => sum + s.ongoingProjects, 0)}件
                   </div>
                 </div>
-                <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 p-4 rounded-lg border-3 border-yellow-400">
-                  <div className="text-sm text-gray-600 mb-1">総売上高</div>
-                  <div className="text-xl font-bold text-yellow-900">
-                    ¥{Math.floor(branchStats.reduce((sum, s) => sum + s.revenue, 0) / 100000000).toLocaleString()}億
+                <div className="bg-yellow-50 p-2 rounded border border-yellow-200 text-center">
+                  <div className="text-xs text-gray-600">売上</div>
+                  <div className="text-sm font-bold text-yellow-900">
+                    {Math.floor(branchStats.reduce((sum, s) => sum + s.revenue, 0) / 100000000)}億円
                   </div>
                 </div>
-                <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 rounded-lg border-3 border-emerald-400">
-                  <div className="text-sm text-gray-600 mb-1">総粗利益</div>
-                  <div className="text-xl font-bold text-emerald-900">
-                    ¥{Math.floor(branchStats.reduce((sum, s) => sum + s.grossProfit, 0) / 10000000).toLocaleString()}千万
+                <div className="bg-emerald-50 p-2 rounded border border-emerald-200 text-center">
+                  <div className="text-xs text-gray-600">粗利益</div>
+                  <div className="text-sm font-bold text-emerald-900">
+                    {Math.floor(branchStats.reduce((sum, s) => sum + s.grossProfit, 0) / 10000000)}千万円
                   </div>
                 </div>
-                <div className="bg-gradient-to-br from-rose-50 to-rose-100 p-4 rounded-lg border-3 border-rose-400">
-                  <div className="text-sm text-gray-600 mb-1">全社粗利率</div>
-                  <div className="text-2xl font-bold text-rose-900">
+                <div className="bg-rose-50 p-2 rounded border border-rose-200 text-center">
+                  <div className="text-xs text-gray-600">粗利率</div>
+                  <div className="text-base font-bold text-rose-900">
                     {branchStats.reduce((sum, s) => sum + s.revenue, 0) > 0
                       ? ((branchStats.reduce((sum, s) => sum + s.grossProfit, 0) / branchStats.reduce((sum, s) => sum + s.revenue, 0)) * 100).toFixed(1)
                       : '0.0'}%
@@ -953,78 +873,58 @@ export default function NewDashboard() {
               </div>
             </div>
 
-            {/* 各拠点カード */}
-            <div className="mt-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">🏢 各拠点の状況</h3>
+            {/* 各拠点カード（コンパクト） */}
+            <div className="mt-4">
+              <h3 className="text-sm font-bold text-gray-700 mb-2">各拠点の状況</h3>
               {branchStats.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">拠点データがありません</div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
                   {branchStats.map(stat => (
-                    <div key={stat.branchId} className="bg-white rounded-lg border-4 border-gray-300 shadow-lg overflow-hidden">
+                    <div key={stat.branchId} className="bg-white rounded border-2 border-gray-300 overflow-hidden">
                       {/* 拠点名ヘッダー */}
-                      <div className="bg-gradient-to-r from-gray-100 to-gray-200 px-5 py-4 border-b-4 border-gray-300">
-                        <h4 className="text-xl font-bold text-gray-900">{stat.branchName}</h4>
+                      <div className="bg-gray-100 px-3 py-2 border-b border-gray-300">
+                        <h4 className="text-sm font-bold text-gray-900">{stat.branchName}</h4>
                       </div>
 
-                      {/* 指標 */}
-                      <div className="p-5 space-y-3">
-                        {/* 従業員数 */}
-                        <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border-2 border-blue-200">
-                          <span className="text-sm font-bold text-gray-700">従業員数</span>
-                          <span className="text-lg font-bold text-blue-900">{stat.employeeCount}人</span>
+                      {/* 指標（コンパクト） */}
+                      <div className="p-3 space-y-2">
+                        {/* 従業員数・契約数 */}
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-gray-600">従業員</span>
+                          <span className="font-bold text-blue-900">{stat.employeeCount}人</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-gray-600">契約</span>
+                          <span className="font-bold text-green-900">{stat.contractCount}棟</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-gray-600">進行中</span>
+                          <span className="font-bold text-purple-900">{stat.ongoingProjects}件</span>
                         </div>
 
-                        {/* 契約数 */}
-                        <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border-2 border-green-200">
-                          <span className="text-sm font-bold text-gray-700">契約数</span>
-                          <span className="text-lg font-bold text-green-900">{stat.contractCount}棟</span>
-                        </div>
-
-                        {/* 進行中案件 */}
-                        <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg border-2 border-purple-200">
-                          <span className="text-sm font-bold text-gray-700">進行中案件</span>
-                          <span className="text-lg font-bold text-purple-900">{stat.ongoingProjects}件</span>
-                        </div>
-
-                        {/* 売上高 */}
-                        <div className="p-3 bg-yellow-50 rounded-lg border-2 border-yellow-200">
-                          <div className="text-sm font-bold text-gray-700 mb-1">売上高</div>
-                          <div className="text-xl font-bold text-yellow-900">
-                            ¥{Math.floor(stat.revenue / 10000).toLocaleString()}万
-                          </div>
-                        </div>
-
-                        {/* 粗利益 */}
-                        <div className="p-3 bg-emerald-50 rounded-lg border-2 border-emerald-200">
-                          <div className="text-sm font-bold text-gray-700 mb-1">粗利益</div>
-                          <div className="text-xl font-bold text-emerald-900">
-                            ¥{Math.floor(stat.grossProfit / 10000).toLocaleString()}万
-                          </div>
-                        </div>
-
-                        {/* 粗利益率 */}
-                        <div className={`p-3 rounded-lg border-3 ${
-                          stat.grossProfitRate >= 15 ? 'bg-green-50 border-green-400' :
-                          stat.grossProfitRate >= 10 ? 'bg-yellow-50 border-yellow-400' :
-                          'bg-red-50 border-red-400'
+                        {/* 粗利益率（強調） */}
+                        <div className={`p-2 rounded border text-center ${
+                          stat.grossProfitRate >= 15 ? 'bg-green-50 border-green-300' :
+                          stat.grossProfitRate >= 10 ? 'bg-yellow-50 border-yellow-300' :
+                          'bg-red-50 border-red-300'
                         }`}>
-                          <div className="text-sm font-bold text-gray-700 mb-1">粗利益率</div>
-                          <div className={`text-2xl font-bold ${
-                            stat.grossProfitRate >= 15 ? 'text-green-900' :
-                            stat.grossProfitRate >= 10 ? 'text-yellow-900' :
-                            'text-red-900'
+                          <div className="text-xs text-gray-600">粗利率</div>
+                          <div className={`text-lg font-bold ${
+                            stat.grossProfitRate >= 15 ? 'text-green-700' :
+                            stat.grossProfitRate >= 10 ? 'text-yellow-700' :
+                            'text-red-700'
                           }`}>
                             {stat.grossProfitRate.toFixed(1)}%
                           </div>
                         </div>
 
-                        {/* 1人あたり指標 */}
-                        <div className="pt-3 border-t-2 border-gray-200">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs text-gray-600">1人あたり契約数</span>
-                            <span className="text-base font-bold text-gray-900">
-                              {stat.contractsPerEmployee.toFixed(1)}棟/人
+                        {/* 1人あたり */}
+                        <div className="pt-2 border-t border-gray-200">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-gray-600">1人契約</span>
+                            <span className="text-xs font-bold text-gray-900">
+                              {stat.contractsPerEmployee.toFixed(1)}棟
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
