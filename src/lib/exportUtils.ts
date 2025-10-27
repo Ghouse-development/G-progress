@@ -1,15 +1,13 @@
-import * as XLSX from 'xlsx'
-import Papa from 'papaparse'
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
-import html2canvas from 'html2canvas'
-import { format } from 'date-fns'
-import { ja } from 'date-fns/locale'
+import { format } from 'date-fns/format'
+import { ja } from 'date-fns/locale/ja'
 
 /**
- * CSV形式でデータをエクスポート
+ * CSV形式でデータをエクスポート（動的インポート対応）
  */
-export function exportToCSV(data: any[], filename: string) {
+export async function exportToCSV(data: any[], filename: string) {
+  // papaparseを動的インポート
+  const Papa = (await import('papaparse')).default
+
   const csv = Papa.unparse(data, {
     quotes: true,
     delimiter: ',',
@@ -29,9 +27,12 @@ export function exportToCSV(data: any[], filename: string) {
 }
 
 /**
- * Excel形式でデータをエクスポート
+ * Excel形式でデータをエクスポート（動的インポート対応）
  */
-export function exportToExcel(data: any[], filename: string, sheetName: string = 'Sheet1') {
+export async function exportToExcel(data: any[], filename: string, sheetName: string = 'Sheet1') {
+  // xlsxを動的インポート
+  const XLSX = await import('xlsx')
+
   const worksheet = XLSX.utils.json_to_sheet(data)
   const workbook = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(workbook, worksheet, sheetName)
@@ -49,9 +50,10 @@ export function exportToExcel(data: any[], filename: string, sheetName: string =
 }
 
 /**
- * 複数シートのExcelファイルをエクスポート
+ * 複数シートのExcelファイルをエクスポート（動的インポート対応）
  */
-export function exportToExcelMultiSheet(sheets: Array<{ name: string; data: any[] }>, filename: string) {
+export async function exportToExcelMultiSheet(sheets: Array<{ name: string; data: any[] }>, filename: string) {
+  const XLSX = await import('xlsx')
   const workbook = XLSX.utils.book_new()
 
   sheets.forEach(({ name, data }) => {
@@ -73,14 +75,18 @@ export function exportToExcelMultiSheet(sheets: Array<{ name: string; data: any[
 }
 
 /**
- * PDF形式でテーブルデータをエクスポート
+ * PDF形式でテーブルデータをエクスポート（動的インポート対応）
  */
-export function exportTableToPDF(
+export async function exportTableToPDF(
   data: any[],
   columns: Array<{ header: string; dataKey: string }>,
   title: string,
   filename: string
 ) {
+  // jspdfとjspdf-autotableを動的インポート
+  const jsPDF = (await import('jspdf')).default
+  const autoTable = (await import('jspdf-autotable')).default
+
   const doc = new jsPDF('l', 'mm', 'a4') // 横向き、A4サイズ
 
   // タイトル設定
@@ -117,7 +123,7 @@ export function exportTableToPDF(
 }
 
 /**
- * HTML要素をPDFにエクスポート（日本語完全対応）
+ * HTML要素をPDFにエクスポート（日本語完全対応・動的インポート対応）
  * html2canvasを使用してHTMLを画像化してからPDFに変換
  */
 export async function exportHTMLToPDF(
@@ -126,6 +132,10 @@ export async function exportHTMLToPDF(
   orientation: 'portrait' | 'landscape' = 'portrait'
 ) {
   try {
+    // 必要なライブラリを動的インポート
+    const html2canvas = (await import('html2canvas')).default
+    const jsPDF = (await import('jspdf')).default
+
     // HTML要素をCanvasに変換
     const canvas = await html2canvas(element, {
       scale: 2, // 高解像度
@@ -167,9 +177,9 @@ export async function exportHTMLToPDF(
 }
 
 /**
- * レポート形式のPDFをエクスポート（複数セクション対応）
+ * レポート形式のPDFをエクスポート（複数セクション対応・動的インポート対応）
  */
-export function exportReportToPDF(
+export async function exportReportToPDF(
   title: string,
   sections: Array<{
     sectionTitle: string
@@ -178,6 +188,9 @@ export function exportReportToPDF(
   }>,
   filename: string
 ) {
+  const jsPDF = (await import('jspdf')).default
+  const autoTable = (await import('jspdf-autotable')).default
+
   const doc = new jsPDF('l', 'mm', 'a4')
 
   // タイトル
@@ -232,9 +245,9 @@ export function exportReportToPDF(
 }
 
 /**
- * プロジェクトデータをエクスポート
+ * プロジェクトデータをエクスポート（動的インポート対応）
  */
-export function exportProjects(projects: any[], exportFormat: 'csv' | 'excel' | 'pdf') {
+export async function exportProjects(projects: any[], exportFormat: 'csv' | 'excel' | 'pdf') {
   const data = projects.map(p => ({
     'プロジェクトID': p.id,
     '顧客名': p.customer?.names?.[0] || '',
@@ -248,13 +261,13 @@ export function exportProjects(projects: any[], exportFormat: 'csv' | 'excel' | 
 
   switch (exportFormat) {
     case 'csv':
-      exportToCSV(data, 'プロジェクト一覧')
+      await exportToCSV(data, 'プロジェクト一覧')
       break
     case 'excel':
-      exportToExcel(data, 'プロジェクト一覧', 'プロジェクト')
+      await exportToExcel(data, 'プロジェクト一覧', 'プロジェクト')
       break
     case 'pdf':
-      exportTableToPDF(
+      await exportTableToPDF(
         data,
         [
           { header: 'プロジェクトID', dataKey: 'プロジェクトID' },
@@ -272,9 +285,9 @@ export function exportProjects(projects: any[], exportFormat: 'csv' | 'excel' | 
 }
 
 /**
- * タスクデータをエクスポート
+ * タスクデータをエクスポート（動的インポート対応）
  */
-export function exportTasks(tasks: any[], exportFormat: 'csv' | 'excel' | 'pdf') {
+export async function exportTasks(tasks: any[], exportFormat: 'csv' | 'excel' | 'pdf') {
   const data = tasks.map(t => ({
     'タスクID': t.id,
     'タイトル': t.title,
@@ -288,13 +301,13 @@ export function exportTasks(tasks: any[], exportFormat: 'csv' | 'excel' | 'pdf')
 
   switch (exportFormat) {
     case 'csv':
-      exportToCSV(data, 'タスク一覧')
+      await exportToCSV(data, 'タスク一覧')
       break
     case 'excel':
-      exportToExcel(data, 'タスク一覧', 'タスク')
+      await exportToExcel(data, 'タスク一覧', 'タスク')
       break
     case 'pdf':
-      exportTableToPDF(
+      await exportTableToPDF(
         data,
         [
           { header: 'タスクID', dataKey: 'タスクID' },
@@ -312,9 +325,9 @@ export function exportTasks(tasks: any[], exportFormat: 'csv' | 'excel' | 'pdf')
 }
 
 /**
- * 従業員パフォーマンスをエクスポート
+ * 従業員パフォーマンスをエクスポート（動的インポート対応）
  */
-export function exportEmployeePerformance(employees: any[], exportFormat: 'csv' | 'excel' | 'pdf') {
+export async function exportEmployeePerformance(employees: any[], exportFormat: 'csv' | 'excel' | 'pdf') {
   const data = employees.map(e => ({
     '氏名': e.name,
     '部門': e.department,
@@ -327,13 +340,13 @@ export function exportEmployeePerformance(employees: any[], exportFormat: 'csv' 
 
   switch (exportFormat) {
     case 'csv':
-      exportToCSV(data, '従業員パフォーマンス')
+      await exportToCSV(data, '従業員パフォーマンス')
       break
     case 'excel':
-      exportToExcel(data, '従業員パフォーマンス', '従業員パフォーマンス')
+      await exportToExcel(data, '従業員パフォーマンス', '従業員パフォーマンス')
       break
     case 'pdf':
-      exportTableToPDF(
+      await exportTableToPDF(
         data,
         [
           { header: '氏名', dataKey: '氏名' },
@@ -352,9 +365,9 @@ export function exportEmployeePerformance(employees: any[], exportFormat: 'csv' 
 }
 
 /**
- * 月次レポートを総合PDFとしてエクスポート
+ * 月次レポートを総合PDFとしてエクスポート（動的インポート対応）
  */
-export function exportMonthlyReportPDF(
+export async function exportMonthlyReportPDF(
   monthlyData: any,
   projectStats: any,
   departmentStats: any,
@@ -439,7 +452,7 @@ export function exportMonthlyReportPDF(
     })
   }
 
-  exportReportToPDF(
+  await exportReportToPDF(
     `${monthlyData.year}年${monthlyData.month}月 総合レポート`,
     sections,
     `月次レポート_${monthlyData.year}${String(monthlyData.month).padStart(2, '0')}`

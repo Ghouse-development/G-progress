@@ -47,7 +47,10 @@
       "Bash(for file in src/pages/Settings.tsx src/pages/OrganizationManagement.tsx src/pages/TaskMasterManagement.tsx src/pages/PaymentManagement.tsx src/pages/GrossProfitManagement.tsx)",
       "Bash(do echo \"=== $file ===\")",
       "Bash(for file in src/pages/NewDashboard.tsx src/pages/TaskBoard.tsx src/pages/DelayedTasks.tsx src/pages/ApprovalFlow.tsx)",
-      "Bash(npm run lint:*)"
+      "Bash(npm run lint:*)",
+      "Bash(tee:*)",
+      "Bash(npm install:*)",
+      "Bash(npm test:*)"
     ],
     "deny": [],
     "ask": []
