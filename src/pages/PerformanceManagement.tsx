@@ -328,148 +328,106 @@ export default function PerformanceManagement() {
               </div>
             </div>
 
-            {/* 詳細カード一覧 */}
-            <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-gray-900">案件別詳細</h2>
-
-              {projects.map(project => (
-                <div key={project.id} className="prisma-card">
-                  <div className="p-6">
-                    {/* 案件名 */}
-                    <h3 className="text-xl font-bold text-gray-900 mb-4">
-                      {project.customer?.names?.[0] || '不明'}様邸
-                    </h3>
-
-                    {/* 性能データグリッド */}
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
-                      {/* 太陽光 */}
-                      <div className="text-center">
-                        <div className="text-sm text-gray-600 mb-2">太陽光</div>
-                        <div>
-                          {project.solar_panel ?
-                            <span className="prisma-badge prisma-badge-green text-base">有</span> :
-                            <span className="prisma-badge prisma-badge-gray text-base">無</span>
-                          }
-                        </div>
-                      </div>
-
-                      {/* kW数 */}
-                      <div className="text-center">
-                        <div className="text-sm text-gray-600 mb-2">kW数</div>
-                        <div className="text-lg font-bold text-gray-900">
-                          {project.solar_kw ? `${project.solar_kw}kW` : '-'}
-                        </div>
-                      </div>
-
-                      {/* 蓄電池 */}
-                      <div className="text-center">
-                        <div className="text-sm text-gray-600 mb-2">蓄電池</div>
-                        <div>
-                          {project.battery ?
-                            <span className="prisma-badge prisma-badge-green text-base">有</span> :
-                            <span className="prisma-badge prisma-badge-gray text-base">無</span>
-                          }
-                        </div>
-                      </div>
-
-                      {/* BELS */}
-                      <div className="text-center">
-                        <div className="text-sm text-gray-600 mb-2">BELS</div>
-                        <div>
-                          {project.bels ?
-                            <span className="prisma-badge prisma-badge-green text-base">有</span> :
-                            <span className="prisma-badge prisma-badge-gray text-base">無</span>
-                          }
-                        </div>
-                      </div>
-
-                      {/* UA値 */}
-                      <div className="text-center">
-                        <div className="text-sm text-gray-600 mb-2">UA値</div>
-                        <div className="text-lg font-bold text-blue-700">
-                          {project.ua_value ? project.ua_value.toFixed(3) : '-'}
-                        </div>
-                      </div>
-
-                      {/* 1次エネルギー① */}
-                      <div className="text-center">
-                        <div className="text-sm text-gray-600 mb-2">1次①</div>
-                        <div className="text-lg font-bold text-gray-900">
-                          {project.primary_energy_1 ? project.primary_energy_1.toFixed(1) : '-'}
-                        </div>
-                      </div>
-
-                      {/* 1次エネルギー② */}
-                      <div className="text-center">
-                        <div className="text-sm text-gray-600 mb-2">1次②</div>
-                        <div className="text-lg font-bold text-gray-900">
-                          {project.primary_energy_2 ? project.primary_energy_2.toFixed(1) : '-'}
-                        </div>
-                      </div>
-
-                      {/* 1次エネルギー③ */}
-                      <div className="text-center">
-                        <div className="text-sm text-gray-600 mb-2">1次③</div>
-                        <div className="text-lg font-bold text-gray-900">
-                          {project.primary_energy_3 ? project.primary_energy_3.toFixed(1) : '-'}
-                        </div>
-                      </div>
-
-                      {/* C値 */}
-                      <div className="text-center">
-                        <div className="text-sm text-gray-600 mb-2">C値</div>
-                        <div className="text-lg font-bold text-green-700">
-                          {project.c_value ? project.c_value.toFixed(3) : '-'}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-              {/* 平均値カード */}
-              <div className="prisma-card bg-gradient-to-r from-purple-50 to-pink-50">
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">平均値</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
-                    <div className="text-center">
-                      <div className="text-sm text-gray-600 mb-2">太陽光</div>
-                      <div className="text-base text-gray-500">-</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-sm text-gray-600 mb-2">kW数</div>
-                      <div className="text-xl font-bold text-gray-900">{stats.avgSolarKw.toFixed(2)}kW</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-sm text-gray-600 mb-2">蓄電池</div>
-                      <div className="text-base text-gray-500">-</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-sm text-gray-600 mb-2">BELS</div>
-                      <div className="text-base text-gray-500">-</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-sm text-gray-600 mb-2">UA値</div>
-                      <div className="text-xl font-bold text-blue-700">{stats.avgUaValue.toFixed(3)}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-sm text-gray-600 mb-2">1次①</div>
-                      <div className="text-xl font-bold text-gray-900">{stats.avgPrimaryEnergy1.toFixed(1)}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-sm text-gray-600 mb-2">1次②</div>
-                      <div className="text-xl font-bold text-gray-900">{stats.avgPrimaryEnergy2.toFixed(1)}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-sm text-gray-600 mb-2">1次③</div>
-                      <div className="text-xl font-bold text-gray-900">{stats.avgPrimaryEnergy3.toFixed(1)}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-sm text-gray-600 mb-2">C値</div>
-                      <div className="text-xl font-bold text-green-700">{stats.avgCValue.toFixed(3)}</div>
-                    </div>
-                  </div>
-                </div>
+            {/* 詳細テーブル */}
+            <div className="prisma-card">
+              <h2 className="prisma-card-title">案件別詳細</h2>
+              <div className="overflow-x-auto">
+                <table className="prisma-table">
+                  <thead>
+                    <tr>
+                      <th>案件名</th>
+                      <th>
+                        <div className="text-center">太陽光</div>
+                      </th>
+                      <th>
+                        <div className="text-center">kW数</div>
+                      </th>
+                      <th>
+                        <div className="text-center">蓄電池</div>
+                      </th>
+                      <th>
+                        <div className="text-center">UA値</div>
+                      </th>
+                      <th>
+                        <div className="text-center">BELS</div>
+                      </th>
+                      <th>
+                        <div className="text-center">1次①</div>
+                      </th>
+                      <th>
+                        <div className="text-center">1次②</div>
+                      </th>
+                      <th>
+                        <div className="text-center">1次③</div>
+                      </th>
+                      <th>
+                        <div className="text-center">C値</div>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {projects.map(project => (
+                      <tr key={project.id}>
+                        <td>
+                          {project.customer?.names?.[0] || '不明'}様邸
+                        </td>
+                        <td className="text-center">
+                          {project.solar_panel ? <span className="prisma-badge prisma-badge-green">有</span> : <span className="prisma-badge prisma-badge-gray">無</span>}
+                        </td>
+                        <td>
+                          <div className="text-center">{project.solar_kw ? `${project.solar_kw}kW` : '-'}</div>
+                        </td>
+                        <td className="text-center">
+                          {project.battery ? <span className="prisma-badge prisma-badge-green">有</span> : <span className="prisma-badge prisma-badge-gray">無</span>}
+                        </td>
+                        <td>
+                          <div className="text-center">{project.ua_value ? project.ua_value.toFixed(3) : '-'}</div>
+                        </td>
+                        <td className="text-center">
+                          {project.bels ? <span className="prisma-badge prisma-badge-green">有</span> : <span className="prisma-badge prisma-badge-gray">無</span>}
+                        </td>
+                        <td>
+                          <div className="text-center">{project.primary_energy_1 ? project.primary_energy_1.toFixed(1) : '-'}</div>
+                        </td>
+                        <td>
+                          <div className="text-center">{project.primary_energy_2 ? project.primary_energy_2.toFixed(1) : '-'}</div>
+                        </td>
+                        <td>
+                          <div className="text-center">{project.primary_energy_3 ? project.primary_energy_3.toFixed(1) : '-'}</div>
+                        </td>
+                        <td>
+                          <div className="text-center">{project.c_value ? project.c_value.toFixed(3) : '-'}</div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr style={{ background: '#f3f4f6', fontWeight: 'bold' }}>
+                      <td>平均</td>
+                      <td className="text-center">-</td>
+                      <td>
+                        <div className="text-center">{stats.avgSolarKw.toFixed(2)}kW</div>
+                      </td>
+                      <td className="text-center">-</td>
+                      <td>
+                        <div className="text-center">{stats.avgUaValue.toFixed(3)}</div>
+                      </td>
+                      <td className="text-center">-</td>
+                      <td>
+                        <div className="text-center">{stats.avgPrimaryEnergy1.toFixed(1)}</div>
+                      </td>
+                      <td>
+                        <div className="text-center">{stats.avgPrimaryEnergy2.toFixed(1)}</div>
+                      </td>
+                      <td>
+                        <div className="text-center">{stats.avgPrimaryEnergy3.toFixed(1)}</div>
+                      </td>
+                      <td>
+                        <div className="text-center">{stats.avgCValue.toFixed(3)}</div>
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
               </div>
             </div>
           </>

@@ -292,88 +292,66 @@ export default function PaymentManagement() {
       </div>
 
       <div className="prisma-content">
-        {/* 入金カード一覧 */}
-        <div className="grid grid-cols-1 gap-4 mb-6">
-          {paymentRows.map((row, index) => (
-            <div key={index} className="prisma-card">
-              <div className="p-6">
-                <div className="flex items-start justify-between gap-6">
-                  {/* 左側：案件名・名目 */}
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{row.projectName}様</h3>
-                    <div className="flex items-center gap-2">
-                      <span className="text-base text-gray-600">{row.paymentType}</span>
-                      {row.actual > 0 && (
-                        <span className="inline-flex items-center justify-center px-3 py-1 text-sm font-bold text-white bg-green-600 rounded-full" title="入金確定">
-                          入金確定
-                        </span>
-                      )}
-                    </div>
+        <table className="prisma-table">
+          <thead>
+            <tr>
+              <th>案件</th>
+              <th>名目</th>
+              <th>
+                <div className="text-center">金額</div>
+              </th>
+              <th>
+                <div className="text-center">予定</div>
+              </th>
+              <th>
+                <div className="text-center">実績</div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {paymentRows.map((row, index) => (
+              <tr key={index}>
+                <td>{row.projectName}</td>
+                <td>
+                  <div className="flex items-center gap-2">
+                    <span>{row.paymentType}</span>
+                    {row.actual > 0 && (
+                      <span className="inline-flex items-center justify-center w-7 h-7 text-sm font-bold text-white bg-green-600 rounded-full border-2 border-white shadow-lg" title="入金確定">
+                        確
+                      </span>
+                    )}
                   </div>
-
-                  {/* 右側：金額・予定・実績 */}
-                  <div className="flex items-start gap-8">
-                    {/* 金額 */}
-                    <div className="text-center">
-                      <div className="text-sm text-gray-600 mb-1">金額</div>
-                      <div className="text-xl font-bold text-gray-900">
-                        ¥{row.amount.toLocaleString()}
-                      </div>
-                    </div>
-
-                    {/* 予定 */}
-                    <div className="text-center">
-                      <div className="text-sm text-gray-600 mb-1">予定</div>
-                      <div className="text-xl font-bold text-blue-700">
-                        ¥{row.scheduled.toLocaleString()}
-                      </div>
-                    </div>
-
-                    {/* 実績 */}
-                    <div className="text-center">
-                      <div className="text-sm text-gray-600 mb-1">実績</div>
-                      <div className="text-xl font-bold text-green-700">
-                        ¥{row.actual.toLocaleString()}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* 合計カード */}
-        <div className="prisma-card bg-gradient-to-r from-blue-50 to-indigo-50">
-          <div className="p-8">
-            <div className="flex items-center justify-around gap-8">
-              <div className="text-center">
-                <div className="text-lg font-bold text-gray-700 mb-2">予定合計</div>
-                <div className="text-3xl font-bold text-blue-700">
-                  ¥{totalScheduled.toLocaleString()}
-                </div>
-              </div>
-
-              <div className="w-px h-16 bg-gray-300"></div>
-
-              <div className="text-center">
-                <div className="text-lg font-bold text-gray-700 mb-2">実績合計</div>
-                <div className="text-3xl font-bold text-green-700">
-                  ¥{totalActual.toLocaleString()}
-                </div>
-              </div>
-
-              <div className="w-px h-16 bg-gray-300"></div>
-
-              <div className="text-center">
-                <div className="text-lg font-bold text-gray-700 mb-2">総計</div>
-                <div className="text-4xl font-bold text-purple-700">
-                  ¥{grandTotal.toLocaleString()}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+                </td>
+                <td>
+                  <div className="text-center">{row.amount.toLocaleString()}</div>
+                </td>
+                <td>
+                  <div className="text-center">{row.scheduled.toLocaleString()}</div>
+                </td>
+                <td>
+                  <div className="text-center">{row.actual.toLocaleString()}</div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr className="bg-gray-100 font-bold">
+              <td colSpan={3}>合計</td>
+              <td>
+                <div className="text-center">{totalScheduled.toLocaleString()}</div>
+              </td>
+              <td>
+                <div className="text-center">{totalActual.toLocaleString()}</div>
+              </td>
+            </tr>
+            <tr className="bg-gray-200 font-bold">
+              <td colSpan={3}>総計</td>
+              <td colSpan={2}>
+                <div className="text-center">{grandTotal.toLocaleString()}</div>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
       </div>
     </>
   )
