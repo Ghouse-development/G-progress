@@ -23,6 +23,7 @@ import TopPage from './TopPage'
 import GrossProfitManagement from './GrossProfitManagement'
 import ApprovalFlow from './ApprovalFlow'
 import OrganizationManagement from './OrganizationManagement'
+import TaskStatus from './TaskStatus'
 import { ModeProvider } from '../contexts/ModeContext'
 import { FiscalYearProvider } from '../contexts/FiscalYearContext'
 import { SettingsProvider } from '../contexts/SettingsContext'
@@ -39,6 +40,7 @@ export default function Dashboard() {
                 <Routes>
                   <Route path="/" element={<TopPage />} />
                   <Route path="/dashboard" element={<NewDashboard />} />
+                  <Route path="/task-status" element={<TaskStatus />} />
                   <Route path="/projects" element={<ProjectList />} />
                   <Route path="/projects/:id" element={<ProjectDetail />} />
                   <Route path="/payments" element={<PaymentManagement />} />

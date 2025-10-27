@@ -32,7 +32,9 @@
       "Bash(vercel inspect:*)",
       "Bash(vercel project:*)",
       "Bash(git -C /mnt/c/claudecode/G-progress diff --name-only)",
-      "Bash(vercel ls:*)"
+      "Bash(vercel ls:*)",
+      "Bash(npx vercel --prod)",
+      "Bash(npx vercel:*)"
     ],
     "deny": [],
     "ask": []
