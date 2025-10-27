@@ -6,7 +6,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { Organization } from '../types/database'
-import { Building2, Plus, Edit, Trash2, X, Check, AlertTriangle, CheckCircle, Store } from 'lucide-react'
+import { Building2, Plus, Edit, Trash2, X, Check, AlertTriangle } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
 import { useSimplePermissions } from '../hooks/usePermissions'
 
@@ -233,36 +233,37 @@ export default function OrganizationManagement() {
         </div>
 
       {/* 統計情報 */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        {/* 総組織数 */}
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border-2 border-blue-300 shadow-lg">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-base font-bold text-blue-900">総組織数</p>
-            <Building2 className="text-blue-600" size={28} />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="bg-white rounded-lg border-2 border-gray-200 p-4">
+          <div className="flex items-center gap-3">
+            <Building2 size={24} className="text-blue-600" />
+            <div>
+              <p className="text-base text-gray-600">総組織数</p>
+              <p className="text-2xl font-bold text-gray-900">{organizations.length}</p>
+            </div>
           </div>
-          <p className="text-3xl font-black text-blue-900">{organizations.length}</p>
         </div>
-
-        {/* 稼働中 */}
-        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border-2 border-green-300 shadow-lg">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-base font-bold text-green-900">稼働中</p>
-            <CheckCircle className="text-green-600" size={28} />
+        <div className="bg-white rounded-lg border-2 border-gray-200 p-4">
+          <div className="flex items-center gap-3">
+            <Building2 size={24} className="text-green-600" />
+            <div>
+              <p className="text-base text-gray-600">稼働中</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {organizations.filter(o => o.org_status === 'active').length}
+              </p>
+            </div>
           </div>
-          <p className="text-3xl font-black text-green-900">
-            {organizations.filter(o => o.org_status === 'active').length}
-          </p>
         </div>
-
-        {/* フランチャイズ */}
-        <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border-2 border-orange-300 shadow-lg">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-base font-bold text-orange-900">フランチャイズ</p>
-            <Store className="text-orange-600" size={28} />
+        <div className="bg-white rounded-lg border-2 border-gray-200 p-4">
+          <div className="flex items-center gap-3">
+            <Building2 size={24} className="text-orange-600" />
+            <div>
+              <p className="text-base text-gray-600">フランチャイズ</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {organizations.filter(o => o.org_type === 'franchise').length}
+              </p>
+            </div>
           </div>
-          <p className="text-3xl font-black text-orange-900">
-            {organizations.filter(o => o.org_type === 'franchise').length}
-          </p>
         </div>
       </div>
 

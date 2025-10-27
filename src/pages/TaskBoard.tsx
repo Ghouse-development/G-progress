@@ -6,6 +6,8 @@ import { format, differenceInDays } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { AlertTriangle, Clock, DollarSign, CheckCircle, X, ExternalLink } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
+import { useSettings } from '../contexts/SettingsContext'
+import { generateDemoTasks, generateDemoPayments, generateDemoProjects, generateDemoCustomers } from '../utils/demoData'
 
 interface TaskWithEmployee extends Task {
   assigned_employee?: Employee
@@ -25,6 +27,7 @@ interface PaymentWithProject extends Payment {
 export default function TaskBoard() {
   const navigate = useNavigate()
   const { showToast } = useToast()
+  const { demoMode } = useSettings()
   const [tasks, setTasks] = useState<TaskWithEmployee[]>([])
   const [payments, setPayments] = useState<PaymentWithProject[]>([])
   const [loading, setLoading] = useState(true)
@@ -34,12 +37,52 @@ export default function TaskBoard() {
 
   useEffect(() => {
     loadData()
-  }, [])
+  }, [demoMode])
 
   const loadData = async () => {
     try {
       setLoading(true)
 
+      if (demoMode) {
+        // デモモード：サンプルデータを使用
+        const demoTasks = generateDemoTasks('admin')
+        const demoPayments = generateDemoPayments('admin')
+        const demoProjects = generateDemoProjects('admin')
+        const demoCustomers = generateDemoCustomers()
+
+        // タスクにプロジェクト情報を紐付け
+        const tasksWithProjects = demoTasks.map(task => {
+          const project = demoProjects.find(p => p.id === task.project_id)
+          const customer = project ? demoCustomers.find(c => c.id === project.customer_id) : null
+          return {
+            ...task,
+            project: project ? {
+              id: project.id,
+              customer_names: customer?.names || []
+            } : undefined
+          }
+        })
+
+        // 入金にプロジェクト情報を紐付け
+        const paymentsWithProjects = demoPayments.map(payment => {
+          const project = demoProjects.find(p => p.id === payment.project_id)
+          const customer = project ? demoCustomers.find(c => c.id === project.customer_id) : null
+          return {
+            ...payment,
+            project: project ? {
+              id: project.id,
+              customer_names: customer?.names || []
+            } : undefined
+          }
+        })
+
+        setTasks(tasksWithProjects as TaskWithEmployee[])
+        setPayments(paymentsWithProjects as PaymentWithProject[])
+        setLoading(false)
+        return
+      }
+
+      // 通常モード：Supabaseからデータを取得
       // タスク取得
       const { data: tasksData, error: tasksError } = await supabase
         .from('tasks')
