@@ -1333,7 +1333,7 @@ export default function ProjectList() {
                       className="transition-colors hover:bg-gray-50"
                     >
                       <td
-                        className="bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-base cursor-pointer hover:bg-blue-50 shadow-sm"
+                        className="bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-2 text-sm cursor-pointer hover:bg-blue-50 shadow-sm"
                         style={{ position: 'sticky', left: 0, zIndex: 20, width: '200px' }}
                         onClick={() => navigate(`/projects/${project.id}`)}
                       >
@@ -1341,12 +1341,12 @@ export default function ProjectList() {
                           {project.customer?.names?.join('・') || '顧客名なし'}様
                         </div>
                         {project.product && (
-                          <div className="text-base text-gray-600 font-medium">
+                          <div className="text-xs text-gray-600 font-medium">
                             {project.product.name}
                           </div>
                         )}
                       </td>
-                      <td className="bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-base shadow-sm" style={{ position: 'sticky', left: '200px', zIndex: 20, width: '110px' }}>
+                      <td className="bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-2 text-center text-sm shadow-sm" style={{ position: 'sticky', left: '200px', zIndex: 20, width: '110px' }}>
                         {project.sales ? (
                           <div className="font-semibold text-gray-900" title={`${project.sales.last_name} ${project.sales.first_name}`}>
                             {project.sales.last_name}
@@ -1355,7 +1355,7 @@ export default function ProjectList() {
                           <div className="font-semibold text-gray-400">-</div>
                         )}
                       </td>
-                      <td className="bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-base shadow-sm" style={{ position: 'sticky', left: '310px', zIndex: 20, width: '110px' }}>
+                      <td className="bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-2 text-center text-sm shadow-sm" style={{ position: 'sticky', left: '310px', zIndex: 20, width: '110px' }}>
                         {project.design ? (
                           <div className="font-semibold text-gray-900" title={`${project.design.last_name} ${project.design.first_name}`}>
                             {project.design.last_name}
@@ -1364,7 +1364,7 @@ export default function ProjectList() {
                           <div className="font-semibold text-gray-400">-</div>
                         )}
                       </td>
-                      <td className="bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-base shadow-sm" style={{ position: 'sticky', left: '420px', zIndex: 20, width: '110px' }}>
+                      <td className="bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-2 text-center text-sm shadow-sm" style={{ position: 'sticky', left: '420px', zIndex: 20, width: '110px' }}>
                         {project.ic ? (
                           <div className="font-semibold text-gray-900" title={`${project.ic.last_name} ${project.ic.first_name}`}>
                             {project.ic.last_name}
@@ -1373,7 +1373,7 @@ export default function ProjectList() {
                           <div className="font-semibold text-gray-400">-</div>
                         )}
                       </td>
-                      <td className="bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-3 text-center text-base shadow-sm" style={{ position: 'sticky', left: '530px', zIndex: 20, width: '110px' }}>
+                      <td className="bg-white border border-gray-100 border-r-2 border-r-gray-400 px-3 py-2 text-center text-sm shadow-sm" style={{ position: 'sticky', left: '530px', zIndex: 20, width: '110px' }}>
                         {project.construction ? (
                           <div className="font-semibold text-gray-900" title={`${project.construction.last_name} ${project.construction.first_name}`}>
                             {project.construction.last_name}
@@ -1382,7 +1382,7 @@ export default function ProjectList() {
                           <div className="font-semibold text-gray-400">-</div>
                         )}
                       </td>
-                      <td className="bg-white border border-gray-100 border-r-4 border-r-gray-700 px-3 py-3 text-center text-base shadow-md" style={{ position: 'sticky', left: '640px', zIndex: 20, width: '110px' }}>
+                      <td className="bg-white border border-gray-100 border-r-4 border-r-gray-700 px-3 py-2 text-center text-sm shadow-md" style={{ position: 'sticky', left: '640px', zIndex: 20, width: '110px' }}>
                         {project.exterior ? (
                           <div className="font-semibold text-gray-900" title={`${project.exterior.last_name} ${project.exterior.first_name}`}>
                             {project.exterior.last_name}

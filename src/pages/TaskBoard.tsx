@@ -224,21 +224,21 @@ export default function TaskBoard() {
                     <tr key={task.id} className="hover:bg-gray-50">
                       <td>
                         <div
-                          className="font-semibold text-gray-900 cursor-pointer hover:text-blue-600"
+                          className="font-semibold text-sm text-gray-900 cursor-pointer hover:text-blue-600"
                           onClick={() => handleTaskClick(task)}
                         >
                           {task.title}
                         </div>
                       </td>
-                      <td>{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
+                      <td className="text-sm">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
                       <td>
-                        <div className="text-center">
+                        <div className="text-center text-sm">
                           {task.due_date ? format(new Date(task.due_date), 'M/d (E)', { locale: ja }) : '-'}
                         </div>
                       </td>
                       <td>
                         <div className="text-center">
-                          <span className="prisma-badge prisma-badge-red">
+                          <span className="prisma-badge prisma-badge-red text-xs">
                             {task.due_date && `${differenceInDays(new Date(), new Date(task.due_date))}日遅れ`}
                           </span>
                         </div>
@@ -247,7 +247,7 @@ export default function TaskBoard() {
                         <div className="flex justify-center">
                           <button
                             onClick={() => handleTaskClick(task)}
-                            className="px-3 py-1.5 task-delayed rounded-lg text-base font-bold cursor-pointer hover:opacity-80 transition-opacity"
+                            className="px-2 py-1 task-delayed rounded-lg text-sm font-bold cursor-pointer hover:opacity-80 transition-opacity"
                           >
                             遅延
                           </button>
@@ -286,21 +286,21 @@ export default function TaskBoard() {
                     <tr key={task.id} className="hover:bg-gray-50">
                       <td>
                         <div
-                          className="font-semibold text-gray-900 cursor-pointer hover:text-blue-600"
+                          className="font-semibold text-sm text-gray-900 cursor-pointer hover:text-blue-600"
                           onClick={() => handleTaskClick(task)}
                         >
                           {task.title}
                         </div>
                       </td>
-                      <td>{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
+                      <td className="text-sm">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
                       <td>
-                        <div className="text-center">
+                        <div className="text-center text-sm">
                           {task.due_date ? format(new Date(task.due_date), 'M/d (E)', { locale: ja }) : '-'}
                         </div>
                       </td>
                       <td>
                         <div className="text-center">
-                          <span className="prisma-badge prisma-badge-yellow">
+                          <span className="prisma-badge prisma-badge-yellow text-xs">
                             {task.due_date && `あと${differenceInDays(new Date(task.due_date), new Date())}日`}
                           </span>
                         </div>
@@ -309,7 +309,7 @@ export default function TaskBoard() {
                         <div className="flex justify-center">
                           <button
                             onClick={() => handleTaskClick(task)}
-                            className="px-3 py-1.5 task-in-progress rounded-lg text-base font-bold cursor-pointer hover:opacity-80 transition-opacity"
+                            className="px-2 py-1 task-in-progress rounded-lg text-sm font-bold cursor-pointer hover:opacity-80 transition-opacity"
                           >
                             着手中
                           </button>
@@ -350,19 +350,19 @@ export default function TaskBoard() {
                       className="hover:bg-gray-50 cursor-pointer"
                       onClick={() => payment.project_id && handleNavigateToProject(payment.project_id)}
                     >
-                      <td className="font-semibold text-gray-900">{payment.payment_type}</td>
-                      <td>{payment.project ? `${payment.project.customer_names[0]}様` : '-'}</td>
-                      <td className="font-bold text-green-700">
+                      <td className="font-semibold text-sm text-gray-900">{payment.payment_type}</td>
+                      <td className="text-sm">{payment.project ? `${payment.project.customer_names[0]}様` : '-'}</td>
+                      <td className="font-bold text-base text-green-700">
                         ¥{payment.scheduled_amount?.toLocaleString() || '-'}
                       </td>
                       <td>
-                        <div className="text-center">
+                        <div className="text-center text-sm">
                           {payment.scheduled_date ? format(new Date(payment.scheduled_date), 'M/d (E)', { locale: ja }) : '-'}
                         </div>
                       </td>
                       <td>
                         <div className="text-center">
-                          <span className="prisma-badge prisma-badge-green">
+                          <span className="prisma-badge prisma-badge-green text-xs">
                             {payment.scheduled_date && `あと${differenceInDays(new Date(payment.scheduled_date), new Date())}日`}
                           </span>
                         </div>
@@ -402,15 +402,15 @@ export default function TaskBoard() {
                       className="hover:bg-gray-50 cursor-pointer"
                       onClick={() => handleTaskClick(task)}
                     >
-                      <td className="font-semibold text-gray-900">{task.title}</td>
-                      <td>{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
+                      <td className="font-semibold text-sm text-gray-900">{task.title}</td>
+                      <td className="text-sm">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
                       <td>
                         <div className="text-center">
-                          <span className="prisma-badge prisma-badge-blue">タスク</span>
+                          <span className="prisma-badge prisma-badge-blue text-xs">タスク</span>
                         </div>
                       </td>
                       <td>
-                        <div className="text-center">
+                        <div className="text-center text-sm">
                           {task.actual_completion_date ? format(new Date(task.actual_completion_date), 'M/d (E)', { locale: ja }) : '-'}
                         </div>
                       </td>
@@ -418,7 +418,7 @@ export default function TaskBoard() {
                         <div className="flex justify-center">
                           <button
                             onClick={() => handleTaskClick(task)}
-                            className="px-3 py-1.5 task-completed rounded-lg text-base font-bold cursor-pointer hover:opacity-80 transition-opacity"
+                            className="px-2 py-1 task-completed rounded-lg text-sm font-bold cursor-pointer hover:opacity-80 transition-opacity"
                           >
                             完了
                           </button>
@@ -432,20 +432,20 @@ export default function TaskBoard() {
                       className="hover:bg-gray-50 cursor-pointer"
                       onClick={() => payment.project_id && handleNavigateToProject(payment.project_id)}
                     >
-                      <td className="font-semibold text-gray-900">{payment.payment_type}</td>
-                      <td>{payment.project ? `${payment.project.customer_names[0]}様` : '-'}</td>
+                      <td className="font-semibold text-sm text-gray-900">{payment.payment_type}</td>
+                      <td className="text-sm">{payment.project ? `${payment.project.customer_names[0]}様` : '-'}</td>
                       <td>
                         <div className="text-center">
-                          <span className="prisma-badge prisma-badge-green">入金</span>
+                          <span className="prisma-badge prisma-badge-green text-xs">入金</span>
                         </div>
                       </td>
                       <td>
-                        <div className="text-center">
+                        <div className="text-center text-sm">
                           {payment.actual_date ? format(new Date(payment.actual_date), 'M/d (E)', { locale: ja }) : '-'}
                         </div>
                       </td>
                       <td>
-                        <div className="text-center font-bold text-green-700">
+                        <div className="text-center font-bold text-base text-green-700">
                           ¥{payment.actual_amount?.toLocaleString() || '-'}
                         </div>
                       </td>
@@ -460,7 +460,7 @@ export default function TaskBoard() {
         {/* すべて空の場合 */}
         {delayedTasks.length === 0 && upcomingTasks.length === 0 && upcomingPayments.length === 0 && completedTasks.length === 0 && completedPayments.length === 0 && (
           <div className="prisma-card">
-            <div className="text-center py-12 text-base text-gray-500">
+            <div className="text-center py-12 text-sm text-gray-500">
               タスク・入金予定はありません
             </div>
           </div>
