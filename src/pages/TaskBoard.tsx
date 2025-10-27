@@ -201,30 +201,32 @@ export default function TaskBoard() {
       <div className="prisma-content">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* 遅延ボックス */}
-          <div className="prisma-card bg-red-50">
-            <div className="prisma-card-header">
-              <h2 className="prisma-card-title flex items-center gap-2">
-                <AlertTriangle size={20} className="text-red-600" />
+          <div className="prisma-card bg-gradient-to-br from-red-100 to-red-200 border-3 border-red-400">
+            <div className="prisma-card-header bg-red-200">
+              <h2 className="prisma-card-title flex items-center gap-2 text-red-900">
+                <AlertTriangle size={24} className="text-red-700" />
                 遅延（{delayedTasks.length}件）
               </h2>
             </div>
             <div className="p-6 max-h-96 overflow-y-auto">
               {delayedTasks.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">遅延タスクはありません</div>
+                <div className="text-center py-8 text-base text-gray-500">遅延タスクはありません</div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {delayedTasks.map(task => (
                     <div
                       key={task.id}
                       onClick={() => handleTaskClick(task)}
-                      className="p-3 bg-white border border-gray-300 rounded-lg hover:border-red-400 hover:shadow-md cursor-pointer transition-all"
+                      className="p-4 bg-white border-3 border-red-400 rounded-lg hover:border-red-600 hover:shadow-lg cursor-pointer transition-all"
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-sm font-bold text-gray-900 truncate flex-1">{task.title}</span>
-                        <span className="text-xs text-gray-600 whitespace-nowrap">
-                          {task.project && `${task.project.customer_names[0]}様`}
-                        </span>
-                        <span className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold whitespace-nowrap">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm text-gray-600 mb-1">
+                            {task.project && `${task.project.customer_names[0]}様`}
+                          </div>
+                          <div className="text-lg font-bold text-gray-900">{task.title}</div>
+                        </div>
+                        <span className="px-4 py-2 bg-red-500 text-white rounded-lg text-base font-bold whitespace-nowrap">
                           {task.due_date && `${differenceInDays(new Date(), new Date(task.due_date))}日遅れ`}
                         </span>
                       </div>
@@ -236,30 +238,32 @@ export default function TaskBoard() {
           </div>
 
           {/* 期日が近いボックス */}
-          <div className="prisma-card bg-yellow-50">
-            <div className="prisma-card-header">
-              <h2 className="prisma-card-title flex items-center gap-2">
-                <Clock size={20} className="text-yellow-600" />
+          <div className="prisma-card bg-gradient-to-br from-yellow-100 to-yellow-200 border-3 border-yellow-400">
+            <div className="prisma-card-header bg-yellow-200">
+              <h2 className="prisma-card-title flex items-center gap-2 text-yellow-900">
+                <Clock size={24} className="text-yellow-700" />
                 期日が近い（{upcomingTasks.length}件）
               </h2>
             </div>
             <div className="p-6 max-h-96 overflow-y-auto">
               {upcomingTasks.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">期日が近いタスクはありません</div>
+                <div className="text-center py-8 text-base text-gray-500">期日が近いタスクはありません</div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {upcomingTasks.map(task => (
                     <div
                       key={task.id}
                       onClick={() => handleTaskClick(task)}
-                      className="p-3 bg-white border border-gray-300 rounded-lg hover:border-yellow-400 hover:shadow-md cursor-pointer transition-all"
+                      className="p-4 bg-white border-3 border-yellow-400 rounded-lg hover:border-yellow-600 hover:shadow-lg cursor-pointer transition-all"
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-sm font-bold text-gray-900 truncate flex-1">{task.title}</span>
-                        <span className="text-xs text-gray-600 whitespace-nowrap">
-                          {task.project && `${task.project.customer_names[0]}様`}
-                        </span>
-                        <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-bold whitespace-nowrap">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm text-gray-600 mb-1">
+                            {task.project && `${task.project.customer_names[0]}様`}
+                          </div>
+                          <div className="text-lg font-bold text-gray-900">{task.title}</div>
+                        </div>
+                        <span className="px-4 py-2 bg-yellow-500 text-white rounded-lg text-base font-bold whitespace-nowrap">
                           {task.due_date && `あと${differenceInDays(new Date(task.due_date), new Date())}日`}
                         </span>
                       </div>
@@ -271,33 +275,35 @@ export default function TaskBoard() {
           </div>
 
           {/* 入金ボックス */}
-          <div className="prisma-card bg-green-50">
-            <div className="prisma-card-header">
-              <h2 className="prisma-card-title flex items-center gap-2">
-                <DollarSign size={20} className="text-green-600" />
+          <div className="prisma-card bg-gradient-to-br from-green-100 to-green-200 border-3 border-green-400">
+            <div className="prisma-card-header bg-green-200">
+              <h2 className="prisma-card-title flex items-center gap-2 text-green-900">
+                <DollarSign size={24} className="text-green-700" />
                 入金予定（{upcomingPayments.length}件）
               </h2>
             </div>
             <div className="p-6 max-h-96 overflow-y-auto">
               {upcomingPayments.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">入金予定はありません</div>
+                <div className="text-center py-8 text-base text-gray-500">入金予定はありません</div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {upcomingPayments.map(payment => (
                     <div
                       key={payment.id}
                       onClick={() => payment.project_id && handleNavigateToProject(payment.project_id)}
-                      className="p-3 bg-white border border-gray-300 rounded-lg hover:border-green-400 hover:shadow-md cursor-pointer transition-all"
+                      className="p-4 bg-white border-3 border-green-400 rounded-lg hover:border-green-600 hover:shadow-lg cursor-pointer transition-all"
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-sm font-bold text-gray-900 truncate flex-1">{payment.payment_type}</span>
-                        <span className="text-xs text-gray-600 whitespace-nowrap">
-                          {payment.project && `${payment.project.customer_names[0]}様`}
-                        </span>
-                        <span className="text-xs text-gray-600 whitespace-nowrap">
-                          ¥{payment.scheduled_amount?.toLocaleString()}
-                        </span>
-                        <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold whitespace-nowrap">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm text-gray-600 mb-1">
+                            {payment.project && `${payment.project.customer_names[0]}様`}
+                          </div>
+                          <div className="text-lg font-bold text-gray-900 mb-1">{payment.payment_type}</div>
+                          <div className="text-base font-bold text-green-700">
+                            ¥{payment.scheduled_amount?.toLocaleString()}
+                          </div>
+                        </div>
+                        <span className="px-4 py-2 bg-green-500 text-white rounded-lg text-base font-bold whitespace-nowrap">
                           {payment.scheduled_date && `あと${differenceInDays(new Date(payment.scheduled_date), new Date())}日`}
                         </span>
                       </div>
@@ -309,30 +315,32 @@ export default function TaskBoard() {
           </div>
 
           {/* 完了ボックス */}
-          <div className="prisma-card bg-blue-50">
-            <div className="prisma-card-header">
-              <h2 className="prisma-card-title flex items-center gap-2">
-                <CheckCircle size={20} className="text-blue-600" />
+          <div className="prisma-card bg-gradient-to-br from-blue-100 to-blue-200 border-3 border-blue-400">
+            <div className="prisma-card-header bg-blue-200">
+              <h2 className="prisma-card-title flex items-center gap-2 text-blue-900">
+                <CheckCircle size={24} className="text-blue-700" />
                 完了（{completedTasks.length + completedPayments.length}件）
               </h2>
             </div>
             <div className="p-6 max-h-96 overflow-y-auto">
               {completedTasks.length === 0 && completedPayments.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">完了したタスク・入金はありません</div>
+                <div className="text-center py-8 text-base text-gray-500">完了したタスク・入金はありません</div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {completedTasks.map(task => (
                     <div
                       key={task.id}
                       onClick={() => handleTaskClick(task)}
-                      className="p-3 bg-white border border-gray-300 rounded-lg hover:border-blue-400 hover:shadow-md cursor-pointer transition-all"
+                      className="p-4 bg-white border-3 border-blue-400 rounded-lg hover:border-blue-600 hover:shadow-lg cursor-pointer transition-all"
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-sm font-bold text-gray-900 truncate flex-1">{task.title}</span>
-                        <span className="text-xs text-gray-600 whitespace-nowrap">
-                          {task.project && `${task.project.customer_names[0]}様`}
-                        </span>
-                        <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold whitespace-nowrap">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm text-gray-600 mb-1">
+                            {task.project && `${task.project.customer_names[0]}様`}
+                          </div>
+                          <div className="text-lg font-bold text-gray-900">{task.title}</div>
+                        </div>
+                        <span className="px-4 py-2 bg-blue-500 text-white rounded-lg text-base font-bold whitespace-nowrap">
                           完了
                         </span>
                       </div>
@@ -342,17 +350,19 @@ export default function TaskBoard() {
                     <div
                       key={payment.id}
                       onClick={() => payment.project_id && handleNavigateToProject(payment.project_id)}
-                      className="p-3 bg-white border border-gray-300 rounded-lg hover:border-blue-400 hover:shadow-md cursor-pointer transition-all"
+                      className="p-4 bg-white border-3 border-blue-400 rounded-lg hover:border-blue-600 hover:shadow-lg cursor-pointer transition-all"
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-sm font-bold text-gray-900 truncate flex-1">{payment.payment_type}</span>
-                        <span className="text-xs text-gray-600 whitespace-nowrap">
-                          {payment.project && `${payment.project.customer_names[0]}様`}
-                        </span>
-                        <span className="text-xs text-gray-600 whitespace-nowrap">
-                          ¥{payment.actual_amount?.toLocaleString()}
-                        </span>
-                        <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold whitespace-nowrap">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm text-gray-600 mb-1">
+                            {payment.project && `${payment.project.customer_names[0]}様`}
+                          </div>
+                          <div className="text-lg font-bold text-gray-900 mb-1">{payment.payment_type}</div>
+                          <div className="text-base font-bold text-blue-700">
+                            ¥{payment.actual_amount?.toLocaleString()}
+                          </div>
+                        </div>
+                        <span className="px-4 py-2 bg-green-500 text-white rounded-lg text-base font-bold whitespace-nowrap">
                           入金済
                         </span>
                       </div>

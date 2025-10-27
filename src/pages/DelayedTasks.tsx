@@ -83,29 +83,29 @@ export default function DelayedTasks() {
         </div>
 
           {/* 統計情報 */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 border-2 border-red-300 shadow-lg">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="bg-white rounded-lg p-4 border-2 border-gray-300 shadow-md">
               <div className="flex items-center justify-between mb-2">
-                <div className="text-base font-bold text-red-900">総遅延タスク数</div>
-                <AlertTriangle className="text-red-600" size={28} />
+                <div className="text-base font-bold text-gray-700">総遅延タスク数</div>
+                <AlertTriangle className="text-red-600" size={20} />
               </div>
-              <div className="text-4xl font-black text-red-600">{delayedTasks.length}件</div>
+              <div className="text-2xl font-bold text-red-600">{delayedTasks.length}件</div>
             </div>
-            <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 border-2 border-yellow-300 shadow-lg">
+            <div className="bg-white rounded-lg p-4 border-2 border-gray-300 shadow-md">
               <div className="flex items-center justify-between mb-2">
-                <div className="text-base font-bold text-yellow-900">未着手</div>
-                <Clock className="text-yellow-600" size={28} />
+                <div className="text-base font-bold text-gray-700">未着手</div>
+                <Clock className="text-yellow-600" size={20} />
               </div>
-              <div className="text-4xl font-black text-yellow-600">
+              <div className="text-2xl font-bold text-yellow-600">
                 {delayedTasks.filter(t => t.status === 'not_started').length}件
               </div>
             </div>
-            <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border-2 border-orange-300 shadow-lg">
+            <div className="bg-white rounded-lg p-4 border-2 border-gray-300 shadow-md">
               <div className="flex items-center justify-between mb-2">
-                <div className="text-base font-bold text-orange-900">着手中</div>
-                <Clock className="text-orange-600" size={28} />
+                <div className="text-base font-bold text-gray-700">着手中</div>
+                <Clock className="text-orange-600" size={20} />
               </div>
-              <div className="text-4xl font-black text-orange-600">
+              <div className="text-2xl font-bold text-orange-600">
                 {delayedTasks.filter(t => t.status === 'requested').length}件
               </div>
             </div>

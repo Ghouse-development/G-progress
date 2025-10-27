@@ -41,7 +41,13 @@
       "Bash(for file in NewDashboard.tsx Dashboard.tsx ProjectList.tsx DelayedTasks.tsx TaskByPosition.tsx ImportCSV.tsx Login.tsx)",
       "Bash(do test -f src/pages/$file)",
       "Bash(echo:*)",
-      "Bash(awk:*)"
+      "Bash(awk:*)",
+      "Bash(vercel whoami:*)",
+      "Bash(vercel:*)",
+      "Bash(for file in src/pages/Settings.tsx src/pages/OrganizationManagement.tsx src/pages/TaskMasterManagement.tsx src/pages/PaymentManagement.tsx src/pages/GrossProfitManagement.tsx)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(for file in src/pages/NewDashboard.tsx src/pages/TaskBoard.tsx src/pages/DelayedTasks.tsx src/pages/ApprovalFlow.tsx)",
+      "Bash(npm run lint:*)"
     ],
     "deny": [],
     "ask": []

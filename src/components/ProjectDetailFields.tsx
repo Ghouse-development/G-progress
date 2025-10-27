@@ -24,6 +24,7 @@ interface TaskWithEmployee extends Task {
 interface ProjectDetailFieldsProps {
   project: Project
   onUpdate: () => void
+  onEmployeeUpdate?: () => void
   tasks?: TaskWithEmployee[]
   employees?: Employee[]
   onTaskClick?: (task: TaskWithEmployee) => void
@@ -36,6 +37,7 @@ interface ProjectDetailFieldsProps {
 export default function ProjectDetailFields({
   project,
   onUpdate,
+  onEmployeeUpdate,
   tasks = [],
   employees = [],
   onTaskClick,
@@ -426,158 +428,147 @@ export default function ProjectDetailFields({
 
             {/* タスク一覧タブ */}
             {positionSubTab === 'tasks' && (
-              <div className="p-4" style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto' }}>
+              <div className="p-6" style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto' }}>
                 {tasks.length === 0 ? (
-                  <div className="bg-white rounded-lg shadow-md p-8 text-center text-gray-500 font-medium border-2 border-gray-300">
+                  <div className="prisma-card text-center text-gray-500 font-medium">
                     タスクがありません
                   </div>
                 ) : (
-              <div className="bg-white rounded-lg shadow-xl overflow-hidden border-2 border-gray-300">
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <thead className="bg-gray-100 border-b border-gray-400 sticky top-0 z-10">
-                      <tr>
-                        <th className="border border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900 min-w-[100px]">
-                          職種
-                        </th>
-                        <th className="border border-gray-300 px-4 py-3 text-left font-bold text-base text-gray-900 min-w-[250px]">
-                          タスク名
-                        </th>
-                        <th className="border border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900 min-w-[120px]">
-                          担当者
-                        </th>
-                        <th className="border border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900 min-w-[110px]">
-                          期限
-                        </th>
-                        <th className="border border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900 min-w-[90px]">
-                          経過日数
-                        </th>
-                        <th className="border border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900 min-w-[100px]">
-                          ステータス
-                        </th>
-                        <th className="border border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900 min-w-[120px]">
-                          操作
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {DEPARTMENTS.map((dept) => {
-                        const deptTasks = tasks.filter(task => {
-                          const taskPosition = task.description?.split(':')[0]?.trim()
-                          return dept.positions.includes(taskPosition || '')
-                        })
+                  <div className="space-y-6">
+                    {DEPARTMENTS.map((dept, deptIndex) => {
+                      const deptTasks = tasks.filter(task => {
+                        const taskPosition = task.description?.split(':')[0]?.trim()
+                        return dept.positions.includes(taskPosition || '')
+                      })
 
-                        return dept.positions.map(position => {
-                          const positionTasks = deptTasks.filter(task => {
-                            const taskPosition = task.description?.split(':')[0]?.trim()
-                            return taskPosition === position
-                          })
+                      if (deptTasks.length === 0) return null
 
-                          if (positionTasks.length === 0) return null
+                      return (
+                        <div key={dept.name} className="prisma-card">
+                          {/* 部門ヘッダー */}
+                          <div className={`px-6 py-4 font-bold text-xl ${
+                            deptIndex === 0 ? 'bg-blue-100 text-blue-900' :
+                            deptIndex === 1 ? 'bg-green-100 text-green-900' :
+                            deptIndex === 2 ? 'bg-orange-100 text-orange-900' :
+                            'bg-purple-100 text-purple-900'
+                          } rounded-t-lg`}>
+                            {dept.name}
+                          </div>
 
-                          return positionTasks.map((task, index) => {
-                            const isDelayed = task.due_date &&
-                              task.status !== 'completed' &&
-                              new Date(task.due_date) < new Date()
+                          {/* 職種別タスクカード */}
+                          <div className="p-6 space-y-4">
+                            {dept.positions.map(position => {
+                              const positionTasks = deptTasks.filter(task => {
+                                const taskPosition = task.description?.split(':')[0]?.trim()
+                                return taskPosition === position
+                              })
 
-                            return (
-                              <tr
-                                key={task.id}
-                                className="hover:bg-blue-50 transition-colors cursor-pointer"
-                                onClick={() => onTaskClick && onTaskClick(task)}
-                                title={`${task.title}${task.is_date_confirmed ? ' [日付確定]' : ' [予定]'}${task.comment ? '\n\nコメント: ' + task.comment : ''}`}
-                              >
-                                {/* 職種 */}
-                                {index === 0 && (
-                                  <td
-                                    rowSpan={positionTasks.length}
-                                    className="border border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900 bg-green-50"
-                                  >
-                                    {position}
-                                  </td>
-                                )}
+                              if (positionTasks.length === 0) return null
 
-                                {/* タスク名 */}
-                                <td className="border border-gray-300 px-4 py-3 text-base text-gray-900 font-medium">
-                                  <div className="relative inline-block">
-                                    {task.title}
-                                    {task.is_date_confirmed && (
-                                      <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-8 h-8 text-sm font-bold text-white bg-green-600 rounded-full border-2 border-white shadow-lg" title="日付確定">
-                                        確
-                                      </span>
-                                    )}
-                                    {task.original_due_date && task.due_date && task.original_due_date !== task.due_date && (
-                                      <span className="absolute -bottom-1 -right-1 inline-flex items-center justify-center w-6 h-6 text-white bg-yellow-500 rounded-full border-2 border-white shadow-lg" title={`当初予定から${Math.abs(differenceInDays(new Date(task.due_date), new Date(task.original_due_date)))}日${differenceInDays(new Date(task.due_date), new Date(task.original_due_date)) > 0 ? '後ろ倒し' : '前倒し'}`}>
-                                        <AlertTriangle size={12} />
-                                      </span>
-                                    )}
+                              return (
+                                <div key={position} className="space-y-3">
+                                  {/* 職種ラベル */}
+                                  <div className="px-4 py-2 bg-gray-100 rounded-lg">
+                                    <span className="font-bold text-lg text-gray-900">{position}</span>
+                                    <span className="ml-3 text-base text-gray-600">（{positionTasks.length}件）</span>
                                   </div>
-                                </td>
 
-                                {/* 担当者 */}
-                                <td className="border border-gray-300 px-4 py-3 text-center text-base text-gray-900">
-                                  {task.assigned_employee
-                                    ? `${task.assigned_employee.last_name} ${task.assigned_employee.first_name}`
-                                    : '未割当'
-                                  }
-                                </td>
+                                  {/* タスクカード一覧 */}
+                                  <div className="grid grid-cols-1 gap-3">
+                                    {positionTasks.map(task => {
+                                      const isDelayed = task.due_date &&
+                                        task.status !== 'completed' &&
+                                        new Date(task.due_date) < new Date()
 
-                                {/* 期限 */}
-                                <td className="border border-gray-300 px-4 py-3 text-center text-base font-bold text-gray-900">
-                                  {task.due_date
-                                    ? format(new Date(task.due_date), 'M/d (E)', { locale: ja })
-                                    : '未設定'
-                                  }
-                                </td>
+                                      return (
+                                        <div
+                                          key={task.id}
+                                          onClick={() => onTaskClick && onTaskClick(task)}
+                                          className="p-4 bg-white rounded-lg border-2 border-gray-300 hover:border-blue-400 hover:shadow-md cursor-pointer transition-all"
+                                        >
+                                          <div className="flex items-start justify-between gap-4">
+                                            {/* 左側：タスク情報 */}
+                                            <div className="flex-1 min-w-0">
+                                              <div className="flex items-center gap-2 mb-2">
+                                                <h4 className="text-lg font-bold text-gray-900">{task.title}</h4>
+                                                {task.is_date_confirmed && (
+                                                  <span className="inline-flex items-center justify-center px-2 py-1 text-sm font-bold text-white bg-green-600 rounded-full" title="日付確定">
+                                                    確定
+                                                  </span>
+                                                )}
+                                                {task.original_due_date && task.due_date && task.original_due_date !== task.due_date && (
+                                                  <span className="inline-flex items-center gap-1 px-2 py-1 text-sm font-bold text-white bg-yellow-500 rounded-full" title={`当初予定から${Math.abs(differenceInDays(new Date(task.due_date), new Date(task.original_due_date)))}日${differenceInDays(new Date(task.due_date), new Date(task.original_due_date)) > 0 ? '後ろ倒し' : '前倒し'}`}>
+                                                    <AlertTriangle size={14} />
+                                                    変更
+                                                  </span>
+                                                )}
+                                              </div>
 
-                                {/* 経過日数 */}
-                                <td className="border border-gray-300 px-4 py-3 text-center text-base font-bold text-blue-700">
-                                  {task.dayFromContract || 0}日
-                                </td>
+                                              <div className="flex flex-wrap items-center gap-3 text-base text-gray-600">
+                                                <span>
+                                                  担当：{task.assigned_employee
+                                                    ? `${task.assigned_employee.last_name} ${task.assigned_employee.first_name}`
+                                                    : '未割当'
+                                                  }
+                                                </span>
+                                                <span>•</span>
+                                                <span>
+                                                  期限：{task.due_date
+                                                    ? format(new Date(task.due_date), 'M/d (E)', { locale: ja })
+                                                    : '未設定'
+                                                  }
+                                                </span>
+                                                <span>•</span>
+                                                <span className="font-bold text-blue-700">
+                                                  {task.dayFromContract || 0}日目
+                                                </span>
+                                              </div>
+                                            </div>
 
-                                {/* ステータス */}
-                                <td className="border border-gray-300 px-4 py-3 text-center">
-                                  <span className={`px-3 py-1 rounded-lg font-bold text-base border-2 ${
-                                    isDelayed ? 'task-delayed' : getStatusBadgeColor(task.status)
-                                  }`}>
-                                    {isDelayed ? '遅延' : getStatusText(task.status)}
-                                  </span>
-                                </td>
+                                            {/* 右側：ステータス＋操作ボタン */}
+                                            <div className="flex items-center gap-3">
+                                              <span className={`px-4 py-2 rounded-lg font-bold text-base whitespace-nowrap ${
+                                                isDelayed ? 'task-delayed' : getStatusBadgeColor(task.status)
+                                              }`}>
+                                                {isDelayed ? '遅延' : getStatusText(task.status)}
+                                              </span>
 
-                                {/* 操作 */}
-                                <td className="border border-gray-300 px-4 py-3 text-center">
-                                  <div className="flex items-center justify-center gap-1">
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation()
-                                        onTaskClick && onTaskClick(task)
-                                      }}
-                                      className="p-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors border-2 border-blue-300"
-                                      title="詳細表示"
-                                    >
-                                      <Eye size={16} />
-                                    </button>
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation()
-                                        onTaskDelete && onTaskDelete(task.id)
-                                      }}
-                                      className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors border-2 border-red-300"
-                                      title="削除"
-                                    >
-                                      <Trash2 size={16} />
-                                    </button>
+                                              <div className="flex items-center gap-2">
+                                                <button
+                                                  onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    onTaskClick && onTaskClick(task)
+                                                  }}
+                                                  className="p-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
+                                                  title="詳細表示"
+                                                >
+                                                  <Eye size={18} />
+                                                </button>
+                                                <button
+                                                  onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    onTaskDelete && onTaskDelete(task.id)
+                                                  }}
+                                                  className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
+                                                  title="削除"
+                                                >
+                                                  <Trash2 size={18} />
+                                                </button>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      )
+                                    })}
                                   </div>
-                                </td>
-                              </tr>
-                            )
-                          })
-                        })
-                      }).flat()}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
                 )}
               </div>
             )}
@@ -649,7 +640,10 @@ export default function ProjectDetailFields({
                                     if (error) throw error
 
                                     showToast('担当者を設定しました', 'success')
-                                    onUpdate()
+                                    // 従業員データのみを再読み込み（ページ遷移を防ぐ）
+                                    if (onEmployeeUpdate) {
+                                      onEmployeeUpdate()
+                                    }
                                   } catch (error) {
                                     console.error('Failed to update employee:', error)
                                     showToast('設定に失敗しました', 'error')

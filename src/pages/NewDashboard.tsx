@@ -558,37 +558,37 @@ export default function NewDashboard() {
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 text-center">
               {/* 入金予定 */}
               <div className="p-2 bg-gray-50 rounded border border-gray-200">
-                <div className="text-xs text-gray-600 mb-1">入金予定</div>
+                <div className="text-sm text-gray-600 mb-1">入金予定</div>
                 <div className="text-base font-bold text-gray-900">{Math.floor(totalScheduledPayment / 1.1 / 1000000)}百万円</div>
               </div>
               {/* 入金実績 */}
               <div className="p-2 bg-gray-50 rounded border border-gray-200">
-                <div className="text-xs text-gray-600 mb-1">入金実績</div>
+                <div className="text-sm text-gray-600 mb-1">入金実績</div>
                 <div className="text-base font-bold text-green-600">{Math.floor(totalActualPayment / 1.1 / 1000000)}百万円</div>
               </div>
               {/* 変更契約 */}
               <div className="p-2 bg-gray-50 rounded border border-gray-200">
-                <div className="text-xs text-gray-600 mb-1">変更契約</div>
+                <div className="text-sm text-gray-600 mb-1">変更契約</div>
                 <div className="text-base font-bold text-gray-900">{totalChangeContracts}件</div>
               </div>
               {/* 遅延タスク */}
               <div className={`p-2 rounded border ${delayedTaskCount > 0 ? 'bg-red-50 border-red-300' : 'bg-gray-50 border-gray-200'}`}>
-                <div className="text-xs text-gray-600 mb-1">遅延タスク</div>
+                <div className="text-sm text-gray-600 mb-1">遅延タスク</div>
                 <div className={`text-base font-bold ${delayedTaskCount > 0 ? 'text-red-600' : 'text-gray-900'}`}>{delayedTaskCount}件</div>
               </div>
               {/* 平均坪数 */}
               <div className="p-2 bg-gray-50 rounded border border-gray-200">
-                <div className="text-xs text-gray-600 mb-1">平均坪数</div>
+                <div className="text-sm text-gray-600 mb-1">平均坪数</div>
                 <div className="text-base font-bold text-gray-900">{avgFloorArea.toFixed(1)}坪</div>
               </div>
               {/* 平均契約額 */}
               <div className="p-2 bg-gray-50 rounded border border-gray-200">
-                <div className="text-xs text-gray-600 mb-1">平均契約額</div>
+                <div className="text-sm text-gray-600 mb-1">平均契約額</div>
                 <div className="text-base font-bold text-gray-900">{Math.floor(avgContractAmount / 1000000)}百万円</div>
               </div>
               {/* 契約～引渡 */}
               <div className="p-2 bg-gray-50 rounded border border-gray-200">
-                <div className="text-xs text-gray-600 mb-1">契約→引渡</div>
+                <div className="text-sm text-gray-600 mb-1">契約→引渡</div>
                 <div className="text-base font-bold text-blue-600">
                   {countContractToHandover > 0 ? Math.round(avgDaysContractToHandover) : '-'}日
                 </div>

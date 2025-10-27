@@ -134,39 +134,39 @@ export default function ApprovalFlow() {
 
       {/* 統計カード */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border-2 border-purple-300 shadow-lg">
+        <div className="bg-white rounded-lg p-4 border-2 border-gray-300 shadow-md">
           <div className="flex items-center justify-between mb-2">
-            <div className="text-base font-bold text-purple-900">全申請</div>
-            <Layers className="text-purple-600" size={28} />
+            <div className="text-base font-bold text-gray-700">全申請</div>
+            <Layers className="text-purple-600" size={20} />
           </div>
-          <div className="text-4xl font-black text-purple-900">
+          <div className="text-2xl font-bold text-gray-900">
             {requests.length}
           </div>
         </div>
-        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 border-2 border-yellow-300 shadow-lg">
+        <div className="bg-white rounded-lg p-4 border-2 border-gray-300 shadow-md">
           <div className="flex items-center justify-between mb-2">
-            <div className="text-base font-bold text-yellow-900">承認待ち</div>
-            <Clock className="text-yellow-600" size={28} />
+            <div className="text-base font-bold text-gray-700">承認待ち</div>
+            <Clock className="text-yellow-600" size={20} />
           </div>
-          <div className="text-4xl font-black text-yellow-600">
+          <div className="text-2xl font-bold text-yellow-600">
             {requests.filter(r => r.status === 'pending').length}
           </div>
         </div>
-        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border-2 border-green-300 shadow-lg">
+        <div className="bg-white rounded-lg p-4 border-2 border-gray-300 shadow-md">
           <div className="flex items-center justify-between mb-2">
-            <div className="text-base font-bold text-green-900">承認済み</div>
-            <CheckCircle className="text-green-600" size={28} />
+            <div className="text-base font-bold text-gray-700">承認済み</div>
+            <CheckCircle className="text-green-600" size={20} />
           </div>
-          <div className="text-4xl font-black text-green-600">
+          <div className="text-2xl font-bold text-green-600">
             {requests.filter(r => r.status === 'approved').length}
           </div>
         </div>
-        <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 border-2 border-red-300 shadow-lg">
+        <div className="bg-white rounded-lg p-4 border-2 border-gray-300 shadow-md">
           <div className="flex items-center justify-between mb-2">
-            <div className="text-base font-bold text-red-900">却下</div>
-            <XCircle className="text-red-600" size={28} />
+            <div className="text-base font-bold text-gray-700">却下</div>
+            <XCircle className="text-red-600" size={20} />
           </div>
-          <div className="text-4xl font-black text-red-600">
+          <div className="text-2xl font-bold text-red-600">
             {requests.filter(r => r.status === 'rejected').length}
           </div>
         </div>
@@ -228,7 +228,7 @@ export default function ApprovalFlow() {
                       <FileText className="text-gray-600 dark:text-gray-400" size={24} />
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="prisma-badge prisma-badge-gray text-xs">
+                          <span className="prisma-badge prisma-badge-gray text-sm">
                             {request.type}
                           </span>
                           <span className={`flex items-center gap-1 text-base font-semibold ${config.color}`}>

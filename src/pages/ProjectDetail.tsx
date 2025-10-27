@@ -890,6 +890,7 @@ export default function ProjectDetail() {
         <ProjectDetailFields
           project={project}
           onUpdate={loadProjectData}
+          onEmployeeUpdate={loadEmployees}
           tasks={tasks}
           employees={employees}
           onTaskClick={openTaskDetail}

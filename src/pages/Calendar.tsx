@@ -781,7 +781,7 @@ export default function Calendar() {
                           }`}
                           title={`${task.title}${customerName ? ' - ' + customerName + '様' : ''}`}
                         >
-                          {customerName && <div className="text-xs font-semibold mb-0.5">【{truncateTaskName(customerName, 8)}様】</div>}
+                          {customerName && <div className="text-sm font-semibold mb-0.5">【{truncateTaskName(customerName, 8)}様】</div>}
                           <div className="leading-tight">{displayTaskName}</div>
                         </div>
                       )
@@ -819,7 +819,7 @@ export default function Calendar() {
                           }`}
                           title={`${customerName ? customerName + '様 - ' : ''}${payment.payment_type} ${amount?.toLocaleString()}円`}
                         >
-                          {customerName && <div className="text-xs font-semibold mb-0.5">【{truncateTaskName(customerName, 8)}様】</div>}
+                          {customerName && <div className="text-sm font-semibold mb-0.5">【{truncateTaskName(customerName, 8)}様】</div>}
                           <div className="font-bold leading-tight">{payment.payment_type}</div>
                           <div className="text-base font-bold">{Math.floor(amount || 0).toLocaleString()}円</div>
                         </div>
@@ -850,7 +850,7 @@ export default function Calendar() {
                           className="text-base lg:text-lg px-2 py-2 rounded cursor-pointer mb-1 bg-orange-200 text-orange-900 font-bold hover:bg-orange-300 border-2 border-orange-400"
                           title={`${customerName ? customerName + '様 - ' : ''}着工日`}
                         >
-                          {customerName && <div className="text-xs font-semibold mb-0.5">【{truncateTaskName(customerName, 8)}様】</div>}
+                          {customerName && <div className="text-sm font-semibold mb-0.5">【{truncateTaskName(customerName, 8)}様】</div>}
                           <div className="font-bold leading-tight">着工日</div>
                           {project.construction_start_date && <div className="text-base font-semibold">{format(new Date(project.construction_start_date), 'yyyy/MM/dd')}</div>}
                         </div>
@@ -881,7 +881,7 @@ export default function Calendar() {
                           className="text-base lg:text-lg px-2 py-2 rounded cursor-pointer mb-1 bg-purple-200 text-purple-900 font-bold hover:bg-purple-300 border-2 border-purple-400"
                           title={`${customerName ? customerName + '様 - ' : ''}引き渡し日`}
                         >
-                          {customerName && <div className="text-xs font-semibold mb-0.5">【{truncateTaskName(customerName, 8)}様】</div>}
+                          {customerName && <div className="text-sm font-semibold mb-0.5">【{truncateTaskName(customerName, 8)}様】</div>}
                           <div className="font-bold leading-tight">引き渡し日</div>
                           {project.contract_amount && <div className="text-base font-semibold">契約額: {Math.floor(project.contract_amount).toLocaleString()}円</div>}
                         </div>
@@ -1135,7 +1135,7 @@ export default function Calendar() {
                               {log.action === 'update' ? '更新' : log.action === 'create' ? '作成' : log.action}
                             </div>
                             {log.changes && (
-                              <div className="text-gray-600 dark:text-gray-400 text-xs mt-0.5">
+                              <div className="text-gray-600 dark:text-gray-400 text-sm mt-0.5">
                                 {Object.keys(log.changes).map(key => {
                                   const change = log.changes[key]
                                   return (
@@ -1150,7 +1150,7 @@ export default function Calendar() {
                               </div>
                             )}
                             {log.user && (
-                              <div className="text-gray-500 dark:text-gray-400 text-xs mt-1">
+                              <div className="text-gray-500 dark:text-gray-400 text-sm mt-1">
                                 {log.user.last_name} {log.user.first_name}
                               </div>
                             )}
@@ -1159,7 +1159,7 @@ export default function Calendar() {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center text-gray-500 dark:text-gray-500 py-2 text-xs">
+                    <div className="text-center text-gray-500 dark:text-gray-500 py-2 text-sm">
                       変更履歴がありません
                     </div>
                   )}
