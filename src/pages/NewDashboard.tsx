@@ -881,21 +881,21 @@ export default function NewDashboard() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {branchStats.map(stat => (
-                    <div key={stat.branchId} className="bg-white rounded-lg border-3 border-gray-300 overflow-hidden shadow-md">
+                    <div key={stat.branchId} className="bg-white rounded-lg border-2 border-gray-300 overflow-hidden shadow-md">
                       {/* 拠点名ヘッダー */}
-                      <div className="bg-gradient-to-r from-blue-100 to-blue-50 px-4 py-3 border-b-3 border-blue-300">
+                      <div className="bg-blue-50 px-4 py-3 border-b-2 border-blue-300">
                         <h4 className="text-xl font-bold text-gray-900">{stat.branchName}</h4>
                       </div>
 
                       <div className="p-4">
                         {/* 粗利益率（最重要指標・大きく表示） */}
-                        <div className={`p-4 rounded-lg border-3 text-center mb-4 ${
+                        <div className={`p-4 rounded-lg border-2 text-center mb-4 ${
                           stat.grossProfitRate >= 15 ? 'bg-green-50 border-green-400' :
                           stat.grossProfitRate >= 10 ? 'bg-yellow-50 border-yellow-400' :
                           'bg-red-50 border-red-400'
                         }`}>
                           <div className="text-sm font-bold text-gray-700 mb-1">粗利率</div>
-                          <div className={`text-4xl font-black ${
+                          <div className={`text-2xl font-bold ${
                             stat.grossProfitRate >= 15 ? 'text-green-700' :
                             stat.grossProfitRate >= 10 ? 'text-yellow-700' :
                             'text-red-700'

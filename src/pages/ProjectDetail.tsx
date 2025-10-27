@@ -188,6 +188,9 @@ export default function ProjectDetail() {
         setLoading(true)
       }
 
+      // 従業員データも同時に再読み込み（担当者変更を反映するため）
+      await loadEmployees()
+
       const { data: projectData, error: projectError } = await supabase
         .from('projects')
         .select(`
