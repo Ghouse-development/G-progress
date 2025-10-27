@@ -32,7 +32,7 @@ describe('Export Utils Helper Functions', () => {
       expect(taskStatusLabels['not_started']).toBe('未着手')
       expect(taskStatusLabels['requested']).toBe('着手中')
       expect(taskStatusLabels['completed']).toBe('完了')
-    })}
+    })
   })
 
   describe('Date Formatting', () => {
