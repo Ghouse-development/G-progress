@@ -45,14 +45,14 @@ export const generateDemoEmployees = (): Employee[] => {
     { id: 'demo-emp-1', email: 'sales1@ghouse.com', last_name: '営業', first_name: '太郎', department: '営業', role: 'member', branch_id: '1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
     { id: 'demo-emp-2', email: 'design1@ghouse.com', last_name: '設計', first_name: '次郎', department: '意匠設計', role: 'member', branch_id: '1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
     { id: 'demo-emp-3', email: 'construction1@ghouse.com', last_name: '工事', first_name: '三郎', department: '工事', role: 'member', branch_id: '1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-    { id: 'demo-emp-4', email: 'admin1@ghouse.com', last_name: '管理', first_name: '四郎', department: '営業事務', role: 'admin', branch_id: '1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-    { id: 'demo-emp-5', email: 'manager1@ghouse.com', last_name: '本部', first_name: '部長', department: '営業', role: 'manager', branch_id: '1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'demo-emp-4', email: 'admin1@ghouse.com', last_name: '管理', first_name: '四郎', department: '営業事務', role: 'executive', branch_id: '1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'demo-emp-5', email: 'manager1@ghouse.com', last_name: '本部', first_name: '部長', department: '営業', role: 'department_head', branch_id: '1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
 
     // 豊中（4人）
     { id: 'demo-emp-6', email: 'toyonaka.sales1@ghouse.com', last_name: '豊中', first_name: '営業一', department: '営業', role: 'member', branch_id: '2', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
     { id: 'demo-emp-7', email: 'toyonaka.design1@ghouse.com', last_name: '豊中', first_name: '設計一', department: '意匠設計', role: 'member', branch_id: '2', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
     { id: 'demo-emp-8', email: 'toyonaka.const1@ghouse.com', last_name: '豊中', first_name: '工事一', department: '工事', role: 'member', branch_id: '2', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-    { id: 'demo-emp-9', email: 'toyonaka.manager@ghouse.com', last_name: '豊中', first_name: '店長', department: '営業', role: 'manager', branch_id: '2', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'demo-emp-9', email: 'toyonaka.manager@ghouse.com', last_name: '豊中', first_name: '店長', department: '営業', role: 'department_head', branch_id: '2', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
 
     // 奈良（3人）
     { id: 'demo-emp-10', email: 'nara.sales1@ghouse.com', last_name: '奈良', first_name: '営業一', department: '営業', role: 'member', branch_id: '3', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
@@ -63,7 +63,7 @@ export const generateDemoEmployees = (): Employee[] => {
     { id: 'demo-emp-13', email: 'kyoto.sales1@ghouse.com', last_name: '京都', first_name: '営業一', department: '営業', role: 'member', branch_id: '4', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
     { id: 'demo-emp-14', email: 'kyoto.design1@ghouse.com', last_name: '京都', first_name: '設計一', department: '意匠設計', role: 'member', branch_id: '4', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
     { id: 'demo-emp-15', email: 'kyoto.const1@ghouse.com', last_name: '京都', first_name: '工事一', department: '工事', role: 'member', branch_id: '4', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-    { id: 'demo-emp-16', email: 'kyoto.manager@ghouse.com', last_name: '京都', first_name: '店長', department: '営業', role: 'manager', branch_id: '4', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'demo-emp-16', email: 'kyoto.manager@ghouse.com', last_name: '京都', first_name: '店長', department: '営業', role: 'department_head', branch_id: '4', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
 
     // 西宮（3人）
     { id: 'demo-emp-17', email: 'nishinomiya.sales1@ghouse.com', last_name: '西宮', first_name: '営業一', department: '営業', role: 'member', branch_id: '5', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
