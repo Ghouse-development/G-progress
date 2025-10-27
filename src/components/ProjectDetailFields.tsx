@@ -620,11 +620,29 @@ export default function ProjectDetailFields({
                                 value={employee?.id || ''}
                                 onChange={async (e) => {
                                   const newEmployeeId = e.target.value
-                                  if (!newEmployeeId) return
 
                                   try {
-                                    // 既存の担当者がいる場合、その担当者のdepartmentをクリア
-                                    if (employee) {
+                                    // 空文字が選択された場合（未割当）
+                                    if (!newEmployeeId) {
+                                      if (employee) {
+                                        await supabase
+                                          .from('employees')
+                                          .update({ department: 'その他' })
+                                          .eq('id', employee.id)
+
+                                        showToast('担当者を解除しました', 'success')
+                                        if (onEmployeeUpdate) {
+                                          onEmployeeUpdate()
+                                        }
+                                      }
+                                      return
+                                    }
+
+                                    // 新しい従業員を取得（既に他のポジションに割り当てられているか確認）
+                                    const newEmployee = employees.find(emp => emp.id === newEmployeeId)
+
+                                    // 現在このポジションに割り当てられている従業員をクリア
+                                    if (employee && employee.id !== newEmployeeId) {
                                       await supabase
                                         .from('employees')
                                         .update({ department: 'その他' })

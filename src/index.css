@@ -271,7 +271,7 @@ body {
 }
 
 .overflow-x-auto {
-  overflow-x: auto;
+  overflow-x: scroll;
 }
 
 .overflow-hidden {

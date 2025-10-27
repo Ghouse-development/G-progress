@@ -381,31 +381,6 @@ export default function TaskMasterManagement() {
               <col className="w-[ '10%]" />
               <col className="w-[ '13%]" />
             </colgroup>
-            <thead className="bg-pastel-blue-light">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
-                  タスク名
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
-                  責任職種
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
-                  フェーズ
-                </th>
-                <th className="px-4 py-3 text-right text-xs font-bold text-gray-800 uppercase tracking-wider">
-                  契約日から
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider">
-                  トリガー
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-bold text-gray-800 uppercase tracking-wider">
-                  進捗管理表
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-bold text-gray-800 uppercase tracking-wider">
-                  操作
-                </th>
-              </tr>
-            </thead>
             <tbody className="divide-y divide-gray-200">
               {filteredTaskMasters.length === 0 ? (
                 <tr>
@@ -426,6 +401,7 @@ export default function TaskMasterManagement() {
                     }`}
                   >
                     <td className="px-4 py-4">
+                      <div className="text-xs font-semibold text-gray-500 mb-1">タスク名</div>
                       <div className="flex items-center gap-2">
                         <span className="text-base font-bold text-gray-900 whitespace-nowrap">{task.title}</span>
                         {task.is_trigger_task && (
@@ -436,19 +412,23 @@ export default function TaskMasterManagement() {
                       </div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="text-base text-gray-600">{task.responsible_department || '未設定'}</div>
+                      <div className="text-xs font-semibold text-gray-500 mb-1">責任職種</div>
+                      <div className="text-base text-gray-900">{task.responsible_department || '未設定'}</div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="text-base text-gray-600">{task.phase || '未設定'}</div>
+                      <div className="text-xs font-semibold text-gray-500 mb-1">フェーズ</div>
+                      <div className="text-base text-gray-900">{task.phase || '未設定'}</div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-right">
-                      <div className="text-base font-medium text-gray-900">
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <div className="text-xs font-semibold text-gray-500 mb-1">契約日から</div>
+                      <div className="text-base font-medium text-gray-900 text-right">
                         {task.days_from_contract !== null && task.days_from_contract !== undefined
                           ? `${task.days_from_contract}日`
                           : '-'}
                       </div>
                     </td>
                     <td className="px-4 py-4">
+                      <div className="text-xs font-semibold text-gray-500 mb-1">トリガー</div>
                       <div className="text-base font-medium text-gray-900">
                         {task.trigger_task_id ? (
                           <div className="flex items-center gap-2">
@@ -467,6 +447,7 @@ export default function TaskMasterManagement() {
                       </div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-center">
+                      <div className="text-xs font-semibold text-gray-500 mb-1">進捗管理表</div>
                       <div className="text-base font-medium text-gray-900">
                         {task.show_in_progress ? (
                           <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold bg-blue-100 text-blue-800 border-2 border-blue-300">
@@ -480,6 +461,7 @@ export default function TaskMasterManagement() {
                       </div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-center">
+                      <div className="text-xs font-semibold text-gray-500 mb-1">操作</div>
                       <div className="flex items-center justify-center gap-2">
                         <button
                           onClick={() => handleOpenModal(task)}

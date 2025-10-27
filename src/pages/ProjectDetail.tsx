@@ -6,6 +6,8 @@ import { format, differenceInDays, addDays } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { ArrowUpDown, Plus, Eye, Trash2, Table, List, Grid, RefreshCw, X, Lock, Users, AlertTriangle } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
+import { useSettings } from '../contexts/SettingsContext'
+import { generateDemoProjects, generateDemoCustomers, generateDemoTasks, generateDemoEmployees } from '../utils/demoData'
 import { regenerateProjectTasks } from '../utils/taskGenerator'
 import { useRealtimeEditing } from '../hooks/useRealtimeEditing'
 import { useAuditLog } from '../hooks/useAuditLog'
@@ -56,6 +58,7 @@ export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const toast = useToast()
+  const { demoMode } = useSettings()
   const { logCreate, logUpdate, logDelete } = useAuditLog()
   const { notifyTaskAssignment, notifyTaskCompletion } = useNotifications()
   const [project, setProject] = useState<ProjectWithRelations | null>(null)
@@ -162,6 +165,14 @@ export default function ProjectDetail() {
 
   const loadEmployees = async () => {
     try {
+      // デモモードまたはデモプロジェクトIDの場合
+      if (demoMode || id?.startsWith('demo-')) {
+        const demoEmployees = generateDemoEmployees()
+        setEmployees(demoEmployees)
+        return
+      }
+
+      // 通常モード：Supabaseからデータ取得
       const { data, error } = await supabase
         .from('employees')
         .select('*')
@@ -191,6 +202,63 @@ export default function ProjectDetail() {
       // 従業員データも同時に再読み込み（担当者変更を反映するため）
       await loadEmployees()
 
+      // デモモードまたはデモプロジェクトIDの場合
+      if (demoMode || id?.startsWith('demo-')) {
+        const demoProjects = generateDemoProjects('admin')
+        const demoCustomers = generateDemoCustomers()
+        const demoTasks = generateDemoTasks('admin')
+        const demoEmployees = generateDemoEmployees()
+
+        // 該当するデモプロジェクトを探す
+        const demoProject = demoProjects.find(p => p.id === id)
+        if (!demoProject) {
+          toast.error('プロジェクトが見つかりません')
+          navigate('/projects')
+          return
+        }
+
+        // 顧客情報を紐付け
+        const customer = demoCustomers.find(c => c.id === demoProject.customer_id)
+
+        // 従業員情報を紐付け（sales, design, construction）
+        const projectWithRelations: ProjectWithRelations = {
+          ...demoProject,
+          customer: customer || {
+            id: '',
+            names: ['不明'],
+            building_site: '',
+            created_at: '',
+            updated_at: ''
+          },
+          sales: demoEmployees.find(e => e.id === demoProject.assigned_sales) || {} as Employee,
+          design: demoEmployees.find(e => e.id === demoProject.assigned_design) || {} as Employee,
+          construction: demoEmployees.find(e => e.id === demoProject.assigned_construction) || {} as Employee
+        }
+
+        setProject(projectWithRelations)
+
+        // タスクを紐付け
+        const projectTasks = demoTasks
+          .filter(t => t.project_id === id)
+          .map((task: any) => {
+            const dayFromContract = task.due_date && demoProject?.contract_date
+              ? differenceInDays(new Date(task.due_date), new Date(demoProject.contract_date))
+              : 0
+
+            return {
+              ...task,
+              dayFromContract,
+              business_no: task.task_master?.business_no || 999,
+              assigned_employee: demoEmployees.find(e => e.id === task.assigned_to)
+            }
+          })
+
+        setTasks(projectTasks)
+        setLoading(false)
+        return
+      }
+
+      // 通常モード：Supabaseからデータ取得
       const { data: projectData, error: projectError } = await supabase
         .from('projects')
         .select(`
@@ -232,7 +300,8 @@ export default function ProjectDetail() {
 
       setTasks(tasksWithDays)
     } catch (error) {
-      // Failed to fetch project
+      console.error('Failed to fetch project:', error)
+      toast.error('プロジェクトの読み込みに失敗しました')
     } finally {
       if (showLoading) {
         setLoading(false)

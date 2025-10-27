@@ -8,6 +8,7 @@ import { TrendingUp, DollarSign, Percent, AlertCircle } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { Project, Customer } from '../types/database'
 import { useToast } from '../contexts/ToastContext'
+import { useSettings } from '../contexts/SettingsContext'
 
 interface ProjectWithProfit extends Project {
   customer?: Customer
@@ -32,6 +33,7 @@ interface ProjectWithProfit extends Project {
 
 export default function GrossProfitManagement() {
   const { showToast } = useToast()
+  const { demoMode } = useSettings()
   const [projects, setProjects] = useState<ProjectWithProfit[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'low_margin' | 'large_diff'>('all')
@@ -59,28 +61,55 @@ export default function GrossProfitManagement() {
       }
 
       if (projectsData) {
-        // 仮の粗利益計算（実際はDBから取得または計算ロジックを実装）
         const projectsWithProfit: ProjectWithProfit[] = projectsData.map(project => {
-          // 契約金額（請負金額・税別）
-          const contractAmount = Math.random() * 20000000 + 30000000 // 3000万〜5000万
+          // デモモードの場合はランダムデータ、通常モードは実データ（またはゼロ）
+          let contractAmount, budgetRevenue, budgetCost, budgetGrossProfit, budgetGrossProfitRate
+          let actualRevenue, actualCost, actualGrossProfit, actualGrossProfitRate
+          let diffRevenue, diffCost, diffGrossProfit, diffGrossProfitRate
 
-          // 実行予算段階（契約金額を基準に設定）
-          const budgetRevenue = contractAmount * (0.95 + Math.random() * 0.1) || 0 // 契約金額の95%〜105%
-          const budgetCost = budgetRevenue * (0.65 + Math.random() * 0.15) || 0 // 売上の65%〜80%
-          const budgetGrossProfit = (budgetRevenue - budgetCost) || 0
-          const budgetGrossProfitRate = budgetRevenue > 0 ? (budgetGrossProfit / budgetRevenue) * 100 : 0
+          if (demoMode) {
+            // デモモード：サンプルデータを生成
+            contractAmount = Math.random() * 20000000 + 30000000 // 3000万〜5000万
 
-          // 完工段階（実行予算から多少のブレを含む）
-          const actualRevenue = budgetRevenue * (0.95 + Math.random() * 0.15) || 0 // 予算の95%〜110%
-          const actualCost = budgetCost * (0.9 + Math.random() * 0.25) || 0 // 原価は90%〜115%（オーバーランの可能性）
-          const actualGrossProfit = (actualRevenue - actualCost) || 0
-          const actualGrossProfitRate = actualRevenue > 0 ? (actualGrossProfit / actualRevenue) * 100 : 0
+            // 実行予算段階（契約金額を基準に設定）
+            budgetRevenue = contractAmount * (0.95 + Math.random() * 0.1) || 0
+            budgetCost = budgetRevenue * (0.65 + Math.random() * 0.15) || 0
+            budgetGrossProfit = (budgetRevenue - budgetCost) || 0
+            budgetGrossProfitRate = budgetRevenue > 0 ? (budgetGrossProfit / budgetRevenue) * 100 : 0
 
-          // 差額（完工 - 実行予算）
-          const diffRevenue = (actualRevenue - budgetRevenue) || 0
-          const diffCost = (actualCost - budgetCost) || 0
-          const diffGrossProfit = (actualGrossProfit - budgetGrossProfit) || 0
-          const diffGrossProfitRate = (actualGrossProfitRate - budgetGrossProfitRate) || 0
+            // 完工段階（実行予算から多少のブレを含む）
+            actualRevenue = budgetRevenue * (0.95 + Math.random() * 0.15) || 0
+            actualCost = budgetCost * (0.9 + Math.random() * 0.25) || 0
+            actualGrossProfit = (actualRevenue - actualCost) || 0
+            actualGrossProfitRate = actualRevenue > 0 ? (actualGrossProfit / actualRevenue) * 100 : 0
+
+            // 差額（完工 - 実行予算）
+            diffRevenue = (actualRevenue - budgetRevenue) || 0
+            diffCost = (actualCost - budgetCost) || 0
+            diffGrossProfit = (actualGrossProfit - budgetGrossProfit) || 0
+            diffGrossProfitRate = (actualGrossProfitRate - budgetGrossProfitRate) || 0
+          } else {
+            // 通常モード：実データを使用（現時点では未実装のため0）
+            contractAmount = project.contract_amount || 0
+
+            // 実行予算段階
+            budgetRevenue = project.budget_revenue || 0
+            budgetCost = project.budget_cost || 0
+            budgetGrossProfit = (budgetRevenue - budgetCost) || 0
+            budgetGrossProfitRate = budgetRevenue > 0 ? (budgetGrossProfit / budgetRevenue) * 100 : 0
+
+            // 完工段階
+            actualRevenue = project.actual_revenue || 0
+            actualCost = project.actual_cost || 0
+            actualGrossProfit = (actualRevenue - actualCost) || 0
+            actualGrossProfitRate = actualRevenue > 0 ? (actualGrossProfit / actualRevenue) * 100 : 0
+
+            // 差額
+            diffRevenue = (actualRevenue - budgetRevenue) || 0
+            diffCost = (actualCost - budgetCost) || 0
+            diffGrossProfit = (actualGrossProfit - budgetGrossProfit) || 0
+            diffGrossProfitRate = (actualGrossProfitRate - budgetGrossProfitRate) || 0
+          }
 
           return {
             ...project,
@@ -345,7 +374,7 @@ export default function GrossProfitManagement() {
                       </td>
                       <td className={`px-3 py-2 text-sm text-right font-bold border border-gray-200 ${
                         project.budgetGrossProfitRate < 20
-                          ? 'bg-orange-200 text-orange-900'
+                          ? 'bg-red-100 text-red-900'
                           : 'text-gray-900'
                       }`}>
                         {project.budgetGrossProfitRate.toFixed(1)}%
@@ -369,7 +398,7 @@ export default function GrossProfitManagement() {
                       <td
                         className={`px-3 py-2 text-sm text-right font-bold border border-gray-200 ${
                           project.actualGrossProfitRate < 20
-                            ? 'bg-orange-200 text-orange-900'
+                            ? 'bg-red-100 text-red-900'
                             : project.actualGrossProfitRate > 20
                             ? 'text-green-600'
                             : 'text-gray-900'

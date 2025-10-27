@@ -75,6 +75,7 @@ export default function ProjectList() {
 
   // フォームデータ
   const [formData, setFormData] = useState({
+    contractNumber: '',
     customerNames: '',
     buildingSite: '',
     contractDate: format(new Date(), 'yyyy-MM-dd'),
@@ -665,6 +666,26 @@ export default function ProjectList() {
       return
     }
 
+    // 契約番号の重複チェック
+    if (formData.contractNumber.trim()) {
+      const { data: existingProjects, error: checkError } = await supabase
+        .from('projects')
+        .select('id, contract_number')
+        .eq('contract_number', formData.contractNumber.trim())
+        .limit(1)
+
+      if (checkError) {
+        console.error('契約番号の確認に失敗:', checkError)
+        toast.error('契約番号の確認に失敗しました')
+        return
+      }
+
+      if (existingProjects && existingProjects.length > 0) {
+        toast.warning(`契約番号「${formData.contractNumber}」は既に使用されています`)
+        return
+      }
+    }
+
     try {
       const { data: customer, error: customerError } = await supabase
         .from('customers')
@@ -685,6 +706,7 @@ export default function ProjectList() {
         .from('projects')
         .insert({
           customer_id: customer.id,
+          contract_number: formData.contractNumber.trim() || null,
           contract_date: formData.contractDate,
           floor_plan_confirmed_date: formData.floorPlanConfirmedDate || null,
           final_specification_meeting_date: formData.finalSpecificationMeetingDate || null,
@@ -863,6 +885,7 @@ export default function ProjectList() {
   // フォームリセット
   const resetForm = () => {
     setFormData({
+      contractNumber: '',
       customerNames: '',
       buildingSite: '',
       contractDate: format(new Date(), 'yyyy-MM-dd'),
@@ -885,6 +908,7 @@ export default function ProjectList() {
   const openEditModal = (project: ProjectWithRelations) => {
     setEditingProject(project)
     setFormData({
+      contractNumber: project.contract_number || '',
       customerNames: project.customer?.names?.join('・') || '',
       buildingSite: project.customer?.building_site || '',
       contractDate: project.contract_date,
@@ -1298,6 +1322,17 @@ export default function ProjectList() {
               <div>
                 <h3 className="text-lg font-bold text-gray-900 mb-2">案件情報</h3>
                 <div className="space-y-3">
+                  <div>
+                    <label className="block text-base font-medium text-gray-700 mb-1">契約番号</label>
+                    <input
+                      type="text"
+                      value={formData.contractNumber}
+                      onChange={(e) => setFormData({ ...formData, contractNumber: e.target.value })}
+                      placeholder="例: 2024-001"
+                      className="prisma-input w-full"
+                    />
+                    <p className="text-sm text-gray-500 mt-1">※ 契約番号は重複できません</p>
+                  </div>
                   <div>
                     <label className="block text-base font-medium text-gray-700 mb-1">契約日</label>
                     <input
