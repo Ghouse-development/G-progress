@@ -585,80 +585,31 @@ export default function ProjectDetailFields({
             {/* 担当者タブ */}
             {positionSubTab === 'staff' && (
               <div className="p-4" style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto' }}>
-                {/* フィルター */}
+                {/* 拠点選択 */}
                 <div className="mb-4 bg-gray-50 rounded-lg p-4 border-2 border-gray-300">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* 拠点選択 */}
-                    <div>
-                      <label className="block text-base font-bold text-gray-700 mb-2">
-                        拠点で絞り込み
-                      </label>
-                      <select
-                        value={selectedBranchId}
-                        onChange={(e) => {
-                          setSelectedBranchId(e.target.value)
-                          setSelectedEmployeeId('all') // 拠点変更時は担当者もリセット
-                        }}
-                        className="prisma-select w-full"
-                      >
-                        <option value="all">すべての拠点</option>
-                        {branches.map(branch => (
-                          <option key={branch.id} value={branch.id}>
-                            {branch.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* 担当者選択 */}
-                    <div>
-                      <label className="block text-base font-bold text-gray-700 mb-2">
-                        担当者で絞り込み
-                      </label>
-                      <select
-                        value={selectedEmployeeId}
-                        onChange={(e) => setSelectedEmployeeId(e.target.value)}
-                        className="prisma-select w-full"
-                      >
-                        <option value="all">すべての担当者</option>
-                        {employees
-                          .filter(emp => selectedBranchId === 'all' || emp.branch_id === selectedBranchId)
-                          .map(emp => (
-                            <option key={emp.id} value={emp.id}>
-                              {emp.last_name} {emp.first_name} ({emp.department})
-                            </option>
-                          ))}
-                      </select>
-                    </div>
+                  <div className="max-w-md">
+                    <label className="block text-base font-bold text-gray-700 mb-2">
+                      拠点
+                    </label>
+                    <select
+                      value={selectedBranchId}
+                      onChange={(e) => setSelectedBranchId(e.target.value)}
+                      className="prisma-select w-full"
+                    >
+                      <option value="all">すべての拠点</option>
+                      {branches.map(branch => (
+                        <option key={branch.id} value={branch.id}>
+                          {branch.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
                 <div className="bg-white rounded-lg shadow-xl overflow-hidden border-2 border-gray-300">
                   <div className="overflow-x-auto">
-                    {DEPARTMENTS.map((dept) => {
-                      // フィルタリングされた従業員リスト
-                      const filteredPositions = dept.positions.filter(position => {
-                        const employee = employees.find(emp => emp.department === position)
-                        if (!employee) return selectedEmployeeId === 'all'
-
-                        // 拠点フィルター
-                        if (selectedBranchId !== 'all' && employee.branch_id !== selectedBranchId) {
-                          return false
-                        }
-
-                        // 担当者フィルター
-                        if (selectedEmployeeId !== 'all' && employee.id !== selectedEmployeeId) {
-                          return false
-                        }
-
-                        return true
-                      })
-
-                      // フィルタリング後の職種がない場合は部門自体を非表示
-                      if (filteredPositions.length === 0) return null
-
-                      return (
-                        <div key={dept.name} className="mb-6 last:mb-0">
+                    {DEPARTMENTS.map((dept) => (
+                      <div key={dept.name} className="mb-6 last:mb-0">
                         <div className={`px-4 py-3 font-bold text-lg border-b-3 ${
                           dept.name === '営業部' ? 'bg-blue-100 text-blue-900 border-blue-400' :
                           dept.name === '設計部' ? 'bg-green-100 text-green-900 border-green-400' :
@@ -667,43 +618,63 @@ export default function ProjectDetailFields({
                         }`}>
                           {dept.name}
                         </div>
-                        <table className="w-full border-collapse">
-                          <thead className="bg-gray-50">
-                            <tr>
-                              <th className="border-2 border-gray-300 px-4 py-3 text-left font-bold text-base text-gray-900 w-1/3">
-                                職種
-                              </th>
-                              <th className="border-2 border-gray-300 px-4 py-3 text-left font-bold text-base text-gray-900 w-2/3">
-                                担当者
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {filteredPositions.map((position) => {
-                              const employee = employees.find(emp => emp.department === position)
-                              return (
-                                <tr key={position} className="hover:bg-blue-50 transition-colors">
-                                  <td className="border-2 border-gray-300 px-4 py-3 text-base font-bold text-gray-900 bg-gray-50">
-                                    {position}
-                                  </td>
-                                  <td className="border-2 border-gray-300 px-4 py-3 text-base text-gray-900">
-                                    {employee ? `${employee.last_name} ${employee.first_name}` : '未割当'}
-                                  </td>
-                                </tr>
-                              )
-                            })}
-                            {filteredPositions.length === 0 && (
-                              <tr>
-                                <td colSpan={2} className="border-2 border-gray-300 px-4 py-3 text-center text-gray-500">
-                                  職種がありません
-                                </td>
-                              </tr>
-                            )}
-                          </tbody>
-                        </table>
+                        <div className="p-4 space-y-3">
+                          {dept.positions.map((position) => {
+                            const employee = employees.find(emp => emp.department === position)
+                            return (
+                              <div key={position} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg border-2 border-gray-300">
+                                <div className="flex-1">
+                                  <span className="text-base font-bold text-gray-900">{position}</span>
+                                </div>
+                                <div className="flex-1">
+                                  <select
+                                    value={employee?.id || ''}
+                                    onChange={async (e) => {
+                                      const newEmployeeId = e.target.value
+                                      if (!newEmployeeId) return
+
+                                      try {
+                                        // 既存の担当者がいる場合、その担当者のdepartmentをクリア
+                                        if (employee) {
+                                          await supabase
+                                            .from('employees')
+                                            .update({ department: 'その他' })
+                                            .eq('id', employee.id)
+                                        }
+
+                                        // 新しい担当者のdepartmentを更新
+                                        const { error } = await supabase
+                                          .from('employees')
+                                          .update({ department: position })
+                                          .eq('id', newEmployeeId)
+
+                                        if (error) throw error
+
+                                        showToast('担当者を設定しました', 'success')
+                                        onUpdate()
+                                      } catch (error) {
+                                        console.error('Failed to update employee:', error)
+                                        showToast('設定に失敗しました', 'error')
+                                      }
+                                    }}
+                                    className="prisma-select w-full"
+                                  >
+                                    <option value="">未割当</option>
+                                    {employees
+                                      .filter(emp => selectedBranchId === 'all' || emp.branch_id === selectedBranchId)
+                                      .map(emp => (
+                                        <option key={emp.id} value={emp.id}>
+                                          {emp.last_name} {emp.first_name}
+                                        </option>
+                                      ))}
+                                  </select>
+                                </div>
+                              </div>
+                            )
+                          })}
                         </div>
-                      )
-                    })}
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
