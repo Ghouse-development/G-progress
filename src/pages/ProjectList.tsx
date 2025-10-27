@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase'
 import { Project, Customer, Employee, Task } from '../types/database'
 import { format, differenceInDays } from 'date-fns'
 import { ja } from 'date-fns/locale'
-import { ArrowUpDown, Filter, Edit2, Trash2, X, Plus } from 'lucide-react'
+import { ArrowUpDown, Filter, Edit2, Trash2, X, Plus, FileDown } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
 import { useMode } from '../contexts/ModeContext'
 import { useFiscalYear } from '../contexts/FiscalYearContext'
@@ -882,6 +882,133 @@ export default function ProjectList() {
     }
   }
 
+  // PDF出力
+  const exportToPDF = async () => {
+    try {
+      // 動的インポート
+      const jsPDF = (await import('jspdf')).default
+      const autoTable = (await import('jspdf-autotable')).default
+
+      const doc = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4'
+      })
+
+      // 日本語フォント設定
+      doc.addFont('https://cdn.jsdelivr.net/npm/ipafont@1.0.2/ipag.ttf', 'IPAGothic', 'normal')
+      doc.setFont('IPAGothic')
+
+      // タイトル
+      doc.setFontSize(18)
+      doc.text('全案件進捗マトリクス', 14, 15)
+
+      // 日付
+      doc.setFontSize(10)
+      doc.text(`出力日: ${format(new Date(), 'yyyy年M月d日 (E)', { locale: ja })}`, 14, 22)
+      doc.text(`年度: ${selectedYear}年度`, 14, 27)
+
+      // テーブルデータを作成
+      const sortedProjects = getSortedAndFilteredProjects()
+      const tableData = sortedProjects.map((project: ProjectWithRelations) => {
+        const customerName = project.customer?.names?.join('・') || '不明'
+        const contractDate = project.contract_date ? format(new Date(project.contract_date), 'yyyy/MM/dd', { locale: ja }) : '-'
+
+        // ステータスラベル
+        const statusLabels: Record<string, string> = {
+          pre_contract: '契約前',
+          post_contract: '契約後',
+          construction: '施工中',
+          completed: '完了'
+        }
+        const statusLabel = statusLabels[project.status] || project.status
+
+        // 進捗率
+        const progressRate = project.progress_rate ? `${project.progress_rate}%` : '0%'
+
+        // 遅延タスク数
+        const delayedTasks = project.tasks?.filter((t: Task) => {
+          if (t.status === 'completed') return false
+          if (!t.due_date) return false
+          return differenceInDays(new Date(), new Date(t.due_date)) > 0
+        }).length || 0
+
+        // 部署別ステータス
+        const deptStatuses = getDepartmentStatus(project)
+        const salesStatus = deptStatuses.find((d: DepartmentStatus) => d.department === '営業部')?.status || 'ontrack'
+        const designStatus = deptStatuses.find((d: DepartmentStatus) => d.department === '設計部')?.status || 'ontrack'
+        const constructionStatus = deptStatuses.find((d: DepartmentStatus) => d.department === '工事部')?.status || 'ontrack'
+        const exteriorStatus = deptStatuses.find((d: DepartmentStatus) => d.department === '外構事業部')?.status || 'ontrack'
+
+        const statusIcons: Record<string, string> = {
+          ontrack: '○',
+          warning: '△',
+          delayed: '×'
+        }
+
+        return [
+          customerName,
+          contractDate,
+          statusLabel,
+          progressRate,
+          delayedTasks.toString(),
+          statusIcons[salesStatus],
+          statusIcons[designStatus],
+          statusIcons[constructionStatus],
+          statusIcons[exteriorStatus]
+        ]
+      })
+
+      // テーブル作成
+      autoTable(doc, {
+        startY: 32,
+        head: [[
+          '案件名',
+          '契約日',
+          'ステータス',
+          '進捗率',
+          '遅延',
+          '営業部',
+          '設計部',
+          '工事部',
+          '外構'
+        ]],
+        body: tableData,
+        styles: {
+          font: 'IPAGothic',
+          fontSize: 9,
+          cellPadding: 2
+        },
+        headStyles: {
+          fillColor: [59, 130, 246],
+          textColor: 255,
+          fontStyle: 'bold'
+        },
+        columnStyles: {
+          0: { cellWidth: 50 },  // 案件名
+          1: { cellWidth: 25 },  // 契約日
+          2: { cellWidth: 20 },  // ステータス
+          3: { cellWidth: 18 },  // 進捗率
+          4: { cellWidth: 15 },  // 遅延
+          5: { cellWidth: 18 },  // 営業部
+          6: { cellWidth: 18 },  // 設計部
+          7: { cellWidth: 18 },  // 工事部
+          8: { cellWidth: 18 }   // 外構
+        },
+        margin: { top: 32, left: 14, right: 14 }
+      })
+
+      // PDF保存
+      const filename = `全案件進捗マトリクス_${selectedYear}年度_${format(new Date(), 'yyyyMMdd')}.pdf`
+      doc.save(filename)
+
+      toast.success('PDFを出力しました')
+    } catch (error) {
+      console.error('PDF出力エラー:', error)
+      toast.error('PDF出力に失敗しました')
+    }
+  }
+
   // フォームリセット
   const resetForm = () => {
     setFormData({
@@ -969,6 +1096,14 @@ export default function ProjectList() {
       <div className="prisma-header">
         <h1 className="prisma-header-title">案件一覧</h1>
         <div className="prisma-header-actions">
+          <button
+            onClick={exportToPDF}
+            className="prisma-btn prisma-btn-secondary prisma-btn-sm"
+            title="全案件進捗マトリクスをPDF出力"
+          >
+            <FileDown size={16} />
+            PDF出力
+          </button>
           <button
             onClick={() => setShowCreateModal(true)}
             className="prisma-btn prisma-btn-primary prisma-btn-sm"
