@@ -873,44 +873,29 @@ export default function NewDashboard() {
               </div>
             </div>
 
-            {/* 各拠点カード（コンパクト） */}
+            {/* 各拠点カード（社長向け見やすい表示） */}
             <div className="mt-4">
-              <h3 className="text-sm font-bold text-gray-700 mb-2">各拠点の状況</h3>
+              <h3 className="text-base font-bold text-gray-700 mb-3">各拠点の状況</h3>
               {branchStats.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">拠点データがありません</div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {branchStats.map(stat => (
-                    <div key={stat.branchId} className="bg-white rounded border-2 border-gray-300 overflow-hidden">
+                    <div key={stat.branchId} className="bg-white rounded-lg border-3 border-gray-300 overflow-hidden shadow-md">
                       {/* 拠点名ヘッダー */}
-                      <div className="bg-gray-100 px-3 py-2 border-b border-gray-300">
-                        <h4 className="text-sm font-bold text-gray-900">{stat.branchName}</h4>
+                      <div className="bg-gradient-to-r from-blue-100 to-blue-50 px-4 py-3 border-b-3 border-blue-300">
+                        <h4 className="text-xl font-bold text-gray-900">{stat.branchName}</h4>
                       </div>
 
-                      {/* 指標（コンパクト） */}
-                      <div className="p-3 space-y-2">
-                        {/* 従業員数・契約数 */}
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-gray-600">従業員</span>
-                          <span className="font-bold text-blue-900">{stat.employeeCount}人</span>
-                        </div>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-gray-600">契約</span>
-                          <span className="font-bold text-green-900">{stat.contractCount}棟</span>
-                        </div>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-gray-600">進行中</span>
-                          <span className="font-bold text-purple-900">{stat.ongoingProjects}件</span>
-                        </div>
-
-                        {/* 粗利益率（強調） */}
-                        <div className={`p-2 rounded border text-center ${
-                          stat.grossProfitRate >= 15 ? 'bg-green-50 border-green-300' :
-                          stat.grossProfitRate >= 10 ? 'bg-yellow-50 border-yellow-300' :
-                          'bg-red-50 border-red-300'
+                      <div className="p-4">
+                        {/* 粗利益率（最重要指標・大きく表示） */}
+                        <div className={`p-4 rounded-lg border-3 text-center mb-4 ${
+                          stat.grossProfitRate >= 15 ? 'bg-green-50 border-green-400' :
+                          stat.grossProfitRate >= 10 ? 'bg-yellow-50 border-yellow-400' :
+                          'bg-red-50 border-red-400'
                         }`}>
-                          <div className="text-xs text-gray-600">粗利率</div>
-                          <div className={`text-lg font-bold ${
+                          <div className="text-sm font-bold text-gray-700 mb-1">粗利率</div>
+                          <div className={`text-4xl font-black ${
                             stat.grossProfitRate >= 15 ? 'text-green-700' :
                             stat.grossProfitRate >= 10 ? 'text-yellow-700' :
                             'text-red-700'
@@ -919,18 +904,50 @@ export default function NewDashboard() {
                           </div>
                         </div>
 
-                        {/* 1人あたり */}
-                        <div className="pt-2 border-t border-gray-200">
-                          <div className="flex items-center justify-between text-xs">
+                        {/* 売上・粗利益 */}
+                        <div className="grid grid-cols-2 gap-3 mb-4">
+                          <div className="bg-blue-50 p-3 rounded-lg border-2 border-blue-200 text-center">
+                            <div className="text-xs font-bold text-gray-600 mb-1">売上</div>
+                            <div className="text-lg font-bold text-blue-900">
+                              {Math.floor(stat.revenue / 1000000)}百万円
+                            </div>
+                          </div>
+                          <div className="bg-green-50 p-3 rounded-lg border-2 border-green-200 text-center">
+                            <div className="text-xs font-bold text-gray-600 mb-1">粗利益</div>
+                            <div className="text-lg font-bold text-green-900">
+                              {Math.floor(stat.grossProfit / 1000000)}百万円
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 基本指標 */}
+                        <div className="space-y-2 border-t-2 border-gray-200 pt-3">
+                          <div className="flex items-center justify-between text-base">
+                            <span className="text-gray-700 font-medium">従業員</span>
+                            <span className="font-bold text-blue-900">{stat.employeeCount}人</span>
+                          </div>
+                          <div className="flex items-center justify-between text-base">
+                            <span className="text-gray-700 font-medium">契約</span>
+                            <span className="font-bold text-green-900">{stat.contractCount}棟</span>
+                          </div>
+                          <div className="flex items-center justify-between text-base">
+                            <span className="text-gray-700 font-medium">進行中</span>
+                            <span className="font-bold text-purple-900">{stat.ongoingProjects}件</span>
+                          </div>
+                        </div>
+
+                        {/* 生産性指標 */}
+                        <div className="mt-3 pt-3 border-t-2 border-gray-200">
+                          <div className="flex items-center justify-between text-sm mb-2">
                             <span className="text-gray-600">1人契約</span>
-                            <span className="text-xs font-bold text-gray-900">
-                              {stat.contractsPerEmployee.toFixed(1)}棟
+                            <span className="font-bold text-gray-900">
+                              {stat.contractsPerEmployee.toFixed(1)}棟/人
                             </span>
                           </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-gray-600">1人あたり売上</span>
-                            <span className="text-base font-bold text-gray-900">
-                              ¥{Math.floor(stat.revenuePerEmployee / 10000).toLocaleString()}万/人
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-600">1人売上</span>
+                            <span className="font-bold text-gray-900">
+                              {Math.floor(stat.revenuePerEmployee / 10000).toLocaleString()}万円/人
                             </span>
                           </div>
                         </div>
