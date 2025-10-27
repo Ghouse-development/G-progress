@@ -477,21 +477,15 @@ export default function NewDashboard() {
               <thead>
                 <tr className="border-b-3 border-gray-300">
                   <th className="px-4 py-3 text-left text-base font-bold text-gray-700">項目</th>
-                  <th className="px-4 py-3 text-right text-base font-bold text-gray-700">目標</th>
-                  <th className="px-4 py-3 text-right text-base font-bold text-gray-700">実績／予想</th>
                   <th className="px-4 py-3 text-right text-base font-bold text-gray-700">達成率</th>
+                  <th className="px-4 py-3 text-right text-base font-bold text-gray-700">実績／予想</th>
+                  <th className="px-4 py-3 text-right text-base font-bold text-gray-700">目標</th>
                 </tr>
               </thead>
               <tbody>
                 {/* 売上高 */}
                 <tr className="border-b-2 border-gray-200">
                   <td className="px-4 py-4 text-base font-bold text-gray-900">売上高（税別）</td>
-                  <td className="px-4 py-4 text-right text-lg font-bold text-gray-900">
-                    {targetRevenue.toLocaleString()}円
-                  </td>
-                  <td className="px-4 py-4 text-right text-lg font-bold text-blue-600">
-                    {Math.floor(totalScheduledPayment / 1.1).toLocaleString()}円
-                  </td>
                   <td className="px-4 py-4 text-right text-lg font-bold">
                     <span className={`px-3 py-1 rounded ${
                       targetRevenue > 0 && ((totalScheduledPayment / 1.1) / targetRevenue) >= 1
@@ -503,16 +497,16 @@ export default function NewDashboard() {
                       {targetRevenue > 0 ? Math.floor(((totalScheduledPayment / 1.1) / targetRevenue) * 100) : 0}%
                     </span>
                   </td>
+                  <td className="px-4 py-4 text-right text-lg font-bold text-blue-600">
+                    {Math.floor(totalScheduledPayment / 1.1).toLocaleString()}円
+                  </td>
+                  <td className="px-4 py-4 text-right text-lg font-bold text-gray-900">
+                    {targetRevenue.toLocaleString()}円
+                  </td>
                 </tr>
                 {/* 粗利益 */}
                 <tr className="border-b-2 border-gray-200">
                   <td className="px-4 py-4 text-base font-bold text-gray-900">粗利益（税別）</td>
-                  <td className="px-4 py-4 text-right text-lg font-bold text-gray-900">
-                    {targetGrossProfit.toLocaleString()}円
-                  </td>
-                  <td className="px-4 py-4 text-right text-lg font-bold text-blue-600">
-                    {Math.floor(totalGrossProfit).toLocaleString()}円
-                  </td>
                   <td className="px-4 py-4 text-right text-lg font-bold">
                     <span className={`px-3 py-1 rounded ${
                       targetGrossProfit > 0 && (totalGrossProfit / targetGrossProfit) >= 1
@@ -524,16 +518,16 @@ export default function NewDashboard() {
                       {targetGrossProfit > 0 ? Math.floor((totalGrossProfit / targetGrossProfit) * 100) : 0}%
                     </span>
                   </td>
+                  <td className="px-4 py-4 text-right text-lg font-bold text-blue-600">
+                    {Math.floor(totalGrossProfit).toLocaleString()}円
+                  </td>
+                  <td className="px-4 py-4 text-right text-lg font-bold text-gray-900">
+                    {targetGrossProfit.toLocaleString()}円
+                  </td>
                 </tr>
                 {/* 完工棟数 */}
                 <tr>
                   <td className="px-4 py-4 text-base font-bold text-gray-900">完工棟数</td>
-                  <td className="px-4 py-4 text-right text-lg font-bold text-gray-900">
-                    {targetUnits}棟
-                  </td>
-                  <td className="px-4 py-4 text-right text-lg font-bold text-blue-600">
-                    {expectedCompletionCount}棟
-                  </td>
                   <td className="px-4 py-4 text-right text-lg font-bold">
                     <span className={`px-3 py-1 rounded ${
                       targetUnits > 0 && (expectedCompletionCount / targetUnits) >= 1
@@ -544,6 +538,12 @@ export default function NewDashboard() {
                     }`}>
                       {targetUnits > 0 ? Math.floor((expectedCompletionCount / targetUnits) * 100) : 0}%
                     </span>
+                  </td>
+                  <td className="px-4 py-4 text-right text-lg font-bold text-blue-600">
+                    {expectedCompletionCount}棟
+                  </td>
+                  <td className="px-4 py-4 text-right text-lg font-bold text-gray-900">
+                    {targetUnits}棟
                   </td>
                 </tr>
               </tbody>
