@@ -112,7 +112,7 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
           <select
             value={mode}
             onChange={(e) => setMode(e.target.value as any)}
-            className="prisma-select mx-3 w-[calc(100%-24px)]"
+            className="prisma-select mx-2 w-[calc(100%-16px)]"
           >
             <option value="my_tasks">担当者モード</option>
             <option value="branch">拠点モード</option>
@@ -126,7 +126,7 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
           <select
             value={selectedYear}
             onChange={(e) => setSelectedYear(e.target.value)}
-            className="prisma-select mx-3 w-[calc(100%-24px)]"
+            className="prisma-select mx-2 w-[calc(100%-16px)]"
           >
             {fiscalYears.map((fy) => (
               <option key={fy.id} value={fy.year}>
