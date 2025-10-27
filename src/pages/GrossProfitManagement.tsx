@@ -166,12 +166,13 @@ export default function GrossProfitManagement() {
   }
 
   return (
-    <div className="space-y-6">
+    <>
       {/* ヘッダー */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">粗利益管理</h2>
-        <span className="prisma-badge prisma-badge-blue">注文住宅事業</span>
+      <div className="prisma-header">
+        <h1 className="prisma-header-title">粗利益管理</h1>
       </div>
+
+      <div className="prisma-content">
 
       {/* サマリーカード */}
       <div className="grid grid-cols-4 gap-4">
@@ -357,62 +358,62 @@ export default function GrossProfitManagement() {
       {/* テーブル */}
       <div className="prisma-card" style={{ padding: 0, maxHeight: 'calc(100vh - 250px)', overflow: 'auto' }}>
         <div style={{ overflowX: 'auto', width: '100%' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '2000px' }}>
+          <table className="prisma-table" style={{ minWidth: '2000px' }}>
             <thead className="bg-gray-100 dark:bg-gray-800 sticky top-0">
               {/* 1段目ヘッダー：グループ */}
               <tr>
-                <th rowSpan={2} className="px-4 py-4 text-left text-lg font-bold text-gray-900 dark:text-gray-100 border-4 border-gray-400 dark:border-gray-500" style={{ minWidth: '200px' }}>
+                <th rowSpan={2} className="px-4 py-4 text-left text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300" style={{ minWidth: '200px' }}>
                   案件名
                 </th>
-                <th rowSpan={2} className="px-4 py-4 text-right text-lg font-bold text-gray-900 dark:text-gray-100 border-4 border-gray-400 dark:border-gray-500 bg-blue-100 dark:bg-blue-900/30" style={{ minWidth: '140px' }}>
+                <th rowSpan={2} className="px-4 py-4 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-blue-50" style={{ minWidth: '140px' }}>
                   請負金額<br/><span className="text-sm font-normal">(税別)</span>
                 </th>
-                <th colSpan={4} className="px-4 py-3 text-center text-base font-bold text-gray-900 dark:text-gray-100 border-4 border-gray-400 dark:border-gray-500 bg-green-100 dark:bg-green-900/30">
+                <th colSpan={4} className="px-4 py-3 text-center text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-green-50">
                   実行予算
                 </th>
-                <th colSpan={4} className="px-4 py-3 text-center text-base font-bold text-gray-900 dark:text-gray-100 border-4 border-gray-400 dark:border-gray-500 bg-purple-100 dark:bg-purple-900/30">
+                <th colSpan={4} className="px-4 py-3 text-center text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-purple-50">
                   完工
                 </th>
-                <th colSpan={4} className="px-4 py-3 text-center text-base font-bold text-gray-900 dark:text-gray-100 border-4 border-gray-400 dark:border-gray-500 bg-orange-100 dark:bg-orange-900/30">
+                <th colSpan={4} className="px-4 py-3 text-center text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-orange-50">
                   差額
                 </th>
               </tr>
               {/* 2段目ヘッダー：詳細項目 */}
               <tr>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-green-50 dark:bg-green-900/20" style={{ minWidth: '130px' }}>
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-green-50" style={{ minWidth: '130px' }}>
                   売上
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-green-50 dark:bg-green-900/20" style={{ minWidth: '130px' }}>
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-green-50" style={{ minWidth: '130px' }}>
                   原価
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-green-50 dark:bg-green-900/20" style={{ minWidth: '130px' }}>
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-green-50" style={{ minWidth: '130px' }}>
                   粗利益
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-green-50 dark:bg-green-900/20" style={{ minWidth: '90px' }}>
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-green-50" style={{ minWidth: '90px' }}>
                   粗利率
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-purple-50 dark:bg-purple-900/20" style={{ minWidth: '130px' }}>
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-purple-50" style={{ minWidth: '130px' }}>
                   売上
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-purple-50 dark:bg-purple-900/20" style={{ minWidth: '130px' }}>
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-purple-50" style={{ minWidth: '130px' }}>
                   原価
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-purple-50 dark:bg-purple-900/20" style={{ minWidth: '130px' }}>
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-purple-50" style={{ minWidth: '130px' }}>
                   粗利益
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-purple-50 dark:bg-purple-900/20" style={{ minWidth: '90px' }}>
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-purple-50" style={{ minWidth: '90px' }}>
                   粗利率
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-orange-50 dark:bg-orange-900/20" style={{ minWidth: '130px' }}>
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-orange-50" style={{ minWidth: '130px' }}>
                   売上
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-orange-50 dark:bg-orange-900/20" style={{ minWidth: '130px' }}>
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-orange-50" style={{ minWidth: '130px' }}>
                   原価
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-orange-50 dark:bg-orange-900/20" style={{ minWidth: '130px' }}>
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-orange-50" style={{ minWidth: '130px' }}>
                   粗利益
                 </th>
-                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 dark:border-gray-600 bg-orange-50 dark:bg-orange-900/20" style={{ minWidth: '90px' }}>
+                <th className="px-4 py-3 text-right text-base font-bold text-gray-900 dark:text-gray-100 border-3 border-gray-300 bg-orange-50" style={{ minWidth: '90px' }}>
                   粗利率
                 </th>
               </tr>
@@ -536,6 +537,7 @@ export default function GrossProfitManagement() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }

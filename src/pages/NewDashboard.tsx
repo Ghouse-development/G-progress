@@ -134,17 +134,14 @@ export default function NewDashboard() {
   }
 
   const loadBranches = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('branches')
-        .select('*')
-        .order('name')
-
-      if (error) throw error
-      setBranches(data || [])
-    } catch (error) {
-      console.error('拠点データ読み込みエラー:', error)
-    }
+    // 固定の拠点リスト
+    setBranches([
+      { id: '1', name: '本部', created_at: '', updated_at: '' },
+      { id: '2', name: '豊中', created_at: '', updated_at: '' },
+      { id: '3', name: '奈良', created_at: '', updated_at: '' },
+      { id: '4', name: '京都', created_at: '', updated_at: '' },
+      { id: '5', name: '西宮', created_at: '', updated_at: '' }
+    ])
   }
 
   const calculateBranchStats = (projects: Project[], payments: Payment[], employees: Employee[]) => {
@@ -469,98 +466,117 @@ export default function NewDashboard() {
         </div>
       </div>
       <div className="prisma-content">
-        {/* === 目標と実績を上下で比較しやすいレイアウト（3列グリッド） ===  */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '16px' }}>
-          {/* 第1列：売上高 */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {/* 目標売上高 */}
-            <div className="prisma-card">
-              <h2 className="prisma-card-title">目標売上高（税別）</h2>
-              <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>
-                {targetRevenue.toLocaleString()}円
-              </div>
-            </div>
-
-            {/* 予定売上高 */}
-            <div className="prisma-card">
-              <h2 className="prisma-card-title">予定売上高（税別）</h2>
-              <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>
-                {Math.floor(totalScheduledPayment / 1.1).toLocaleString()}円
-              </div>
-              {targetRevenue > 0 && (
-                <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '8px' }}>
-                  達成率: {Math.floor(((totalScheduledPayment / 1.1) / targetRevenue) * 100)}%
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* 第2列：粗利益高 */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {/* 目標粗利益高 */}
-            <div className="prisma-card">
-              <h2 className="prisma-card-title">目標粗利益高（税別）</h2>
-              <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>
-                {targetGrossProfit.toLocaleString()}円
-              </div>
-            </div>
-
-            {/* 粗利益高 */}
-            <div className="prisma-card">
-              <h2 className="prisma-card-title">粗利益高（税別）</h2>
-              <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>
-                {Math.floor(totalGrossProfit).toLocaleString()}円
-              </div>
-              {targetGrossProfit > 0 && (
-                <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '8px' }}>
-                  達成率: {Math.floor((totalGrossProfit / targetGrossProfit) * 100)}%
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* 第3列：完工棟数 */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {/* 目標完工棟数 */}
-            <div className="prisma-card">
-              <h2 className="prisma-card-title">目標完工棟数</h2>
-              <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>{targetUnits}棟</div>
-            </div>
-
-            {/* 完工棟数 */}
-            <div className="prisma-card">
-              <h2 className="prisma-card-title">完工棟数</h2>
-              <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>{expectedCompletionCount}棟</div>
-              {targetUnits > 0 && (
-                <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '8px' }}>
-                  達成率: {Math.floor((expectedCompletionCount / targetUnits) * 100)}%
-                </div>
-              )}
-            </div>
+        {/* === 目標と実績サマリー（1枚のカードに統合） ===  */}
+        <div className="prisma-card" style={{ marginBottom: '16px' }}>
+          <h2 className="prisma-card-title flex items-center justify-between">
+            <span>年度目標と実績サマリー</span>
+            <span className="text-sm font-normal text-gray-500">{selectedYear}年度</span>
+          </h2>
+          <div className="mt-4">
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr className="border-b-3 border-gray-300">
+                  <th className="px-4 py-3 text-left text-base font-bold text-gray-700">項目</th>
+                  <th className="px-4 py-3 text-right text-base font-bold text-gray-700">目標</th>
+                  <th className="px-4 py-3 text-right text-base font-bold text-gray-700">実績／予想</th>
+                  <th className="px-4 py-3 text-right text-base font-bold text-gray-700">達成率</th>
+                </tr>
+              </thead>
+              <tbody>
+                {/* 売上高 */}
+                <tr className="border-b-2 border-gray-200">
+                  <td className="px-4 py-4 text-base font-bold text-gray-900">売上高（税別）</td>
+                  <td className="px-4 py-4 text-right text-lg font-bold text-gray-900">
+                    {targetRevenue.toLocaleString()}円
+                  </td>
+                  <td className="px-4 py-4 text-right text-lg font-bold text-blue-600">
+                    {Math.floor(totalScheduledPayment / 1.1).toLocaleString()}円
+                  </td>
+                  <td className="px-4 py-4 text-right text-lg font-bold">
+                    <span className={`px-3 py-1 rounded ${
+                      targetRevenue > 0 && ((totalScheduledPayment / 1.1) / targetRevenue) >= 1
+                        ? 'bg-green-100 text-green-700'
+                        : targetRevenue > 0 && ((totalScheduledPayment / 1.1) / targetRevenue) >= 0.8
+                        ? 'bg-yellow-100 text-yellow-700'
+                        : 'bg-red-100 text-red-700'
+                    }`}>
+                      {targetRevenue > 0 ? Math.floor(((totalScheduledPayment / 1.1) / targetRevenue) * 100) : 0}%
+                    </span>
+                  </td>
+                </tr>
+                {/* 粗利益 */}
+                <tr className="border-b-2 border-gray-200">
+                  <td className="px-4 py-4 text-base font-bold text-gray-900">粗利益（税別）</td>
+                  <td className="px-4 py-4 text-right text-lg font-bold text-gray-900">
+                    {targetGrossProfit.toLocaleString()}円
+                  </td>
+                  <td className="px-4 py-4 text-right text-lg font-bold text-blue-600">
+                    {Math.floor(totalGrossProfit).toLocaleString()}円
+                  </td>
+                  <td className="px-4 py-4 text-right text-lg font-bold">
+                    <span className={`px-3 py-1 rounded ${
+                      targetGrossProfit > 0 && (totalGrossProfit / targetGrossProfit) >= 1
+                        ? 'bg-green-100 text-green-700'
+                        : targetGrossProfit > 0 && (totalGrossProfit / targetGrossProfit) >= 0.8
+                        ? 'bg-yellow-100 text-yellow-700'
+                        : 'bg-red-100 text-red-700'
+                    }`}>
+                      {targetGrossProfit > 0 ? Math.floor((totalGrossProfit / targetGrossProfit) * 100) : 0}%
+                    </span>
+                  </td>
+                </tr>
+                {/* 完工棟数 */}
+                <tr>
+                  <td className="px-4 py-4 text-base font-bold text-gray-900">完工棟数</td>
+                  <td className="px-4 py-4 text-right text-lg font-bold text-gray-900">
+                    {targetUnits}棟
+                  </td>
+                  <td className="px-4 py-4 text-right text-lg font-bold text-blue-600">
+                    {expectedCompletionCount}棟
+                  </td>
+                  <td className="px-4 py-4 text-right text-lg font-bold">
+                    <span className={`px-3 py-1 rounded ${
+                      targetUnits > 0 && (expectedCompletionCount / targetUnits) >= 1
+                        ? 'bg-green-100 text-green-700'
+                        : targetUnits > 0 && (expectedCompletionCount / targetUnits) >= 0.8
+                        ? 'bg-yellow-100 text-yellow-700'
+                        : 'bg-red-100 text-red-700'
+                    }`}>
+                      {targetUnits > 0 ? Math.floor((expectedCompletionCount / targetUnits) * 100) : 0}%
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
-        {/* === 入金実績エリア ===  */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px', marginBottom: '16px' }}>
-          {/* 入金予定 */}
-          <div className="prisma-card">
-            <h2 className="prisma-card-title">入金予定（税込）</h2>
-            <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>
-              {Math.floor(totalScheduledPayment).toLocaleString()}円
+        {/* === 入金状況サマリー（1枚のカードに統合） ===  */}
+        <div className="prisma-card" style={{ marginBottom: '16px' }}>
+          <h2 className="prisma-card-title">入金状況</h2>
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* 入金予定 */}
+            <div>
+              <div className="text-sm font-bold text-gray-600 mb-2">入金予定</div>
+              <div className="text-2xl font-bold text-gray-900">
+                {Math.floor(totalScheduledPayment).toLocaleString()}円
+                <span className="text-sm font-normal text-gray-500 ml-2">（税込）</span>
+              </div>
+              <div className="text-base text-gray-600 mt-1">
+                税別: {Math.floor(totalScheduledPayment / 1.1).toLocaleString()}円
+              </div>
             </div>
-            <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '4px' }}>
-              税別: {Math.floor(totalScheduledPayment / 1.1).toLocaleString()}円
-            </div>
-          </div>
 
-          {/* 入金実績 */}
-          <div className="prisma-card">
-            <h2 className="prisma-card-title">入金実績（税込）</h2>
-            <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '8px' }}>
-              {Math.floor(totalActualPayment).toLocaleString()}円
-            </div>
-            <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '4px' }}>
-              税別: {Math.floor(totalActualPayment / 1.1).toLocaleString()}円
+            {/* 入金実績 */}
+            <div>
+              <div className="text-sm font-bold text-gray-600 mb-2">入金実績</div>
+              <div className="text-2xl font-bold text-green-600">
+                {Math.floor(totalActualPayment).toLocaleString()}円
+                <span className="text-sm font-normal text-gray-500 ml-2">（税込）</span>
+              </div>
+              <div className="text-base text-gray-600 mt-1">
+                税別: {Math.floor(totalActualPayment / 1.1).toLocaleString()}円
+              </div>
             </div>
           </div>
         </div>
