@@ -24,8 +24,8 @@
   --danger-red: #ef4444;
 
   /* スペーシング */
-  --sidebar-width: 200px;
-  --header-height: 56px;
+  --sidebar-width: 180px;
+  --header-height: 50px;
 
   /* シャドウ */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -46,7 +46,7 @@ body {
   background: var(--main-bg);
   color: var(--main-text);
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
 /* レイアウト */
@@ -68,23 +68,23 @@ body {
 }
 
 .prisma-sidebar-header {
-  padding: 14px 16px;
+  padding: 10px 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .prisma-sidebar-logo {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--sidebar-text);
 }
 
 .prisma-sidebar-section {
-  padding: 12px 0;
+  padding: 8px 0;
 }
 
 .prisma-sidebar-section-title {
-  padding: 8px 16px;
-  font-size: 12px;
+  padding: 6px 12px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--sidebar-text-secondary);
   text-transform: uppercase;
@@ -92,14 +92,14 @@ body {
 }
 
 .prisma-sidebar-item {
-  padding: 9px 16px;
+  padding: 7px 12px;
   color: var(--sidebar-text-secondary);
   cursor: pointer;
   transition: all 0.15s ease;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .prisma-sidebar-item:hover {
@@ -156,14 +156,14 @@ body {
 .prisma-content {
   flex: 1;
   overflow: auto;
-  padding: 12px 16px;
+  padding: 10px 20px;
 }
 
 /* ボタン */
 .prisma-btn {
-  padding: 10px 20px;
+  padding: 8px 16px;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -204,8 +204,8 @@ body {
 }
 
 .prisma-btn-sm {
-  padding: 10px 20px;
-  font-size: 16px;
+  padding: 6px 14px;
+  font-size: 12px;
 }
 
 /* テーブル */
@@ -224,9 +224,9 @@ body {
 }
 
 .prisma-table th {
-  padding: 10px 14px;
+  padding: 8px 10px;
   text-align: left;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--main-text);
   text-transform: uppercase;
@@ -235,10 +235,10 @@ body {
 }
 
 .prisma-table td {
-  padding: 10px 14px;
+  padding: 7px 10px;
   border-bottom: 3px solid var(--border-color-light);
   color: var(--main-text);
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .prisma-table tr:last-child td {
@@ -254,15 +254,15 @@ body {
   background: white;
   border: 3px solid var(--border-color);
   border-radius: 8px;
-  padding: 18px;
-  margin-bottom: 14px;
+  padding: 14px;
+  margin-bottom: 10px;
 }
 
 .prisma-card-header {
-  padding: 16px 20px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--border-color);
   background: #f9fafb;
-  margin: -20px -20px 20px -20px;
+  margin: -14px -14px 14px -14px;
   border-radius: 8px 8px 0 0;
 }
 
@@ -278,12 +278,12 @@ body {
   display: flex;
   gap: 4px;
   border-bottom: 3px solid var(--border-color);
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .prisma-tab {
-  padding: 10px 20px;
-  font-size: 14px;
+  padding: 8px 16px;
+  font-size: 13px;
   font-weight: 500;
   color: #6b7280;
   background: transparent;
@@ -307,12 +307,12 @@ body {
 
 /* セレクト */
 .prisma-select {
-  padding: 9px 12px;
-  border: 3px solid var(--border-color);
+  padding: 7px 10px;
+  border: 2px solid var(--border-color);
   border-radius: 6px;
   background: white;
   color: var(--main-text);
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -329,12 +329,12 @@ body {
 
 /* インプット */
 .prisma-input {
-  padding: 9px 12px;
-  border: 3px solid var(--border-color);
+  padding: 7px 10px;
+  border: 2px solid var(--border-color);
   border-radius: 6px;
   background: white;
   color: var(--main-text);
-  font-size: 14px;
+  font-size: 13px;
   transition: all 0.15s ease;
   width: 100%;
 }
