@@ -198,246 +198,273 @@ export default function TaskBoard() {
       </div>
 
       {/* メインコンテンツ */}
-      <div className="prisma-content">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* 遅延ボックス */}
-          <div className="prisma-card">
+      <div className="prisma-content px-6">
+        {/* 遅延タスク */}
+        {delayedTasks.length > 0 && (
+          <div className="prisma-card mb-6">
             <div className="prisma-card-header" style={{ background: 'linear-gradient(to right, #FCA5A5, #EF4444)' }}>
               <h2 className="prisma-card-title flex items-center gap-2 text-white">
                 <AlertTriangle size={20} />
                 遅延（{delayedTasks.length}件）
               </h2>
             </div>
-            <div className="p-6 max-h-96 overflow-y-auto">
-              {delayedTasks.length === 0 ? (
-                <div className="text-center py-8 text-base text-gray-500">遅延タスクはありません</div>
-              ) : (
-                <div className="space-y-2">
+            <div className="overflow-x-auto">
+              <table className="prisma-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: '35%' }}>タスク名</th>
+                    <th style={{ width: '20%' }}>お客様</th>
+                    <th style={{ width: '15%' }}>期限</th>
+                    <th style={{ width: '15%' }}>遅延</th>
+                    <th style={{ width: '15%' }}>ステータス</th>
+                  </tr>
+                </thead>
+                <tbody>
                   {delayedTasks.map(task => (
-                    <div
-                      key={task.id}
-                      className="bg-white border-2 border-red-200 rounded-lg p-3 hover:border-red-400 hover:shadow-md cursor-pointer transition-all"
-                    >
-                      {/* 1行目：タスク名 + ステータスボタン */}
-                      <div className="flex items-center justify-between mb-2">
+                    <tr key={task.id} className="hover:bg-gray-50">
+                      <td>
                         <div
-                          className="text-base font-bold text-gray-900 flex-1 mr-3"
+                          className="font-semibold text-gray-900 cursor-pointer hover:text-blue-600"
                           onClick={() => handleTaskClick(task)}
                         >
                           {task.title}
                         </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleUpdateTaskStatus(task.id, 'completed')
-                          }}
-                          className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-base font-bold whitespace-nowrap transition-colors flex items-center gap-1"
-                          title="完了にする"
-                        >
-                          <CheckCircle size={16} />
-                          完了
-                        </button>
-                      </div>
-                      {/* 2行目：お客様 + 予定日 + 遅延日数 */}
-                      <div className="flex items-center justify-between text-base">
-                        <span className="text-gray-700 font-semibold">
-                          {task.project ? `${task.project.customer_names[0]}様` : '-'}
-                        </span>
-                        <div className="flex items-center gap-3">
-                          <span className="text-gray-600">
-                            {task.due_date ? format(new Date(task.due_date), 'M/d (E)', { locale: ja }) : '-'}
-                          </span>
-                          <span className="px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs font-bold">
+                      </td>
+                      <td>{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
+                      <td>
+                        <div className="text-center">
+                          {task.due_date ? format(new Date(task.due_date), 'M/d (E)', { locale: ja }) : '-'}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="text-center">
+                          <span className="prisma-badge prisma-badge-red">
                             {task.due_date && `${differenceInDays(new Date(), new Date(task.due_date))}日遅れ`}
                           </span>
                         </div>
-                      </div>
-                    </div>
+                      </td>
+                      <td>
+                        <div className="flex justify-center">
+                          <button
+                            onClick={() => handleTaskClick(task)}
+                            className="px-3 py-1.5 task-delayed rounded-lg text-base font-bold cursor-pointer hover:opacity-80 transition-opacity"
+                          >
+                            遅延
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
                   ))}
-                </div>
-              )}
+                </tbody>
+              </table>
             </div>
           </div>
+        )}
 
-          {/* 期日が近いボックス */}
-          <div className="prisma-card">
+        {/* 期日が近いタスク */}
+        {upcomingTasks.length > 0 && (
+          <div className="prisma-card mb-6">
             <div className="prisma-card-header" style={{ background: 'linear-gradient(to right, #FDE047, #EAB308)' }}>
               <h2 className="prisma-card-title flex items-center gap-2 text-white">
                 <Clock size={20} />
                 期日が近い（{upcomingTasks.length}件）
               </h2>
             </div>
-            <div className="p-6 max-h-96 overflow-y-auto">
-              {upcomingTasks.length === 0 ? (
-                <div className="text-center py-8 text-base text-gray-500">期日が近いタスクはありません</div>
-              ) : (
-                <div className="space-y-2">
+            <div className="overflow-x-auto">
+              <table className="prisma-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: '35%' }}>タスク名</th>
+                    <th style={{ width: '20%' }}>お客様</th>
+                    <th style={{ width: '15%' }}>期限</th>
+                    <th style={{ width: '15%' }}>残り</th>
+                    <th style={{ width: '15%' }}>ステータス</th>
+                  </tr>
+                </thead>
+                <tbody>
                   {upcomingTasks.map(task => (
-                    <div
-                      key={task.id}
-                      className="bg-white border-2 border-yellow-200 rounded-lg p-3 hover:border-yellow-400 hover:shadow-md cursor-pointer transition-all"
-                    >
-                      {/* 1行目：タスク名 + ステータスボタン */}
-                      <div className="flex items-center justify-between mb-2">
+                    <tr key={task.id} className="hover:bg-gray-50">
+                      <td>
                         <div
-                          className="text-base font-bold text-gray-900 flex-1 mr-3"
+                          className="font-semibold text-gray-900 cursor-pointer hover:text-blue-600"
                           onClick={() => handleTaskClick(task)}
                         >
                           {task.title}
                         </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleUpdateTaskStatus(task.id, 'completed')
-                          }}
-                          className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-base font-bold whitespace-nowrap transition-colors flex items-center gap-1"
-                          title="完了にする"
-                        >
-                          <CheckCircle size={16} />
-                          完了
-                        </button>
-                      </div>
-                      {/* 2行目：お客様 + 予定日 + 残り日数 */}
-                      <div className="flex items-center justify-between text-base">
-                        <span className="text-gray-700 font-semibold">
-                          {task.project ? `${task.project.customer_names[0]}様` : '-'}
-                        </span>
-                        <div className="flex items-center gap-3">
-                          <span className="text-gray-600">
-                            {task.due_date ? format(new Date(task.due_date), 'M/d (E)', { locale: ja }) : '-'}
-                          </span>
-                          <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs font-bold">
+                      </td>
+                      <td>{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
+                      <td>
+                        <div className="text-center">
+                          {task.due_date ? format(new Date(task.due_date), 'M/d (E)', { locale: ja }) : '-'}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="text-center">
+                          <span className="prisma-badge prisma-badge-yellow">
                             {task.due_date && `あと${differenceInDays(new Date(task.due_date), new Date())}日`}
                           </span>
                         </div>
-                      </div>
-                    </div>
+                      </td>
+                      <td>
+                        <div className="flex justify-center">
+                          <button
+                            onClick={() => handleTaskClick(task)}
+                            className="px-3 py-1.5 task-in-progress rounded-lg text-base font-bold cursor-pointer hover:opacity-80 transition-opacity"
+                          >
+                            着手中
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
                   ))}
-                </div>
-              )}
+                </tbody>
+              </table>
             </div>
           </div>
+        )}
 
-          {/* 入金ボックス */}
-          <div className="prisma-card">
+        {/* 入金予定 */}
+        {upcomingPayments.length > 0 && (
+          <div className="prisma-card mb-6">
             <div className="prisma-card-header" style={{ background: 'linear-gradient(to right, #86EFAC, #10B981)' }}>
               <h2 className="prisma-card-title flex items-center gap-2 text-white">
                 <DollarSign size={20} />
                 入金予定（{upcomingPayments.length}件）
               </h2>
             </div>
-            <div className="p-6 max-h-96 overflow-y-auto">
-              {upcomingPayments.length === 0 ? (
-                <div className="text-center py-8 text-base text-gray-500">入金予定はありません</div>
-              ) : (
-                <div className="space-y-2">
+            <div className="overflow-x-auto">
+              <table className="prisma-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: '25%' }}>名目</th>
+                    <th style={{ width: '20%' }}>お客様</th>
+                    <th style={{ width: '20%' }}>金額</th>
+                    <th style={{ width: '15%' }}>予定日</th>
+                    <th style={{ width: '20%' }}>残り</th>
+                  </tr>
+                </thead>
+                <tbody>
                   {upcomingPayments.map(payment => (
-                    <div
+                    <tr
                       key={payment.id}
+                      className="hover:bg-gray-50 cursor-pointer"
                       onClick={() => payment.project_id && handleNavigateToProject(payment.project_id)}
-                      className="bg-white border-2 border-green-200 rounded-lg p-3 hover:border-green-400 hover:shadow-md cursor-pointer transition-all"
                     >
-                      {/* 1行目：名目 + 金額 */}
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-base font-bold text-gray-900">{payment.payment_type}</span>
-                        <span className="text-base font-bold text-green-700">
-                          ¥{payment.scheduled_amount?.toLocaleString() || '-'}
-                        </span>
-                      </div>
-                      {/* 2行目：お客様 + 予定日 + 残り日数 */}
-                      <div className="flex items-center justify-between text-base">
-                        <span className="text-gray-700 font-semibold">
-                          {payment.project ? `${payment.project.customer_names[0]}様` : '-'}
-                        </span>
-                        <div className="flex items-center gap-3">
-                          <span className="text-gray-600">
-                            {payment.scheduled_date ? format(new Date(payment.scheduled_date), 'M/d (E)', { locale: ja }) : '-'}
-                          </span>
-                          <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-bold">
+                      <td className="font-semibold text-gray-900">{payment.payment_type}</td>
+                      <td>{payment.project ? `${payment.project.customer_names[0]}様` : '-'}</td>
+                      <td className="font-bold text-green-700">
+                        ¥{payment.scheduled_amount?.toLocaleString() || '-'}
+                      </td>
+                      <td>
+                        <div className="text-center">
+                          {payment.scheduled_date ? format(new Date(payment.scheduled_date), 'M/d (E)', { locale: ja }) : '-'}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="text-center">
+                          <span className="prisma-badge prisma-badge-green">
                             {payment.scheduled_date && `あと${differenceInDays(new Date(payment.scheduled_date), new Date())}日`}
                           </span>
                         </div>
-                      </div>
-                    </div>
+                      </td>
+                    </tr>
                   ))}
-                </div>
-              )}
+                </tbody>
+              </table>
             </div>
           </div>
+        )}
 
-          {/* 完了ボックス */}
-          <div className="prisma-card">
+        {/* 完了（7日以内） */}
+        {(completedTasks.length > 0 || completedPayments.length > 0) && (
+          <div className="prisma-card mb-6">
             <div className="prisma-card-header" style={{ background: 'linear-gradient(to right, #93C5FD, #2563EB)' }}>
               <h2 className="prisma-card-title flex items-center gap-2 text-white">
                 <CheckCircle size={20} />
                 完了（{completedTasks.length + completedPayments.length}件）
               </h2>
             </div>
-            <div className="p-6 max-h-96 overflow-y-auto">
-              {completedTasks.length === 0 && completedPayments.length === 0 ? (
-                <div className="text-center py-8 text-base text-gray-500">完了したタスク・入金はありません</div>
-              ) : (
-                <div className="space-y-2">
+            <div className="overflow-x-auto">
+              <table className="prisma-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: '30%' }}>名称</th>
+                    <th style={{ width: '20%' }}>お客様</th>
+                    <th style={{ width: '15%' }}>種別</th>
+                    <th style={{ width: '20%' }}>完了日/入金日</th>
+                    <th style={{ width: '15%' }}>ステータス</th>
+                  </tr>
+                </thead>
+                <tbody>
                   {completedTasks.map(task => (
-                    <div
+                    <tr
                       key={task.id}
+                      className="hover:bg-gray-50 cursor-pointer"
                       onClick={() => handleTaskClick(task)}
-                      className="bg-white border-2 border-blue-200 rounded-lg p-3 hover:border-blue-400 hover:shadow-md cursor-pointer transition-all"
                     >
-                      {/* 1行目：タスク名 + ステータス */}
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="text-base font-bold text-gray-900 flex-1 mr-3">
-                          {task.title}
+                      <td className="font-semibold text-gray-900">{task.title}</td>
+                      <td>{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
+                      <td>
+                        <div className="text-center">
+                          <span className="prisma-badge prisma-badge-blue">タスク</span>
                         </div>
-                        <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold whitespace-nowrap">
-                          完了
-                        </span>
-                      </div>
-                      {/* 2行目：お客様 + 完了日 */}
-                      <div className="flex items-center justify-between text-base">
-                        <span className="text-gray-700 font-semibold">
-                          {task.project ? `${task.project.customer_names[0]}様` : '-'}
-                        </span>
-                        <span className="text-gray-600">
+                      </td>
+                      <td>
+                        <div className="text-center">
                           {task.actual_completion_date ? format(new Date(task.actual_completion_date), 'M/d (E)', { locale: ja }) : '-'}
-                        </span>
-                      </div>
-                    </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="flex justify-center">
+                          <button
+                            onClick={() => handleTaskClick(task)}
+                            className="px-3 py-1.5 task-completed rounded-lg text-base font-bold cursor-pointer hover:opacity-80 transition-opacity"
+                          >
+                            完了
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
                   ))}
                   {completedPayments.map(payment => (
-                    <div
+                    <tr
                       key={payment.id}
+                      className="hover:bg-gray-50 cursor-pointer"
                       onClick={() => payment.project_id && handleNavigateToProject(payment.project_id)}
-                      className="bg-white border-2 border-blue-200 rounded-lg p-3 hover:border-blue-400 hover:shadow-md cursor-pointer transition-all"
                     >
-                      {/* 1行目：名目 + 金額 */}
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-base font-bold text-gray-900">{payment.payment_type}</span>
-                        <span className="text-base font-bold text-green-700">
-                          ¥{payment.actual_amount?.toLocaleString() || '-'}
-                        </span>
-                      </div>
-                      {/* 2行目：お客様 + 入金日 + ステータス */}
-                      <div className="flex items-center justify-between text-base">
-                        <span className="text-gray-700 font-semibold">
-                          {payment.project ? `${payment.project.customer_names[0]}様` : '-'}
-                        </span>
-                        <div className="flex items-center gap-3">
-                          <span className="text-gray-600">
-                            {payment.actual_date ? format(new Date(payment.actual_date), 'M/d (E)', { locale: ja }) : '-'}
-                          </span>
-                          <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">
-                            入金済
-                          </span>
+                      <td className="font-semibold text-gray-900">{payment.payment_type}</td>
+                      <td>{payment.project ? `${payment.project.customer_names[0]}様` : '-'}</td>
+                      <td>
+                        <div className="text-center">
+                          <span className="prisma-badge prisma-badge-green">入金</span>
                         </div>
-                      </div>
-                    </div>
+                      </td>
+                      <td>
+                        <div className="text-center">
+                          {payment.actual_date ? format(new Date(payment.actual_date), 'M/d (E)', { locale: ja }) : '-'}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="text-center font-bold text-green-700">
+                          ¥{payment.actual_amount?.toLocaleString() || '-'}
+                        </div>
+                      </td>
+                    </tr>
                   ))}
-                </div>
-              )}
+                </tbody>
+              </table>
             </div>
           </div>
-        </div>
+        )}
+
+        {/* すべて空の場合 */}
+        {delayedTasks.length === 0 && upcomingTasks.length === 0 && upcomingPayments.length === 0 && completedTasks.length === 0 && completedPayments.length === 0 && (
+          <div className="prisma-card">
+            <div className="text-center py-12 text-base text-gray-500">
+              タスク・入金予定はありません
+            </div>
+          </div>
+        )}
       </div>
 
       {/* タスク詳細モーダル */}

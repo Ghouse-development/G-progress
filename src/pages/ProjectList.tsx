@@ -4,7 +4,8 @@ import { supabase } from '../lib/supabase'
 import { Project, Customer, Employee, Task } from '../types/database'
 import { format, differenceInDays } from 'date-fns'
 import { ja } from 'date-fns/locale'
-import { ArrowUpDown, Filter, Edit2, Trash2, X, Plus, FileDown } from 'lucide-react'
+import { ArrowUpDown, Filter, Edit2, Trash2, X, Plus, FileDown, FileText } from 'lucide-react'
+import Papa from 'papaparse'
 import { useToast } from '../contexts/ToastContext'
 import { useMode } from '../contexts/ModeContext'
 import { useFiscalYear } from '../contexts/FiscalYearContext'
@@ -882,6 +883,71 @@ export default function ProjectList() {
     }
   }
 
+  // CSV出力
+  const exportToCSV = () => {
+    try {
+      const sortedProjects = getSortedAndFilteredProjects()
+
+      const csvData = sortedProjects.map((project: ProjectWithRelations) => {
+        const customerName = project.customer?.names?.join('・') || '不明'
+        const contractDate = project.contract_date ? format(new Date(project.contract_date), 'yyyy/MM/dd') : '-'
+
+        const statusLabels: Record<string, string> = {
+          pre_contract: '契約前',
+          post_contract: '契約後',
+          construction: '施工中',
+          completed: '完了'
+        }
+        const statusLabel = statusLabels[project.status] || project.status
+
+        const progressRate = project.progress_rate ? `${project.progress_rate}%` : '0%'
+
+        const delayedTasks = project.tasks?.filter((t: Task) => {
+          if (t.status === 'completed') return false
+          if (!t.due_date) return false
+          return differenceInDays(new Date(), new Date(t.due_date)) > 0
+        }).length || 0
+
+        const deptStatuses = getDepartmentStatus(project)
+        const salesStatus = deptStatuses.find((d: DepartmentStatus) => d.department === '営業部')?.status || 'ontrack'
+        const designStatus = deptStatuses.find((d: DepartmentStatus) => d.department === '設計部')?.status || 'ontrack'
+        const constructionStatus = deptStatuses.find((d: DepartmentStatus) => d.department === '工事部')?.status || 'ontrack'
+        const exteriorStatus = deptStatuses.find((d: DepartmentStatus) => d.department === '外構事業部')?.status || 'ontrack'
+
+        const statusLabelsIcon: Record<string, string> = {
+          ontrack: '○',
+          warning: '△',
+          delayed: '×'
+        }
+
+        return {
+          '案件名': customerName,
+          '契約日': contractDate,
+          'ステータス': statusLabel,
+          '進捗率': progressRate,
+          '遅延タスク数': delayedTasks,
+          '営業部': statusLabelsIcon[salesStatus],
+          '設計部': statusLabelsIcon[designStatus],
+          '工事部': statusLabelsIcon[constructionStatus],
+          '外構事業部': statusLabelsIcon[exteriorStatus]
+        }
+      })
+
+      const csv = Papa.unparse(csvData)
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      const filename = `全案件進捗マトリクス_${selectedYear}年度_${format(new Date(), 'yyyyMMdd')}.csv`
+      link.download = filename
+      link.click()
+
+      toast.success('CSVを出力しました')
+    } catch (error) {
+      console.error('CSV出力エラー:', error)
+      toast.error('CSV出力に失敗しました')
+    }
+  }
+
   // PDF出力
   const exportToPDF = async () => {
     try {
@@ -1096,6 +1162,14 @@ export default function ProjectList() {
       <div className="prisma-header">
         <h1 className="prisma-header-title">案件一覧</h1>
         <div className="prisma-header-actions">
+          <button
+            onClick={exportToCSV}
+            className="prisma-btn prisma-btn-secondary prisma-btn-sm"
+            title="全案件進捗マトリクスをCSV出力"
+          >
+            <FileText size={16} />
+            CSV出力
+          </button>
           <button
             onClick={exportToPDF}
             className="prisma-btn prisma-btn-secondary prisma-btn-sm"
