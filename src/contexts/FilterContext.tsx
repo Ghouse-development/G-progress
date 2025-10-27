@@ -6,6 +6,9 @@ import { FiscalYear, Branch, Employee } from '../types/database'
 export type ViewMode = 'personal' | 'branch' | 'company'
 
 interface FilterContextType {
+  // 初期化状態
+  isInitializing: boolean
+
   // 年度選択
   fiscalYears: FiscalYear[]
   selectedFiscalYear: string | null // 例: "2025"
@@ -31,6 +34,7 @@ interface FilterContextType {
 const FilterContext = createContext<FilterContextType | undefined>(undefined)
 
 export function FilterProvider({ children }: { children: ReactNode }) {
+  const [isInitializing, setIsInitializing] = useState(true)
   const [fiscalYears, setFiscalYears] = useState<FiscalYear[]>([])
   const [selectedFiscalYear, setSelectedFiscalYear] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<ViewMode>('company')
@@ -40,9 +44,15 @@ export function FilterProvider({ children }: { children: ReactNode }) {
 
   // 初期化: 年度マスタと拠点マスタを取得
   useEffect(() => {
-    loadFiscalYears()
-    loadBranches()
-    loadCurrentUser()
+    const initialize = async () => {
+      await Promise.all([
+        loadFiscalYears(),
+        loadBranches(),
+        loadCurrentUser()
+      ])
+      setIsInitializing(false)
+    }
+    initialize()
   }, [])
 
   const loadFiscalYears = async () => {
@@ -144,9 +154,22 @@ export function FilterProvider({ children }: { children: ReactNode }) {
     return filteredProjects.map(p => p.id)
   }
 
+  // 初期化中はローディング画面を表示
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mb-4"></div>
+          <p className="text-xl text-gray-600">読み込み中...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <FilterContext.Provider
       value={{
+        isInitializing,
         fiscalYears,
         selectedFiscalYear,
         setSelectedFiscalYear,
