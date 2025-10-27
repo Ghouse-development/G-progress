@@ -216,37 +216,42 @@ export default function TaskBoard() {
                   {delayedTasks.map(task => (
                     <div
                       key={task.id}
-                      onClick={() => handleTaskClick(task)}
-                      className="bg-white border border-gray-200 rounded hover:border-red-400 hover:shadow-sm cursor-pointer transition-all"
+                      className="bg-white border-2 border-red-200 rounded-lg p-3 hover:border-red-400 hover:shadow-md cursor-pointer transition-all"
                     >
-                      <table className="w-full text-sm">
-                        <tbody>
-                          <tr className="border-b border-gray-100">
-                            <td className="py-1.5 px-3 font-semibold text-gray-500 w-20">タスク</td>
-                            <td className="py-1.5 px-3 text-gray-900">{task.title}</td>
-                          </tr>
-                          <tr className="border-b border-gray-100">
-                            <td className="py-1.5 px-3 font-semibold text-gray-500 w-20">お客様</td>
-                            <td className="py-1.5 px-3 text-gray-900">
-                              {task.project ? `${task.project.customer_names[0]}様` : '-'}
-                            </td>
-                          </tr>
-                          <tr className="border-b border-gray-100">
-                            <td className="py-1.5 px-3 font-semibold text-gray-500 w-20">予定日</td>
-                            <td className="py-1.5 px-3 text-gray-900">
-                              {task.due_date ? format(new Date(task.due_date), 'yyyy/MM/dd (E)', { locale: ja }) : '-'}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td className="py-1.5 px-3 font-semibold text-gray-500 w-20">状態</td>
-                            <td className="py-1.5 px-3">
-                              <span className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold">
-                                {task.due_date && `${differenceInDays(new Date(), new Date(task.due_date))}日遅れ`}
-                              </span>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
+                      {/* 1行目：タスク名 + ステータスボタン */}
+                      <div className="flex items-center justify-between mb-2">
+                        <div
+                          className="text-base font-bold text-gray-900 flex-1 mr-3"
+                          onClick={() => handleTaskClick(task)}
+                        >
+                          {task.title}
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleUpdateTaskStatus(task.id, 'completed')
+                          }}
+                          className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-base font-bold whitespace-nowrap transition-colors flex items-center gap-1"
+                          title="完了にする"
+                        >
+                          <CheckCircle size={16} />
+                          完了
+                        </button>
+                      </div>
+                      {/* 2行目：お客様 + 予定日 + 遅延日数 */}
+                      <div className="flex items-center justify-between text-base">
+                        <span className="text-gray-700 font-semibold">
+                          {task.project ? `${task.project.customer_names[0]}様` : '-'}
+                        </span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-gray-600">
+                            {task.due_date ? format(new Date(task.due_date), 'M/d (E)', { locale: ja }) : '-'}
+                          </span>
+                          <span className="px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs font-bold">
+                            {task.due_date && `${differenceInDays(new Date(), new Date(task.due_date))}日遅れ`}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -270,37 +275,42 @@ export default function TaskBoard() {
                   {upcomingTasks.map(task => (
                     <div
                       key={task.id}
-                      onClick={() => handleTaskClick(task)}
-                      className="bg-white border border-gray-200 rounded hover:border-yellow-400 hover:shadow-sm cursor-pointer transition-all"
+                      className="bg-white border-2 border-yellow-200 rounded-lg p-3 hover:border-yellow-400 hover:shadow-md cursor-pointer transition-all"
                     >
-                      <table className="w-full text-sm">
-                        <tbody>
-                          <tr className="border-b border-gray-100">
-                            <td className="py-1.5 px-3 font-semibold text-gray-500 w-20">タスク</td>
-                            <td className="py-1.5 px-3 text-gray-900">{task.title}</td>
-                          </tr>
-                          <tr className="border-b border-gray-100">
-                            <td className="py-1.5 px-3 font-semibold text-gray-500 w-20">お客様</td>
-                            <td className="py-1.5 px-3 text-gray-900">
-                              {task.project ? `${task.project.customer_names[0]}様` : '-'}
-                            </td>
-                          </tr>
-                          <tr className="border-b border-gray-100">
-                            <td className="py-1.5 px-3 font-semibold text-gray-500 w-20">予定日</td>
-                            <td className="py-1.5 px-3 text-gray-900">
-                              {task.due_date ? format(new Date(task.due_date), 'yyyy/MM/dd (E)', { locale: ja }) : '-'}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td className="py-1.5 px-3 font-semibold text-gray-500 w-20">状態</td>
-                            <td className="py-1.5 px-3">
-                              <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-bold">
-                                {task.due_date && `あと${differenceInDays(new Date(task.due_date), new Date())}日`}
-                              </span>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
+                      {/* 1行目：タスク名 + ステータスボタン */}
+                      <div className="flex items-center justify-between mb-2">
+                        <div
+                          className="text-base font-bold text-gray-900 flex-1 mr-3"
+                          onClick={() => handleTaskClick(task)}
+                        >
+                          {task.title}
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleUpdateTaskStatus(task.id, 'completed')
+                          }}
+                          className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-base font-bold whitespace-nowrap transition-colors flex items-center gap-1"
+                          title="完了にする"
+                        >
+                          <CheckCircle size={16} />
+                          完了
+                        </button>
+                      </div>
+                      {/* 2行目：お客様 + 予定日 + 残り日数 */}
+                      <div className="flex items-center justify-between text-base">
+                        <span className="text-gray-700 font-semibold">
+                          {task.project ? `${task.project.customer_names[0]}様` : '-'}
+                        </span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-gray-600">
+                            {task.due_date ? format(new Date(task.due_date), 'M/d (E)', { locale: ja }) : '-'}
+                          </span>
+                          <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs font-bold">
+                            {task.due_date && `あと${differenceInDays(new Date(task.due_date), new Date())}日`}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -325,42 +335,29 @@ export default function TaskBoard() {
                     <div
                       key={payment.id}
                       onClick={() => payment.project_id && handleNavigateToProject(payment.project_id)}
-                      className="bg-white border border-gray-200 rounded hover:border-green-400 hover:shadow-sm cursor-pointer transition-all"
+                      className="bg-white border-2 border-green-200 rounded-lg p-3 hover:border-green-400 hover:shadow-md cursor-pointer transition-all"
                     >
-                      <table className="w-full text-sm">
-                        <tbody>
-                          <tr className="border-b border-gray-100">
-                            <td className="py-1.5 px-3 font-semibold text-gray-500 w-20">名目</td>
-                            <td className="py-1.5 px-3 text-gray-900">{payment.payment_type}</td>
-                          </tr>
-                          <tr className="border-b border-gray-100">
-                            <td className="py-1.5 px-3 font-semibold text-gray-500 w-20">お客様</td>
-                            <td className="py-1.5 px-3 text-gray-900">
-                              {payment.project ? `${payment.project.customer_names[0]}様` : '-'}
-                            </td>
-                          </tr>
-                          <tr className="border-b border-gray-100">
-                            <td className="py-1.5 px-3 font-semibold text-gray-500 w-20">金額</td>
-                            <td className="py-1.5 px-3 text-gray-900">
-                              ¥{payment.scheduled_amount?.toLocaleString() || '-'}
-                            </td>
-                          </tr>
-                          <tr className="border-b border-gray-100">
-                            <td className="py-1.5 px-3 font-semibold text-gray-500 w-20">予定日</td>
-                            <td className="py-1.5 px-3 text-gray-900">
-                              {payment.scheduled_date ? format(new Date(payment.scheduled_date), 'yyyy/MM/dd (E)', { locale: ja }) : '-'}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td className="py-1.5 px-3 font-semibold text-gray-500 w-20">状態</td>
-                            <td className="py-1.5 px-3">
-                              <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">
-                                {payment.scheduled_date && `あと${differenceInDays(new Date(payment.scheduled_date), new Date())}日`}
-                              </span>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
+                      {/* 1行目：名目 + 金額 */}
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-base font-bold text-gray-900">{payment.payment_type}</span>
+                        <span className="text-base font-bold text-green-700">
+                          ¥{payment.scheduled_amount?.toLocaleString() || '-'}
+                        </span>
+                      </div>
+                      {/* 2行目：お客様 + 予定日 + 残り日数 */}
+                      <div className="flex items-center justify-between text-base">
+                        <span className="text-gray-700 font-semibold">
+                          {payment.project ? `${payment.project.customer_names[0]}様` : '-'}
+                        </span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-gray-600">
+                            {payment.scheduled_date ? format(new Date(payment.scheduled_date), 'M/d (E)', { locale: ja }) : '-'}
+                          </span>
+                          <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-bold">
+                            {payment.scheduled_date && `あと${differenceInDays(new Date(payment.scheduled_date), new Date())}日`}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -385,78 +382,55 @@ export default function TaskBoard() {
                     <div
                       key={task.id}
                       onClick={() => handleTaskClick(task)}
-                      className="bg-white border border-gray-200 rounded hover:border-blue-400 hover:shadow-sm cursor-pointer transition-all"
+                      className="bg-white border-2 border-blue-200 rounded-lg p-3 hover:border-blue-400 hover:shadow-md cursor-pointer transition-all"
                     >
-                      <table className="w-full text-sm">
-                        <tbody>
-                          <tr className="border-b border-gray-100">
-                            <td className="py-1.5 px-3 font-semibold text-gray-500 w-20">タスク</td>
-                            <td className="py-1.5 px-3 text-gray-900">{task.title}</td>
-                          </tr>
-                          <tr className="border-b border-gray-100">
-                            <td className="py-1.5 px-3 font-semibold text-gray-500 w-20">お客様</td>
-                            <td className="py-1.5 px-3 text-gray-900">
-                              {task.project ? `${task.project.customer_names[0]}様` : '-'}
-                            </td>
-                          </tr>
-                          <tr className="border-b border-gray-100">
-                            <td className="py-1.5 px-3 font-semibold text-gray-500 w-20">完了日</td>
-                            <td className="py-1.5 px-3 text-gray-900">
-                              {task.actual_completion_date ? format(new Date(task.actual_completion_date), 'yyyy/MM/dd (E)', { locale: ja }) : '-'}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td className="py-1.5 px-3 font-semibold text-gray-500 w-20">状態</td>
-                            <td className="py-1.5 px-3">
-                              <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">
-                                完了
-                              </span>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
+                      {/* 1行目：タスク名 + ステータス */}
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="text-base font-bold text-gray-900 flex-1 mr-3">
+                          {task.title}
+                        </div>
+                        <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold whitespace-nowrap">
+                          完了
+                        </span>
+                      </div>
+                      {/* 2行目：お客様 + 完了日 */}
+                      <div className="flex items-center justify-between text-base">
+                        <span className="text-gray-700 font-semibold">
+                          {task.project ? `${task.project.customer_names[0]}様` : '-'}
+                        </span>
+                        <span className="text-gray-600">
+                          {task.actual_completion_date ? format(new Date(task.actual_completion_date), 'M/d (E)', { locale: ja }) : '-'}
+                        </span>
+                      </div>
                     </div>
                   ))}
                   {completedPayments.map(payment => (
                     <div
                       key={payment.id}
                       onClick={() => payment.project_id && handleNavigateToProject(payment.project_id)}
-                      className="bg-white border border-gray-200 rounded hover:border-blue-400 hover:shadow-sm cursor-pointer transition-all"
+                      className="bg-white border-2 border-blue-200 rounded-lg p-3 hover:border-blue-400 hover:shadow-md cursor-pointer transition-all"
                     >
-                      <table className="w-full text-sm">
-                        <tbody>
-                          <tr className="border-b border-gray-100">
-                            <td className="py-1.5 px-3 font-semibold text-gray-500 w-20">名目</td>
-                            <td className="py-1.5 px-3 text-gray-900">{payment.payment_type}</td>
-                          </tr>
-                          <tr className="border-b border-gray-100">
-                            <td className="py-1.5 px-3 font-semibold text-gray-500 w-20">お客様</td>
-                            <td className="py-1.5 px-3 text-gray-900">
-                              {payment.project ? `${payment.project.customer_names[0]}様` : '-'}
-                            </td>
-                          </tr>
-                          <tr className="border-b border-gray-100">
-                            <td className="py-1.5 px-3 font-semibold text-gray-500 w-20">金額</td>
-                            <td className="py-1.5 px-3 text-gray-900">
-                              ¥{payment.actual_amount?.toLocaleString() || '-'}
-                            </td>
-                          </tr>
-                          <tr className="border-b border-gray-100">
-                            <td className="py-1.5 px-3 font-semibold text-gray-500 w-20">入金日</td>
-                            <td className="py-1.5 px-3 text-gray-900">
-                              {payment.actual_date ? format(new Date(payment.actual_date), 'yyyy/MM/dd (E)', { locale: ja }) : '-'}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td className="py-1.5 px-3 font-semibold text-gray-500 w-20">状態</td>
-                            <td className="py-1.5 px-3">
-                              <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">
-                                入金済
-                              </span>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
+                      {/* 1行目：名目 + 金額 */}
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-base font-bold text-gray-900">{payment.payment_type}</span>
+                        <span className="text-base font-bold text-green-700">
+                          ¥{payment.actual_amount?.toLocaleString() || '-'}
+                        </span>
+                      </div>
+                      {/* 2行目：お客様 + 入金日 + ステータス */}
+                      <div className="flex items-center justify-between text-base">
+                        <span className="text-gray-700 font-semibold">
+                          {payment.project ? `${payment.project.customer_names[0]}様` : '-'}
+                        </span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-gray-600">
+                            {payment.actual_date ? format(new Date(payment.actual_date), 'M/d (E)', { locale: ja }) : '-'}
+                          </span>
+                          <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">
+                            入金済
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>

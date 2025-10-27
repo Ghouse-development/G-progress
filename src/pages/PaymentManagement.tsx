@@ -13,6 +13,9 @@ import { useSimplePermissions } from '../hooks/usePermissions'
 import { useAuditLog } from '../hooks/useAuditLog'
 import { useToast } from '../contexts/ToastContext'
 import { generateDemoPayments, generateDemoProjects, generateDemoCustomers } from '../utils/demoData'
+import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react'
+import { addMonths, subMonths, format as formatDate } from 'date-fns'
+import { ja } from 'date-fns/locale'
 import Papa from 'papaparse'
 import { exportElementToPDF } from '../utils/pdfJapaneseFont'
 
@@ -24,18 +27,44 @@ interface PaymentRow {
   actual: number
 }
 
+interface MonthlyTotal {
+  month: string
+  scheduledTotal: number
+  actualTotal: number
+}
+
+type ViewMode = 'monthly_detail' | 'period_summary'
+
 export default function PaymentManagement() {
   const { selectedFiscalYear, viewMode } = useFilter()
   const { demoMode } = useSettings()
   const { canWrite } = useSimplePermissions()
   const { logExport } = useAuditLog()
   const toast = useToast()
+
+  // 表示モード: 月次詳細 or 期間集計
+  const [displayMode, setDisplayMode] = useState<ViewMode>('monthly_detail')
+
+  // 月次詳細モード用
   const [selectedMonth, setSelectedMonth] = useState<string>(() => {
     const now = new Date()
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
   })
+
+  // 期間集計モード用
+  const [startMonth, setStartMonth] = useState<string>(() => {
+    const now = new Date()
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  })
+  const [endMonth, setEndMonth] = useState<string>(() => {
+    const now = new Date()
+    const future = addMonths(now, 11)
+    return `${future.getFullYear()}-${String(future.getMonth() + 1).padStart(2, '0')}`
+  })
+
   const [payments, setPayments] = useState<Payment[]>([])
   const [projects, setProjects] = useState<Project[]>([])
+  const [monthlyTotals, setMonthlyTotals] = useState<MonthlyTotal[]>([])
   const [loading, setLoading] = useState(true)
 
   // Map viewMode to old mode format for demo data compatibility
@@ -43,7 +72,20 @@ export default function PaymentManagement() {
 
   useEffect(() => {
     loadPayments()
-  }, [selectedMonth, selectedFiscalYear, viewMode])
+  }, [selectedMonth, startMonth, endMonth, displayMode, selectedFiscalYear, viewMode])
+
+  // 前月/次月ナビゲーション
+  const previousMonth = () => {
+    const current = new Date(selectedMonth + '-01')
+    const prev = subMonths(current, 1)
+    setSelectedMonth(`${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, '0')}`)
+  }
+
+  const nextMonth = () => {
+    const current = new Date(selectedMonth + '-01')
+    const next = addMonths(current, 1)
+    setSelectedMonth(`${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, '0')}`)
+  }
 
   // リアルタイム更新の購読
   useEffect(() => {
@@ -150,13 +192,54 @@ export default function PaymentManagement() {
       }
 
       setPayments(paymentsData || [])
+
+      // 期間集計モードの場合、月ごとの集計を計算
+      if (displayMode === 'period_summary') {
+        calculateMonthlyTotals(paymentsData || [])
+      }
     } catch (error: any) {
       console.error('入金データの読み込みエラー:', error)
       toast.error(error.message || '入金データの読み込みに失敗しました')
       setPayments([])
+      setMonthlyTotals([])
     } finally {
       setLoading(false)
     }
+  }
+
+  // 期間集計: 月ごとの予定額・実績額を計算
+  const calculateMonthlyTotals = (allPayments: Payment[]) => {
+    const start = new Date(startMonth + '-01')
+    const end = new Date(endMonth + '-01')
+    const months: MonthlyTotal[] = []
+
+    let current = start
+    while (current <= end) {
+      const monthStr = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}`
+      const monthPayments = allPayments.filter(p => {
+        const scheduledMonth = p.scheduled_date ? p.scheduled_date.substring(0, 7) : null
+        const actualMonth = p.actual_date ? p.actual_date.substring(0, 7) : null
+        return scheduledMonth === monthStr || actualMonth === monthStr
+      })
+
+      const scheduledTotal = monthPayments
+        .filter(p => !p.actual_amount)
+        .reduce((sum, p) => sum + (p.scheduled_amount || 0), 0)
+
+      const actualTotal = monthPayments
+        .filter(p => p.actual_amount)
+        .reduce((sum, p) => sum + (p.actual_amount || 0), 0)
+
+      months.push({
+        month: monthStr,
+        scheduledTotal,
+        actualTotal
+      })
+
+      current = addMonths(current, 1)
+    }
+
+    setMonthlyTotals(months)
   }
 
   const paymentRows: PaymentRow[] = payments.map(payment => ({
@@ -276,12 +359,76 @@ export default function PaymentManagement() {
       <div className="prisma-header">
         <h1 className="prisma-header-title">入金管理</h1>
         <div className="prisma-header-actions">
-          <input
-            type="month"
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
-            className="prisma-input w-[200px]"
-          />
+          {/* 表示モード切り替え */}
+          <div className="flex gap-2 border-2 border-gray-300 rounded-lg p-1">
+            <button
+              onClick={() => setDisplayMode('monthly_detail')}
+              className={`px-4 py-2 rounded font-bold text-base transition-colors ${
+                displayMode === 'monthly_detail'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              月次詳細
+            </button>
+            <button
+              onClick={() => setDisplayMode('period_summary')}
+              className={`px-4 py-2 rounded font-bold text-base transition-colors ${
+                displayMode === 'period_summary'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              期間集計
+            </button>
+          </div>
+
+          {/* 月次詳細モードの場合 */}
+          {displayMode === 'monthly_detail' && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={previousMonth}
+                className="p-2 rounded-lg border-2 border-gray-300 hover:bg-gray-100 transition-colors"
+                title="前月"
+              >
+                <ChevronLeft size={24} />
+              </button>
+              <input
+                type="month"
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+                className="prisma-input w-[180px] text-base font-bold text-center"
+              />
+              <button
+                onClick={nextMonth}
+                className="p-2 rounded-lg border-2 border-gray-300 hover:bg-gray-100 transition-colors"
+                title="次月"
+              >
+                <ChevronRight size={24} />
+              </button>
+            </div>
+          )}
+
+          {/* 期間集計モードの場合 */}
+          {displayMode === 'period_summary' && (
+            <div className="flex items-center gap-2">
+              <Calendar size={20} />
+              <input
+                type="month"
+                value={startMonth}
+                onChange={(e) => setStartMonth(e.target.value)}
+                className="prisma-input w-[160px] text-base"
+              />
+              <span className="text-base font-bold">〜</span>
+              <input
+                type="month"
+                value={endMonth}
+                onChange={(e) => setEndMonth(e.target.value)}
+                className="prisma-input w-[160px] text-base"
+              />
+            </div>
+          )}
+
           <button onClick={exportCSV} className="prisma-btn prisma-btn-secondary prisma-btn-sm">
             CSV出力
           </button>
@@ -292,66 +439,128 @@ export default function PaymentManagement() {
       </div>
 
       <div className="prisma-content">
-        <table className="prisma-table">
-          <thead>
-            <tr>
-              <th>案件</th>
-              <th>名目</th>
-              <th>
-                <div className="text-center">金額</div>
-              </th>
-              <th>
-                <div className="text-center">予定</div>
-              </th>
-              <th>
-                <div className="text-center">実績</div>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {paymentRows.map((row, index) => (
-              <tr key={index}>
-                <td>{row.projectName}</td>
+        {displayMode === 'monthly_detail' ? (
+          // 月次詳細モード：案件ごとの詳細表示
+          <table className="prisma-table">
+            <thead>
+              <tr>
+                <th>案件</th>
+                <th>名目</th>
+                <th>
+                  <div className="text-center">金額</div>
+                </th>
+                <th>
+                  <div className="text-center">予定</div>
+                </th>
+                <th>
+                  <div className="text-center">実績</div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {paymentRows.map((row, index) => (
+                <tr key={index}>
+                  <td>{row.projectName}</td>
+                  <td>
+                    <div className="flex items-center gap-2">
+                      <span>{row.paymentType}</span>
+                      {row.actual > 0 && (
+                        <span className="inline-flex items-center justify-center w-7 h-7 text-base font-bold text-white bg-green-600 rounded-full border-2 border-white shadow-lg" title="入金確定">
+                          確
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td>
+                    <div className="text-center">{row.amount.toLocaleString()}</div>
+                  </td>
+                  <td>
+                    <div className="text-center">{row.scheduled.toLocaleString()}</div>
+                  </td>
+                  <td>
+                    <div className="text-center">{row.actual.toLocaleString()}</div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="bg-gray-100 font-bold">
+                <td colSpan={3}>合計</td>
                 <td>
-                  <div className="flex items-center gap-2">
-                    <span>{row.paymentType}</span>
-                    {row.actual > 0 && (
-                      <span className="inline-flex items-center justify-center w-7 h-7 text-sm font-bold text-white bg-green-600 rounded-full border-2 border-white shadow-lg" title="入金確定">
-                        確
-                      </span>
-                    )}
-                  </div>
+                  <div className="text-center">{totalScheduled.toLocaleString()}</div>
                 </td>
                 <td>
-                  <div className="text-center">{row.amount.toLocaleString()}</div>
-                </td>
-                <td>
-                  <div className="text-center">{row.scheduled.toLocaleString()}</div>
-                </td>
-                <td>
-                  <div className="text-center">{row.actual.toLocaleString()}</div>
+                  <div className="text-center">{totalActual.toLocaleString()}</div>
                 </td>
               </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr className="bg-gray-100 font-bold">
-              <td colSpan={3}>合計</td>
-              <td>
-                <div className="text-center">{totalScheduled.toLocaleString()}</div>
-              </td>
-              <td>
-                <div className="text-center">{totalActual.toLocaleString()}</div>
-              </td>
-            </tr>
-            <tr className="bg-gray-200 font-bold">
-              <td colSpan={3}>総計</td>
-              <td colSpan={2}>
-                <div className="text-center">{grandTotal.toLocaleString()}</div>
-              </td>
-            </tr>
-          </tfoot>
-        </table>
+              <tr className="bg-gray-200 font-bold">
+                <td colSpan={3}>総計</td>
+                <td colSpan={2}>
+                  <div className="text-center">{grandTotal.toLocaleString()}</div>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        ) : (
+          // 期間集計モード：月ごとの予定額・実績額を表示
+          <table className="prisma-table">
+            <thead>
+              <tr>
+                <th className="text-center">月</th>
+                <th className="text-center">入金予定額（円）</th>
+                <th className="text-center">入金実績額（円）</th>
+                <th className="text-center">合計（円）</th>
+              </tr>
+            </thead>
+            <tbody>
+              {monthlyTotals.map((row, index) => {
+                const monthDate = new Date(row.month + '-01')
+                const monthLabel = formatDate(monthDate, 'yyyy年M月', { locale: ja })
+                const total = row.scheduledTotal + row.actualTotal
+                return (
+                  <tr key={index}>
+                    <td className="text-center font-bold">{monthLabel}</td>
+                    <td className="text-center">
+                      {row.scheduledTotal > 0 ? (
+                        <span className="text-blue-700 font-bold">
+                          ¥{row.scheduledTotal.toLocaleString()}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
+                    </td>
+                    <td className="text-center">
+                      {row.actualTotal > 0 ? (
+                        <span className="text-green-700 font-bold">
+                          ¥{row.actualTotal.toLocaleString()}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
+                    </td>
+                    <td className="text-center font-bold">
+                      ¥{total.toLocaleString()}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+            <tfoot>
+              <tr className="bg-gray-100 font-bold">
+                <td className="text-center">総計</td>
+                <td className="text-center text-blue-700">
+                  ¥{monthlyTotals.reduce((sum, m) => sum + m.scheduledTotal, 0).toLocaleString()}
+                </td>
+                <td className="text-center text-green-700">
+                  ¥{monthlyTotals.reduce((sum, m) => sum + m.actualTotal, 0).toLocaleString()}
+                </td>
+                <td className="text-center">
+                  ¥{monthlyTotals.reduce((sum, m) => sum + m.scheduledTotal + m.actualTotal, 0).toLocaleString()}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        )}
       </div>
     </>
   )

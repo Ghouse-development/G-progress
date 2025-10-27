@@ -1331,7 +1331,7 @@ export default function ProjectList() {
                       placeholder="例: 2024-001"
                       className="prisma-input w-full"
                     />
-                    <p className="text-sm text-gray-500 mt-1">※ 契約番号は重複できません</p>
+                    <p className="text-base text-gray-500 mt-1">※ 契約番号は重複できません</p>
                   </div>
                   <div>
                     <label className="block text-base font-medium text-gray-700 mb-1">契約日</label>
@@ -1961,7 +1961,7 @@ export default function ProjectList() {
                               <div className="font-medium text-base text-gray-900 dark:text-gray-100">
                                 {comment.user?.last_name} {comment.user?.first_name}
                               </div>
-                              <div className="text-sm text-gray-500 dark:text-gray-500 whitespace-nowrap">
+                              <div className="text-base text-gray-500 dark:text-gray-500 whitespace-nowrap">
                                 {format(new Date(comment.created_at), 'MM/dd HH:mm')}
                               </div>
                             </div>
@@ -1996,7 +1996,7 @@ export default function ProjectList() {
                                 {log.action === 'update' ? '更新' : log.action === 'create' ? '作成' : log.action}
                               </div>
                               {log.changes && (
-                                <div className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">
+                                <div className="text-base text-gray-600 dark:text-gray-400 mt-0.5">
                                   {Object.keys(log.changes).map(key => {
                                     const change = log.changes[key]
                                     return (
@@ -2011,12 +2011,12 @@ export default function ProjectList() {
                                 </div>
                               )}
                             </div>
-                            <div className="text-sm text-gray-500 dark:text-gray-500 whitespace-nowrap">
+                            <div className="text-base text-gray-500 dark:text-gray-500 whitespace-nowrap">
                               {format(new Date(log.created_at), 'MM/dd HH:mm')}
                             </div>
                           </div>
                           {log.user && (
-                            <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            <div className="text-base text-gray-500 dark:text-gray-400 mt-1">
                               {log.user.last_name} {log.user.first_name}
                             </div>
                           )}

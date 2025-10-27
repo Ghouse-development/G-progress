@@ -470,7 +470,7 @@ export default function NewDashboard() {
         <div className="prisma-card" style={{ marginBottom: '16px' }}>
           <h2 className="prisma-card-title flex items-center justify-between">
             <span>年度目標と実績サマリー</span>
-            <span className="text-sm font-normal text-gray-500">{selectedYear}年度</span>
+            <span className="text-base font-normal text-gray-500">{selectedYear}年度</span>
           </h2>
           <div className="mt-4">
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -558,37 +558,37 @@ export default function NewDashboard() {
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 text-center">
               {/* 入金予定 */}
               <div className="p-2 bg-gray-50 rounded border border-gray-200">
-                <div className="text-sm text-gray-600 mb-1">入金予定</div>
+                <div className="text-base text-gray-600 mb-1">入金予定</div>
                 <div className="text-base font-bold text-gray-900">{Math.floor(totalScheduledPayment / 1.1 / 1000000)}百万円</div>
               </div>
               {/* 入金実績 */}
               <div className="p-2 bg-gray-50 rounded border border-gray-200">
-                <div className="text-sm text-gray-600 mb-1">入金実績</div>
+                <div className="text-base text-gray-600 mb-1">入金実績</div>
                 <div className="text-base font-bold text-green-600">{Math.floor(totalActualPayment / 1.1 / 1000000)}百万円</div>
               </div>
               {/* 変更契約 */}
               <div className="p-2 bg-gray-50 rounded border border-gray-200">
-                <div className="text-sm text-gray-600 mb-1">変更契約</div>
+                <div className="text-base text-gray-600 mb-1">変更契約</div>
                 <div className="text-base font-bold text-gray-900">{totalChangeContracts}件</div>
               </div>
               {/* 遅延タスク */}
               <div className={`p-2 rounded border ${delayedTaskCount > 0 ? 'bg-red-50 border-red-300' : 'bg-gray-50 border-gray-200'}`}>
-                <div className="text-sm text-gray-600 mb-1">遅延タスク</div>
+                <div className="text-base text-gray-600 mb-1">遅延タスク</div>
                 <div className={`text-base font-bold ${delayedTaskCount > 0 ? 'text-red-600' : 'text-gray-900'}`}>{delayedTaskCount}件</div>
               </div>
               {/* 平均坪数 */}
               <div className="p-2 bg-gray-50 rounded border border-gray-200">
-                <div className="text-sm text-gray-600 mb-1">平均坪数</div>
+                <div className="text-base text-gray-600 mb-1">平均坪数</div>
                 <div className="text-base font-bold text-gray-900">{avgFloorArea.toFixed(1)}坪</div>
               </div>
               {/* 平均契約額 */}
               <div className="p-2 bg-gray-50 rounded border border-gray-200">
-                <div className="text-sm text-gray-600 mb-1">平均契約額</div>
+                <div className="text-base text-gray-600 mb-1">平均契約額</div>
                 <div className="text-base font-bold text-gray-900">{Math.floor(avgContractAmount / 1000000)}百万円</div>
               </div>
               {/* 契約～引渡 */}
               <div className="p-2 bg-gray-50 rounded border border-gray-200">
-                <div className="text-sm text-gray-600 mb-1">契約→引渡</div>
+                <div className="text-base text-gray-600 mb-1">契約→引渡</div>
                 <div className="text-base font-bold text-blue-600">
                   {countContractToHandover > 0 ? Math.round(avgDaysContractToHandover) : '-'}日
                 </div>
@@ -830,7 +830,7 @@ export default function NewDashboard() {
 
             {/* 全社サマリー（コンパクト） */}
             <div className="mt-3 mb-4">
-              <h3 className="text-sm font-bold text-gray-700 mb-2">全社サマリー</h3>
+              <h3 className="text-base font-bold text-gray-700 mb-2">全社サマリー</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
                 <div className="bg-blue-50 p-2 rounded border border-blue-200 text-center">
                   <div className="text-xs text-gray-600">従業員</div>
@@ -852,13 +852,13 @@ export default function NewDashboard() {
                 </div>
                 <div className="bg-yellow-50 p-2 rounded border border-yellow-200 text-center">
                   <div className="text-xs text-gray-600">売上</div>
-                  <div className="text-sm font-bold text-yellow-900">
+                  <div className="text-base font-bold text-yellow-900">
                     {Math.floor(branchStats.reduce((sum, s) => sum + s.revenue, 0) / 100000000)}億円
                   </div>
                 </div>
                 <div className="bg-emerald-50 p-2 rounded border border-emerald-200 text-center">
                   <div className="text-xs text-gray-600">粗利益</div>
-                  <div className="text-sm font-bold text-emerald-900">
+                  <div className="text-base font-bold text-emerald-900">
                     {Math.floor(branchStats.reduce((sum, s) => sum + s.grossProfit, 0) / 10000000)}千万円
                   </div>
                 </div>
@@ -894,7 +894,7 @@ export default function NewDashboard() {
                           stat.grossProfitRate >= 10 ? 'bg-yellow-50 border-yellow-400' :
                           'bg-red-50 border-red-400'
                         }`}>
-                          <div className="text-sm font-bold text-gray-700 mb-1">粗利率</div>
+                          <div className="text-base font-bold text-gray-700 mb-1">粗利率</div>
                           <div className={`text-2xl font-bold ${
                             stat.grossProfitRate >= 15 ? 'text-green-700' :
                             stat.grossProfitRate >= 10 ? 'text-yellow-700' :
@@ -938,13 +938,13 @@ export default function NewDashboard() {
 
                         {/* 生産性指標 */}
                         <div className="mt-3 pt-3 border-t-2 border-gray-200">
-                          <div className="flex items-center justify-between text-sm mb-2">
+                          <div className="flex items-center justify-between text-base mb-2">
                             <span className="text-gray-600">1人契約</span>
                             <span className="font-bold text-gray-900">
                               {stat.contractsPerEmployee.toFixed(1)}棟/人
                             </span>
                           </div>
-                          <div className="flex items-center justify-between text-sm">
+                          <div className="flex items-center justify-between text-base">
                             <span className="text-gray-600">1人売上</span>
                             <span className="font-bold text-gray-900">
                               {Math.floor(stat.revenuePerEmployee / 10000).toLocaleString()}万円/人
@@ -958,7 +958,7 @@ export default function NewDashboard() {
               )}
 
               <div className="mt-4 p-3 bg-blue-50 border-2 border-blue-200 rounded-lg">
-                <p className="text-sm text-gray-700">
+                <p className="text-base text-gray-700">
                   <strong>粗利益率の目安：</strong>
                   <span className="text-green-600 font-bold ml-2">15%以上（良好）</span>
                   <span className="text-yellow-600 font-bold ml-2">10-15%（標準）</span>
@@ -982,7 +982,7 @@ export default function NewDashboard() {
             {/* コンテンツ */}
             <div className="prisma-modal-content space-y-4">
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                   目標売上高（税別）
                 </label>
                 <input
@@ -995,7 +995,7 @@ export default function NewDashboard() {
               </div>
 
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                   目標粗利益高（税別）
                 </label>
                 <input
@@ -1008,7 +1008,7 @@ export default function NewDashboard() {
               </div>
 
               <div>
-                <label className="block prisma-text-sm font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
                   目標完工棟数
                 </label>
                 <input

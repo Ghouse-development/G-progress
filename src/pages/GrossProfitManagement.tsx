@@ -251,19 +251,19 @@ export default function GrossProfitManagement() {
           <div className="flex gap-2">
             <button
               onClick={() => setFilter('all')}
-              className={`prisma-btn text-sm px-4 py-2 ${filter === 'all' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
+              className={`prisma-btn text-base px-4 py-2 ${filter === 'all' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
             >
               全て ({projects.length})
             </button>
             <button
               onClick={() => setFilter('low_margin')}
-              className={`prisma-btn text-sm px-4 py-2 ${filter === 'low_margin' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
+              className={`prisma-btn text-base px-4 py-2 ${filter === 'low_margin' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
             >
               粗利率20%未満 ({lowMarginCount})
             </button>
             <button
               onClick={() => setFilter('large_diff')}
-              className={`prisma-btn text-sm px-4 py-2 ${filter === 'large_diff' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
+              className={`prisma-btn text-base px-4 py-2 ${filter === 'large_diff' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
             >
               予算差5%以上 ({largeDiffCount})
             </button>
@@ -278,58 +278,58 @@ export default function GrossProfitManagement() {
             <thead className="bg-gray-100 dark:bg-gray-800 sticky top-0">
               {/* 1段目ヘッダー：グループ */}
               <tr>
-                <th rowSpan={2} className="px-3 py-2 text-left text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-300" style={{ minWidth: '180px' }}>
+                <th rowSpan={2} className="px-3 py-2 text-left text-base font-bold text-gray-900 dark:text-gray-100 border border-gray-300" style={{ minWidth: '180px' }}>
                   案件名
                 </th>
-                <th rowSpan={2} className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-300 bg-blue-50" style={{ minWidth: '120px' }}>
+                <th rowSpan={2} className="px-3 py-2 text-right text-base font-bold text-gray-900 dark:text-gray-100 border border-gray-300 bg-blue-50" style={{ minWidth: '120px' }}>
                   請負金額<br/><span className="text-xs font-normal">(税別)</span>
                 </th>
-                <th colSpan={4} className="px-3 py-2 text-center text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-300 bg-green-50">
+                <th colSpan={4} className="px-3 py-2 text-center text-base font-bold text-gray-900 dark:text-gray-100 border border-gray-300 bg-green-50">
                   実行予算
                 </th>
-                <th colSpan={4} className="px-3 py-2 text-center text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-300 bg-purple-50">
+                <th colSpan={4} className="px-3 py-2 text-center text-base font-bold text-gray-900 dark:text-gray-100 border border-gray-300 bg-purple-50">
                   完工
                 </th>
-                <th colSpan={4} className="px-3 py-2 text-center text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-300 bg-orange-50">
+                <th colSpan={4} className="px-3 py-2 text-center text-base font-bold text-gray-900 dark:text-gray-100 border border-gray-300 bg-orange-50">
                   差額
                 </th>
               </tr>
               {/* 2段目ヘッダー：詳細項目 */}
               <tr>
-                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-green-50" style={{ minWidth: '110px' }}>
+                <th className="px-3 py-2 text-right text-base font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-green-50" style={{ minWidth: '110px' }}>
                   売上
                 </th>
-                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-green-50" style={{ minWidth: '110px' }}>
+                <th className="px-3 py-2 text-right text-base font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-green-50" style={{ minWidth: '110px' }}>
                   原価
                 </th>
-                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-green-50" style={{ minWidth: '110px' }}>
+                <th className="px-3 py-2 text-right text-base font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-green-50" style={{ minWidth: '110px' }}>
                   粗利益
                 </th>
-                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-green-50" style={{ minWidth: '80px' }}>
+                <th className="px-3 py-2 text-right text-base font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-green-50" style={{ minWidth: '80px' }}>
                   粗利率
                 </th>
-                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-purple-50" style={{ minWidth: '110px' }}>
+                <th className="px-3 py-2 text-right text-base font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-purple-50" style={{ minWidth: '110px' }}>
                   売上
                 </th>
-                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-purple-50" style={{ minWidth: '110px' }}>
+                <th className="px-3 py-2 text-right text-base font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-purple-50" style={{ minWidth: '110px' }}>
                   原価
                 </th>
-                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-purple-50" style={{ minWidth: '110px' }}>
+                <th className="px-3 py-2 text-right text-base font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-purple-50" style={{ minWidth: '110px' }}>
                   粗利益
                 </th>
-                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-purple-50" style={{ minWidth: '80px' }}>
+                <th className="px-3 py-2 text-right text-base font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-purple-50" style={{ minWidth: '80px' }}>
                   粗利率
                 </th>
-                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-orange-50" style={{ minWidth: '110px' }}>
+                <th className="px-3 py-2 text-right text-base font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-orange-50" style={{ minWidth: '110px' }}>
                   売上
                 </th>
-                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-orange-50" style={{ minWidth: '110px' }}>
+                <th className="px-3 py-2 text-right text-base font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-orange-50" style={{ minWidth: '110px' }}>
                   原価
                 </th>
-                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-orange-50" style={{ minWidth: '110px' }}>
+                <th className="px-3 py-2 text-right text-base font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-orange-50" style={{ minWidth: '110px' }}>
                   粗利益
                 </th>
-                <th className="px-3 py-2 text-right text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-orange-50" style={{ minWidth: '80px' }}>
+                <th className="px-3 py-2 text-right text-base font-bold text-gray-900 dark:text-gray-100 border border-gray-200 bg-orange-50" style={{ minWidth: '80px' }}>
                   粗利率
                 </th>
               </tr>
@@ -355,24 +355,24 @@ export default function GrossProfitManagement() {
                       } ${hasLargeDiff ? 'border-r-8 border-r-red-400' : ''}`}
                     >
                       {/* 案件名 */}
-                      <td className="px-3 py-2 text-sm font-medium text-gray-900 dark:text-gray-100 border border-gray-200">
+                      <td className="px-3 py-2 text-base font-medium text-gray-900 dark:text-gray-100 border border-gray-200">
                         {project.construction_address || '-'}
                       </td>
                       {/* 請負金額 */}
-                      <td className="px-3 py-2 text-sm text-right text-gray-900 dark:text-gray-100 border border-gray-200 bg-blue-50 font-semibold">
+                      <td className="px-3 py-2 text-base text-right text-gray-900 dark:text-gray-100 border border-gray-200 bg-blue-50 font-semibold">
                         {formatCurrency(project.contractAmount)}
                       </td>
                       {/* 実行予算 */}
-                      <td className="px-3 py-2 text-sm text-right text-gray-900 dark:text-gray-100 border border-gray-200">
+                      <td className="px-3 py-2 text-base text-right text-gray-900 dark:text-gray-100 border border-gray-200">
                         {formatCurrency(project.budgetRevenue)}
                       </td>
-                      <td className="px-3 py-2 text-sm text-right text-gray-900 dark:text-gray-100 border border-gray-200">
+                      <td className="px-3 py-2 text-base text-right text-gray-900 dark:text-gray-100 border border-gray-200">
                         {formatCurrency(project.budgetCost)}
                       </td>
-                      <td className="px-3 py-2 text-sm text-right font-semibold border border-gray-200 text-gray-900">
+                      <td className="px-3 py-2 text-base text-right font-semibold border border-gray-200 text-gray-900">
                         {formatCurrency(project.budgetGrossProfit)}
                       </td>
-                      <td className={`px-3 py-2 text-sm text-right font-bold border border-gray-200 ${
+                      <td className={`px-3 py-2 text-base text-right font-bold border border-gray-200 ${
                         project.budgetGrossProfitRate < 20
                           ? 'bg-red-100 text-red-900'
                           : 'text-gray-900'
@@ -380,14 +380,14 @@ export default function GrossProfitManagement() {
                         {project.budgetGrossProfitRate.toFixed(1)}%
                       </td>
                       {/* 完工 */}
-                      <td className="px-3 py-2 text-sm text-right text-gray-900 border border-gray-200">
+                      <td className="px-3 py-2 text-base text-right text-gray-900 border border-gray-200">
                         {formatCurrency(project.actualRevenue)}
                       </td>
-                      <td className="px-3 py-2 text-sm text-right text-gray-900 border border-gray-200">
+                      <td className="px-3 py-2 text-base text-right text-gray-900 border border-gray-200">
                         {formatCurrency(project.actualCost)}
                       </td>
                       <td
-                        className={`px-3 py-2 text-sm text-right font-bold border border-gray-200 ${
+                        className={`px-3 py-2 text-base text-right font-bold border border-gray-200 ${
                           project.actualGrossProfit > 0
                             ? 'text-green-600'
                             : 'text-red-600'
@@ -396,7 +396,7 @@ export default function GrossProfitManagement() {
                         {formatCurrency(project.actualGrossProfit)}
                       </td>
                       <td
-                        className={`px-3 py-2 text-sm text-right font-bold border border-gray-200 ${
+                        className={`px-3 py-2 text-base text-right font-bold border border-gray-200 ${
                           project.actualGrossProfitRate < 20
                             ? 'bg-red-100 text-red-900'
                             : project.actualGrossProfitRate > 20
@@ -407,22 +407,22 @@ export default function GrossProfitManagement() {
                         {project.actualGrossProfitRate.toFixed(1)}%
                       </td>
                       {/* 差額 */}
-                      <td className={`px-3 py-2 text-sm text-right font-semibold border border-gray-200 ${
+                      <td className={`px-3 py-2 text-base text-right font-semibold border border-gray-200 ${
                         project.diffRevenue >= 0 ? 'text-green-600' : 'text-red-600'
                       }`}>
                         {project.diffRevenue >= 0 ? '+' : ''}{formatCurrency(project.diffRevenue)}
                       </td>
-                      <td className={`px-3 py-2 text-sm text-right font-semibold border border-gray-200 ${
+                      <td className={`px-3 py-2 text-base text-right font-semibold border border-gray-200 ${
                         project.diffCost <= 0 ? 'text-green-600' : 'text-red-600'
                       }`}>
                         {project.diffCost >= 0 ? '+' : ''}{formatCurrency(project.diffCost)}
                       </td>
-                      <td className={`px-3 py-2 text-sm text-right font-bold border border-gray-200 ${
+                      <td className={`px-3 py-2 text-base text-right font-bold border border-gray-200 ${
                         project.diffGrossProfit >= 0 ? 'text-green-600' : 'text-red-600'
                       }`}>
                         {project.diffGrossProfit >= 0 ? '+' : ''}{formatCurrency(project.diffGrossProfit)}
                       </td>
-                      <td className={`px-3 py-2 text-sm text-right font-bold border border-gray-200 ${
+                      <td className={`px-3 py-2 text-base text-right font-bold border border-gray-200 ${
                         Math.abs(project.diffGrossProfitRate) >= 5
                           ? 'bg-red-200 text-red-900'
                           : project.diffGrossProfitRate >= 0
@@ -444,7 +444,7 @@ export default function GrossProfitManagement() {
       <div className="prisma-card bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-300 dark:border-yellow-700">
         <div className="flex items-start gap-3">
           <AlertCircle className="text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-1" size={20} />
-          <div className="text-sm text-yellow-800 dark:text-yellow-200">
+          <div className="text-base text-yellow-800 dark:text-yellow-200">
             <p className="font-semibold mb-1">開発中の機能</p>
             <p>
               現在表示されている粗利益データはサンプルです。

@@ -228,7 +228,7 @@ export default function ApprovalFlow() {
                       <FileText className="text-gray-600 dark:text-gray-400" size={24} />
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="prisma-badge prisma-badge-gray text-sm">
+                          <span className="prisma-badge prisma-badge-gray text-base">
                             {request.type}
                           </span>
                           <span className={`flex items-center gap-1 text-base font-semibold ${config.color}`}>

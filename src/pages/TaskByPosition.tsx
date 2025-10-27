@@ -293,7 +293,7 @@ export default function TaskByPosition() {
                       >
                         <div className="flex items-center justify-center gap-1">
                           <span
-                            className={`px-2 py-1 rounded-md text-sm font-bold whitespace-nowrap ${
+                            className={`px-2 py-1 rounded-md text-base font-bold whitespace-nowrap ${
                               task.status === 'completed'
                                 ? 'task-completed'
                                 : task.status === 'requested'

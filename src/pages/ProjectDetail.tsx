@@ -1345,7 +1345,7 @@ export default function ProjectDetail() {
                             } disabled:opacity-50 disabled:cursor-not-allowed`}
                           >
                             {selectedTask.is_date_confirmed && (
-                              <span className="inline-flex items-center justify-center w-6 h-6 text-sm font-bold text-white bg-green-600 rounded-full border-2 border-white">
+                              <span className="inline-flex items-center justify-center w-6 h-6 text-base font-bold text-white bg-green-600 rounded-full border-2 border-white">
                                 確
                               </span>
                             )}
