@@ -585,8 +585,8 @@ export default function ProjectDetailFields({
             {/* 担当者タブ */}
             {positionSubTab === 'staff' && (
               <div className="p-4" style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto' }}>
-                {/* 拠点選択（コンパクト） */}
-                <div className="mb-3 flex items-center gap-3 bg-gray-50 rounded-lg px-3 py-2 border-2 border-gray-300">
+                {/* 拠点選択（細い罫線） */}
+                <div className="mb-3 flex items-center gap-3 bg-gray-50 rounded-lg px-3 py-2 border border-gray-300">
                   <label className="text-base font-bold text-gray-700 whitespace-nowrap">
                     拠点:
                   </label>
@@ -605,25 +605,25 @@ export default function ProjectDetailFields({
                   </select>
                 </div>
 
-                {/* 2列グリッドレイアウト */}
+                {/* 2列グリッドレイアウト（罫線を細く） */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   {DEPARTMENTS.map((dept) => (
-                    <div key={dept.name} className="bg-white rounded-lg shadow-lg overflow-hidden border-3 border-gray-300">
-                      {/* 部門ヘッダー（コンパクト） */}
-                      <div className={`px-3 py-2 font-bold text-base border-b-3 ${
-                        dept.name === '営業部' ? 'bg-blue-100 text-blue-900 border-blue-400' :
-                        dept.name === '設計部' ? 'bg-green-100 text-green-900 border-green-400' :
-                        dept.name === '工事部' ? 'bg-orange-100 text-orange-900 border-orange-400' :
-                        'bg-purple-100 text-purple-900 border-purple-400'
+                    <div key={dept.name} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-300">
+                      {/* 部門ヘッダー（罫線なし） */}
+                      <div className={`px-3 py-2 font-bold text-base ${
+                        dept.name === '営業部' ? 'bg-blue-100 text-blue-900' :
+                        dept.name === '設計部' ? 'bg-green-100 text-green-900' :
+                        dept.name === '工事部' ? 'bg-orange-100 text-orange-900' :
+                        'bg-purple-100 text-purple-900'
                       }`}>
                         {dept.name}
                       </div>
-                      {/* 職種リスト */}
+                      {/* 職種リスト（罫線なし・シャドウのみ） */}
                       <div className="p-3 space-y-2">
                         {dept.positions.map((position) => {
                           const employee = employees.find(emp => emp.department === position)
                           return (
-                            <div key={position} className="border-2 border-gray-300 rounded-lg p-2 bg-gray-50">
+                            <div key={position} className="bg-white rounded-lg p-2 shadow-sm hover:shadow-md transition-shadow">
                               <div className="text-base font-bold text-gray-900 mb-1">{position}</div>
                               <select
                                 value={employee?.id || ''}
