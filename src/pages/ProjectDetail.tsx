@@ -818,9 +818,9 @@ export default function ProjectDetail() {
                 {project.customer?.building_site || '-'}
               </span>
               <span className={`px-3 py-2 rounded-lg font-bold ${
-                project.status === 'post_contract' ? 'bg-blue-100 text-blue-800 border-3 border-blue-300' :
-                project.status === 'construction' ? 'bg-orange-100 text-orange-800 border-3 border-orange-300' :
-                'bg-green-100 text-green-800 border-3 border-green-300'
+                project.status === 'post_contract' ? 'bg-blue-100 text-blue-800 border-2 border-blue-300' :
+                project.status === 'construction' ? 'bg-orange-100 text-orange-800 border-2 border-orange-300' :
+                'bg-green-100 text-green-800 border-2 border-green-300'
               }`}>
                 {project.status === 'post_contract' ? '契約後' :
                  project.status === 'construction' ? '着工後' : '引き渡し済'}
@@ -1043,7 +1043,7 @@ export default function ProjectDetail() {
 
                 {/* 編集ロック状態表示 */}
                 {taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId && (
-                  <div className="mt-3 p-4 bg-yellow-50 border-3 border-yellow-400 rounded-lg flex items-center gap-2">
+                  <div className="mt-3 p-4 bg-yellow-50 border-2 border-yellow-400 rounded-lg flex items-center gap-2">
                     <Lock size={20} className="text-yellow-700" />
                     <div className="flex-1">
                       <p className="text-base font-bold text-yellow-900">
@@ -1056,7 +1056,7 @@ export default function ProjectDetail() {
 
                 {/* オンラインユーザー表示 */}
                 {taskEditLock.onlineUsers.length > 0 && (
-                  <div className="mt-2 p-3 bg-blue-50 border-3 border-blue-300 rounded-lg flex items-center gap-2">
+                  <div className="mt-2 p-3 bg-blue-50 border-2 border-blue-300 rounded-lg flex items-center gap-2">
                     <Users size={18} className="text-blue-700" />
                     <p className="text-base text-blue-900">
                       他に{taskEditLock.onlineUsers.length}人が閲覧中
@@ -1090,7 +1090,7 @@ export default function ProjectDetail() {
                       className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
                         selectedTask.status === 'requested'
                           ? 'task-in-progress'
-                          : 'bg-white text-yellow-900 hover:bg-yellow-50 border-3 border-yellow-300'
+                          : 'bg-white text-yellow-900 hover:bg-yellow-50 border-2 border-yellow-300'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                       着手中
@@ -1101,7 +1101,7 @@ export default function ProjectDetail() {
                       className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
                         selectedTask.status === 'delayed'
                           ? 'task-delayed'
-                          : 'bg-white text-red-900 hover:bg-red-50 border-3 border-red-300'
+                          : 'bg-white text-red-900 hover:bg-red-50 border-2 border-red-300'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                       遅延
@@ -1112,7 +1112,7 @@ export default function ProjectDetail() {
                       className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
                         selectedTask.status === 'completed'
                           ? 'task-completed'
-                          : 'bg-white text-blue-900 hover:bg-blue-50 border-3 border-blue-300'
+                          : 'bg-white text-blue-900 hover:bg-blue-50 border-2 border-blue-300'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                       完了
@@ -1144,7 +1144,7 @@ export default function ProjectDetail() {
                       <div className="flex gap-2 mt-2 flex-wrap">
                         <button
                           type="button"
-                          className="date-shortcut-btn px-4 py-2 text-base border-3 border-blue-300 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 font-bold"
+                          className="date-shortcut-btn px-4 py-2 text-base border-2 border-blue-300 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 font-bold"
                           onClick={() => {
                             const today = new Date()
                             today.setHours(0, 0, 0, 0)
@@ -1155,7 +1155,7 @@ export default function ProjectDetail() {
                         </button>
                         <button
                           type="button"
-                          className="date-shortcut-btn px-4 py-2 text-base border-3 border-blue-300 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 font-bold"
+                          className="date-shortcut-btn px-4 py-2 text-base border-2 border-blue-300 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 font-bold"
                           onClick={() => {
                             const tomorrow = new Date()
                             tomorrow.setDate(tomorrow.getDate() + 1)
@@ -1167,7 +1167,7 @@ export default function ProjectDetail() {
                         </button>
                         <button
                           type="button"
-                          className="date-shortcut-btn px-4 py-2 text-base border-3 border-blue-300 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 font-bold"
+                          className="date-shortcut-btn px-4 py-2 text-base border-2 border-blue-300 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 font-bold"
                           onClick={() => {
                             const nextWeek = new Date()
                             nextWeek.setDate(nextWeek.getDate() + 7)
@@ -1179,7 +1179,7 @@ export default function ProjectDetail() {
                         </button>
                         <button
                           type="button"
-                          className="date-shortcut-btn px-4 py-2 text-base border-3 border-blue-300 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 font-bold"
+                          className="date-shortcut-btn px-4 py-2 text-base border-2 border-blue-300 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 font-bold"
                           onClick={() => {
                             const nextMonth = new Date()
                             nextMonth.setMonth(nextMonth.getMonth() + 1)
@@ -1231,7 +1231,7 @@ export default function ProjectDetail() {
                               }
                             }}
                             disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
-                            className={`px-4 py-2 rounded-lg font-bold text-base border-3 transition-all ${
+                            className={`px-4 py-2 rounded-lg font-bold text-base border-2 transition-all ${
                               !selectedTask.is_date_confirmed
                                 ? 'bg-blue-500 text-white border-blue-600 shadow-lg'
                                 : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
@@ -1265,14 +1265,14 @@ export default function ProjectDetail() {
                               }
                             }}
                             disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
-                            className={`px-4 py-2 rounded-lg font-bold text-base border-3 transition-all flex items-center gap-2 ${
+                            className={`px-4 py-2 rounded-lg font-bold text-base border-2 transition-all flex items-center gap-2 ${
                               selectedTask.is_date_confirmed
                                 ? 'bg-green-600 text-white border-green-700 shadow-lg'
                                 : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                             } disabled:opacity-50 disabled:cursor-not-allowed`}
                           >
                             {selectedTask.is_date_confirmed && (
-                              <span className="inline-flex items-center justify-center w-6 h-6 text-sm font-bold text-white bg-green-600 rounded-full border-3 border-white">
+                              <span className="inline-flex items-center justify-center w-6 h-6 text-sm font-bold text-white bg-green-600 rounded-full border-2 border-white">
                                 確
                               </span>
                             )}

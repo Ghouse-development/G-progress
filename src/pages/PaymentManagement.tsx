@@ -15,6 +15,7 @@ import { useToast } from '../contexts/ToastContext'
 import { generateDemoPayments, generateDemoProjects, generateDemoCustomers } from '../utils/demoData'
 import Papa from 'papaparse'
 import { exportElementToPDF } from '../utils/pdfJapaneseFont'
+import { Calendar, DollarSign, TrendingUp, Percent } from 'lucide-react'
 
 interface PaymentRow {
   projectName: string
@@ -170,6 +171,8 @@ export default function PaymentManagement() {
   const totalScheduled = paymentRows.reduce((sum, row) => sum + row.scheduled, 0)
   const totalActual = paymentRows.reduce((sum, row) => sum + row.actual, 0)
   const grandTotal = totalScheduled + totalActual
+  const difference = totalActual - totalScheduled
+  const achievementRate = totalScheduled > 0 ? (totalActual / totalScheduled) * 100 : 0
 
   const exportCSV = async () => {
     try {
@@ -292,6 +295,59 @@ export default function PaymentManagement() {
       </div>
 
       <div className="prisma-content">
+        {/* 統計カード */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          {/* 予定入金額 */}
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border-2 border-blue-300 shadow-lg">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-base font-bold text-blue-900">予定入金額</p>
+              <Calendar className="text-blue-600" size={28} />
+            </div>
+            <p className="text-3xl font-black text-blue-900">
+              ¥{totalScheduled.toLocaleString()}
+            </p>
+          </div>
+
+          {/* 実績入金額 */}
+          <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border-2 border-green-300 shadow-lg">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-base font-bold text-green-900">実績入金額</p>
+              <DollarSign className="text-green-600" size={28} />
+            </div>
+            <p className="text-3xl font-black text-green-900">
+              ¥{totalActual.toLocaleString()}
+            </p>
+          </div>
+
+          {/* 差額 */}
+          <div className={`bg-gradient-to-br ${
+            difference >= 0
+              ? 'from-emerald-50 to-emerald-100 border-emerald-300'
+              : 'from-red-50 to-red-100 border-red-300'
+          } rounded-xl p-6 border-2 shadow-lg`}>
+            <div className="flex items-center justify-between mb-2">
+              <p className={`text-base font-bold ${difference >= 0 ? 'text-emerald-900' : 'text-red-900'}`}>
+                差額
+              </p>
+              <TrendingUp className={difference >= 0 ? 'text-emerald-600' : 'text-red-600'} size={28} />
+            </div>
+            <p className={`text-3xl font-black ${difference >= 0 ? 'text-emerald-900' : 'text-red-900'}`}>
+              {difference >= 0 ? '+' : ''}¥{difference.toLocaleString()}
+            </p>
+          </div>
+
+          {/* 達成率 */}
+          <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border-2 border-purple-300 shadow-lg">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-base font-bold text-purple-900">達成率</p>
+              <Percent className="text-purple-600" size={28} />
+            </div>
+            <p className="text-3xl font-black text-purple-900">
+              {achievementRate.toFixed(1)}%
+            </p>
+          </div>
+        </div>
+
         <table className="prisma-table">
           <thead>
             <tr>
@@ -305,8 +361,8 @@ export default function PaymentManagement() {
           <tbody>
             {paymentRows.map((row, index) => (
               <tr key={index}>
-                <td>{row.projectName}</td>
-                <td>
+                <td className="text-base">{row.projectName}</td>
+                <td className="text-base">
                   <div className="flex items-center gap-2">
                     <span>{row.paymentType}</span>
                     {row.actual > 0 && (
@@ -316,21 +372,21 @@ export default function PaymentManagement() {
                     )}
                   </div>
                 </td>
-                <td className="text-right">{row.amount.toLocaleString()}</td>
-                <td className="text-right">{row.scheduled.toLocaleString()}</td>
-                <td className="text-right">{row.actual.toLocaleString()}</td>
+                <td className="text-right text-base font-medium">{row.amount.toLocaleString()}</td>
+                <td className="text-right text-base font-medium">{row.scheduled.toLocaleString()}</td>
+                <td className="text-right text-base font-medium">{row.actual.toLocaleString()}</td>
               </tr>
             ))}
           </tbody>
           <tfoot>
-            <tr className="bg-gray-100 font-bold">
-              <td colSpan={3}>合計</td>
-              <td className="text-right">{totalScheduled.toLocaleString()}</td>
-              <td className="text-right">{totalActual.toLocaleString()}</td>
+            <tr className="bg-gray-100">
+              <td colSpan={3} className="text-base font-black">合計</td>
+              <td className="text-right text-base font-black">{totalScheduled.toLocaleString()}</td>
+              <td className="text-right text-base font-black">{totalActual.toLocaleString()}</td>
             </tr>
-            <tr className="bg-gray-200 font-bold">
-              <td colSpan={3}>総計</td>
-              <td className="text-right" colSpan={2}>{grandTotal.toLocaleString()}</td>
+            <tr className="bg-gray-200">
+              <td colSpan={3} className="text-base font-black">総計</td>
+              <td className="text-right text-base font-black" colSpan={2}>{grandTotal.toLocaleString()}</td>
             </tr>
           </tfoot>
         </table>
