@@ -16,7 +16,6 @@ import Papa from 'papaparse'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { JAPANESE_TABLE_STYLES } from '../utils/pdfJapaneseFont'
-import { Sun, Zap, Battery, Award, Thermometer, Wind } from 'lucide-react'
 
 interface PerformanceStats {
   totalProjects: number
@@ -290,68 +289,42 @@ export default function PerformanceManagement() {
         {stats && (
           <>
             {/* 統計サマリー */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-              {/* 太陽光パネル採用率 */}
-              <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 border-2 border-yellow-300 shadow-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-base font-bold text-yellow-900">太陽光パネル採用率</p>
-                  <Sun className="text-yellow-600" size={28} />
+            <div className="prisma-card">
+              <h2 className="prisma-card-title">統計サマリー</h2>
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
+                <div>
+                  <div className="prisma-text-base prisma-text-secondary">太陽光パネル採用率</div>
+                  <div className="text-3xl font-bold mt-1">{stats.solarPanelPercentage.toFixed(1)}%</div>
+                  <div className="prisma-text-xs prisma-text-secondary">（{stats.solarPanelCount}/{stats.totalProjects}件）</div>
                 </div>
-                <p className="text-3xl font-black text-yellow-900">{stats.solarPanelPercentage.toFixed(1)}%</p>
-                <p className="text-sm text-yellow-700 mt-1">（{stats.solarPanelCount}/{stats.totalProjects}件）</p>
-              </div>
-
-              {/* 平均太陽光kW数 */}
-              <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-6 border-2 border-amber-300 shadow-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-base font-bold text-amber-900">平均太陽光kW数</p>
-                  <Zap className="text-amber-600" size={28} />
+                <div>
+                  <div className="prisma-text-base prisma-text-secondary">平均太陽光kW数</div>
+                  <div className="text-3xl font-bold mt-1">{stats.avgSolarKw.toFixed(2)}kW</div>
                 </div>
-                <p className="text-3xl font-black text-amber-900">{stats.avgSolarKw.toFixed(2)}kW</p>
-              </div>
-
-              {/* 蓄電池採用率 */}
-              <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border-2 border-green-300 shadow-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-base font-bold text-green-900">蓄電池採用率</p>
-                  <Battery className="text-green-600" size={28} />
+                <div>
+                  <div className="prisma-text-base prisma-text-secondary">蓄電池採用率</div>
+                  <div className="text-3xl font-bold mt-1">{stats.batteryPercentage.toFixed(1)}%</div>
+                  <div className="prisma-text-xs prisma-text-secondary">（{stats.batteryCount}/{stats.totalProjects}件）</div>
                 </div>
-                <p className="text-3xl font-black text-green-900">{stats.batteryPercentage.toFixed(1)}%</p>
-                <p className="text-sm text-green-700 mt-1">（{stats.batteryCount}/{stats.totalProjects}件）</p>
-              </div>
-
-              {/* BELS採用率 */}
-              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border-2 border-purple-300 shadow-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-base font-bold text-purple-900">BELS採用率</p>
-                  <Award className="text-purple-600" size={28} />
+                <div>
+                  <div className="prisma-text-base prisma-text-secondary">BELS採用率</div>
+                  <div className="text-3xl font-bold mt-1">{stats.belsPercentage.toFixed(1)}%</div>
+                  <div className="prisma-text-xs prisma-text-secondary">（{stats.belsCount}/{stats.totalProjects}件）</div>
                 </div>
-                <p className="text-3xl font-black text-purple-900">{stats.belsPercentage.toFixed(1)}%</p>
-                <p className="text-sm text-purple-700 mt-1">（{stats.belsCount}/{stats.totalProjects}件）</p>
-              </div>
-
-              {/* 平均UA値 */}
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border-2 border-blue-300 shadow-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-base font-bold text-blue-900">平均UA値</p>
-                  <Thermometer className="text-blue-600" size={28} />
+                <div>
+                  <div className="prisma-text-base prisma-text-secondary">平均UA値</div>
+                  <div className="text-3xl font-bold mt-1">{stats.avgUaValue.toFixed(3)}</div>
+                  <div className="prisma-text-xs prisma-text-secondary">
+                    最小: {stats.minUaValue.toFixed(3)} / 最大: {stats.maxUaValue.toFixed(3)}
+                  </div>
                 </div>
-                <p className="text-3xl font-black text-blue-900">{stats.avgUaValue.toFixed(3)}</p>
-                <p className="text-sm text-blue-700 mt-1">
-                  最小: {stats.minUaValue.toFixed(3)} / 最大: {stats.maxUaValue.toFixed(3)}
-                </p>
-              </div>
-
-              {/* 平均C値 */}
-              <div className="bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-xl p-6 border-2 border-cyan-300 shadow-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-base font-bold text-cyan-900">平均C値</p>
-                  <Wind className="text-cyan-600" size={28} />
+                <div>
+                  <div className="prisma-text-base prisma-text-secondary">平均C値</div>
+                  <div className="text-3xl font-bold mt-1">{stats.avgCValue.toFixed(3)}</div>
+                  <div className="prisma-text-xs prisma-text-secondary">
+                    最小: {stats.minCValue.toFixed(3)} / 最大: {stats.maxCValue.toFixed(3)}
+                  </div>
                 </div>
-                <p className="text-3xl font-black text-cyan-900">{stats.avgCValue.toFixed(3)}</p>
-                <p className="text-sm text-cyan-700 mt-1">
-                  最小: {stats.minCValue.toFixed(3)} / 最大: {stats.maxCValue.toFixed(3)}
-                </p>
               </div>
             </div>
 
