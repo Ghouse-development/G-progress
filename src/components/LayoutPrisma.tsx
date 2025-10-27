@@ -144,8 +144,8 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
           <Link to="/dashboard" className={`prisma-sidebar-item ${location.pathname === '/dashboard' ? 'active' : ''}`} onClick={closeSidebar}>
             ダッシュボード
           </Link>
-          <Link to="/task-status" className={`prisma-sidebar-item ${location.pathname === '/task-status' ? 'active' : ''}`} onClick={closeSidebar}>
-            タスク状況
+          <Link to="/task-board" className={`prisma-sidebar-item ${location.pathname === '/task-board' ? 'active' : ''}`} onClick={closeSidebar}>
+            タスクボード
           </Link>
           <Link to="/projects" className={`prisma-sidebar-item ${location.pathname.startsWith('/projects') ? 'active' : ''}`} onClick={closeSidebar}>
             案件一覧
