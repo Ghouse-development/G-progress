@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Project, Employee, Task } from '../types/database'
+import { Project, Employee, Task, Branch } from '../types/database'
 import { supabase } from '../lib/supabase'
 import { useToast } from '../contexts/ToastContext'
 import { Save, Eye, Trash2, AlertTriangle } from 'lucide-react'
@@ -52,6 +52,11 @@ export default function ProjectDetailFields({
   const deptHeaderRef = useRef<HTMLDivElement>(null)
   const [deptHeaderHeight, setDeptHeaderHeight] = useState(48) // デフォルト値
 
+  // 担当者フィルター用
+  const [branches, setBranches] = useState<Branch[]>([])
+  const [selectedBranchId, setSelectedBranchId] = useState<string>('all')
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>('all')
+
   const handleSave = async () => {
     setSaving(true)
     try {
@@ -89,6 +94,24 @@ export default function ProjectDetailFields({
       window.removeEventListener('resize', updateHeaderHeight)
     }
   }, [activeTab]) // activeTabが変わった時も再計算
+
+  // 拠点データを取得
+  useEffect(() => {
+    const fetchBranches = async () => {
+      const { data, error } = await supabase
+        .from('branches')
+        .select('*')
+        .order('name')
+
+      if (error) {
+        console.error('Failed to fetch branches:', error)
+      } else if (data) {
+        setBranches(data)
+      }
+    }
+
+    fetchBranches()
+  }, [])
 
   const tabs = [
     { id: 'grid', label: 'グリッドビュー' },
@@ -562,10 +585,80 @@ export default function ProjectDetailFields({
             {/* 担当者タブ */}
             {positionSubTab === 'staff' && (
               <div className="p-4" style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto' }}>
+                {/* フィルター */}
+                <div className="mb-4 bg-gray-50 rounded-lg p-4 border-2 border-gray-300">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* 拠点選択 */}
+                    <div>
+                      <label className="block text-base font-bold text-gray-700 mb-2">
+                        拠点で絞り込み
+                      </label>
+                      <select
+                        value={selectedBranchId}
+                        onChange={(e) => {
+                          setSelectedBranchId(e.target.value)
+                          setSelectedEmployeeId('all') // 拠点変更時は担当者もリセット
+                        }}
+                        className="prisma-select w-full"
+                      >
+                        <option value="all">すべての拠点</option>
+                        {branches.map(branch => (
+                          <option key={branch.id} value={branch.id}>
+                            {branch.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* 担当者選択 */}
+                    <div>
+                      <label className="block text-base font-bold text-gray-700 mb-2">
+                        担当者で絞り込み
+                      </label>
+                      <select
+                        value={selectedEmployeeId}
+                        onChange={(e) => setSelectedEmployeeId(e.target.value)}
+                        className="prisma-select w-full"
+                      >
+                        <option value="all">すべての担当者</option>
+                        {employees
+                          .filter(emp => selectedBranchId === 'all' || emp.branch_id === selectedBranchId)
+                          .map(emp => (
+                            <option key={emp.id} value={emp.id}>
+                              {emp.last_name} {emp.first_name} ({emp.department})
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="bg-white rounded-lg shadow-xl overflow-hidden border-2 border-gray-300">
                   <div className="overflow-x-auto">
-                    {DEPARTMENTS.map((dept) => (
-                      <div key={dept.name} className="mb-6 last:mb-0">
+                    {DEPARTMENTS.map((dept) => {
+                      // フィルタリングされた従業員リスト
+                      const filteredPositions = dept.positions.filter(position => {
+                        const employee = employees.find(emp => emp.department === position)
+                        if (!employee) return selectedEmployeeId === 'all'
+
+                        // 拠点フィルター
+                        if (selectedBranchId !== 'all' && employee.branch_id !== selectedBranchId) {
+                          return false
+                        }
+
+                        // 担当者フィルター
+                        if (selectedEmployeeId !== 'all' && employee.id !== selectedEmployeeId) {
+                          return false
+                        }
+
+                        return true
+                      })
+
+                      // フィルタリング後の職種がない場合は部門自体を非表示
+                      if (filteredPositions.length === 0) return null
+
+                      return (
+                        <div key={dept.name} className="mb-6 last:mb-0">
                         <div className={`px-4 py-3 font-bold text-lg border-b-3 ${
                           dept.name === '営業部' ? 'bg-blue-100 text-blue-900 border-blue-400' :
                           dept.name === '設計部' ? 'bg-green-100 text-green-900 border-green-400' :
@@ -586,7 +679,7 @@ export default function ProjectDetailFields({
                             </tr>
                           </thead>
                           <tbody>
-                            {dept.positions.map((position) => {
+                            {filteredPositions.map((position) => {
                               const employee = employees.find(emp => emp.department === position)
                               return (
                                 <tr key={position} className="hover:bg-blue-50 transition-colors">
@@ -599,7 +692,7 @@ export default function ProjectDetailFields({
                                 </tr>
                               )
                             })}
-                            {dept.positions.length === 0 && (
+                            {filteredPositions.length === 0 && (
                               <tr>
                                 <td colSpan={2} className="border-2 border-gray-300 px-4 py-3 text-center text-gray-500">
                                   職種がありません
@@ -608,8 +701,9 @@ export default function ProjectDetailFields({
                             )}
                           </tbody>
                         </table>
-                      </div>
-                    ))}
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
               </div>
