@@ -100,9 +100,9 @@ export default function LayoutPrisma({ children }: { children: React.ReactNode }
             </Link>
           </div>
           {/* オンラインユーザー数 */}
-          <div className="flex items-center justify-center gap-1 mt-2 text-base text-gray-500">
-            <Users size={14} />
-            <span>{onlineCount}人がオンライン</span>
+          <div className="flex items-center justify-center gap-1 mt-2 text-sm text-gray-400">
+            <Users size={13} />
+            <span className="text-xs">{onlineCount}人がオンライン</span>
           </div>
         </div>
 
