@@ -595,9 +595,9 @@ export default function NewDashboard() {
         {/* === 商品構成（コンパクト） ===  */}
         <div className="prisma-card" style={{ marginBottom: '8px' }}>
           <h2 className="prisma-card-title">商品構成</h2>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '16px', marginTop: '8px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px', marginTop: '8px' }}>
             {/* 円グラフ */}
-            <ResponsiveContainer width={200} height={200}>
+            <ResponsiveContainer width={180} height={180}>
               <PieChart>
                 <Pie
                   data={productComposition}
@@ -605,7 +605,7 @@ export default function NewDashboard() {
                   nameKey="name"
                   cx="50%"
                   cy="50%"
-                  outerRadius={65}
+                  outerRadius={55}
                   label={(entry) => `${entry.percentage}%`}
                   labelLine={false}
                 >
@@ -618,7 +618,7 @@ export default function NewDashboard() {
             </ResponsiveContainer>
 
             {/* 凡例 */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', width: '100%', maxWidth: '300px' }}>
               {productComposition.map((item, index) => (
                 <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                   <div style={{ width: '10px', height: '10px', backgroundColor: PIE_COLORS[index % PIE_COLORS.length], borderRadius: '2px' }}></div>
@@ -630,12 +630,12 @@ export default function NewDashboard() {
           </div>
         </div>
 
-        {/* === グラフエリア（2列グリッドレイアウト） === */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '10px' }}>
+        {/* === グラフエリア（2列固定レイアウト） === */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px' }} className="lg:grid-cols-2">
           {/* 請負契約数 */}
           <div className="prisma-card">
             <h2 className="prisma-card-title">請負契約数</h2>
-            <ResponsiveContainer width="100%" height={160}>
+            <ResponsiveContainer width="100%" height={200}>
               <BarChart data={monthlyStats}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" style={{ fontSize: '11px' }} />
@@ -663,7 +663,7 @@ export default function NewDashboard() {
           {/* 変更契約数 */}
           <div className="prisma-card">
             <h2 className="prisma-card-title">変更契約数</h2>
-            <ResponsiveContainer width="100%" height={160}>
+            <ResponsiveContainer width="100%" height={200}>
               <BarChart data={monthlyStats}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" style={{ fontSize: '12px' }} />
@@ -691,7 +691,7 @@ export default function NewDashboard() {
           {/* 着工数 */}
           <div className="prisma-card">
             <h2 className="prisma-card-title">着工数</h2>
-            <ResponsiveContainer width="100%" height={160}>
+            <ResponsiveContainer width="100%" height={200}>
               <BarChart data={monthlyStats}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" style={{ fontSize: '11px' }} />
@@ -719,7 +719,7 @@ export default function NewDashboard() {
           {/* 引き渡し数 */}
           <div className="prisma-card">
             <h2 className="prisma-card-title">引き渡し数</h2>
-            <ResponsiveContainer width="100%" height={160}>
+            <ResponsiveContainer width="100%" height={200}>
               <BarChart data={monthlyStats}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" style={{ fontSize: '11px' }} />
@@ -765,7 +765,7 @@ export default function NewDashboard() {
           {/* 入金予定・実績 */}
           <div className="prisma-card">
             <h2 className="prisma-card-title">入金予定・実績（月次）</h2>
-            <ResponsiveContainer width="100%" height={160}>
+            <ResponsiveContainer width="100%" height={200}>
               <BarChart data={monthlyStats}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" style={{ fontSize: '11px' }} />
@@ -794,7 +794,7 @@ export default function NewDashboard() {
           {/* 粗利益高 */}
           <div className="prisma-card">
             <h2 className="prisma-card-title">粗利益高（月次）</h2>
-            <ResponsiveContainer width="100%" height={160}>
+            <ResponsiveContainer width="100%" height={200}>
               <BarChart data={monthlyStats}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" style={{ fontSize: '11px' }} />
