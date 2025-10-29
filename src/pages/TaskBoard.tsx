@@ -196,10 +196,10 @@ export default function TaskBoard() {
       </div>
 
       {/* メインコンテンツ */}
-      <div className="prisma-content px-6">
+      <div className="prisma-content px-4">
         {/* 遅延タスク */}
         {delayedTasks.length > 0 && (
-          <div className="prisma-card mb-6">
+          <div className="prisma-card mb-4">
             <div className="prisma-card-header" style={{ background: 'linear-gradient(to right, #FCA5A5, #EF4444)' }}>
               <h2 className="prisma-card-title flex items-center gap-2 text-white">
                 <AlertTriangle size={20} />
@@ -261,7 +261,7 @@ export default function TaskBoard() {
 
         {/* 期日が近いタスク */}
         {upcomingTasks.length > 0 && (
-          <div className="prisma-card mb-6">
+          <div className="prisma-card mb-4">
             <div className="prisma-card-header" style={{ background: 'linear-gradient(to right, #FDE047, #EAB308)' }}>
               <h2 className="prisma-card-title flex items-center gap-2 text-white">
                 <Clock size={20} />

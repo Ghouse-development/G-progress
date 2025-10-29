@@ -471,23 +471,23 @@ export default function NewDashboard() {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr className="border-b-3 border-gray-300">
-                  <th className="px-4 py-3 text-left text-base font-bold text-gray-700">項目</th>
-                  <th className="px-4 py-3 text-right text-base font-bold text-gray-700">目標</th>
-                  <th className="px-4 py-3 text-right text-base font-bold text-gray-700">実績／予想</th>
-                  <th className="px-4 py-3 text-right text-base font-bold text-gray-700">達成率</th>
+                  <th className="px-2 py-2 text-left text-sm font-bold text-gray-700">項目</th>
+                  <th className="px-2 py-2 text-right text-sm font-bold text-gray-700">目標</th>
+                  <th className="px-2 py-2 text-right text-sm font-bold text-gray-700">実績／予想</th>
+                  <th className="px-2 py-2 text-right text-sm font-bold text-gray-700">達成率</th>
                 </tr>
               </thead>
               <tbody>
                 {/* 売上高 */}
                 <tr className="border-b-2 border-gray-200">
-                  <td className="px-4 py-4 text-base font-bold text-gray-900">売上高（税別）</td>
-                  <td className="px-4 py-4 text-right text-lg font-bold text-gray-900">
+                  <td className="px-2 py-2 text-sm font-bold text-gray-900">売上高（税別）</td>
+                  <td className="px-2 py-2 text-right text-base font-bold text-gray-900">
                     {targetRevenue.toLocaleString()}円
                   </td>
-                  <td className="px-4 py-4 text-right text-lg font-bold text-blue-600">
+                  <td className="px-2 py-2 text-right text-base font-bold text-blue-600">
                     {Math.floor(totalScheduledPayment / 1.1).toLocaleString()}円
                   </td>
-                  <td className="px-4 py-4 text-right text-lg font-bold">
+                  <td className="px-2 py-2 text-right text-base font-bold">
                     <span className={`px-3 py-1 rounded ${
                       targetRevenue > 0 && ((totalScheduledPayment / 1.1) / targetRevenue) >= 1
                         ? 'bg-green-100 text-green-700'
@@ -501,14 +501,14 @@ export default function NewDashboard() {
                 </tr>
                 {/* 粗利益 */}
                 <tr className="border-b-2 border-gray-200">
-                  <td className="px-4 py-4 text-base font-bold text-gray-900">粗利益（税別）</td>
-                  <td className="px-4 py-4 text-right text-lg font-bold text-gray-900">
+                  <td className="px-2 py-2 text-sm font-bold text-gray-900">粗利益（税別）</td>
+                  <td className="px-2 py-2 text-right text-base font-bold text-gray-900">
                     {targetGrossProfit.toLocaleString()}円
                   </td>
-                  <td className="px-4 py-4 text-right text-lg font-bold text-blue-600">
+                  <td className="px-2 py-2 text-right text-base font-bold text-blue-600">
                     {Math.floor(totalGrossProfit).toLocaleString()}円
                   </td>
-                  <td className="px-4 py-4 text-right text-lg font-bold">
+                  <td className="px-2 py-2 text-right text-base font-bold">
                     <span className={`px-3 py-1 rounded ${
                       targetGrossProfit > 0 && (totalGrossProfit / targetGrossProfit) >= 1
                         ? 'bg-green-100 text-green-700'
@@ -522,14 +522,14 @@ export default function NewDashboard() {
                 </tr>
                 {/* 完工棟数 */}
                 <tr>
-                  <td className="px-4 py-4 text-base font-bold text-gray-900">完工棟数</td>
-                  <td className="px-4 py-4 text-right text-lg font-bold text-gray-900">
+                  <td className="px-2 py-2 text-sm font-bold text-gray-900">完工棟数</td>
+                  <td className="px-2 py-2 text-right text-base font-bold text-gray-900">
                     {targetUnits}棟
                   </td>
-                  <td className="px-4 py-4 text-right text-lg font-bold text-blue-600">
+                  <td className="px-2 py-2 text-right text-base font-bold text-blue-600">
                     {expectedCompletionCount}棟
                   </td>
-                  <td className="px-4 py-4 text-right text-lg font-bold">
+                  <td className="px-2 py-2 text-right text-base font-bold">
                     <span className={`px-3 py-1 rounded ${
                       targetUnits > 0 && (expectedCompletionCount / targetUnits) >= 1
                         ? 'bg-green-100 text-green-700'
@@ -550,7 +550,7 @@ export default function NewDashboard() {
         <div className="prisma-card" style={{ marginBottom: '8px' }}>
           <h2 className="prisma-card-title">その他の重要指標</h2>
           <div className="mt-2">
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 text-center">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 text-center">
               {/* 入金予定 */}
               <div className="p-1.5 bg-gray-50 rounded border border-gray-200">
                 <div className="text-xs text-gray-600 mb-0.5">入金予定</div>
@@ -631,7 +631,7 @@ export default function NewDashboard() {
         </div>
 
         {/* === グラフエリア（2列グリッドレイアウト） === */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '10px' }}>
           {/* 請負契約数 */}
           <div className="prisma-card">
             <h2 className="prisma-card-title">請負契約数</h2>

@@ -608,10 +608,10 @@ export default function Calendar() {
         <div className="prisma-card mb-3 flex-shrink-0">
 
           {/* モード切替 */}
-          <div className="flex items-center justify-center gap-3 mb-4 flex-wrap">
+          <div className="flex items-center justify-center gap-2 mb-3 flex-wrap">
             <button
               onClick={() => setCalendarMode('tasks')}
-              className={`px-6 py-3 text-base font-bold border transition-colors shadow-lg rounded-lg ${
+              className={`px-3 py-2 text-sm font-bold border transition-colors shadow-lg rounded-lg ${
                 calendarMode === 'tasks'
                   ? 'bg-blue-500 text-white border-blue-600 hover:bg-blue-600'
                   : 'bg-white text-gray-900 border-gray-300 hover:bg-gray-50'
@@ -621,7 +621,7 @@ export default function Calendar() {
             </button>
             <button
               onClick={() => setCalendarMode('payments')}
-              className={`px-6 py-3 text-base font-bold border transition-colors shadow-lg rounded-lg ${
+              className={`px-3 py-2 text-sm font-bold border transition-colors shadow-lg rounded-lg ${
                 calendarMode === 'payments'
                   ? 'bg-green-600 text-white border-green-700 hover:bg-green-700'
                   : 'bg-white text-gray-900 border-gray-300 hover:bg-gray-50'
@@ -631,7 +631,7 @@ export default function Calendar() {
             </button>
             <button
               onClick={() => setCalendarMode('construction_start')}
-              className={`px-6 py-3 text-base font-bold border transition-colors shadow-lg rounded-lg ${
+              className={`px-3 py-2 text-sm font-bold border transition-colors shadow-lg rounded-lg ${
                 calendarMode === 'construction_start'
                   ? 'bg-orange-600 text-white border-orange-700 hover:bg-orange-700'
                   : 'bg-white text-gray-900 border-gray-300 hover:bg-gray-50'
@@ -641,7 +641,7 @@ export default function Calendar() {
             </button>
             <button
               onClick={() => setCalendarMode('handover')}
-              className={`px-6 py-3 text-base font-bold border transition-colors shadow-lg rounded-lg ${
+              className={`px-3 py-2 text-sm font-bold border transition-colors shadow-lg rounded-lg ${
                 calendarMode === 'handover'
                   ? 'bg-purple-600 text-white border-purple-700 hover:bg-purple-700'
                   : 'bg-white text-gray-900 border-gray-300 hover:bg-gray-50'
@@ -660,7 +660,7 @@ export default function Calendar() {
               <ChevronLeft size={24} className="hidden lg:block" />
             </button>
 
-            <h2 className="text-2xl lg:text-3xl font-black text-canva-purple min-w-48 lg:min-w-60 text-center">
+            <h2 className="text-xl lg:text-2xl font-black text-canva-purple min-w-36 lg:min-w-48 text-center">
               {format(currentMonth, 'yyyy年 M月', { locale: ja })}
             </h2>
 
@@ -723,8 +723,8 @@ export default function Calendar() {
                   onDrop={() => handleDrop(day)}
                 >
                   <div className="flex items-start justify-between mb-1">
-                    <div className={`date text-xl lg:text-3xl font-black ${
-                      isToday ? 'bg-blue-500 text-white rounded-full w-10 h-10 lg:w-16 lg:h-16 flex items-center justify-center' :
+                    <div className={`date text-lg lg:text-2xl font-black ${
+                      isToday ? 'bg-blue-500 text-white rounded-full w-8 h-8 lg:w-12 lg:h-12 flex items-center justify-center' :
                       !isCurrentMonth ? 'text-gray-400' :
                       dayOfWeek === 0 ? 'text-red-600' :
                       dayOfWeek === 6 ? 'text-blue-600' :
@@ -732,7 +732,7 @@ export default function Calendar() {
                     }`}>
                       {format(day, 'd')}
                     </div>
-                    <div className={`text-xs lg:text-base font-semibold ${
+                    <div className={`text-xs lg:text-sm font-semibold ${
                       rokuyo === '大安' ? 'text-red-600' :
                       rokuyo === '仏滅' ? 'text-gray-600' :
                       'text-gray-500'
@@ -759,7 +759,7 @@ export default function Calendar() {
                             // 変更履歴を取得
                             await loadTaskAuditLogs(task.id)
                           }}
-                          className={`text-base md:text-base lg:text-lg px-2 py-2 rounded cursor-pointer mb-1 ${
+                          className={`text-sm md:text-sm lg:text-base px-2 py-1 rounded cursor-pointer mb-1 ${
                             isMilestone ? 'bg-red-600 text-white font-bold shadow-lg hover:bg-red-700' :
                             task.status === 'completed' ? 'bg-blue-200 text-blue-900 font-bold hover:bg-blue-300' :
                             task.status === 'requested' ? 'bg-yellow-200 text-yellow-900 font-bold hover:bg-yellow-300' :
