@@ -124,7 +124,6 @@ export default function GlobalSearch() {
       setResults(searchResults)
       setSelectedIndex(0)
     } catch (error) {
-      console.error('Search error:', error)
     } finally {
       setLoading(false)
     }

@@ -47,7 +47,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
       setNotifications(data || [])
     } catch (error) {
-      console.error('Failed to load notifications:', error)
     } finally {
       setLoading(false)
     }
@@ -115,7 +114,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         )
       )
     } catch (error) {
-      console.error('Failed to mark notification as read:', error)
       throw error
     }
   }
@@ -141,7 +139,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         prev.map(n => ({ ...n, read: true }))
       )
     } catch (error) {
-      console.error('Failed to mark all notifications as read:', error)
       throw error
     }
   }
@@ -161,7 +158,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         prev.filter(n => n.id !== notificationId)
       )
     } catch (error) {
-      console.error('Failed to delete notification:', error)
       throw error
     }
   }

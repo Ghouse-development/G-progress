@@ -40,7 +40,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           localStorage.setItem('currentUserId', data.id)
         }
       } catch (error) {
-        console.error('従業員情報の取得エラー:', error)
       } finally {
         setLoading(false)
       }
@@ -61,7 +60,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setEmployee(data as Employee)
       }
     } catch (error) {
-      console.error('従業員情報の取得エラー:', error)
     } finally {
       setLoading(false)
     }
@@ -101,7 +99,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ])
 
       if (empError) {
-        console.error('従業員レコード作成エラー:', empError)
         return { error: empError }
       }
     }

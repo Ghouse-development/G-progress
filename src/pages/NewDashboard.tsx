@@ -121,7 +121,6 @@ export default function NewDashboard() {
       setTargetGrossProfit(grossProfit)
       setShowSettingsModal(false)
     } catch (error) {
-      console.error('目標値の保存エラー:', error)
       toast.error('目標値の保存に失敗しました')
     }
   }
@@ -239,7 +238,6 @@ export default function NewDashboard() {
         .maybeSingle()
 
       if (employeeError) {
-        console.error('従業員データ読み込みエラー:', employeeError)
         toast.error('従業員データの読み込みに失敗しました')
         return
       }
@@ -254,7 +252,6 @@ export default function NewDashboard() {
       .eq('fiscal_year', selectedYear)
 
     if (projectsError) {
-      console.error('プロジェクトデータ読み込みエラー:', projectsError)
       toast.error('プロジェクトデータの読み込みに失敗しました')
       setLoading(false)
       return
@@ -271,7 +268,6 @@ export default function NewDashboard() {
       .in('project_id', filteredProjects.map(p => p.id))
 
     if (paymentsError) {
-      console.error('入金データ読み込みエラー:', paymentsError)
       toast.error('入金データの読み込みに失敗しました')
     }
 
@@ -284,7 +280,6 @@ export default function NewDashboard() {
       .in('project_id', filteredProjects.map(p => p.id))
 
     if (tasksError) {
-      console.error('タスクデータ読み込みエラー:', tasksError)
       toast.error('タスクデータの読み込みに失敗しました')
     }
 
@@ -296,7 +291,7 @@ export default function NewDashboard() {
       .select('*')
 
     if (employeesError) {
-      console.error('従業員データ読み込みエラー:', employeesError)
+      // エラーは無視（オプショナルなデータ）
     }
 
     setEmployees(employeesData || [])

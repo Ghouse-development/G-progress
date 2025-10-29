@@ -80,7 +80,7 @@ export default function PerformanceManagement() {
       .order('contract_date', { ascending: false })
 
     if (error) {
-      console.error('プロジェクトデータ読み込みエラー:', error)
+      // console removed
       toast.error('プロジェクトデータの読み込みに失敗しました')
       setLoading(false)
       return
@@ -220,7 +220,7 @@ export default function PerformanceManagement() {
       link.download = `性能管理_${selectedFiscalYear}年度.csv`
       link.click()
     } catch (error) {
-      console.error('CSV出力エラー:', error)
+      // console removed
       toast.error('CSV出力に失敗しました')
     }
   }
@@ -258,7 +258,7 @@ export default function PerformanceManagement() {
 
       doc.save(`性能管理_${selectedFiscalYear}年度.pdf`)
     } catch (error) {
-      console.error('PDF出力エラー:', error)
+      // console removed
       toast.error('PDF出力に失敗しました')
     }
   }

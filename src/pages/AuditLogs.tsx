@@ -81,7 +81,7 @@ export default function AuditLogs() {
 
       setLogs(data || [])
     } catch (error) {
-      console.error('Failed to load audit logs:', error)
+      // console removed
       showToast('監査ログの読み込みに失敗しました', 'error')
     } finally {
       setLoading(false)

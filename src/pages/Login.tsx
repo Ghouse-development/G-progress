@@ -28,7 +28,7 @@ export default function Login() {
           .order('last_name')
 
         if (error) {
-          console.error('従業員リストの読み込みに失敗:', error)
+          // console removed
           return
         }
 
@@ -39,7 +39,7 @@ export default function Login() {
           }
         }
       } catch (error) {
-        console.error('予期しないエラー:', error)
+        // console removed
       }
     }
 

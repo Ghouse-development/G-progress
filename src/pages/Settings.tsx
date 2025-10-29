@@ -73,7 +73,6 @@ export default function Settings() {
         .maybeSingle()
 
       if (error) {
-        console.error('Failed to load kintone settings:', error)
         showToast('Kintone設定の読み込みに失敗しました', 'error')
         return
       }
@@ -82,7 +81,6 @@ export default function Settings() {
         setKintoneSettings(data.value)
       }
     } catch (error) {
-      console.error('Failed to load kintone settings:', error)
       showToast('予期しないエラーが発生しました', 'error')
     }
   }
@@ -96,7 +94,6 @@ export default function Settings() {
         .limit(10)
 
       if (error) {
-        console.error('Failed to load backup logs:', error)
         showToast('バックアップログの読み込みに失敗しました', 'error')
         return
       }
@@ -105,7 +102,6 @@ export default function Settings() {
         setBackupLogs(data)
       }
     } catch (error) {
-      console.error('Failed to load backup logs:', error)
       showToast('予期しないエラーが発生しました', 'error')
     }
   }
@@ -119,7 +115,6 @@ export default function Settings() {
         .maybeSingle()
 
       if (error) {
-        console.error('Failed to load LINE settings:', error)
         showToast('LINE設定の読み込みに失敗しました', 'error')
         return
       }
@@ -128,7 +123,6 @@ export default function Settings() {
         setLineSettings(data.value)
       }
     } catch (error) {
-      console.error('Failed to load LINE settings:', error)
       showToast('予期しないエラーが発生しました', 'error')
     }
   }
@@ -147,7 +141,6 @@ export default function Settings() {
 
       showToast('LINE設定を保存しました', 'success')
     } catch (error) {
-      console.error('Failed to save LINE settings:', error)
       showToast('LINE設定の保存に失敗しました', 'error')
     }
   }
@@ -166,7 +159,6 @@ export default function Settings() {
 
       showToast('設定を保存しました', 'success')
     } catch (error) {
-      console.error('Failed to save settings:', error)
       showToast('設定の保存に失敗しました', 'error')
     }
   }
@@ -227,7 +219,6 @@ export default function Settings() {
           await client.createRecord(kintoneSettings.appId, kintoneRecord)
           successCount++
         } catch (error) {
-          console.error(`Failed to backup project ${project.id}:`, error)
           errorCount++
         }
       }
@@ -253,7 +244,6 @@ export default function Settings() {
         errorCount > 0 ? 'warning' : 'success'
       )
     } catch (error) {
-      console.error('Backup failed:', error)
       showToast('バックアップに失敗しました', 'error')
 
       await supabase.from('backup_logs').insert({
@@ -352,7 +342,6 @@ export default function Settings() {
                           try {
                             setDemoMode(!demoMode)
                           } catch (error) {
-                            console.error('デモモード切替エラー:', error)
                             toast.error('デモモードの切替に失敗しました')
                           }
                         }}
@@ -402,7 +391,6 @@ export default function Settings() {
                           try {
                             setDarkMode(!darkMode)
                           } catch (error) {
-                            console.error('ダークモード切替エラー:', error)
                             toast.error('ダークモードの切替に失敗しました')
                           }
                         }}

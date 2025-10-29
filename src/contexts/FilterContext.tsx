@@ -118,7 +118,6 @@ export function FilterProvider({ children }: { children: ReactNode }) {
     const { data, error } = await query
 
     if (error || !data) {
-      console.error('プロジェクトフィルタエラー:', error)
       return []
     }
 

@@ -89,7 +89,6 @@ export default function TriggerMaster({ onClose }: TriggerMasterProps) {
       await loadTriggers()
       handleCloseModal()
     } catch (error) {
-      console.error('Failed to save trigger:', error)
       toast.error('トリガーの保存に失敗しました')
     }
   }
@@ -110,7 +109,6 @@ export default function TriggerMaster({ onClose }: TriggerMasterProps) {
       toast.success('トリガーを削除しました')
       await loadTriggers()
     } catch (error) {
-      console.error('Failed to delete trigger:', error)
       toast.error('トリガーの削除に失敗しました')
     }
   }

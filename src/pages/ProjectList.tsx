@@ -195,7 +195,6 @@ export default function ProjectList() {
       .order('last_name')
 
     if (error) {
-      console.error('従業員の読み込みに失敗:', error)
       toast.error('従業員情報の読み込みに失敗しました')
       return
     }
@@ -213,7 +212,6 @@ export default function ProjectList() {
       .order('task_order', { ascending: true })
 
     if (error) {
-      console.error('タスクマスタの読み込みに失敗:', error)
       toast.error('タスクマスタの読み込みに失敗しました')
       return
     }
@@ -288,7 +286,6 @@ export default function ProjectList() {
       const { data: projectsData, error: projectsError } = await query.order('contract_date', { ascending: false })
 
       if (projectsError) {
-        console.error('案件の取得に失敗:', projectsError)
         toast.error('案件データの読み込みに失敗しました')
         return
       }
@@ -305,7 +302,7 @@ export default function ProjectList() {
               .eq('project_id', project.id)
 
             if (tasksError) {
-              console.error('タスクの取得に失敗:', tasksError)
+              // エラーは無視（オプショナルなデータ）
             }
 
             // show_in_progressがtrueのタスクのみ表示（案件一覧の進捗用）
@@ -334,7 +331,7 @@ export default function ProjectList() {
             .in('project_id', projectIds)
 
           if (tasksError) {
-            console.error('全タスクの取得に失敗:', tasksError)
+            // エラーは無視（オプショナルなデータ）
           }
 
           if (tasksData) {
@@ -349,7 +346,6 @@ export default function ProjectList() {
         }
       }
     } catch (error) {
-      console.error('予期しないエラー:', error)
       toast.error('予期しないエラーが発生しました')
     } finally {
       setLoading(false)
@@ -676,7 +672,6 @@ export default function ProjectList() {
         .limit(1)
 
       if (checkError) {
-        console.error('契約番号の確認に失敗:', checkError)
         toast.error('契約番号の確認に失敗しました')
         return
       }
@@ -698,7 +693,6 @@ export default function ProjectList() {
         .single()
 
       if (customerError) {
-        console.error('顧客の作成に失敗:', customerError)
         toast.error('顧客の作成に失敗しました')
         return
       }
@@ -726,7 +720,6 @@ export default function ProjectList() {
         .single()
 
       if (projectError) {
-        console.error('案件の作成に失敗:', projectError)
         toast.error('案件の作成に失敗しました')
         return
       }
@@ -760,7 +753,6 @@ export default function ProjectList() {
       resetForm()
       toast.success(`案件を作成しました（${taskResult.tasksCount || 0}個のタスクを自動生成）`)
     } catch (error) {
-      console.error('予期しないエラー:', error)
       toast.error('案件の作成に失敗しました')
     }
   }
@@ -782,7 +774,6 @@ export default function ProjectList() {
         .eq('id', editingProject.customer_id)
 
       if (customerError) {
-        console.error('顧客の更新に失敗:', customerError)
         toast.error('顧客の更新に失敗しました')
         return
       }
@@ -807,7 +798,6 @@ export default function ProjectList() {
         .eq('id', editingProject.id)
 
       if (projectError) {
-        console.error('案件の更新に失敗:', projectError)
         toast.error('案件の更新に失敗しました')
         return
       }
@@ -835,7 +825,6 @@ export default function ProjectList() {
       resetForm()
       toast.success('案件を更新しました')
     } catch (error) {
-      console.error('予期しないエラー:', error)
       toast.error('案件の更新に失敗しました')
     }
   }
@@ -854,7 +843,6 @@ export default function ProjectList() {
         .eq('id', deletingProjectId)
 
       if (error) {
-        console.error('案件の削除に失敗:', error)
         toast.error('案件の削除に失敗しました')
         return
       }
@@ -878,7 +866,6 @@ export default function ProjectList() {
       setDeletingProjectId(null)
       toast.success('案件を削除しました')
     } catch (error) {
-      console.error('予期しないエラー:', error)
       toast.error('案件の削除に失敗しました')
     }
   }
@@ -943,7 +930,6 @@ export default function ProjectList() {
 
       toast.success('CSVを出力しました')
     } catch (error) {
-      console.error('CSV出力エラー:', error)
       toast.error('CSV出力に失敗しました')
     }
   }
@@ -1070,7 +1056,6 @@ export default function ProjectList() {
 
       toast.success('PDFを出力しました')
     } catch (error) {
-      console.error('PDF出力エラー:', error)
       toast.error('PDF出力に失敗しました')
     }
   }

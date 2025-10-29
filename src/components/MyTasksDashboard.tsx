@@ -117,7 +117,6 @@ export default function MyTasksDashboard() {
       setAllTasks(tasksWithProject)
       setLoading(false)
     } catch (error) {
-      console.error('Error loading data:', error)
       setLoading(false)
     }
   }

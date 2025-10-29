@@ -198,7 +198,7 @@ export default function PaymentManagement() {
         calculateMonthlyTotals(paymentsData || [])
       }
     } catch (error: any) {
-      console.error('入金データの読み込みエラー:', error)
+      // console removed
       toast.error(error.message || '入金データの読み込みに失敗しました')
       setPayments([])
       setMonthlyTotals([])
@@ -289,7 +289,7 @@ export default function PaymentManagement() {
 
       toast.success(`CSV出力が完了しました（${paymentRows.length}件）`)
     } catch (error: any) {
-      console.error('CSV出力エラー:', error)
+      // console removed
       toast.error(error.message || 'CSV出力に失敗しました')
     }
   }
@@ -341,7 +341,7 @@ export default function PaymentManagement() {
 
       toast.success(`PDF出力が完了しました（${paymentRows.length}件）`)
     } catch (error: any) {
-      console.error('PDF出力エラー:', error)
+      // console removed
       toast.error(error.message || 'PDF出力に失敗しました')
     }
   }

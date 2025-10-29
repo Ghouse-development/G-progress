@@ -65,7 +65,7 @@ export default function TaskByPosition() {
       .maybeSingle()
 
     if (error) {
-      console.error('従業員データ読み込みエラー:', error)
+      // console removed
       toast.error('従業員データの読み込みに失敗しました')
       return
     }
@@ -118,7 +118,7 @@ export default function TaskByPosition() {
       .order('due_date', { ascending: true })
 
     if (tasksError) {
-      console.error('タスクデータ読み込みエラー:', tasksError)
+      // console removed
       toast.error('タスクデータの読み込みに失敗しました')
       setLoading(false)
       return
@@ -168,7 +168,7 @@ export default function TaskByPosition() {
       .eq('id', selectedTask.id)
 
     if (error) {
-      console.error('ステータス更新エラー:', error)
+      // console removed
       toast.error(`ステータスの更新に失敗しました: ${error.message}`)
       return
     }

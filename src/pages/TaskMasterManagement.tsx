@@ -51,7 +51,6 @@ export default function TaskMasterManagement() {
       .order('task_order', { ascending: true })
 
     if (error) {
-      console.error('タスクマスタの読み込みエラー:', error)
       toast.error('タスクマスタの読み込みに失敗しました')
     } else if (data) {
       setTaskMasters(data as any)
@@ -156,7 +155,6 @@ export default function TaskMasterManagement() {
           .eq('id', editingTask.id)
 
         if (error) {
-          console.error('タスクマスタ更新エラー:', error)
           toast.error(`タスクマスタの更新に失敗しました: ${error.message}`)
           return
         }
@@ -185,7 +183,6 @@ export default function TaskMasterManagement() {
         })
 
         if (error) {
-          console.error('タスクマスタ作成エラー:', error)
           toast.error(`タスクマスタの作成に失敗しました: ${error.message}`)
           return
         }
@@ -195,11 +192,6 @@ export default function TaskMasterManagement() {
       setShowModal(false)
       await loadTaskMasters()
     } catch (error: any) {
-      console.error('Failed to save task master:', error)
-      console.error('Error details:', JSON.stringify(error, null, 2))
-      console.error('Error message:', error?.message)
-      console.error('Error hint:', error?.hint)
-      console.error('Error details:', error?.details)
       toast.error(`タスクマスタの保存に失敗しました: ${error?.message || '不明なエラー'}`)
     }
   }
@@ -216,7 +208,6 @@ export default function TaskMasterManagement() {
         .eq('id', id)
 
       if (error) {
-        console.error('タスクマスタ削除エラー:', error)
         toast.error(`タスクマスタの削除に失敗しました: ${error.message}`)
         return
       }
@@ -224,7 +215,6 @@ export default function TaskMasterManagement() {
       toast.success('タスクマスタを削除しました')
       await loadTaskMasters()
     } catch (error: any) {
-      console.error('Failed to delete task master:', error)
       toast.error(`タスクマスタの削除に失敗しました: ${error?.message || '不明なエラー'}`)
     }
   }
@@ -282,7 +272,6 @@ export default function TaskMasterManagement() {
       // エラーがあるかチェック
       const errors = results.filter(result => result.error)
       if (errors.length > 0) {
-        console.error('並び順の更新で一部エラー:', errors)
         toast.error('並び順の保存に失敗しました')
         // エラー時は元のデータを再読み込み
         await loadTaskMasters()
@@ -290,7 +279,6 @@ export default function TaskMasterManagement() {
         toast.success('並び順を保存しました')
       }
     } catch (error) {
-      console.error('並び順の保存エラー:', error)
       toast.error('並び順の保存に失敗しました')
       // エラー時は元のデータを再読み込み
       await loadTaskMasters()

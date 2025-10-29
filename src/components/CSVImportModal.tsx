@@ -149,7 +149,6 @@ export default function CSVImportModal({ onClose, onSuccess }: CSVImportModalPro
                 .eq('contract_number', contractNumber)
 
               if (error) {
-                console.error(`Failed to update ${contractNumber}:`, error)
                 setProgress(prev => ({ ...prev, error: prev.error + 1 }))
               } else {
                 setProgress(prev => ({ ...prev, success: prev.success + 1 }))
@@ -158,7 +157,6 @@ export default function CSVImportModal({ onClose, onSuccess }: CSVImportModalPro
               setProgress(prev => ({ ...prev, error: prev.error + 1 }))
             }
           } catch (err) {
-            console.error('Record processing error:', err)
             setProgress(prev => ({ ...prev, error: prev.error + 1 }))
           }
         }
@@ -168,7 +166,6 @@ export default function CSVImportModal({ onClose, onSuccess }: CSVImportModalPro
         onSuccess()
       },
       error: (error) => {
-        console.error('CSV parse error:', error)
         showToast('CSVの読み込みに失敗しました', 'error')
         setImporting(false)
       }

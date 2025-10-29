@@ -65,7 +65,6 @@ export function PermissionsProvider({ children }: { children: ReactNode }) {
         .single()
 
       if (error || !employee) {
-        console.error('Failed to load employee data:', error)
         setUserPermissions(null)
         setLoading(false)
         return
@@ -85,7 +84,6 @@ export function PermissionsProvider({ children }: { children: ReactNode }) {
 
       setUserPermissions(userPerms)
     } catch (error) {
-      console.error('Error loading user permissions:', error)
       setUserPermissions(null)
     } finally {
       setLoading(false)

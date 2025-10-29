@@ -142,7 +142,6 @@ export default function Calendar() {
         .maybeSingle()
 
       if (error) {
-        console.error('従業員データ読み込みエラー:', error)
         showToast('従業員データの読み込みに失敗しました', 'error')
         return
       }
@@ -176,7 +175,6 @@ export default function Calendar() {
         .lte('due_date', format(end, 'yyyy-MM-dd'))
 
       if (error) {
-        console.error('カレンダー: タスクの取得に失敗:', error)
         showToast('タスクの読み込みに失敗しました', 'error')
         return
       }
@@ -194,7 +192,6 @@ export default function Calendar() {
         setTasks([])
       }
     } catch (error) {
-      console.error('予期しないエラー:', error)
       showToast('予期しないエラーが発生しました', 'error')
     }
   }
@@ -218,7 +215,6 @@ export default function Calendar() {
         .or(`scheduled_date.lte.${format(end, 'yyyy-MM-dd')},actual_date.lte.${format(end, 'yyyy-MM-dd')}`)
 
       if (error) {
-        console.error('カレンダー: 入金の取得に失敗:', error)
         showToast('入金情報の読み込みに失敗しました', 'error')
         return
       }
@@ -229,7 +225,6 @@ export default function Calendar() {
         setPayments([])
       }
     } catch (error) {
-      console.error('予期しないエラー:', error)
       showToast('予期しないエラーが発生しました', 'error')
     }
   }
@@ -251,7 +246,6 @@ export default function Calendar() {
         .not('construction_start_date', 'is', null)
 
       if (error) {
-        console.error('カレンダー: 着工日の取得に失敗:', error)
         showToast('着工日の読み込みに失敗しました', 'error')
         return
       }
@@ -262,7 +256,6 @@ export default function Calendar() {
         setConstructionStarts([])
       }
     } catch (error) {
-      console.error('予期しないエラー:', error)
       showToast('予期しないエラーが発生しました', 'error')
     }
   }
@@ -284,7 +277,6 @@ export default function Calendar() {
         .not('handover_date', 'is', null)
 
       if (error) {
-        console.error('カレンダー: 引き渡し日の取得に失敗:', error)
         showToast('引き渡し日の読み込みに失敗しました', 'error')
         return
       }
@@ -295,7 +287,6 @@ export default function Calendar() {
         setHandovers([])
       }
     } catch (error) {
-      console.error('予期しないエラー:', error)
       showToast('予期しないエラーが発生しました', 'error')
     }
   }
@@ -404,7 +395,6 @@ export default function Calendar() {
       showToast('タスクの期限を変更しました', 'success')
       loadTasks() // カレンダーを再読み込み
     } catch (error) {
-      console.error('タスクの期限変更エラー:', error)
       showToast('タスクの期限変更に失敗しました', 'error')
     }
 
@@ -438,7 +428,6 @@ export default function Calendar() {
       // タスクリストを再読み込み
       loadTasks()
     } catch (error) {
-      console.error('ステータス更新エラー:', error)
       showToast('ステータスの更新に失敗しました', 'error')
     }
   }
@@ -460,7 +449,6 @@ export default function Calendar() {
       if (error) throw error
       setTaskAuditLogs(data || [])
     } catch (error) {
-      console.error('Failed to load audit logs:', error)
       setTaskAuditLogs([])
     }
   }
@@ -482,7 +470,6 @@ export default function Calendar() {
       setEditingDueDate(false)
       loadTasks()
     } catch (error) {
-      console.error('期限日の更新エラー:', error)
       showToast('期限日の更新に失敗しました', 'error')
     }
   }
@@ -522,7 +509,6 @@ export default function Calendar() {
       await exportHTMLToPDF(calendarElement, `カレンダー_${format(currentMonth, 'yyyyMM')}`, 'landscape')
       showToast('PDFを出力しました', 'success')
     } catch (error) {
-      console.error('PDF export failed:', error)
       showToast('PDF出力に失敗しました', 'error')
     }
   }

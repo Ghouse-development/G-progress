@@ -191,7 +191,6 @@ export default function DashboardHome() {
         .order('last_name')
 
       if (error) {
-        console.error('従業員の読み込みに失敗:', error)
         toast.error('従業員情報の読み込みに失敗しました')
         return
       }
@@ -200,7 +199,6 @@ export default function DashboardHome() {
         setEmployees(data as Employee[])
       }
     } catch (error) {
-      console.error('予期しないエラー:', error)
       toast.error('予期しないエラーが発生しました')
     }
   }
@@ -213,7 +211,6 @@ export default function DashboardHome() {
         .order('name')
 
       if (error) {
-        console.error('商品の読み込みに失敗:', error)
         toast.error('商品情報の読み込みに失敗しました')
         return
       }
@@ -222,7 +219,6 @@ export default function DashboardHome() {
         setProducts(data as Product[])
       }
     } catch (error) {
-      console.error('予期しないエラー:', error)
       toast.error('予期しないエラーが発生しました')
     }
   }

@@ -81,7 +81,7 @@ export default function Reports() {
       setMonthlyReport(monthly.data)
       setEmployeePerformance(employees.data || [])
     } catch (error) {
-      console.error('Failed to load analytics data:', error)
+      // console removed
       showToast('レポートデータの読み込みに失敗しました', 'error')
     } finally {
       setLoading(false)

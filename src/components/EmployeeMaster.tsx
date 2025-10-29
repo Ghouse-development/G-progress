@@ -172,7 +172,6 @@ export default function EmployeeMaster() {
       await loadEmployees()
       handleCloseModal()
     } catch (error) {
-      console.error('Failed to save employee:', error)
       toast.error('従業員の保存に失敗しました')
     }
   }
@@ -193,7 +192,6 @@ export default function EmployeeMaster() {
       toast.success('従業員を削除しました')
       await loadEmployees()
     } catch (error) {
-      console.error('Failed to delete employee:', error)
       toast.error('従業員の削除に失敗しました')
     }
   }

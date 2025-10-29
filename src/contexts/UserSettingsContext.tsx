@@ -80,7 +80,6 @@ export function UserSettingsProvider({ children }: { children: ReactNode }) {
         .single()
 
       if (error && error.code !== 'PGRST116') { // PGRST116 = Not found
-        console.error('設定読み込みエラー:', error)
         setSettings(null)
         setLoading(false)
         return
@@ -111,7 +110,6 @@ export function UserSettingsProvider({ children }: { children: ReactNode }) {
           .single()
 
         if (insertError) {
-          console.error('設定作成エラー:', insertError)
           setSettings(null)
         } else {
           setSettings(newSettings)
@@ -120,7 +118,6 @@ export function UserSettingsProvider({ children }: { children: ReactNode }) {
         setSettings(data)
       }
     } catch (error) {
-      console.error('設定読み込みエラー:', error)
       setSettings(null)
     } finally {
       setLoading(false)
@@ -142,7 +139,6 @@ export function UserSettingsProvider({ children }: { children: ReactNode }) {
 
       setSettings(data)
     } catch (error) {
-      console.error('設定更新エラー:', error)
       throw error
     }
   }

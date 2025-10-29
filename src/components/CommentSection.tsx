@@ -62,7 +62,6 @@ export default function CommentSection({ projectId, taskId, currentUserId }: Com
     const { data, error } = await query
 
     if (error) {
-      console.error('コメント読み込みエラー:', error)
       return
     }
 
@@ -153,7 +152,6 @@ export default function CommentSection({ projectId, taskId, currentUserId }: Com
       .insert([commentData])
 
     if (error) {
-      console.error('コメント投稿エラー:', error)
       showToast('コメントの投稿に失敗しました', 'error')
       return
     }
@@ -183,7 +181,6 @@ export default function CommentSection({ projectId, taskId, currentUserId }: Com
       .eq('id', commentId)
 
     if (error) {
-      console.error('コメント編集エラー:', error)
       showToast('コメントの編集に失敗しました', 'error')
       return
     }
@@ -203,7 +200,6 @@ export default function CommentSection({ projectId, taskId, currentUserId }: Com
       .eq('id', commentId)
 
     if (error) {
-      console.error('コメント削除エラー:', error)
       showToast('コメントの削除に失敗しました', 'error')
       return
     }

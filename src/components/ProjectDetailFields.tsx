@@ -72,7 +72,6 @@ export default function ProjectDetailFields({
       showToast('案件情報を更新しました', 'success')
       onUpdate()
     } catch (error) {
-      console.error('Failed to update project:', error)
       showToast('更新に失敗しました', 'error')
     } finally {
       setSaving(false)
@@ -106,7 +105,6 @@ export default function ProjectDetailFields({
         .order('name')
 
       if (error) {
-        console.error('Failed to fetch branches:', error)
       } else if (data) {
         setBranches(data)
       }
@@ -663,7 +661,6 @@ export default function ProjectDetailFields({
                                       onEmployeeUpdate()
                                     }
                                   } catch (error) {
-                                    console.error('Failed to update employee:', error)
                                     showToast('設定に失敗しました', 'error')
                                   }
                                 }}

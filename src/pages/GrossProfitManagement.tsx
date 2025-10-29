@@ -54,7 +54,7 @@ export default function GrossProfitManagement() {
         .order('contract_date', { ascending: false })
 
       if (error) {
-        console.error('プロジェクトデータの読み込みエラー:', error)
+        // console removed
         showToast(`プロジェクトデータの読み込みに失敗しました: ${error.message}`, 'error')
         setLoading(false)
         return
@@ -132,7 +132,7 @@ export default function GrossProfitManagement() {
         setProjects(projectsWithProfit)
       }
     } catch (error: any) {
-      console.error('粗利益データの読み込みエラー:', error)
+      // console removed
       showToast(`粗利益データの読み込みに失敗しました: ${error?.message || '不明なエラー'}`, 'error')
     } finally {
       setLoading(false)

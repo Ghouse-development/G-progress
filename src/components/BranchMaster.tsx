@@ -87,7 +87,6 @@ export default function BranchMaster() {
       await loadBranches()
       handleCloseModal()
     } catch (error) {
-      console.error('Failed to save branch:', error)
       toast.error('拠点の保存に失敗しました')
     }
   }
@@ -108,7 +107,6 @@ export default function BranchMaster() {
       toast.success('拠点を削除しました')
       await loadBranches()
     } catch (error) {
-      console.error('Failed to delete branch:', error)
       toast.error('拠点の削除に失敗しました')
     }
   }

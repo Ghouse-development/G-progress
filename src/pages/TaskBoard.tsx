@@ -110,7 +110,6 @@ export default function TaskBoard() {
       setTasks(tasksData || [])
       setPayments(paymentsData || [])
     } catch (error) {
-      console.error('Failed to load data:', error)
       showToast('データの読み込みに失敗しました', 'error')
     } finally {
       setLoading(false)
@@ -173,7 +172,6 @@ export default function TaskBoard() {
       loadData()
       setShowTaskModal(false)
     } catch (error) {
-      console.error('Failed to update task status:', error)
       showToast('更新に失敗しました', 'error')
     }
   }

@@ -179,7 +179,6 @@ export default function ProjectDetail() {
         .order('last_name')
 
       if (error) {
-        console.error('従業員の読み込みに失敗:', error)
         toast.error('従業員情報の読み込みに失敗しました')
         return
       }
@@ -188,7 +187,6 @@ export default function ProjectDetail() {
         setEmployees(data as Employee[])
       }
     } catch (error) {
-      console.error('予期しないエラー:', error)
       toast.error('予期しないエラーが発生しました')
     }
   }
@@ -300,7 +298,6 @@ export default function ProjectDetail() {
 
       setTasks(tasksWithDays)
     } catch (error) {
-      console.error('Failed to fetch project:', error)
       toast.error('プロジェクトの読み込みに失敗しました')
     } finally {
       if (showLoading) {
@@ -563,7 +560,6 @@ export default function ProjectDetail() {
         toast.warning(`${taskEditLock.lockedByName || '他のユーザー'}が編集中です。閲覧のみ可能です。`)
       }
     } catch (error) {
-      console.error('ロック取得に失敗:', error)
       toast.warning('編集ロックの取得に失敗しましたが、閲覧は可能です')
     }
   }
@@ -576,7 +572,6 @@ export default function ProjectDetail() {
         await taskEditLock.releaseLock()
       }
     } catch (error) {
-      console.error('ロック解放に失敗:', error)
       toast.warning('編集ロックの解放に失敗しましたが、モーダルを閉じます')
     } finally {
       setSelectedTask(null)
@@ -1299,7 +1294,6 @@ export default function ProjectDetail() {
                                 // tasksステートも更新してグリッド表示に反映
                                 setTasks(tasks.map(t => t.id === selectedTask.id ? { ...t, is_date_confirmed: false } : t))
                               } catch (error) {
-                                console.error('日付ステータス更新エラー:', error)
                                 toast.error('日付ステータスの更新に失敗しました')
                               }
                             }}
@@ -1333,7 +1327,6 @@ export default function ProjectDetail() {
                                 // tasksステートも更新してグリッド表示に反映
                                 setTasks(tasks.map(t => t.id === selectedTask.id ? { ...t, is_date_confirmed: true } : t))
                               } catch (error) {
-                                console.error('日付ステータス更新エラー:', error)
                                 toast.error('日付ステータスの更新に失敗しました')
                               }
                             }}
@@ -1437,7 +1430,6 @@ export default function ProjectDetail() {
 
                         setSelectedTask({ ...selectedTask, comment: newComment })
                       } catch (error) {
-                        console.error('コメント更新エラー:', error)
                         toast.error('コメントの更新に失敗しました')
                       }
                     }}

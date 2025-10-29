@@ -94,7 +94,6 @@ export function ViewModeProvider({ children }: { children: ReactNode }) {
           }
         }
       } catch (error) {
-        console.error('Failed to load current employee:', error)
       }
     }
 

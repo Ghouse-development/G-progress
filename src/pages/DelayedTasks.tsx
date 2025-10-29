@@ -40,7 +40,7 @@ export default function DelayedTasks() {
 
       setDelayedTasks(tasks || [])
     } catch (error) {
-      console.error('遅延タスクの読み込みエラー:', error)
+      // console removed
     } finally {
       setLoading(false)
     }

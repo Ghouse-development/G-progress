@@ -33,7 +33,7 @@ export default function ImportCSV() {
         }
       }
       reader.onerror = () => {
-        console.error('ファイル読み込みエラー')
+        // console removed
         toast.error('ファイルの読み込みに失敗しました')
       }
       reader.readAsText(selectedFile)
@@ -92,13 +92,13 @@ export default function ImportCSV() {
           }
         } catch (error: any) {
           toast.error(`インポートエラー: ${error.message}`)
-          console.error(error)
+          // console removed
         } finally {
           setLoading(false)
         }
       }
       reader.onerror = () => {
-        console.error('ファイル読み込みエラー')
+        // console removed
         toast.error('ファイルの読み込みに失敗しました')
         setLoading(false)
       }

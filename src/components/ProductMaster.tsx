@@ -37,7 +37,6 @@ export default function ProductMaster() {
       if (error) throw error
       setProducts(data || [])
     } catch (error) {
-      console.error('Failed to load products:', error)
       showToast('商品マスタの読み込みに失敗しました', 'error')
     } finally {
       setLoading(false)
@@ -79,7 +78,6 @@ export default function ProductMaster() {
       await loadProducts()
       handleCloseModal()
     } catch (error: any) {
-      console.error('Failed to save product:', error)
       if (error.code === '23505') {
         showToast('この商品名は既に登録されています', 'error')
       } else {
@@ -121,7 +119,6 @@ export default function ProductMaster() {
       showToast('商品マスタを削除しました', 'success')
       await loadProducts()
     } catch (error) {
-      console.error('Failed to delete product:', error)
       showToast('商品マスタの削除に失敗しました', 'error')
     }
   }

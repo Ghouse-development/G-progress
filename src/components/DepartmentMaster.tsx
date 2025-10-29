@@ -93,7 +93,6 @@ export default function DepartmentMaster() {
       await loadDepartments()
       handleCloseModal()
     } catch (error) {
-      console.error('Failed to save department:', error)
       toast.error('部門の保存に失敗しました')
     }
   }
@@ -114,7 +113,6 @@ export default function DepartmentMaster() {
       toast.success('部門を削除しました')
       await loadDepartments()
     } catch (error) {
-      console.error('Failed to delete department:', error)
       toast.error('部門の削除に失敗しました')
     }
   }

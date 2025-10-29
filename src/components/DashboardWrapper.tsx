@@ -40,7 +40,6 @@ export default function DashboardWrapper() {
       setCurrentEmployee(employee)
       setLoading(false)
     } catch (error) {
-      console.error('Error loading employee:', error)
       setLoading(false)
     }
   }

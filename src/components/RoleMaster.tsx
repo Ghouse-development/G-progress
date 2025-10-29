@@ -100,7 +100,6 @@ export default function RoleMaster() {
       await loadRoles()
       handleCloseModal()
     } catch (error) {
-      console.error('Failed to save role:', error)
       toast.error('役職の保存に失敗しました')
     }
   }
@@ -121,7 +120,6 @@ export default function RoleMaster() {
       toast.success('役職を削除しました')
       await loadRoles()
     } catch (error) {
-      console.error('Failed to delete role:', error)
       toast.error('役職の削除に失敗しました')
     }
   }

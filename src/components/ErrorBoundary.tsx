@@ -37,7 +37,6 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // エラーログをコンソールに出力
-    console.error('ErrorBoundary caught an error:', error, errorInfo)
 
     // 本番環境では、エラー監視サービス（Sentry等）に送信
     if (import.meta.env.PROD) {

@@ -54,7 +54,6 @@ export default function FileUpload({ projectId, taskId, onUploadComplete }: File
         setFiles(filesWithUrls as UploadedFile[])
       }
     } catch (error) {
-      console.error('Failed to load files:', error)
       toast.error('ファイル一覧の読み込みに失敗しました')
     } finally {
       setLoading(false)
@@ -118,7 +117,6 @@ export default function FileUpload({ projectId, taskId, onUploadComplete }: File
         onUploadComplete()
       }
     } catch (error) {
-      console.error('Failed to upload file:', error)
       toast.error('ファイルのアップロードに失敗しました')
     } finally {
       setUploading(false)
@@ -152,7 +150,6 @@ export default function FileUpload({ projectId, taskId, onUploadComplete }: File
       toast.success('ファイルを削除しました')
       await loadFiles()
     } catch (error) {
-      console.error('Failed to delete file:', error)
       toast.error('ファイルの削除に失敗しました')
     }
   }
