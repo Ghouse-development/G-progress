@@ -579,7 +579,7 @@ export default function Calendar() {
 
   return (
     <div className="w-full flex flex-col h-screen overflow-hidden">
-      <div id="calendar-content" className="w-full flex-1 flex flex-col px-4 py-3 overflow-auto [-webkit-overflow-scrolling:touch]" style={{ maxWidth: '1400px' }}>
+      <div id="calendar-content" className="w-full flex-1 flex flex-col px-4 py-3 overflow-auto [-webkit-overflow-scrolling:touch]">
         {/* ヘッダー */}
         <div className="prisma-header mb-3 flex-shrink-0">
           <h1 className="prisma-header-title">カレンダー</h1>
@@ -695,7 +695,7 @@ export default function Calendar() {
 
         {/* カレンダーグリッド */}
         <div className="bg-white rounded-b-lg shadow-md flex-1 min-h-0 overflow-hidden">
-          <div className="h-full overflow-y-auto overflow-x-hidden [scrollbar-width:thin] [-webkit-overflow-scrolling:touch]">
+          <div className="h-full overflow-auto [scrollbar-width:thin] [-webkit-overflow-scrolling:touch]">
 
           {/* カレンダーグリッド：全ての日を1つのグリッドに配置 */}
           <div className="calendar-grid">
