@@ -144,7 +144,16 @@ export default function NewDashboard() {
   }
 
   const calculateBranchStats = (projects: Project[], payments: Payment[], employees: Employee[]) => {
-    const stats: BranchStats[] = branches.map(branch => {
+    // 固定の拠点リスト（ステート変数に依存しない）
+    const branchList = [
+      { id: '1', name: '本部' },
+      { id: '2', name: '豊中' },
+      { id: '3', name: '奈良' },
+      { id: '4', name: '京都' },
+      { id: '5', name: '西宮' }
+    ]
+
+    const stats: BranchStats[] = branchList.map(branch => {
       // 拠点ごとのプロジェクトを抽出（営業担当者の拠点で判定）
       const branchProjects = projects.filter(p => {
         // sales_staffリレーションから拠点を取得
