@@ -578,7 +578,7 @@ export default function Calendar() {
   const weekdays = ['月', '火', '水', '木', '金', '土', '日']
 
   return (
-    <div className="w-full flex flex-col h-screen overflow-hidden">
+    <div className="w-full flex flex-col h-screen">
       <div id="calendar-content" className="w-full flex-1 flex flex-col px-4 py-3 overflow-auto [-webkit-overflow-scrolling:touch]">
         {/* ヘッダー */}
         <div className="prisma-header mb-3 flex-shrink-0">
