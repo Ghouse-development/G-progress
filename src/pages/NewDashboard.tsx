@@ -461,7 +461,7 @@ export default function NewDashboard() {
         </div>
       </div>
       <div className="prisma-content">
-        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '1400px' }}>
         {/* === 目標と実績サマリー（1枚のカードに統合） ===  */}
         <div className="prisma-card" style={{ marginBottom: '16px', padding: '12px' }}>
           <h2 className="prisma-card-title flex items-center justify-between">
@@ -631,8 +631,8 @@ export default function NewDashboard() {
           </div>
         </div>
 
-        {/* === グラフエリア（2列固定レイアウト） === */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px', maxWidth: '900px', margin: '0 auto' }} className="lg:grid-cols-2">
+        {/* === グラフエリア（3列固定レイアウト） === */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px' }} className="md:grid-cols-2 lg:grid-cols-3">
           {/* 請負契約数 */}
           <div className="prisma-card" style={{ padding: '12px' }}>
             <h2 className="prisma-card-title">請負契約数</h2>
