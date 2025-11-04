@@ -48,7 +48,7 @@ export default function TaskMasterManagement() {
     const { data, error } = await supabase
       .from('task_masters')
       .select('*')
-      .order('task_order', { ascending: true })
+      .order('days_from_contract', { ascending: true })
 
     if (error) {
       toast.error('タスクマスタの読み込みに失敗しました')
@@ -121,9 +121,19 @@ export default function TaskMasterManagement() {
       return
     }
 
+    if (!formData.phase) {
+      toast.warning('フェーズを選択してください')
+      return
+    }
+
+    if (!formData.responsible_department) {
+      toast.warning('責任職種を選択してください')
+      return
+    }
+
     // トリガーなしの場合は、days_from_contractが必須
     if (!formData.trigger_task_id && (formData.days_from_contract === null || formData.days_from_contract === undefined)) {
-      toast.warning('トリガーを設定しない場合は、契約日からの日数を設定してください')
+      toast.warning('トリガーを設定しない場合は、トリガーからの日数を設定してください')
       return
     }
 
@@ -304,7 +314,7 @@ export default function TaskMasterManagement() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+            className="prisma-btn prisma-btn-secondary flex items-center gap-2"
             title="前の画面に戻る"
           >
             <ArrowLeft size={20} />
@@ -316,7 +326,7 @@ export default function TaskMasterManagement() {
           <button
             onClick={() => handleOpenModal()}
             disabled={!canWrite}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="prisma-btn prisma-btn-primary flex items-center gap-2"
           >
             <Plus size={20} />
             新規タスク追加
@@ -361,13 +371,13 @@ export default function TaskMasterManagement() {
         <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-350px)] [-webkit-overflow-scrolling:touch]">
           <table className="w-full prisma-table min-w-max table-fixed">
             <colgroup>
-              <col className="w-[ '25%]" />
-              <col className="w-[ '12%]" />
-              <col className="w-[ '10%]" />
-              <col className="w-[ '10%]" />
-              <col className="w-[ '20%]" />
-              <col className="w-[ '10%]" />
-              <col className="w-[ '13%]" />
+              <col style={{ width: '25%' }} />
+              <col style={{ width: '12%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '20%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '13%' }} />
             </colgroup>
             <tbody className="divide-y divide-gray-200">
               {filteredTaskMasters.length === 0 ? (
@@ -408,22 +418,24 @@ export default function TaskMasterManagement() {
                       <div className="text-base text-gray-900">{task.phase || '未設定'}</div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="text-xs font-semibold text-gray-500 mb-1">契約日から</div>
-                      <div className="text-base font-medium text-gray-900 text-right">
-                        {task.days_from_contract !== null && task.days_from_contract !== undefined
-                          ? `${task.days_from_contract}日`
-                          : '-'}
+                      <div className="flex items-baseline justify-end gap-1">
+                        <span className="text-xs font-semibold text-gray-500">契約日から</span>
+                        <span className="text-base font-medium text-gray-900">
+                          {task.days_from_contract !== null && task.days_from_contract !== undefined
+                            ? `${task.days_from_contract}日`
+                            : '-'}
+                        </span>
                       </div>
                     </td>
                     <td className="px-4 py-4">
                       <div className="text-xs font-semibold text-gray-500 mb-1">トリガー</div>
                       <div className="text-base font-medium text-gray-900">
                         {task.trigger_task_id ? (
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-gray-600">
+                          <div className="flex items-center gap-2 justify-between">
+                            <span className="text-xs text-gray-600 truncate">
                               {taskMasters.find(t => t.id === task.trigger_task_id)?.title || '不明なタスク'}
                             </span>
-                            <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-bold whitespace-nowrap ${
+                            <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-bold whitespace-nowrap flex-shrink-0 ${
                               (task.days_from_trigger ?? 0) >= 0
                                 ? 'bg-green-100 text-green-800 border-2 border-green-300'
                                 : 'bg-orange-100 text-orange-800 border-2 border-orange-300'
@@ -515,7 +527,7 @@ export default function TaskMasterManagement() {
               {/* フェーズ */}
               <div>
                 <label className="block prisma-text-base font-medium text-gray-700 prisma-mb-1">
-                  フェーズ
+                  フェーズ <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={formData.phase}
@@ -533,7 +545,7 @@ export default function TaskMasterManagement() {
               {/* 責任職種 */}
               <div>
                 <label className="block prisma-text-base font-medium text-gray-700 prisma-mb-1">
-                  責任職種
+                  責任職種 <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={formData.responsible_department}
@@ -611,7 +623,7 @@ export default function TaskMasterManagement() {
 
               {/* トリガー機能 */}
               <div className="border-t-2 border-gray-200 pt-4 mt-4">
-                <h3 className="text-base font-bold text-gray-800 mb-3">トリガー設定</h3>
+                <h3 className="text-base font-bold text-gray-800 mb-3">トリガー設定 <span className="text-red-500">*</span></h3>
 
                 {/* トリガー設定の有無 */}
                 <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-4">
@@ -624,7 +636,7 @@ export default function TaskMasterManagement() {
                       className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
                     />
                     <label htmlFor="is_trigger_task" className="text-base font-bold text-gray-800">
-                      トリガー設定の有無
+                      トリガー設定の有無 <span className="text-red-500">*</span>
                     </label>
                   </div>
                   <p className="text-base text-gray-600 mt-2 ml-8">
@@ -634,12 +646,12 @@ export default function TaskMasterManagement() {
 
                 {/* トリガーを設定する */}
                 <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 mb-4">
-                  <h4 className="text-base font-bold text-gray-800 mb-3">トリガーを設定する</h4>
+                  <h4 className="text-base font-bold text-gray-800 mb-3">トリガーを設定する <span className="text-red-500">*</span></h4>
 
                   {/* トリガー選択 */}
                   <div className="mb-4">
                     <label className="block prisma-text-base font-medium text-gray-700 prisma-mb-1">
-                      トリガー（このタスクの起点となるタスク）
+                      トリガー（このタスクの起点となるタスク） <span className="text-red-500">*</span>
                     </label>
                     <select
                       value={formData.trigger_task_id}
@@ -655,9 +667,6 @@ export default function TaskMasterManagement() {
                           </option>
                         ))}
                     </select>
-                    <p className="text-xs text-gray-500 mt-1">
-                      トリガータスクを選択すると、そのタスクからの相対日数で期限が設定されます
-                    </p>
                   </div>
 
                   {/* トリガーからの日数 */}
@@ -701,7 +710,7 @@ export default function TaskMasterManagement() {
                   {!formData.trigger_task_id && (
                     <div>
                       <label className="block prisma-text-base font-medium text-gray-700 prisma-mb-1">
-                        契約日からの日数 <span className="text-red-500">*</span>
+                        トリガーからの日数 <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="number"
@@ -710,9 +719,6 @@ export default function TaskMasterManagement() {
                         className="prisma-input"
                         placeholder="例: 7（契約日から7日後）"
                       />
-                      <p className="text-xs text-gray-500 mt-1">
-                        契約日から何日後にこのタスクが発生するか
-                      </p>
                     </div>
                   )}
                 </div>
@@ -721,7 +727,7 @@ export default function TaskMasterManagement() {
               {/* 進捗管理表に掲載するか */}
               <div className="border-t-2 border-gray-200 pt-4 mt-4">
                 <label className="block prisma-text-base font-medium text-gray-700 prisma-mb-1">
-                  進捗管理表に掲載するか
+                  進捗管理表に掲載するか <span className="text-red-500">*</span>
                 </label>
                 <div className="flex items-center space-x-4 mt-2">
                   <label className="flex items-center cursor-pointer">
@@ -745,15 +751,12 @@ export default function TaskMasterManagement() {
                     <span className="text-base">掲載しない</span>
                   </label>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  案件一覧の進捗表示に表示するかどうか（グリッドビューと職種別一覧ビューには常に表示されます）
-                </p>
               </div>
 
-              {/* 契約日からの日数（自動計算） */}
+              {/* トリガーからの日数（自動計算） */}
               <div className="border-t-2 border-gray-200 pt-4 mt-4">
                 <label className="block prisma-text-base font-medium text-gray-700 prisma-mb-1">
-                  契約日からの日数（自動計算）
+                  トリガーからの日数（自動計算）
                 </label>
                 <div className="bg-gray-50 border-2 border-gray-200 rounded-lg p-4">
                   <div className="text-2xl font-bold text-blue-600">
@@ -763,11 +766,6 @@ export default function TaskMasterManagement() {
                         ? `${formData.days_from_contract}日`
                         : '未設定'}
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    {formData.trigger_task_id
-                      ? 'トリガーからの日数に基づいて自動計算されます'
-                      : '契約日基準で設定してください'}
-                  </p>
                 </div>
               </div>
             </div>

@@ -338,11 +338,7 @@ export default function AuditLogs() {
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className={`px-4 py-2 border-2 border-black rounded-md font-bold transition-colors ${
-                currentPage === 1
-                  ? 'bg-gray-200 cursor-not-allowed'
-                  : 'bg-white hover:bg-gray-50 cursor-pointer'
-              }`}
+              className="prisma-btn prisma-btn-secondary"
             >
               前へ
             </button>
@@ -354,11 +350,7 @@ export default function AuditLogs() {
             <button
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
-              className={`px-4 py-2 border-2 border-black rounded-md font-bold transition-colors ${
-                currentPage === totalPages
-                  ? 'bg-gray-200 cursor-not-allowed'
-                  : 'bg-white hover:bg-gray-50 cursor-pointer'
-              }`}
+              className="prisma-btn prisma-btn-secondary"
             >
               次へ
             </button>

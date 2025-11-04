@@ -25,6 +25,7 @@ interface PaymentRow {
   amount: number
   scheduled: number
   actual: number
+  actualDate: string | null
 }
 
 interface MonthlyTotal {
@@ -247,7 +248,8 @@ export default function PaymentManagement() {
     paymentType: payment.payment_type,
     amount: payment.amount,
     scheduled: payment.actual_amount ? 0 : payment.scheduled_amount || 0,
-    actual: payment.actual_amount || 0
+    actual: payment.actual_amount || 0,
+    actualDate: payment.actual_date || null
   }))
 
   const totalScheduled = paymentRows.reduce((sum, row) => sum + row.scheduled, 0)
@@ -257,13 +259,14 @@ export default function PaymentManagement() {
   const exportCSV = async () => {
     try {
       const csv = Papa.unparse({
-        fields: ['案件', '名目', '金額', '予定', '実績'],
+        fields: ['案件', '名目', '金額', '予定', '実績', '入金日'],
         data: paymentRows.map(row => [
           row.projectName,
           row.paymentType,
           row.amount,
           row.scheduled,
-          row.actual
+          row.actual,
+          row.actualDate ? formatDate(new Date(row.actualDate), 'yyyy/MM/dd', { locale: ja }) : ''
         ])
       })
 
@@ -360,24 +363,16 @@ export default function PaymentManagement() {
         <h1 className="prisma-header-title">入金管理</h1>
         <div className="prisma-header-actions">
           {/* 表示モード切り替え */}
-          <div className="flex gap-2 border-2 border-gray-300 rounded-lg p-1">
+          <div className="flex gap-2">
             <button
               onClick={() => setDisplayMode('monthly_detail')}
-              className={`px-4 py-2 rounded font-bold text-base transition-colors ${
-                displayMode === 'monthly_detail'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-100'
-              }`}
+              className={`${displayMode === 'monthly_detail' ? 'prisma-btn prisma-btn-primary' : 'prisma-btn prisma-btn-secondary'} whitespace-nowrap`}
             >
               月次詳細
             </button>
             <button
               onClick={() => setDisplayMode('period_summary')}
-              className={`px-4 py-2 rounded font-bold text-base transition-colors ${
-                displayMode === 'period_summary'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-100'
-              }`}
+              className={`${displayMode === 'period_summary' ? 'prisma-btn prisma-btn-primary' : 'prisma-btn prisma-btn-secondary'} whitespace-nowrap`}
             >
               期間集計
             </button>
@@ -388,7 +383,7 @@ export default function PaymentManagement() {
             <div className="flex items-center gap-2">
               <button
                 onClick={previousMonth}
-                className="p-2 rounded-lg border-2 border-gray-300 hover:bg-gray-100 transition-colors"
+                className="prisma-btn prisma-btn-secondary prisma-btn-sm p-2"
                 title="前月"
               >
                 <ChevronLeft size={24} />
@@ -401,7 +396,7 @@ export default function PaymentManagement() {
               />
               <button
                 onClick={nextMonth}
-                className="p-2 rounded-lg border-2 border-gray-300 hover:bg-gray-100 transition-colors"
+                className="prisma-btn prisma-btn-secondary prisma-btn-sm p-2"
                 title="次月"
               >
                 <ChevronRight size={24} />
@@ -426,13 +421,19 @@ export default function PaymentManagement() {
                 onChange={(e) => setEndMonth(e.target.value)}
                 className="prisma-input w-[160px] text-base"
               />
+              <button
+                onClick={loadPayments}
+                className="prisma-btn prisma-btn-primary prisma-btn-sm whitespace-nowrap"
+              >
+                表示
+              </button>
             </div>
           )}
 
-          <button onClick={exportCSV} className="prisma-btn prisma-btn-secondary prisma-btn-sm">
+          <button onClick={exportCSV} className="prisma-btn prisma-btn-secondary prisma-btn-sm whitespace-nowrap">
             CSV出力
           </button>
-          <button onClick={exportPDF} className="prisma-btn prisma-btn-primary prisma-btn-sm">
+          <button onClick={exportPDF} className="prisma-btn prisma-btn-primary prisma-btn-sm whitespace-nowrap">
             PDF出力
           </button>
         </div>
@@ -454,6 +455,9 @@ export default function PaymentManagement() {
                 </th>
                 <th>
                   <div className="text-center">実績</div>
+                </th>
+                <th>
+                  <div className="text-center">入金日</div>
                 </th>
               </tr>
             </thead>
@@ -480,6 +484,11 @@ export default function PaymentManagement() {
                   <td>
                     <div className="text-center">{row.actual.toLocaleString()}</div>
                   </td>
+                  <td>
+                    <div className="text-center">
+                      {row.actualDate ? formatDate(new Date(row.actualDate), 'yyyy/MM/dd', { locale: ja }) : '-'}
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -492,10 +501,11 @@ export default function PaymentManagement() {
                 <td>
                   <div className="text-center">{totalActual.toLocaleString()}</div>
                 </td>
+                <td></td>
               </tr>
               <tr className="bg-gray-200 font-bold">
                 <td colSpan={3}>総計</td>
-                <td colSpan={2}>
+                <td colSpan={3}>
                   <div className="text-center">{grandTotal.toLocaleString()}</div>
                 </td>
               </tr>
