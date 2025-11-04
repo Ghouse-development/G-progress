@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Project, Employee, Task, Branch } from '../types/database'
 import { supabase } from '../lib/supabase'
 import { useToast } from '../contexts/ToastContext'
@@ -47,8 +48,14 @@ export default function ProjectDetailFields({
   todayRowRef
 }: ProjectDetailFieldsProps) {
   const { showToast } = useToast()
-  const [activeTab, setActiveTab] = useState('grid')
-  const [positionSubTab, setPositionSubTab] = useState<'tasks' | 'staff'>('tasks')
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  // URLパラメータからタブを取得、なければデフォルトは'grid'
+  const tabParam = searchParams.get('tab') || 'grid'
+  const validTabs = ['grid', 'position', 'staff', 'basic', 'schedule', 'payment', 'loan', 'demolition', 'construction', 'performance']
+  const initialTab = validTabs.includes(tabParam) ? tabParam : 'grid'
+
+  const [activeTab, setActiveTab] = useState(initialTab)
   const [formData, setFormData] = useState(project)
   const [saving, setSaving] = useState(false)
   const deptHeaderRef = useRef<HTMLDivElement>(null)
@@ -58,6 +65,20 @@ export default function ProjectDetailFields({
   const [branches, setBranches] = useState<Branch[]>([])
   const [selectedBranchId, setSelectedBranchId] = useState<string>('all')
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>('all')
+
+  // タブが変更されたらURLパラメータを更新
+  const handleTabChange = (newTab: string) => {
+    setActiveTab(newTab)
+    setSearchParams({ tab: newTab })
+  }
+
+  // URLパラメータが外部から変更された場合にactiveTabを同期
+  useEffect(() => {
+    const tabParam = searchParams.get('tab') || 'grid'
+    if (validTabs.includes(tabParam) && tabParam !== activeTab) {
+      setActiveTab(tabParam)
+    }
+  }, [searchParams])
 
   const handleSave = async () => {
     setSaving(true)
@@ -116,6 +137,7 @@ export default function ProjectDetailFields({
   const tabs = [
     { id: 'grid', label: 'グリッドビュー' },
     { id: 'position', label: '職種別ビュー' },
+    { id: 'staff', label: '担当者' },
     { id: 'basic', label: '基本情報' },
     { id: 'schedule', label: 'スケジュール' },
     { id: 'payment', label: '金額' },
@@ -210,7 +232,7 @@ export default function ProjectDetailFields({
         {tabs.map(tab => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => handleTabChange(tab.id)}
             className={`px-6 py-3 font-semibold text-base whitespace-nowrap transition-colors ${
               activeTab === tab.id
                 ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600'
@@ -399,291 +421,254 @@ export default function ProjectDetailFields({
 
         {/* 職種別ビュー */}
         {activeTab === 'position' && (
-          <div>
-            {/* サブタブ */}
-            <div className="flex border-b-2 border-gray-200 bg-gray-50 px-4">
-              <button
-                onClick={() => setPositionSubTab('tasks')}
-                className={`px-6 py-3 font-bold text-base transition-colors ${
-                  positionSubTab === 'tasks'
-                    ? 'border-b-4 border-blue-600 text-blue-600 bg-white'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                タスク一覧
-              </button>
-              <button
-                onClick={() => setPositionSubTab('staff')}
-                className={`px-6 py-3 font-bold text-base transition-colors ${
-                  positionSubTab === 'staff'
-                    ? 'border-b-4 border-blue-600 text-blue-600 bg-white'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                担当者
-              </button>
-            </div>
-
-            {/* タスク一覧タブ */}
-            {positionSubTab === 'tasks' && (
-              <div className="p-6" style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto' }}>
-                {tasks.length === 0 ? (
-                  <div className="prisma-card text-center text-gray-500 font-medium">
-                    タスクがありません
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    {DEPARTMENTS.map((dept, deptIndex) => {
-                      const deptTasks = tasks.filter(task => {
-                        const taskPosition = task.description?.split(':')[0]?.trim()
-                        return dept.positions.includes(taskPosition || '')
-                      })
-
-                      if (deptTasks.length === 0) return null
-
-                      return (
-                        <div key={dept.name} className="prisma-card">
-                          {/* 部門ヘッダー */}
-                          <div className={`px-6 py-4 font-bold text-xl ${
-                            deptIndex === 0 ? 'bg-blue-100 text-blue-900' :
-                            deptIndex === 1 ? 'bg-green-100 text-green-900' :
-                            deptIndex === 2 ? 'bg-orange-100 text-orange-900' :
-                            'bg-purple-100 text-purple-900'
-                          } rounded-t-lg`}>
-                            {dept.name}
-                          </div>
-
-                          {/* 職種別タスクカード */}
-                          <div className="p-6 space-y-4">
-                            {dept.positions.map(position => {
-                              const positionTasks = deptTasks.filter(task => {
-                                const taskPosition = task.description?.split(':')[0]?.trim()
-                                return taskPosition === position
-                              })
-
-                              if (positionTasks.length === 0) return null
-
-                              return (
-                                <div key={position} className="space-y-3">
-                                  {/* 職種ラベル */}
-                                  <div className="px-4 py-2 bg-gray-100 rounded-lg">
-                                    <span className="font-bold text-lg text-gray-900">{position}</span>
-                                    <span className="ml-3 text-base text-gray-600">（{positionTasks.length}件）</span>
-                                  </div>
-
-                                  {/* タスクカード一覧 */}
-                                  <div className="grid grid-cols-1 gap-3">
-                                    {positionTasks.map(task => {
-                                      const isDelayed = task.due_date &&
-                                        task.status !== 'completed' &&
-                                        new Date(task.due_date) < new Date()
-
-                                      return (
-                                        <div
-                                          key={task.id}
-                                          onClick={() => onTaskClick && onTaskClick(task)}
-                                          className="p-4 bg-white rounded-lg border-2 border-gray-300 hover:border-blue-400 hover:shadow-md cursor-pointer transition-all"
-                                        >
-                                          <div className="flex items-start justify-between gap-4">
-                                            {/* 左側：タスク情報 */}
-                                            <div className="flex-1 min-w-0">
-                                              <div className="flex items-center gap-2 mb-2">
-                                                <h4 className="text-lg font-bold text-gray-900">{task.title}</h4>
-                                                {task.is_date_confirmed && (
-                                                  <span className="inline-flex items-center justify-center px-2 py-1 text-sm font-bold text-white bg-green-600 rounded-full" title="日付確定">
-                                                    確定
-                                                  </span>
-                                                )}
-                                                {task.original_due_date && task.due_date && task.original_due_date !== task.due_date && (
-                                                  <span className="inline-flex items-center gap-1 px-2 py-1 text-sm font-bold text-white bg-yellow-500 rounded-full" title={`当初予定から${Math.abs(differenceInDays(new Date(task.due_date), new Date(task.original_due_date)))}日${differenceInDays(new Date(task.due_date), new Date(task.original_due_date)) > 0 ? '後ろ倒し' : '前倒し'}`}>
-                                                    <AlertTriangle size={14} />
-                                                    変更
-                                                  </span>
-                                                )}
-                                              </div>
-
-                                              <div className="flex flex-wrap items-center gap-3 text-base text-gray-600">
-                                                <span>
-                                                  担当：{task.assigned_employee
-                                                    ? `${task.assigned_employee.last_name} ${task.assigned_employee.first_name}`
-                                                    : '未割当'
-                                                  }
-                                                </span>
-                                                <span>•</span>
-                                                <span>
-                                                  期限：{task.due_date
-                                                    ? format(new Date(task.due_date), 'M/d (E)', { locale: ja })
-                                                    : '未設定'
-                                                  }
-                                                </span>
-                                                <span>•</span>
-                                                <span className="font-bold text-blue-700">
-                                                  {task.dayFromContract || 0}日目
-                                                </span>
-                                              </div>
-                                            </div>
-
-                                            {/* 右側：ステータス＋操作ボタン */}
-                                            <div className="flex items-center gap-3">
-                                              <span className={`px-4 py-2 rounded-lg font-bold text-base whitespace-nowrap ${
-                                                isDelayed ? 'task-delayed' : getStatusBadgeColor(task.status)
-                                              }`}>
-                                                {isDelayed ? '遅延' : getStatusText(task.status)}
-                                              </span>
-
-                                              <div className="flex items-center gap-2">
-                                                <button
-                                                  onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    onTaskClick && onTaskClick(task)
-                                                  }}
-                                                  className="p-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
-                                                  title="詳細表示"
-                                                >
-                                                  <Eye size={18} />
-                                                </button>
-                                                <button
-                                                  onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    onTaskDelete && onTaskDelete(task.id)
-                                                  }}
-                                                  className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
-                                                  title="削除"
-                                                >
-                                                  <Trash2 size={18} />
-                                                </button>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      )
-                                    })}
-                                  </div>
-                                </div>
-                              )
-                            })}
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                )}
+          <div className="p-6" style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto' }}>
+            {tasks.length === 0 ? (
+              <div className="prisma-card text-center text-gray-500 font-medium">
+                タスクがありません
               </div>
-            )}
+            ) : (
+              <div className="space-y-6">
+                {DEPARTMENTS.map((dept, deptIndex) => {
+                  const deptTasks = tasks.filter(task => {
+                    const taskPosition = task.description?.split(':')[0]?.trim()
+                    return dept.positions.includes(taskPosition || '')
+                  })
 
-            {/* 担当者タブ */}
-            {positionSubTab === 'staff' && (
-              <div className="p-4" style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto' }}>
-                {/* 拠点選択（細い罫線） */}
-                <div className="mb-3 flex items-center gap-3 bg-gray-50 rounded-lg px-3 py-2 border border-gray-300">
-                  <label className="text-base font-bold text-gray-700 whitespace-nowrap">
-                    拠点:
-                  </label>
-                  <select
-                    value={selectedBranchId}
-                    onChange={(e) => setSelectedBranchId(e.target.value)}
-                    className="prisma-select flex-1"
-                    style={{ maxWidth: '300px' }}
-                  >
-                    <option value="all">すべての拠点</option>
-                    {branches.map(branch => (
-                      <option key={branch.id} value={branch.id}>
-                        {branch.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                  if (deptTasks.length === 0) return null
 
-                {/* 2列グリッドレイアウト（罫線を細く） */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {DEPARTMENTS.map((dept) => (
-                    <div key={dept.name} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-300">
-                      {/* 部門ヘッダー（罫線なし） */}
-                      <div className={`px-3 py-2 font-bold text-base ${
-                        dept.name === '営業部' ? 'bg-blue-100 text-blue-900' :
-                        dept.name === '設計部' ? 'bg-green-100 text-green-900' :
-                        dept.name === '工事部' ? 'bg-orange-100 text-orange-900' :
+                  return (
+                    <div key={dept.name} className="prisma-card">
+                      {/* 部門ヘッダー */}
+                      <div className={`px-6 py-4 font-bold text-xl ${
+                        deptIndex === 0 ? 'bg-blue-100 text-blue-900' :
+                        deptIndex === 1 ? 'bg-green-100 text-green-900' :
+                        deptIndex === 2 ? 'bg-orange-100 text-orange-900' :
                         'bg-purple-100 text-purple-900'
-                      }`}>
+                      } rounded-t-lg`}>
                         {dept.name}
                       </div>
-                      {/* 職種リスト（罫線なし・シャドウのみ） */}
-                      <div className="p-3 space-y-2">
-                        {dept.positions.map((position) => {
-                          const employee = employees.find(emp => emp.department === position)
+
+                      {/* 職種別タスク箇条書き */}
+                      <div className="p-6 space-y-5">
+                        {dept.positions.map(position => {
+                          const positionTasks = deptTasks.filter(task => {
+                            const taskPosition = task.description?.split(':')[0]?.trim()
+                            return taskPosition === position
+                          })
+
+                          if (positionTasks.length === 0) return null
+
                           return (
-                            <div key={position} className="bg-white rounded-lg p-2 shadow-sm hover:shadow-md transition-shadow">
-                              <div className="text-base font-bold text-gray-900 mb-1">{position}</div>
-                              <select
-                                value={employee?.id || ''}
-                                onChange={async (e) => {
-                                  const newEmployeeId = e.target.value
+                            <div key={position} className="space-y-2">
+                              {/* 職種ラベル */}
+                              <div className="px-4 py-2 bg-gray-100 rounded-lg">
+                                <span className="font-bold text-lg text-gray-900">{position}</span>
+                                <span className="ml-3 text-base text-gray-600">（{positionTasks.length}件）</span>
+                              </div>
 
-                                  try {
-                                    // 空文字が選択された場合（未割当）
-                                    if (!newEmployeeId) {
-                                      if (employee) {
-                                        await supabase
-                                          .from('employees')
-                                          .update({ department: 'その他' })
-                                          .eq('id', employee.id)
+                              {/* タスク箇条書きリスト */}
+                              <ul className="pl-6 space-y-2">
+                                {positionTasks.map(task => {
+                                  const isDelayed = task.due_date &&
+                                    task.status !== 'completed' &&
+                                    new Date(task.due_date) < new Date()
 
-                                        showToast('担当者を解除しました', 'success')
-                                        if (onEmployeeUpdate) {
-                                          onEmployeeUpdate()
-                                        }
-                                      }
-                                      return
-                                    }
+                                  return (
+                                    <li
+                                      key={task.id}
+                                      onClick={() => onTaskClick && onTaskClick(task)}
+                                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                                    >
+                                      {/* ステータスバッジ（箇条書きマーカー代わり） */}
+                                      <span className={`px-3 py-1 rounded-lg font-bold text-sm whitespace-nowrap flex-shrink-0 ${
+                                        isDelayed ? 'task-delayed' : getStatusBadgeColor(task.status)
+                                      }`}>
+                                        {isDelayed ? '遅延' : getStatusText(task.status)}
+                                      </span>
 
-                                    // 新しい従業員を取得（既に他のポジションに割り当てられているか確認）
-                                    const newEmployee = employees.find(emp => emp.id === newEmployeeId)
+                                      {/* タスク情報 */}
+                                      <div className="flex-1 min-w-0 flex items-center gap-3 flex-wrap">
+                                        <span className="font-bold text-base text-gray-900">{task.title}</span>
+                                        {task.is_date_confirmed && (
+                                          <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold text-white bg-green-600 rounded-full" title="日付確定">
+                                            確定
+                                          </span>
+                                        )}
+                                        {task.original_due_date && task.due_date && task.original_due_date !== task.due_date && (
+                                          <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-bold text-white bg-yellow-500 rounded-full" title={`当初予定から${Math.abs(differenceInDays(new Date(task.due_date), new Date(task.original_due_date)))}日${differenceInDays(new Date(task.due_date), new Date(task.original_due_date)) > 0 ? '後ろ倒し' : '前倒し'}`}>
+                                            <AlertTriangle size={12} />
+                                            変更
+                                          </span>
+                                        )}
+                                        <span className="text-sm text-gray-600">
+                                          担当：{task.assigned_employee
+                                            ? `${task.assigned_employee.last_name} ${task.assigned_employee.first_name}`
+                                            : '未割当'
+                                          }
+                                        </span>
+                                        <span className="text-sm text-gray-600">
+                                          期限：{task.due_date
+                                            ? format(new Date(task.due_date), 'M/d (E)', { locale: ja })
+                                            : '未設定'
+                                          }
+                                        </span>
+                                        <span className="text-sm font-bold text-blue-700">
+                                          {task.dayFromContract || 0}日目
+                                        </span>
+                                      </div>
 
-                                    // 現在このポジションに割り当てられている従業員をクリア
-                                    if (employee && employee.id !== newEmployeeId) {
-                                      await supabase
-                                        .from('employees')
-                                        .update({ department: 'その他' })
-                                        .eq('id', employee.id)
-                                    }
-
-                                    // 新しい担当者のdepartmentを更新
-                                    const { error } = await supabase
-                                      .from('employees')
-                                      .update({ department: position })
-                                      .eq('id', newEmployeeId)
-
-                                    if (error) throw error
-
-                                    showToast('担当者を設定しました', 'success')
-                                    // 従業員データのみを再読み込み（ページ遷移を防ぐ）
-                                    if (onEmployeeUpdate) {
-                                      onEmployeeUpdate()
-                                    }
-                                  } catch (error) {
-                                    showToast('設定に失敗しました', 'error')
-                                  }
-                                }}
-                                className="prisma-select w-full"
-                              >
-                                <option value="">未割当</option>
-                                {employees
-                                  .filter(emp => selectedBranchId === 'all' || emp.branch_id === selectedBranchId)
-                                  .map(emp => (
-                                    <option key={emp.id} value={emp.id}>
-                                      {emp.last_name} {emp.first_name}
-                                    </option>
-                                  ))}
-                              </select>
+                                      {/* 操作ボタン */}
+                                      <div className="flex items-center gap-3 flex-shrink-0">
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            onTaskClick && onTaskClick(task)
+                                          }}
+                                          className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors border-3 border-blue-600 font-bold text-base flex items-center gap-2"
+                                          title="詳細表示"
+                                        >
+                                          <Eye size={18} />
+                                          詳細
+                                        </button>
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            onTaskDelete && onTaskDelete(task.id)
+                                          }}
+                                          className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors border-3 border-red-600 font-bold text-base flex items-center gap-2"
+                                          title="削除"
+                                        >
+                                          <Trash2 size={18} />
+                                          削除
+                                        </button>
+                                      </div>
+                                    </li>
+                                  )
+                                })}
+                              </ul>
                             </div>
                           )
                         })}
                       </div>
                     </div>
-                  ))}
-                </div>
+                  )
+                })}
               </div>
             )}
+          </div>
+        )}
+
+        {/* 担当者タブ */}
+        {activeTab === 'staff' && (
+          <div className="p-4" style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto' }}>
+            {/* 拠点選択 */}
+            <div className="mb-3 flex items-center gap-3 bg-gray-50 rounded-lg px-3 py-2 border border-gray-300">
+              <label className="text-base font-bold text-gray-700 whitespace-nowrap">
+                拠点:
+              </label>
+              <select
+                value={selectedBranchId}
+                onChange={(e) => setSelectedBranchId(e.target.value)}
+                className="prisma-select flex-1"
+                style={{ maxWidth: '300px' }}
+              >
+                <option value="all">すべての拠点</option>
+                {branches.map(branch => (
+                  <option key={branch.id} value={branch.id}>
+                    {branch.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* 2列グリッドレイアウト */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {DEPARTMENTS.map((dept) => (
+                <div key={dept.name} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-300">
+                  {/* 部門ヘッダー */}
+                  <div className={`px-3 py-2 font-bold text-base ${
+                    dept.name === '営業部' ? 'bg-blue-100 text-blue-900' :
+                    dept.name === '設計部' ? 'bg-green-100 text-green-900' :
+                    dept.name === '工事部' ? 'bg-orange-100 text-orange-900' :
+                    'bg-purple-100 text-purple-900'
+                  }`}>
+                    {dept.name}
+                  </div>
+                  {/* 職種リスト */}
+                  <div className="p-3 space-y-2">
+                    {dept.positions.map((position) => {
+                      const employee = employees.find(emp => emp.department === position)
+                      return (
+                        <div key={position} className="bg-white rounded-lg p-2 shadow-sm hover:shadow-md transition-shadow">
+                          <div className="text-base font-bold text-gray-900 mb-1">{position}</div>
+                          <select
+                            value={employee?.id || ''}
+                            onChange={async (e) => {
+                              const newEmployeeId = e.target.value
+
+                              try {
+                                // 空文字が選択された場合（未割当）
+                                if (!newEmployeeId) {
+                                  if (employee) {
+                                    await supabase
+                                      .from('employees')
+                                      .update({ department: 'その他' })
+                                      .eq('id', employee.id)
+
+                                    showToast('担当者を解除しました', 'success')
+                                    if (onEmployeeUpdate) {
+                                      onEmployeeUpdate()
+                                    }
+                                  }
+                                  return
+                                }
+
+                                // 新しい従業員を取得（既に他のポジションに割り当てられているか確認）
+                                const newEmployee = employees.find(emp => emp.id === newEmployeeId)
+
+                                // 現在このポジションに割り当てられている従業員をクリア
+                                if (employee && employee.id !== newEmployeeId) {
+                                  await supabase
+                                    .from('employees')
+                                    .update({ department: 'その他' })
+                                    .eq('id', employee.id)
+                                }
+
+                                // 新しい担当者のdepartmentを更新
+                                const { error } = await supabase
+                                  .from('employees')
+                                  .update({ department: position })
+                                  .eq('id', newEmployeeId)
+
+                                if (error) throw error
+
+                                showToast('担当者を設定しました', 'success')
+                                // 従業員データのみを再読み込み（ページ遷移を防ぐ）
+                                if (onEmployeeUpdate) {
+                                  onEmployeeUpdate()
+                                }
+                              } catch (error) {
+                                showToast('設定に失敗しました', 'error')
+                              }
+                            }}
+                            className="prisma-select w-full"
+                          >
+                            <option value="">未割当</option>
+                            {employees
+                              .filter(emp => selectedBranchId === 'all' || emp.branch_id === selectedBranchId)
+                              .map(emp => (
+                                <option key={emp.id} value={emp.id}>
+                                  {emp.last_name} {emp.first_name}
+                                </option>
+                              ))}
+                          </select>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
@@ -1186,8 +1171,8 @@ export default function ProjectDetailFields({
         )}
       </div>
 
-      {/* 保存ボタン（グリッドビューと職種別ビューでは非表示） */}
-      {activeTab !== 'grid' && activeTab !== 'position' && (
+      {/* 保存ボタン（グリッドビュー、職種別ビュー、担当者タブでは非表示） */}
+      {activeTab !== 'grid' && activeTab !== 'position' && activeTab !== 'staff' && (
         <div className="border-t-2 border-gray-200 px-6 py-4 bg-gray-50">
           <button
             onClick={handleSave}

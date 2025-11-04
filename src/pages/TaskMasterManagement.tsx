@@ -375,9 +375,9 @@ export default function TaskMasterManagement() {
               <col style={{ width: '12%' }} />
               <col style={{ width: '10%' }} />
               <col style={{ width: '10%' }} />
-              <col style={{ width: '20%' }} />
+              <col style={{ width: '15%' }} />
               <col style={{ width: '10%' }} />
-              <col style={{ width: '13%' }} />
+              <col style={{ width: '18%' }} />
             </colgroup>
             <tbody className="divide-y divide-gray-200">
               {filteredTaskMasters.length === 0 ? (
@@ -428,14 +428,14 @@ export default function TaskMasterManagement() {
                       </div>
                     </td>
                     <td className="px-4 py-4">
-                      <div className="text-xs font-semibold text-gray-500 mb-1">トリガー</div>
+                      <div className="text-xs font-semibold text-gray-500 mb-1">トリガー・日数</div>
                       <div className="text-base font-medium text-gray-900">
                         {task.trigger_task_id ? (
-                          <div className="flex items-center gap-2 justify-between">
+                          <div className="flex flex-col gap-1">
                             <span className="text-xs text-gray-600 truncate">
                               {taskMasters.find(t => t.id === task.trigger_task_id)?.title || '不明なタスク'}
                             </span>
-                            <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-bold whitespace-nowrap flex-shrink-0 ${
+                            <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-bold whitespace-nowrap self-start ${
                               (task.days_from_trigger ?? 0) >= 0
                                 ? 'bg-green-100 text-green-800 border-2 border-green-300'
                                 : 'bg-orange-100 text-orange-800 border-2 border-orange-300'
@@ -466,15 +466,15 @@ export default function TaskMasterManagement() {
                         <button
                           onClick={() => handleOpenModal(task)}
                           disabled={!canWrite}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors border-2 border-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
                           title="編集"
                         >
-                          <Edit2 size={18} />
+                          <Edit2 size={20} />
                         </button>
                         <button
                           onClick={() => handleDelete(task.id, task.title)}
                           disabled={!canDelete}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors border-2 border-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
                           title="削除"
                         >
                           <Trash2 size={18} />

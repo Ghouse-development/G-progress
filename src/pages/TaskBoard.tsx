@@ -207,7 +207,7 @@ export default function TaskBoard() {
               </h2>
             </div>
             <div className="overflow-x-auto">
-              <table className="prisma-table">
+              <table className="prisma-table table-fixed w-full">
                 <colgroup>
                   <col style={{ width: '35%' }} />
                   <col style={{ width: '20%' }} />
@@ -217,42 +217,42 @@ export default function TaskBoard() {
                 </colgroup>
                 <thead>
                   <tr>
-                    <th>タスク名</th>
-                    <th>お客様</th>
-                    <th>期限</th>
-                    <th>遅延</th>
-                    <th>ステータス</th>
+                    <th className="text-left px-4 py-3">タスク名</th>
+                    <th className="text-left px-4 py-3">お客様</th>
+                    <th className="text-center px-4 py-3">期限</th>
+                    <th className="text-center px-4 py-3">遅延</th>
+                    <th className="text-center px-4 py-3">ステータス</th>
                   </tr>
                 </thead>
                 <tbody>
                   {delayedTasks.map(task => (
                     <tr key={task.id} className="hover:bg-gray-50">
-                      <td>
+                      <td className="px-4 py-4">
                         <div
-                          className="font-semibold text-sm text-gray-900 cursor-pointer hover:text-blue-600"
+                          className="font-semibold text-base text-gray-900 cursor-pointer hover:text-blue-600"
                           onClick={() => handleTaskClick(task)}
                         >
                           {task.title}
                         </div>
                       </td>
-                      <td className="text-sm">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
-                      <td>
-                        <div className="text-center text-sm">
+                      <td className="px-4 py-4 text-base">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
+                      <td className="px-4 py-4">
+                        <div className="text-center text-base">
                           {task.due_date ? format(new Date(task.due_date), 'M/d (E)', { locale: ja }) : '-'}
                         </div>
                       </td>
-                      <td>
+                      <td className="px-4 py-4">
                         <div className="text-center">
-                          <span className="prisma-badge prisma-badge-red text-xs">
+                          <span className="prisma-badge prisma-badge-red text-base">
                             {task.due_date && `${differenceInDays(new Date(), new Date(task.due_date))}日遅れ`}
                           </span>
                         </div>
                       </td>
-                      <td>
+                      <td className="px-4 py-4">
                         <div className="flex justify-center">
                           <button
                             onClick={() => handleTaskClick(task)}
-                            className="px-2 py-1 task-delayed rounded-lg text-sm font-bold cursor-pointer hover:opacity-80 transition-opacity"
+                            className="px-4 py-2 task-delayed rounded-lg text-base font-bold cursor-pointer hover:opacity-80 transition-opacity"
                           >
                             遅延
                           </button>
@@ -276,7 +276,7 @@ export default function TaskBoard() {
               </h2>
             </div>
             <div className="overflow-x-auto">
-              <table className="prisma-table">
+              <table className="prisma-table table-fixed w-full">
                 <colgroup>
                   <col style={{ width: '35%' }} />
                   <col style={{ width: '20%' }} />
@@ -286,42 +286,42 @@ export default function TaskBoard() {
                 </colgroup>
                 <thead>
                   <tr>
-                    <th>タスク名</th>
-                    <th>お客様</th>
-                    <th>期限</th>
-                    <th>残り</th>
-                    <th>ステータス</th>
+                    <th className="text-left px-4 py-3">タスク名</th>
+                    <th className="text-left px-4 py-3">お客様</th>
+                    <th className="text-center px-4 py-3">期限</th>
+                    <th className="text-center px-4 py-3">残り</th>
+                    <th className="text-center px-4 py-3">ステータス</th>
                   </tr>
                 </thead>
                 <tbody>
                   {upcomingTasks.map(task => (
                     <tr key={task.id} className="hover:bg-gray-50">
-                      <td>
+                      <td className="px-4 py-4">
                         <div
-                          className="font-semibold text-sm text-gray-900 cursor-pointer hover:text-blue-600"
+                          className="font-semibold text-base text-gray-900 cursor-pointer hover:text-blue-600"
                           onClick={() => handleTaskClick(task)}
                         >
                           {task.title}
                         </div>
                       </td>
-                      <td className="text-sm">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
-                      <td>
-                        <div className="text-center text-sm">
+                      <td className="px-4 py-4 text-base">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
+                      <td className="px-4 py-4">
+                        <div className="text-center text-base">
                           {task.due_date ? format(new Date(task.due_date), 'M/d (E)', { locale: ja }) : '-'}
                         </div>
                       </td>
-                      <td>
+                      <td className="px-4 py-4">
                         <div className="text-center">
-                          <span className="prisma-badge prisma-badge-yellow text-xs">
+                          <span className="prisma-badge prisma-badge-yellow text-base">
                             {task.due_date && `あと${differenceInDays(new Date(task.due_date), new Date())}日`}
                           </span>
                         </div>
                       </td>
-                      <td>
+                      <td className="px-4 py-4">
                         <div className="flex justify-center">
                           <button
                             onClick={() => handleTaskClick(task)}
-                            className="px-2 py-1 task-in-progress rounded-lg text-sm font-bold cursor-pointer hover:opacity-80 transition-opacity"
+                            className="px-4 py-2 task-in-progress rounded-lg text-base font-bold cursor-pointer hover:opacity-80 transition-opacity"
                           >
                             着手中
                           </button>
@@ -345,7 +345,7 @@ export default function TaskBoard() {
               </h2>
             </div>
             <div className="overflow-x-auto">
-              <table className="prisma-table">
+              <table className="prisma-table table-fixed w-full">
                 <colgroup>
                   <col style={{ width: '25%' }} />
                   <col style={{ width: '20%' }} />
@@ -355,11 +355,11 @@ export default function TaskBoard() {
                 </colgroup>
                 <thead>
                   <tr>
-                    <th>名目</th>
-                    <th>お客様</th>
-                    <th>金額</th>
-                    <th>予定日</th>
-                    <th>残り</th>
+                    <th className="text-left px-4 py-3">名目</th>
+                    <th className="text-left px-4 py-3">お客様</th>
+                    <th className="text-left px-4 py-3">金額</th>
+                    <th className="text-center px-4 py-3">予定日</th>
+                    <th className="text-center px-4 py-3">残り</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -369,19 +369,19 @@ export default function TaskBoard() {
                       className="hover:bg-gray-50 cursor-pointer"
                       onClick={() => payment.project_id && handleNavigateToProject(payment.project_id)}
                     >
-                      <td className="font-semibold text-sm text-gray-900">{payment.payment_type}</td>
-                      <td className="text-sm">{payment.project ? `${payment.project.customer_names[0]}様` : '-'}</td>
-                      <td className="font-bold text-base text-green-700">
+                      <td className="px-4 py-4 font-semibold text-base text-gray-900">{payment.payment_type}</td>
+                      <td className="px-4 py-4 text-base">{payment.project ? `${payment.project.customer_names[0]}様` : '-'}</td>
+                      <td className="px-4 py-4 font-bold text-base text-green-700">
                         ¥{payment.scheduled_amount?.toLocaleString() || '-'}
                       </td>
-                      <td>
-                        <div className="text-center text-sm">
+                      <td className="px-4 py-4">
+                        <div className="text-center text-base">
                           {payment.scheduled_date ? format(new Date(payment.scheduled_date), 'M/d (E)', { locale: ja }) : '-'}
                         </div>
                       </td>
-                      <td>
+                      <td className="px-4 py-4">
                         <div className="text-center">
-                          <span className="prisma-badge prisma-badge-green text-xs">
+                          <span className="prisma-badge prisma-badge-green text-base">
                             {payment.scheduled_date && `あと${differenceInDays(new Date(payment.scheduled_date), new Date())}日`}
                           </span>
                         </div>
@@ -404,7 +404,7 @@ export default function TaskBoard() {
               </h2>
             </div>
             <div className="overflow-x-auto">
-              <table className="prisma-table">
+              <table className="prisma-table table-fixed w-full">
                 <colgroup>
                   <col style={{ width: '30%' }} />
                   <col style={{ width: '20%' }} />
@@ -414,11 +414,11 @@ export default function TaskBoard() {
                 </colgroup>
                 <thead>
                   <tr>
-                    <th>名称</th>
-                    <th>お客様</th>
-                    <th>種別</th>
-                    <th>完了日/入金日</th>
-                    <th>ステータス</th>
+                    <th className="text-left px-4 py-3">名称</th>
+                    <th className="text-left px-4 py-3">お客様</th>
+                    <th className="text-center px-4 py-3">種別</th>
+                    <th className="text-center px-4 py-3">完了日/入金日</th>
+                    <th className="text-center px-4 py-3">ステータス</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -428,23 +428,23 @@ export default function TaskBoard() {
                       className="hover:bg-gray-50 cursor-pointer"
                       onClick={() => handleTaskClick(task)}
                     >
-                      <td className="font-semibold text-sm text-gray-900">{task.title}</td>
-                      <td className="text-sm">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
-                      <td>
+                      <td className="px-4 py-4 font-semibold text-base text-gray-900">{task.title}</td>
+                      <td className="px-4 py-4 text-base">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
+                      <td className="px-4 py-4">
                         <div className="text-center">
-                          <span className="prisma-badge prisma-badge-blue text-xs">タスク</span>
+                          <span className="prisma-badge prisma-badge-blue text-base">タスク</span>
                         </div>
                       </td>
-                      <td>
-                        <div className="text-center text-sm">
+                      <td className="px-4 py-4">
+                        <div className="text-center text-base">
                           {task.actual_completion_date ? format(new Date(task.actual_completion_date), 'M/d (E)', { locale: ja }) : '-'}
                         </div>
                       </td>
-                      <td>
+                      <td className="px-4 py-4">
                         <div className="flex justify-center">
                           <button
                             onClick={() => handleTaskClick(task)}
-                            className="px-2 py-1 task-completed rounded-lg text-sm font-bold cursor-pointer hover:opacity-80 transition-opacity"
+                            className="px-4 py-2 task-completed rounded-lg text-base font-bold cursor-pointer hover:opacity-80 transition-opacity"
                           >
                             完了
                           </button>
@@ -458,19 +458,19 @@ export default function TaskBoard() {
                       className="hover:bg-gray-50 cursor-pointer"
                       onClick={() => payment.project_id && handleNavigateToProject(payment.project_id)}
                     >
-                      <td className="font-semibold text-sm text-gray-900">{payment.payment_type}</td>
-                      <td className="text-sm">{payment.project ? `${payment.project.customer_names[0]}様` : '-'}</td>
-                      <td>
+                      <td className="px-4 py-4 font-semibold text-base text-gray-900">{payment.payment_type}</td>
+                      <td className="px-4 py-4 text-base">{payment.project ? `${payment.project.customer_names[0]}様` : '-'}</td>
+                      <td className="px-4 py-4">
                         <div className="text-center">
-                          <span className="prisma-badge prisma-badge-green text-xs">入金</span>
+                          <span className="prisma-badge prisma-badge-green text-base">入金</span>
                         </div>
                       </td>
-                      <td>
-                        <div className="text-center text-sm">
+                      <td className="px-4 py-4">
+                        <div className="text-center text-base">
                           {payment.actual_date ? format(new Date(payment.actual_date), 'M/d (E)', { locale: ja }) : '-'}
                         </div>
                       </td>
-                      <td>
+                      <td className="px-4 py-4">
                         <div className="text-center font-bold text-base text-green-700">
                           ¥{payment.actual_amount?.toLocaleString() || '-'}
                         </div>
@@ -512,48 +512,48 @@ export default function TaskBoard() {
 
             {/* コンテンツ */}
             <div className="prisma-modal-content space-y-4">
-              {/* ステータス変更ボタン */}
+              {/* ステータス選択 - Prisma仕様に統一 */}
               <div>
-                <label className="block text-base font-bold text-gray-700 mb-2">
-                  ステータス変更
+                <label className="block text-xl font-bold text-gray-700 mb-4">
+                  ステータス
                 </label>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div className="grid grid-cols-4 gap-3">
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'not_started')}
-                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
+                    className={`px-6 py-4 rounded-lg font-bold text-xl transition-all border-4 ${
                       selectedTask.status === 'not_started'
                         ? 'task-not-started'
-                        : 'bg-white text-gray-900 hover:bg-gray-50 border border-gray-300'
+                        : 'bg-white text-gray-900 hover:bg-gray-50 border-gray-400'
                     }`}
                   >
                     未着手
                   </button>
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'requested')}
-                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
+                    className={`px-6 py-4 rounded-lg font-bold text-xl transition-all border-4 ${
                       selectedTask.status === 'requested'
                         ? 'task-in-progress'
-                        : 'bg-white text-yellow-900 hover:bg-yellow-50 border-2 border-yellow-300'
+                        : 'bg-white text-gray-900 hover:bg-yellow-50 border-gray-400'
                     }`}
                   >
                     着手中
                   </button>
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'delayed')}
-                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
+                    className={`px-6 py-4 rounded-lg font-bold text-xl transition-all border-4 ${
                       selectedTask.status === 'delayed'
                         ? 'task-delayed'
-                        : 'bg-white text-red-900 hover:bg-red-50 border-2 border-red-300'
+                        : 'bg-white text-gray-900 hover:bg-red-50 border-gray-400'
                     }`}
                   >
                     遅延
                   </button>
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'completed')}
-                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
+                    className={`px-6 py-4 rounded-lg font-bold text-xl transition-all border-4 ${
                       selectedTask.status === 'completed'
                         ? 'task-completed'
-                        : 'bg-white text-blue-900 hover:bg-blue-50 border-2 border-blue-300'
+                        : 'bg-white text-gray-900 hover:bg-blue-50 border-gray-400'
                     }`}
                   >
                     完了
@@ -562,10 +562,10 @@ export default function TaskBoard() {
               </div>
 
               {/* タスク情報 */}
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div>
-                  <label className="block text-base font-bold text-gray-700 mb-1">期限</label>
-                  <p className="text-base text-gray-900">
+                  <label className="block text-xl font-bold text-gray-700 mb-2">期限</label>
+                  <p className="text-xl text-gray-900">
                     {selectedTask.due_date
                       ? format(new Date(selectedTask.due_date), 'yyyy年M月d日 (E)', { locale: ja })
                       : '未設定'}
@@ -574,22 +574,22 @@ export default function TaskBoard() {
 
                 {selectedTask.description && (
                   <div>
-                    <label className="block text-base font-bold text-gray-700 mb-1">説明</label>
-                    <p className="text-base text-gray-900">{selectedTask.description}</p>
+                    <label className="block text-xl font-bold text-gray-700 mb-2">説明</label>
+                    <p className="text-xl text-gray-900">{selectedTask.description}</p>
                   </div>
                 )}
 
                 {selectedTask.project && (
                   <div>
-                    <label className="block text-base font-bold text-gray-700 mb-1">案件</label>
-                    <p className="text-base text-gray-900 mb-2">
+                    <label className="block text-xl font-bold text-gray-700 mb-2">案件</label>
+                    <p className="text-xl text-gray-900 mb-3">
                       {selectedTask.project.customer_names.join('・')}様
                     </p>
                     <button
                       onClick={() => handleNavigateToProject(selectedTask.project!.id)}
-                      className="prisma-btn prisma-btn-secondary text-base inline-flex items-center gap-2"
+                      className="px-6 py-3 bg-blue-100 text-blue-700 rounded-lg font-bold text-xl hover:bg-blue-200 transition-colors border-4 border-blue-600 inline-flex items-center gap-2"
                     >
-                      <ExternalLink size={16} />
+                      <ExternalLink size={20} />
                       案件詳細を見る
                     </button>
                   </div>
@@ -601,7 +601,7 @@ export default function TaskBoard() {
             <div className="prisma-modal-footer">
               <button
                 onClick={() => setShowTaskModal(false)}
-                className="prisma-btn prisma-btn-secondary flex-1"
+                className="px-8 py-4 bg-gray-200 text-gray-800 rounded-lg font-bold text-xl hover:bg-gray-300 transition-colors border-4 border-gray-400 flex-1"
               >
                 閉じる
               </button>
