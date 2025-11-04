@@ -208,13 +208,20 @@ export default function TaskBoard() {
             </div>
             <div className="overflow-x-auto">
               <table className="prisma-table">
+                <colgroup>
+                  <col style={{ width: '35%' }} />
+                  <col style={{ width: '20%' }} />
+                  <col style={{ width: '15%' }} />
+                  <col style={{ width: '15%' }} />
+                  <col style={{ width: '15%' }} />
+                </colgroup>
                 <thead>
                   <tr>
-                    <th style={{ width: '35%' }}>タスク名</th>
-                    <th style={{ width: '20%' }}>お客様</th>
-                    <th style={{ width: '15%' }}>期限</th>
-                    <th style={{ width: '15%' }}>遅延</th>
-                    <th style={{ width: '15%' }}>ステータス</th>
+                    <th>タスク名</th>
+                    <th>お客様</th>
+                    <th>期限</th>
+                    <th>遅延</th>
+                    <th>ステータス</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -270,13 +277,20 @@ export default function TaskBoard() {
             </div>
             <div className="overflow-x-auto">
               <table className="prisma-table">
+                <colgroup>
+                  <col style={{ width: '35%' }} />
+                  <col style={{ width: '20%' }} />
+                  <col style={{ width: '15%' }} />
+                  <col style={{ width: '15%' }} />
+                  <col style={{ width: '15%' }} />
+                </colgroup>
                 <thead>
                   <tr>
-                    <th style={{ width: '35%' }}>タスク名</th>
-                    <th style={{ width: '20%' }}>お客様</th>
-                    <th style={{ width: '15%' }}>期限</th>
-                    <th style={{ width: '15%' }}>残り</th>
-                    <th style={{ width: '15%' }}>ステータス</th>
+                    <th>タスク名</th>
+                    <th>お客様</th>
+                    <th>期限</th>
+                    <th>残り</th>
+                    <th>ステータス</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -332,13 +346,20 @@ export default function TaskBoard() {
             </div>
             <div className="overflow-x-auto">
               <table className="prisma-table">
+                <colgroup>
+                  <col style={{ width: '25%' }} />
+                  <col style={{ width: '20%' }} />
+                  <col style={{ width: '20%' }} />
+                  <col style={{ width: '15%' }} />
+                  <col style={{ width: '20%' }} />
+                </colgroup>
                 <thead>
                   <tr>
-                    <th style={{ width: '25%' }}>名目</th>
-                    <th style={{ width: '20%' }}>お客様</th>
-                    <th style={{ width: '20%' }}>金額</th>
-                    <th style={{ width: '15%' }}>予定日</th>
-                    <th style={{ width: '20%' }}>残り</th>
+                    <th>名目</th>
+                    <th>お客様</th>
+                    <th>金額</th>
+                    <th>予定日</th>
+                    <th>残り</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -384,13 +405,20 @@ export default function TaskBoard() {
             </div>
             <div className="overflow-x-auto">
               <table className="prisma-table">
+                <colgroup>
+                  <col style={{ width: '30%' }} />
+                  <col style={{ width: '20%' }} />
+                  <col style={{ width: '15%' }} />
+                  <col style={{ width: '20%' }} />
+                  <col style={{ width: '15%' }} />
+                </colgroup>
                 <thead>
                   <tr>
-                    <th style={{ width: '30%' }}>名称</th>
-                    <th style={{ width: '20%' }}>お客様</th>
-                    <th style={{ width: '15%' }}>種別</th>
-                    <th style={{ width: '20%' }}>完了日/入金日</th>
-                    <th style={{ width: '15%' }}>ステータス</th>
+                    <th>名称</th>
+                    <th>お客様</th>
+                    <th>種別</th>
+                    <th>完了日/入金日</th>
+                    <th>ステータス</th>
                   </tr>
                 </thead>
                 <tbody>
