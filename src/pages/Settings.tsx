@@ -930,96 +930,102 @@ export default function Settings() {
           <SystemRoadmap />
         )}
 
-        {/* AWS移行タブ - Prisma仕様に統一 */}
+        {/* AWS移行タブ - 基本設定と同様のシンプルなデザイン */}
         {activeTab === 'aws' && (
-          <div className="space-y-8 p-4">
+          <div className="space-y-6">
             {/* 現状 */}
-            <div className="bg-white rounded-lg border-4 border-blue-500 shadow-lg p-8">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-6 h-6 bg-green-500 rounded-full animate-pulse"></div>
-                <h2 className="text-3xl font-bold text-gray-900">現在の運用</h2>
-              </div>
-              <div className="bg-green-50 border-4 border-green-500 rounded-lg p-8">
-                <p className="text-3xl font-bold text-green-900 mb-4">Supabase（PostgreSQL）で運用中</p>
-                <p className="text-xl text-green-800">✅ 現在の規模では最適　✅ 高パフォーマンス　✅ コスト効率◎</p>
+            <div className="prisma-card">
+              <div className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  <h2 className="text-lg font-semibold text-gray-800">現在の運用</h2>
+                </div>
+                <div className="bg-green-50 border-l-4 border-green-500 rounded p-4">
+                  <p className="text-base font-semibold text-green-900 mb-2">Supabase（PostgreSQL）で運用中</p>
+                  <p className="text-sm text-green-800">現在の規模では最適・高パフォーマンス・コスト効率◎</p>
+                </div>
               </div>
             </div>
 
             {/* 移行タイミング */}
-            <div className="bg-white rounded-lg border-4 border-purple-500 shadow-lg p-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-8">AWS移行を検討するタイミング</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-gray-50 border-4 border-gray-300 rounded-lg p-8">
-                  <div className="text-5xl font-black text-blue-600 mb-3">1,000人</div>
-                  <div className="text-2xl font-bold text-gray-700">ユーザー数</div>
-                </div>
-                <div className="bg-gray-50 border-4 border-gray-300 rounded-lg p-8">
-                  <div className="text-5xl font-black text-blue-600 mb-3">20店舗</div>
-                  <div className="text-2xl font-bold text-gray-700">FC展開</div>
-                </div>
-                <div className="bg-gray-50 border-4 border-gray-300 rounded-lg p-8">
-                  <div className="text-5xl font-black text-blue-600 mb-3">10万件/月</div>
-                  <div className="text-2xl font-bold text-gray-700">トランザクション</div>
-                </div>
-                <div className="bg-gray-50 border-4 border-gray-300 rounded-lg p-8">
-                  <div className="text-5xl font-black text-blue-600 mb-3">$500/月</div>
-                  <div className="text-2xl font-bold text-gray-700">Supabase料金</div>
+            <div className="prisma-card">
+              <div className="p-6">
+                <h2 className="text-lg font-semibold text-gray-800 mb-4">AWS移行を検討するタイミング</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-gray-50 border-l-4 border-blue-500 rounded p-4">
+                    <div className="text-2xl font-bold text-blue-600 mb-1">1,000人</div>
+                    <div className="text-sm text-gray-600">ユーザー数</div>
+                  </div>
+                  <div className="bg-gray-50 border-l-4 border-blue-500 rounded p-4">
+                    <div className="text-2xl font-bold text-blue-600 mb-1">20店舗</div>
+                    <div className="text-sm text-gray-600">FC展開</div>
+                  </div>
+                  <div className="bg-gray-50 border-l-4 border-blue-500 rounded p-4">
+                    <div className="text-2xl font-bold text-blue-600 mb-1">10万件/月</div>
+                    <div className="text-sm text-gray-600">トランザクション</div>
+                  </div>
+                  <div className="bg-gray-50 border-l-4 border-blue-500 rounded p-4">
+                    <div className="text-2xl font-bold text-blue-600 mb-1">$500/月</div>
+                    <div className="text-sm text-gray-600">Supabase料金</div>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* 移行手順 */}
-            <div className="bg-white rounded-lg border-4 border-orange-500 shadow-lg p-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-8">移行の流れ（3〜5ヶ月）</h2>
-              <div className="space-y-6">
-                {/* Phase 1 */}
-                <div className="flex items-start gap-6">
-                  <div className="flex-shrink-0 w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center border-4 border-blue-800">
-                    <span className="text-3xl font-black text-white">1</span>
-                  </div>
-                  <div className="flex-1">
-                    <div className="bg-blue-50 border-4 border-blue-300 rounded-lg p-6">
-                      <div className="text-2xl font-black text-blue-900 mb-3">準備期間（1〜2ヶ月）</div>
-                      <div className="text-xl text-blue-800">AWS環境構築・スキーマ移行・アプリ調整</div>
+            <div className="prisma-card">
+              <div className="p-6">
+                <h2 className="text-lg font-semibold text-gray-800 mb-4">移行の流れ（3〜5ヶ月）</h2>
+                <div className="space-y-4">
+                  {/* Phase 1 */}
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-bold text-white">1</span>
+                    </div>
+                    <div className="flex-1">
+                      <div className="bg-blue-50 border-l-4 border-blue-500 rounded p-3">
+                        <div className="text-base font-semibold text-blue-900 mb-1">準備期間（1〜2ヶ月）</div>
+                        <div className="text-sm text-blue-800">AWS環境構築・スキーマ移行・アプリ調整</div>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Phase 2 */}
-                <div className="flex items-start gap-6">
-                  <div className="flex-shrink-0 w-20 h-20 bg-yellow-600 rounded-full flex items-center justify-center border-4 border-yellow-800">
-                    <span className="text-3xl font-black text-white">2</span>
-                  </div>
-                  <div className="flex-1">
-                    <div className="bg-yellow-50 border-4 border-yellow-300 rounded-lg p-6">
-                      <div className="text-2xl font-black text-yellow-900 mb-3">レプリケーション（2週間〜1ヶ月）</div>
-                      <div className="text-xl text-yellow-800">Supabase ⇔ AWS自動同期・データ整合性チェック</div>
+                  {/* Phase 2 */}
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-yellow-600 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-bold text-white">2</span>
+                    </div>
+                    <div className="flex-1">
+                      <div className="bg-yellow-50 border-l-4 border-yellow-500 rounded p-3">
+                        <div className="text-base font-semibold text-yellow-900 mb-1">レプリケーション（2週間〜1ヶ月）</div>
+                        <div className="text-sm text-yellow-800">Supabase ⇔ AWS自動同期・データ整合性チェック</div>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Phase 3 */}
-                <div className="flex items-start gap-6">
-                  <div className="flex-shrink-0 w-20 h-20 bg-red-600 rounded-full flex items-center justify-center border-4 border-red-800">
-                    <span className="text-3xl font-black text-white">3</span>
-                  </div>
-                  <div className="flex-1">
-                    <div className="bg-red-50 border-4 border-red-300 rounded-lg p-6">
-                      <div className="text-2xl font-black text-red-900 mb-3">カットオーバー（5分）</div>
-                      <div className="text-xl text-red-800 font-bold">⚠️ ダウンタイム0秒・DNS切替のみ</div>
+                  {/* Phase 3 */}
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-bold text-white">3</span>
+                    </div>
+                    <div className="flex-1">
+                      <div className="bg-red-50 border-l-4 border-red-500 rounded p-3">
+                        <div className="text-base font-semibold text-red-900 mb-1">カットオーバー（5分）</div>
+                        <div className="text-sm text-red-800 font-semibold">ダウンタイム0秒・DNS切替のみ</div>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Phase 4 */}
-                <div className="flex items-start gap-6">
-                  <div className="flex-shrink-0 w-20 h-20 bg-green-600 rounded-full flex items-center justify-center border-4 border-green-800">
-                    <span className="text-3xl font-black text-white">4</span>
-                  </div>
-                  <div className="flex-1">
-                    <div className="bg-green-50 border-4 border-green-300 rounded-lg p-6">
-                      <div className="text-2xl font-black text-green-900 mb-3">安定化（1ヶ月）</div>
-                      <div className="text-xl text-green-800">24時間監視・パフォーマンスチェック</div>
+                  {/* Phase 4 */}
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-bold text-white">4</span>
+                    </div>
+                    <div className="flex-1">
+                      <div className="bg-green-50 border-l-4 border-green-500 rounded p-3">
+                        <div className="text-base font-semibold text-green-900 mb-1">安定化（1ヶ月）</div>
+                        <div className="text-sm text-green-800">24時間監視・パフォーマンスチェック</div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1027,52 +1033,58 @@ export default function Settings() {
             </div>
 
             {/* 保証内容 */}
-            <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border-4 border-green-500 shadow-lg p-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-8">基幹システムとしての保証</h2>
-              <div className="space-y-6">
-                <div className="flex items-center gap-4">
-                  <CheckCircle size={40} className="text-green-600 flex-shrink-0" />
-                  <span className="text-2xl font-bold text-gray-900">ダウンタイム0秒（Blue-Green デプロイ）</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <CheckCircle size={40} className="text-green-600 flex-shrink-0" />
-                  <span className="text-2xl font-bold text-gray-900">データ完全性保証（継続的レプリケーション）</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <CheckCircle size={40} className="text-green-600 flex-shrink-0" />
-                  <span className="text-2xl font-bold text-gray-900">60秒以内ロールバック可能（1週間保証）</span>
+            <div className="prisma-card">
+              <div className="p-6">
+                <h2 className="text-lg font-semibold text-gray-800 mb-4">基幹システムとしての保証</h2>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle size={20} className="text-green-600 flex-shrink-0" />
+                    <span className="text-base text-gray-900">ダウンタイム0秒（Blue-Green デプロイ）</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <CheckCircle size={20} className="text-green-600 flex-shrink-0" />
+                    <span className="text-base text-gray-900">データ完全性保証（継続的レプリケーション）</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <CheckCircle size={20} className="text-green-600 flex-shrink-0" />
+                    <span className="text-base text-gray-900">60秒以内ロールバック可能（1週間保証）</span>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* 注意事項 */}
-            <div className="bg-red-50 rounded-lg border-4 border-red-500 shadow-lg p-8">
-              <h2 className="text-3xl font-black text-red-900 mb-6">重要</h2>
-              <ul className="space-y-4 text-xl text-red-800">
-                <li className="flex items-start gap-3">
-                  <span className="text-3xl">•</span>
-                  <span className="font-bold">移行中もシステムは通常通り稼働</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-3xl">•</span>
-                  <span className="font-bold">コストは月$128増（年間$1,536増）</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-3xl">•</span>
-                  <span className="font-bold">現時点では移行不要（条件達成時に再検討）</span>
-                </li>
-              </ul>
+            <div className="prisma-card">
+              <div className="p-6">
+                <div className="bg-red-50 border-l-4 border-red-500 rounded p-4">
+                  <h2 className="text-lg font-semibold text-red-900 mb-3">重要</h2>
+                  <ul className="space-y-2 text-sm text-red-800">
+                    <li className="flex items-start gap-2">
+                      <span>•</span>
+                      <span>移行中もシステムは通常通り稼働</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span>•</span>
+                      <span>コストは月$128増（年間$1,536増）</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span>•</span>
+                      <span>現時点では移行不要（条件達成時に再検討）</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
 
             {/* 詳細情報リンク */}
-            <div className="text-center py-8">
+            <div className="text-center">
               <a
                 href="https://github.com/Ghouse-development/G-progress/blob/master/docs/%E8%A6%81%E4%BB%B6%E5%AE%9A%E7%BE%A9%E6%9B%B8_%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E6%A7%8B%E6%83%B3%E3%83%84%E3%83%AA%E3%83%BC.md#16-%E3%82%A4%E3%83%B3%E3%83%95%E3%83%A9%E3%82%B9%E3%83%88%E3%83%A9%E3%82%AF%E3%83%81%E3%83%A3%E6%88%A6%E7%95%A5aws%E7%A7%BB%E8%A1%8C%E8%A8%88%E7%94%BB"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-8 py-4 bg-blue-600 text-white rounded-lg font-bold text-xl hover:bg-blue-700 transition-colors border-4 border-blue-800 inline-flex items-center gap-3 shadow-lg"
+                className="prisma-btn prisma-btn-primary inline-flex items-center gap-2"
               >
-                <Database size={32} />
+                <Database size={18} />
                 詳細な技術仕様を見る
               </a>
             </div>
