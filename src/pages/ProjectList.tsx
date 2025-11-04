@@ -1997,25 +1997,25 @@ export default function ProjectList() {
                 </div>
               )}
 
-              {/* ステータス変更ボタン */}
+              {/* ステータス変更ボタン - ProjectDetailと完全統一 */}
               <div>
-                <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
+                <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
                   ステータス
                 </label>
                 <div className="grid grid-cols-4 gap-2">
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'not_started')}
-                    className={`px-3 py-2 rounded-lg font-bold text-base transition-all ${
+                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
                       selectedTask.status === 'not_started'
                         ? 'task-not-started'
-                        : 'bg-white text-gray-900 hover:bg-gray-50 border-2 border-gray-300'
+                        : 'bg-white text-gray-900 hover:bg-gray-50 border border-gray-300'
                     }`}
                   >
                     未着手
                   </button>
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'requested')}
-                    className={`px-3 py-2 rounded-lg font-bold text-base transition-all ${
+                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
                       selectedTask.status === 'requested'
                         ? 'task-in-progress'
                         : 'bg-white text-yellow-900 hover:bg-yellow-50 border-2 border-yellow-300'
@@ -2025,7 +2025,7 @@ export default function ProjectList() {
                   </button>
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'delayed')}
-                    className={`px-3 py-2 rounded-lg font-bold text-base transition-all ${
+                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
                       selectedTask.status === 'delayed'
                         ? 'task-delayed'
                         : 'bg-white text-red-900 hover:bg-red-50 border-2 border-red-300'
@@ -2035,7 +2035,7 @@ export default function ProjectList() {
                   </button>
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'completed')}
-                    className={`px-3 py-2 rounded-lg font-bold text-base transition-all ${
+                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
                       selectedTask.status === 'completed'
                         ? 'task-completed'
                         : 'bg-white text-blue-900 hover:bg-blue-50 border-2 border-blue-300'
