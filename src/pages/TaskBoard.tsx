@@ -235,20 +235,16 @@ export default function TaskBoard() {
                           {task.title}
                         </div>
                       </td>
-                      <td className="px-4 py-4 text-base">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
-                      <td className="px-4 py-4">
-                        <div className="text-center text-base">
-                          {task.due_date ? format(new Date(task.due_date), 'M/d (E)', { locale: ja }) : '-'}
-                        </div>
+                      <td className="px-4 py-4 text-left text-base">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
+                      <td className="px-4 py-4 text-center text-base">
+                        {task.due_date ? format(new Date(task.due_date), 'M/d (E)', { locale: ja }) : '-'}
                       </td>
-                      <td className="px-4 py-4">
-                        <div className="text-center">
-                          <span className="prisma-badge prisma-badge-red text-base">
-                            {task.due_date && `${differenceInDays(new Date(), new Date(task.due_date))}日遅れ`}
-                          </span>
-                        </div>
+                      <td className="px-4 py-4 text-center">
+                        <span className="prisma-badge prisma-badge-red text-base">
+                          {task.due_date && `${differenceInDays(new Date(), new Date(task.due_date))}日遅れ`}
+                        </span>
                       </td>
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-4 text-center">
                         <div className="flex justify-center">
                           <button
                             onClick={() => handleTaskClick(task)}
@@ -304,20 +300,16 @@ export default function TaskBoard() {
                           {task.title}
                         </div>
                       </td>
-                      <td className="px-4 py-4 text-base">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
-                      <td className="px-4 py-4">
-                        <div className="text-center text-base">
-                          {task.due_date ? format(new Date(task.due_date), 'M/d (E)', { locale: ja }) : '-'}
-                        </div>
+                      <td className="px-4 py-4 text-left text-base">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
+                      <td className="px-4 py-4 text-center text-base">
+                        {task.due_date ? format(new Date(task.due_date), 'M/d (E)', { locale: ja }) : '-'}
                       </td>
-                      <td className="px-4 py-4">
-                        <div className="text-center">
-                          <span className="prisma-badge prisma-badge-yellow text-base">
-                            {task.due_date && `あと${differenceInDays(new Date(task.due_date), new Date())}日`}
-                          </span>
-                        </div>
+                      <td className="px-4 py-4 text-center">
+                        <span className="prisma-badge prisma-badge-yellow text-base">
+                          {task.due_date && `あと${differenceInDays(new Date(task.due_date), new Date())}日`}
+                        </span>
                       </td>
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-4 text-center">
                         <div className="flex justify-center">
                           <button
                             onClick={() => handleTaskClick(task)}
@@ -369,22 +361,18 @@ export default function TaskBoard() {
                       className="hover:bg-gray-50 cursor-pointer"
                       onClick={() => payment.project_id && handleNavigateToProject(payment.project_id)}
                     >
-                      <td className="px-4 py-4 font-semibold text-base text-gray-900">{payment.payment_type}</td>
-                      <td className="px-4 py-4 text-base">{payment.project ? `${payment.project.customer_names[0]}様` : '-'}</td>
-                      <td className="px-4 py-4 font-bold text-base text-green-700">
+                      <td className="px-4 py-4 text-left font-semibold text-base text-gray-900">{payment.payment_type}</td>
+                      <td className="px-4 py-4 text-left text-base">{payment.project ? `${payment.project.customer_names[0]}様` : '-'}</td>
+                      <td className="px-4 py-4 text-left font-bold text-base text-green-700">
                         ¥{payment.scheduled_amount?.toLocaleString() || '-'}
                       </td>
-                      <td className="px-4 py-4">
-                        <div className="text-center text-base">
-                          {payment.scheduled_date ? format(new Date(payment.scheduled_date), 'M/d (E)', { locale: ja }) : '-'}
-                        </div>
+                      <td className="px-4 py-4 text-center text-base">
+                        {payment.scheduled_date ? format(new Date(payment.scheduled_date), 'M/d (E)', { locale: ja }) : '-'}
                       </td>
-                      <td className="px-4 py-4">
-                        <div className="text-center">
-                          <span className="prisma-badge prisma-badge-green text-base">
-                            {payment.scheduled_date && `あと${differenceInDays(new Date(payment.scheduled_date), new Date())}日`}
-                          </span>
-                        </div>
+                      <td className="px-4 py-4 text-center">
+                        <span className="prisma-badge prisma-badge-green text-base">
+                          {payment.scheduled_date && `あと${differenceInDays(new Date(payment.scheduled_date), new Date())}日`}
+                        </span>
                       </td>
                     </tr>
                   ))}
@@ -428,19 +416,15 @@ export default function TaskBoard() {
                       className="hover:bg-gray-50 cursor-pointer"
                       onClick={() => handleTaskClick(task)}
                     >
-                      <td className="px-4 py-4 font-semibold text-base text-gray-900">{task.title}</td>
-                      <td className="px-4 py-4 text-base">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
-                      <td className="px-4 py-4">
-                        <div className="text-center">
-                          <span className="prisma-badge prisma-badge-blue text-base">タスク</span>
-                        </div>
+                      <td className="px-4 py-4 text-left font-semibold text-base text-gray-900">{task.title}</td>
+                      <td className="px-4 py-4 text-left text-base">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
+                      <td className="px-4 py-4 text-center">
+                        <span className="prisma-badge prisma-badge-blue text-base">タスク</span>
                       </td>
-                      <td className="px-4 py-4">
-                        <div className="text-center text-base">
-                          {task.actual_completion_date ? format(new Date(task.actual_completion_date), 'M/d (E)', { locale: ja }) : '-'}
-                        </div>
+                      <td className="px-4 py-4 text-center text-base">
+                        {task.actual_completion_date ? format(new Date(task.actual_completion_date), 'M/d (E)', { locale: ja }) : '-'}
                       </td>
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-4 text-center">
                         <div className="flex justify-center">
                           <button
                             onClick={() => handleTaskClick(task)}
@@ -458,22 +442,16 @@ export default function TaskBoard() {
                       className="hover:bg-gray-50 cursor-pointer"
                       onClick={() => payment.project_id && handleNavigateToProject(payment.project_id)}
                     >
-                      <td className="px-4 py-4 font-semibold text-base text-gray-900">{payment.payment_type}</td>
-                      <td className="px-4 py-4 text-base">{payment.project ? `${payment.project.customer_names[0]}様` : '-'}</td>
-                      <td className="px-4 py-4">
-                        <div className="text-center">
-                          <span className="prisma-badge prisma-badge-green text-base">入金</span>
-                        </div>
+                      <td className="px-4 py-4 text-left font-semibold text-base text-gray-900">{payment.payment_type}</td>
+                      <td className="px-4 py-4 text-left text-base">{payment.project ? `${payment.project.customer_names[0]}様` : '-'}</td>
+                      <td className="px-4 py-4 text-center">
+                        <span className="prisma-badge prisma-badge-green text-base">入金</span>
                       </td>
-                      <td className="px-4 py-4">
-                        <div className="text-center text-base">
-                          {payment.actual_date ? format(new Date(payment.actual_date), 'M/d (E)', { locale: ja }) : '-'}
-                        </div>
+                      <td className="px-4 py-4 text-center text-base">
+                        {payment.actual_date ? format(new Date(payment.actual_date), 'M/d (E)', { locale: ja }) : '-'}
                       </td>
-                      <td className="px-4 py-4">
-                        <div className="text-center font-bold text-base text-green-700">
-                          ¥{payment.actual_amount?.toLocaleString() || '-'}
-                        </div>
+                      <td className="px-4 py-4 text-center font-bold text-base text-green-700">
+                        ¥{payment.actual_amount?.toLocaleString() || '-'}
                       </td>
                     </tr>
                   ))}
