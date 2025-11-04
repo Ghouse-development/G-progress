@@ -517,29 +517,27 @@ export default function ProjectDetailFields({
                                         </span>
                                       </div>
 
-                                      {/* 操作ボタン */}
-                                      <div className="flex items-center gap-3 flex-shrink-0">
+                                      {/* 操作ボタン - 小さなアイコンボタン */}
+                                      <div className="flex items-center gap-2 flex-shrink-0">
                                         <button
                                           onClick={(e) => {
                                             e.stopPropagation()
                                             onTaskClick && onTaskClick(task)
                                           }}
-                                          className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors border-3 border-blue-600 font-bold text-base flex items-center gap-2"
+                                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                                           title="詳細表示"
                                         >
                                           <Eye size={18} />
-                                          詳細
                                         </button>
                                         <button
                                           onClick={(e) => {
                                             e.stopPropagation()
                                             onTaskDelete && onTaskDelete(task.id)
                                           }}
-                                          className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors border-3 border-red-600 font-bold text-base flex items-center gap-2"
+                                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                           title="削除"
                                         >
                                           <Trash2 size={18} />
-                                          削除
                                         </button>
                                       </div>
                                     </li>

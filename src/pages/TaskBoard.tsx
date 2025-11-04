@@ -490,48 +490,48 @@ export default function TaskBoard() {
 
             {/* コンテンツ */}
             <div className="prisma-modal-content space-y-4">
-              {/* ステータス選択 - Prisma仕様に統一 */}
+              {/* ステータス選択 - ProjectDetailと完全統一 */}
               <div>
-                <label className="block text-xl font-bold text-gray-700 mb-4">
+                <label className="block text-base font-medium text-gray-700 mb-2">
                   ステータス
                 </label>
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-4 gap-2">
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'not_started')}
-                    className={`px-6 py-4 rounded-lg font-bold text-xl transition-all border-4 ${
+                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
                       selectedTask.status === 'not_started'
                         ? 'task-not-started'
-                        : 'bg-white text-gray-900 hover:bg-gray-50 border-gray-400'
+                        : 'bg-white text-gray-900 hover:bg-gray-50 border border-gray-300'
                     }`}
                   >
                     未着手
                   </button>
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'requested')}
-                    className={`px-6 py-4 rounded-lg font-bold text-xl transition-all border-4 ${
+                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
                       selectedTask.status === 'requested'
                         ? 'task-in-progress'
-                        : 'bg-white text-gray-900 hover:bg-yellow-50 border-gray-400'
+                        : 'bg-white text-yellow-900 hover:bg-yellow-50 border-2 border-yellow-300'
                     }`}
                   >
                     着手中
                   </button>
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'delayed')}
-                    className={`px-6 py-4 rounded-lg font-bold text-xl transition-all border-4 ${
+                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
                       selectedTask.status === 'delayed'
                         ? 'task-delayed'
-                        : 'bg-white text-gray-900 hover:bg-red-50 border-gray-400'
+                        : 'bg-white text-red-900 hover:bg-red-50 border-2 border-red-300'
                     }`}
                   >
                     遅延
                   </button>
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'completed')}
-                    className={`px-6 py-4 rounded-lg font-bold text-xl transition-all border-4 ${
+                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
                       selectedTask.status === 'completed'
                         ? 'task-completed'
-                        : 'bg-white text-gray-900 hover:bg-blue-50 border-gray-400'
+                        : 'bg-white text-blue-900 hover:bg-blue-50 border-2 border-blue-300'
                     }`}
                   >
                     完了
@@ -542,8 +542,8 @@ export default function TaskBoard() {
               {/* タスク情報 */}
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xl font-bold text-gray-700 mb-2">期限</label>
-                  <p className="text-xl text-gray-900">
+                  <label className="block text-base font-medium text-gray-700 mb-2">期限</label>
+                  <p className="text-base text-gray-900">
                     {selectedTask.due_date
                       ? format(new Date(selectedTask.due_date), 'yyyy年M月d日 (E)', { locale: ja })
                       : '未設定'}
@@ -552,22 +552,22 @@ export default function TaskBoard() {
 
                 {selectedTask.description && (
                   <div>
-                    <label className="block text-xl font-bold text-gray-700 mb-2">説明</label>
-                    <p className="text-xl text-gray-900">{selectedTask.description}</p>
+                    <label className="block text-base font-medium text-gray-700 mb-2">説明</label>
+                    <p className="text-base text-gray-900">{selectedTask.description}</p>
                   </div>
                 )}
 
                 {selectedTask.project && (
                   <div>
-                    <label className="block text-xl font-bold text-gray-700 mb-2">案件</label>
-                    <p className="text-xl text-gray-900 mb-3">
+                    <label className="block text-base font-medium text-gray-700 mb-2">案件</label>
+                    <p className="text-base text-gray-900 mb-3">
                       {selectedTask.project.customer_names.join('・')}様
                     </p>
                     <button
                       onClick={() => handleNavigateToProject(selectedTask.project!.id)}
-                      className="px-6 py-3 bg-blue-100 text-blue-700 rounded-lg font-bold text-xl hover:bg-blue-200 transition-colors border-4 border-blue-600 inline-flex items-center gap-2"
+                      className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-bold text-base hover:bg-blue-200 transition-colors border-2 border-blue-600 inline-flex items-center gap-2"
                     >
-                      <ExternalLink size={20} />
+                      <ExternalLink size={18} />
                       案件詳細を見る
                     </button>
                   </div>
