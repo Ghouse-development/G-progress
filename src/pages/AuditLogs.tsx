@@ -283,6 +283,14 @@ export default function AuditLogs() {
       <div className="prisma-card p-0 overflow-hidden">
         <div className="prisma-table-container">
           <table className="prisma-table">
+            <colgroup>
+              <col style={{ width: '180px' }} />
+              <col style={{ width: '120px' }} />
+              <col style={{ width: '120px' }} />
+              <col style={{ width: '150px' }} />
+              <col style={{ width: '150px' }} />
+              <col />
+            </colgroup>
             <thead className="bg-gray-100 sticky top-0">
               <tr>
                 <th className="px-4 py-3 text-left text-base font-semibold text-gray-900">日時</th>

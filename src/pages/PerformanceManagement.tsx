@@ -333,6 +333,18 @@ export default function PerformanceManagement() {
               <h2 className="prisma-card-title">案件別詳細</h2>
               <div className="overflow-x-auto">
                 <table className="prisma-table">
+                  <colgroup>
+                    <col style={{ width: '200px' }} />
+                    <col style={{ width: '100px' }} />
+                    <col style={{ width: '100px' }} />
+                    <col style={{ width: '100px' }} />
+                    <col style={{ width: '100px' }} />
+                    <col style={{ width: '100px' }} />
+                    <col style={{ width: '100px' }} />
+                    <col style={{ width: '100px' }} />
+                    <col style={{ width: '100px' }} />
+                    <col style={{ width: '100px' }} />
+                  </colgroup>
                   <thead>
                     <tr>
                       <th>案件名</th>

@@ -146,12 +146,16 @@ export default function TriggerMaster({ onClose }: TriggerMasterProps) {
 
           <div className="border border-gray-200 rounded-lg overflow-hidden">
             <table className="w-full">
+              <colgroup>
+                <col />
+                <col style={{ width: '100px' }} />
+              </colgroup>
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-4 py-2 text-left text-base font-bold text-gray-800">
                     トリガー名
                   </th>
-                  <th className="px-4 py-2 text-center text-base font-bold text-gray-800 w-[100px]">
+                  <th className="px-4 py-2 text-center text-base font-bold text-gray-800">
                     操作
                   </th>
                 </tr>

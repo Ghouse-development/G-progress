@@ -126,6 +126,14 @@ export default function DelayedTasks() {
           ) : (
             <div className="bg-white rounded-lg border-2 border-gray-300 shadow-md overflow-hidden">
               <table className="w-full border-collapse">
+                <colgroup>
+                  <col style={{ width: '120px' }} />
+                  <col style={{ width: '200px' }} />
+                  <col style={{ width: '200px' }} />
+                  <col style={{ width: '120px' }} />
+                  <col style={{ width: '100px' }} />
+                  <col />
+                </colgroup>
                 <thead className="bg-gray-100 border-b-2 border-gray-300">
                   <tr>
                     <th className="border border-gray-300 px-4 py-3 text-left font-bold text-base text-gray-900">

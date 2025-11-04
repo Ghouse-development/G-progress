@@ -270,6 +270,13 @@ export default function OrganizationManagement() {
       {/* 組織一覧 */}
       <div className="bg-white rounded-lg border-2 border-gray-200">
         <table className="w-full">
+          <colgroup>
+            <col />
+            <col style={{ width: '150px' }} />
+            <col style={{ width: '150px' }} />
+            <col style={{ width: '150px' }} />
+            <col style={{ width: '150px' }} />
+          </colgroup>
           <thead className="bg-gray-50 border-b-2 border-gray-200">
             <tr>
               <th className="px-4 py-3 text-left text-base font-bold text-gray-900">組織名</th>

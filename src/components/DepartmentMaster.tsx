@@ -145,6 +145,10 @@ export default function DepartmentMaster() {
       <div className="bg-white rounded-lg border-2 border-pastel-blue shadow-pastel-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
+            <colgroup>
+              <col />
+              <col style={{ width: '150px' }} />
+            </colgroup>
             <thead className="bg-pastel-blue-light">
               <tr>
                 <th className="px-6 py-3 text-left text-base font-bold text-gray-800 uppercase tracking-wider">

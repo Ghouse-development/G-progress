@@ -268,6 +268,14 @@ export default function EmployeeMaster() {
       <div className="bg-white dark:bg-gray-800 rounded-lg border-2 border-pastel-blue dark:border-gray-600 shadow-pastel-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
+            <colgroup>
+              <col style={{ width: '150px' }} />
+              <col style={{ width: '250px' }} />
+              <col style={{ width: '120px' }} />
+              <col style={{ width: '120px' }} />
+              <col style={{ width: '120px' }} />
+              <col style={{ width: '120px' }} />
+            </colgroup>
             <thead className="bg-pastel-blue-light dark:bg-gray-700">
               <tr>
                 <th className="px-6 py-3 text-left text-base font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">

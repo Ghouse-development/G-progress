@@ -611,41 +611,25 @@ export default function Calendar() {
           <div className="flex items-center justify-center gap-2 mb-3 flex-wrap">
             <button
               onClick={() => setCalendarMode('tasks')}
-              className={`px-3 py-2 text-sm font-bold border transition-colors shadow-lg rounded-lg ${
-                calendarMode === 'tasks'
-                  ? 'bg-blue-500 text-white border-blue-600 hover:bg-blue-600'
-                  : 'bg-white text-gray-900 border-gray-300 hover:bg-gray-50'
-              }`}
+              className={calendarMode === 'tasks' ? 'prisma-btn prisma-btn-primary' : 'prisma-btn prisma-btn-secondary'}
             >
               通常カレンダー
             </button>
             <button
               onClick={() => setCalendarMode('payments')}
-              className={`px-3 py-2 text-sm font-bold border transition-colors shadow-lg rounded-lg ${
-                calendarMode === 'payments'
-                  ? 'bg-green-600 text-white border-green-700 hover:bg-green-700'
-                  : 'bg-white text-gray-900 border-gray-300 hover:bg-gray-50'
-              }`}
+              className={calendarMode === 'payments' ? 'prisma-btn prisma-btn-primary' : 'prisma-btn prisma-btn-secondary'}
             >
               入金カレンダー
             </button>
             <button
               onClick={() => setCalendarMode('construction_start')}
-              className={`px-3 py-2 text-sm font-bold border transition-colors shadow-lg rounded-lg ${
-                calendarMode === 'construction_start'
-                  ? 'bg-orange-600 text-white border-orange-700 hover:bg-orange-700'
-                  : 'bg-white text-gray-900 border-gray-300 hover:bg-gray-50'
-              }`}
+              className={calendarMode === 'construction_start' ? 'prisma-btn prisma-btn-primary' : 'prisma-btn prisma-btn-secondary'}
             >
               着工カレンダー
             </button>
             <button
               onClick={() => setCalendarMode('handover')}
-              className={`px-3 py-2 text-sm font-bold border transition-colors shadow-lg rounded-lg ${
-                calendarMode === 'handover'
-                  ? 'bg-purple-600 text-white border-purple-700 hover:bg-purple-700'
-                  : 'bg-white text-gray-900 border-gray-300 hover:bg-gray-50'
-              }`}
+              className={calendarMode === 'handover' ? 'prisma-btn prisma-btn-primary' : 'prisma-btn prisma-btn-secondary'}
             >
               引き渡しカレンダー
             </button>
@@ -949,7 +933,7 @@ export default function Calendar() {
       {/* タスク詳細モーダル */}
       {showTaskModal && selectedTask && (
         <div className="prisma-modal-overlay">
-          <div className="prisma-modal" style={{ maxWidth: '800px' }}>
+          <div className="prisma-modal max-w-[800px]">
             {/* ヘッダー */}
             <div className="prisma-modal-header">
               <div className="flex items-center justify-between">
@@ -999,40 +983,40 @@ export default function Calendar() {
                 <div className="grid grid-cols-4 gap-2">
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'not_started')}
-                    className={`py-2 px-3 rounded text-base font-medium transition-all ${
+                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
                       selectedTask.status === 'not_started'
                         ? 'task-not-started'
-                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-gray-300 dark:border-gray-600 hover:border-red-400'
+                        : 'bg-white text-gray-900 hover:bg-gray-50 border border-gray-300'
                     }`}
                   >
                     未着手
                   </button>
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'requested')}
-                    className={`py-2 px-3 rounded text-base font-medium transition-all ${
+                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
                       selectedTask.status === 'requested'
                         ? 'task-in-progress'
-                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-gray-300 dark:border-gray-600 hover:border-yellow-400'
+                        : 'bg-white text-yellow-900 hover:bg-yellow-50 border-2 border-yellow-300'
                     }`}
                   >
                     着手中
                   </button>
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'delayed')}
-                    className={`py-2 px-3 rounded text-base font-medium transition-all ${
+                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
                       selectedTask.status === 'delayed'
                         ? 'task-delayed'
-                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-gray-300 dark:border-gray-600 hover:border-red-400'
+                        : 'bg-white text-red-900 hover:bg-red-50 border-2 border-red-300'
                     }`}
                   >
                     遅延
                   </button>
                   <button
                     onClick={() => handleUpdateTaskStatus(selectedTask.id, 'completed')}
-                    className={`py-2 px-3 rounded text-base font-medium transition-all ${
+                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
                       selectedTask.status === 'completed'
                         ? 'task-completed'
-                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-gray-300 dark:border-gray-600 hover:border-blue-400'
+                        : 'bg-white text-blue-900 hover:bg-blue-50 border-2 border-blue-300'
                     }`}
                   >
                     完了

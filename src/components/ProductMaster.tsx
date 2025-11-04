@@ -185,7 +185,7 @@ export default function ProductMaster() {
         <h2 className="text-3xl font-bold text-gray-900">商品マスタ</h2>
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg border-2 border-black hover:bg-blue-700 transition-colors font-bold text-lg shadow-lg"
+          className="prisma-btn prisma-btn-primary flex items-center gap-2"
         >
           <Plus size={24} />
           新規商品追加
@@ -196,9 +196,16 @@ export default function ProductMaster() {
       <div className="bg-white rounded-lg border border-gray-300 shadow-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
+            <colgroup>
+              <col style={{ width: '50px' }} />
+              <col style={{ width: '300px' }} />
+              <col style={{ width: '200px' }} />
+              <col style={{ width: '120px' }} />
+              <col style={{ width: '150px' }} />
+            </colgroup>
             <thead className="bg-gradient-to-r from-purple-100 to-purple-50 border-b border-gray-300">
               <tr>
-                <th className="px-2 py-4 text-center text-base font-bold text-gray-900 w-12"></th>
+                <th className="px-2 py-4 text-center text-base font-bold text-gray-900"></th>
                 <th className="px-6 py-4 text-left text-base font-bold text-gray-900">商品名</th>
                 <th className="px-6 py-4 text-left text-base font-bold text-gray-900">カテゴリ</th>
                 <th className="px-6 py-4 text-center text-base font-bold text-gray-900">有効/無効</th>

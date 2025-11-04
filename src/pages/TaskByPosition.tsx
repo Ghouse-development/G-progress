@@ -239,61 +239,70 @@ export default function TaskByPosition() {
       </div>
 
       {/* タスクテーブル */}
-      <div className="prisma-card p-0 overflow-hidden">
-        <div className="prisma-table-container max-h-[calc(100vh-280px)]">
-          <table className="prisma-table">
-            <thead className="sticky top-0 bg-gray-100 z-10">
+      <div className="bg-white rounded-lg border border-gray-300 shadow-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <colgroup>
+              <col style={{ width: '120px' }} />
+              <col style={{ width: '200px' }} />
+              <col style={{ width: '100px' }} />
+              <col style={{ width: '150px' }} />
+              <col style={{ width: '100px' }} />
+              <col />
+            </colgroup>
+            <thead className="bg-gradient-to-r from-blue-100 to-blue-50 border-b border-gray-300">
               <tr>
-                <th className="px-4 py-3 text-left text-base font-semibold text-gray-900 border-b-2 border-gray-300 min-w-[200px]">
-                  タスク名
-                </th>
-                {currentPositions.map(position => (
-                  <th
-                    key={position}
-                    className="px-3 py-3 text-center text-base font-semibold text-gray-900 border-b-2 border-gray-300 whitespace-nowrap min-w-[100px]"
-                  >
-                    {position}
-                  </th>
-                ))}
+                <th className="px-6 py-4 text-left text-base font-bold text-gray-900">職種</th>
+                <th className="px-6 py-4 text-left text-base font-bold text-gray-900">タスク名</th>
+                <th className="px-6 py-4 text-center text-base font-bold text-gray-900">ステータス</th>
+                <th className="px-6 py-4 text-left text-base font-bold text-gray-900">期限日</th>
+                <th className="px-6 py-4 text-center text-base font-bold text-gray-900">乖離日数</th>
+                <th className="px-6 py-4 text-left text-base font-bold text-gray-900">案件</th>
               </tr>
             </thead>
-            <tbody className="bg-white">
-              {Array.from(new Set(tasks.map(t => t.title))).map((taskTitle, rowIndex) => (
-                <tr key={taskTitle} className={rowIndex % 2 === 0 ? '' : 'bg-gray-50'}>
-                  <td className="px-4 py-2 text-base font-medium text-gray-900 border-b border-gray-200">
-                    {taskTitle}
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-10 text-center text-gray-500 text-base">
+                    読み込み中...
                   </td>
-                  {currentPositions.map(position => {
-                    const positionTasks = getTasksByPosition(position).filter(t => t.title === taskTitle)
-                    const task = positionTasks[0]
-
-                    if (!task) {
-                      return (
-                        <td
-                          key={position}
-                          className="px-2 py-2 text-center text-gray-400 border-b border-gray-200"
-                        >
-                          -
-                        </td>
-                      )
-                    }
-
+                </tr>
+              ) : currentPositions.flatMap(position => getTasksByPosition(position)).length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-10 text-center text-gray-500 text-base">
+                    タスクが登録されていません
+                  </td>
+                </tr>
+              ) : (
+                currentPositions.flatMap(position => {
+                  const positionTasks = getTasksByPosition(position)
+                  return positionTasks.map((task, index) => {
                     const daysFromToday = getDaysFromToday(task.due_date || null)
                     const daysText = getDaysText(daysFromToday)
 
                     return (
-                      <td
-                        key={position}
-                        className="px-2 py-2 border-b border-gray-200 cursor-pointer group hover:bg-blue-50 transition-colors"
+                      <tr
+                        key={task.id || `${position}-${index}`}
+                        className="border-b-2 border-gray-200 hover:bg-blue-50 cursor-pointer transition-colors"
                         onClick={() => {
                           setSelectedTask(task)
                           setShowDetailModal(true)
                         }}
-                        title={`期限: ${task.due_date ? format(new Date(task.due_date), 'M月d日(E)', { locale: ja }) : '未設定'}\n乖離: ${daysText}`}
                       >
-                        <div className="flex items-center justify-center gap-1">
+                        <td className="px-6 py-4 text-base text-gray-900 font-bold">{position}</td>
+                        <td className="px-6 py-4 text-base text-gray-900 font-semibold">
+                          <div className="flex items-center gap-2">
+                            {task.title}
+                            {task.is_date_confirmed && (
+                              <span className="inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-green-600 rounded-full border-2 border-white shadow-sm" title="日付確定">
+                                確
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-center">
                           <span
-                            className={`px-2 py-1 rounded-md text-base font-bold whitespace-nowrap ${
+                            className={`px-3 py-1 rounded-md text-sm font-bold whitespace-nowrap ${
                               task.status === 'completed'
                                 ? 'task-completed'
                                 : task.status === 'requested'
@@ -311,17 +320,23 @@ export default function TaskByPosition() {
                               ? '遅延'
                               : '未着手'}
                           </span>
-                          {task.is_date_confirmed && (
-                            <span className="inline-flex items-center justify-center w-8 h-8 text-base font-bold text-white bg-green-600 rounded-full border-2 border-white shadow-lg" title="日付確定">
-                              確
-                            </span>
-                          )}
-                        </div>
-                      </td>
+                        </td>
+                        <td className="px-6 py-4 text-base text-gray-700">
+                          {task.due_date ? format(new Date(task.due_date), 'M月d日(E)', { locale: ja }) : '未設定'}
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span className={`text-base font-bold ${getDaysColor(daysFromToday)}`}>
+                            {daysText}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-base text-gray-700">
+                          {task.project?.customer?.names?.[0] || '-'}
+                        </td>
+                      </tr>
                     )
-                  })}
-                </tr>
-              ))}
+                  })
+                })
+              )}
             </tbody>
           </table>
         </div>
@@ -354,40 +369,40 @@ export default function TaskByPosition() {
                 <div className="grid grid-cols-4 gap-2">
                   <button
                     onClick={() => handleStatusChange('not_started')}
-                    className={`py-2 px-3 rounded text-base font-medium transition-all ${
+                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
                       selectedTask.status === 'not_started'
                         ? 'task-not-started'
-                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-gray-300 dark:border-gray-600 hover:border-red-400'
+                        : 'bg-white text-gray-900 hover:bg-gray-50 border border-gray-300'
                     }`}
                   >
                     未着手
                   </button>
                   <button
                     onClick={() => handleStatusChange('requested')}
-                    className={`py-2 px-3 rounded text-base font-medium transition-all ${
+                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
                       selectedTask.status === 'requested'
                         ? 'task-in-progress'
-                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-gray-300 dark:border-gray-600 hover:border-yellow-400'
+                        : 'bg-white text-yellow-900 hover:bg-yellow-50 border-2 border-yellow-300'
                     }`}
                   >
                     着手中
                   </button>
                   <button
                     onClick={() => handleStatusChange('delayed')}
-                    className={`py-2 px-3 rounded text-base font-medium transition-all ${
+                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
                       selectedTask.status === 'delayed'
                         ? 'task-delayed'
-                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-gray-300 dark:border-gray-600 hover:border-orange-400'
+                        : 'bg-white text-red-900 hover:bg-red-50 border-2 border-red-300'
                     }`}
                   >
                     遅延
                   </button>
                   <button
                     onClick={() => handleStatusChange('completed')}
-                    className={`py-2 px-3 rounded text-base font-medium transition-all ${
+                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
                       selectedTask.status === 'completed'
                         ? 'task-completed'
-                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-gray-300 dark:border-gray-600 hover:border-blue-400'
+                        : 'bg-white text-blue-900 hover:bg-blue-50 border-2 border-blue-300'
                     }`}
                   >
                     完了

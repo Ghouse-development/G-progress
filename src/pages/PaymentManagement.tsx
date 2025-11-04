@@ -443,6 +443,14 @@ export default function PaymentManagement() {
         {displayMode === 'monthly_detail' ? (
           // 月次詳細モード：案件ごとの詳細表示
           <table className="prisma-table">
+            <colgroup>
+              <col style={{ width: '200px' }} />
+              <col style={{ width: '150px' }} />
+              <col style={{ width: '120px' }} />
+              <col style={{ width: '120px' }} />
+              <col style={{ width: '120px' }} />
+              <col style={{ width: '120px' }} />
+            </colgroup>
             <thead>
               <tr>
                 <th>案件</th>
@@ -514,6 +522,12 @@ export default function PaymentManagement() {
         ) : (
           // 期間集計モード：月ごとの予定額・実績額を表示
           <table className="prisma-table">
+            <colgroup>
+              <col style={{ width: '150px' }} />
+              <col style={{ width: '200px' }} />
+              <col style={{ width: '200px' }} />
+              <col style={{ width: '200px' }} />
+            </colgroup>
             <thead>
               <tr>
                 <th className="text-center">月</th>
