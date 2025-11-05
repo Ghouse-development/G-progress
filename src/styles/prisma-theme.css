@@ -277,7 +277,6 @@ body {
 .prisma-tabs {
   display: flex;
   gap: 4px;
-  border-bottom: 2px solid var(--border-color);
   margin-bottom: 8px;
 }
 
@@ -288,20 +287,19 @@ body {
   color: #6b7280;
   background: transparent;
   border: none;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
+  border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .prisma-tab:hover {
-  color: var(--primary-blue);
-  background: var(--primary-blue-light);
+  background: #f3f4f6;
+  color: #374151;
 }
 
 .prisma-tab.active {
-  color: var(--primary-blue);
-  border-bottom-color: var(--primary-blue);
+  background: #e0f2fe;
+  color: #0369a1;
   font-weight: 600;
 }
 
