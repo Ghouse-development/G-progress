@@ -224,21 +224,24 @@ body {
 }
 
 .prisma-table th {
-  padding: 6px 8px;
-  text-align: left;
-  font-size: 12px;
+  padding: 8px;
+  text-align: center;
+  font-size: 14px;
   font-weight: 600;
   color: var(--main-text);
   text-transform: uppercase;
   letter-spacing: 0.3px;
   border-bottom: 2px solid var(--border-color);
+  vertical-align: middle;
 }
 
 .prisma-table td {
-  padding: 5px 8px;
+  padding: 8px;
   border-bottom: 2px solid var(--border-color-light);
   color: var(--main-text);
-  font-size: 12px;
+  font-size: 14px;
+  text-align: center;
+  vertical-align: middle;
 }
 
 .prisma-table tr:last-child td {
