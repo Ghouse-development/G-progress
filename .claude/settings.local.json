@@ -52,7 +52,11 @@
       "Bash(npm install:*)",
       "Bash(npm test:*)",
       "Bash(for file in DelayedTasks.tsx TaskByPosition.tsx Settings.tsx PaymentManagement.tsx GrossProfitManagement.tsx PerformanceManagement.tsx OrganizationManagement.tsx TaskMasterManagement.tsx AuditLogs.tsx Login.tsx Reports.tsx ImportCSV.tsx ProjectDetail.tsx)",
-      "Bash(timeout 60 git push origin master)"
+      "Bash(timeout 60 git push origin master)",
+      "Bash(curl:*)",
+      "WebFetch(domain:vercel.com)",
+      "WebFetch(domain:g-progress.vercel.app)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []
