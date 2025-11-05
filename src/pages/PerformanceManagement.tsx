@@ -285,7 +285,7 @@ export default function PerformanceManagement() {
         </div>
       </div>
 
-      <div className="prisma-content px-6">
+      <div className="prisma-content">
         {stats && (
           <>
             {/* 統計サマリー */}

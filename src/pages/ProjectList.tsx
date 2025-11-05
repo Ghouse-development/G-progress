@@ -1159,7 +1159,7 @@ export default function ProjectList() {
         </div>
       </div>
 
-      <div className="prisma-content p-3 pb-0">
+      <div className="prisma-content">
         {/* 進捗マトリクス表示 */}
         <div className="prisma-card overflow-hidden mb-0">
           {/* マトリクスヘッダー */}

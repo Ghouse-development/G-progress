@@ -724,9 +724,9 @@ export default function DashboardHome() {
             <table className="w-full">
               <thead>
                 <tr className="border-b-2 border-gray-300">
-                  <th className="text-left p-2 text-base font-bold">商品</th>
-                  <th className="text-right p-2 text-base font-bold">数</th>
-                  <th className="text-right p-2 text-base font-bold">割合</th>
+                  <th className="text-center p-2 text-base font-bold">商品</th>
+                  <th className="text-center p-2 text-base font-bold">数</th>
+                  <th className="text-center p-2 text-base font-bold">割合</th>
                 </tr>
               </thead>
               <tbody>
@@ -982,11 +982,11 @@ export default function DashboardHome() {
           <table className="w-full text-base">
             <thead>
               <tr className="bg-gray-100 border-b-2 border-gray-300">
-                <th className="px-4 py-3 text-left font-bold text-gray-900">月</th>
-                <th className="px-4 py-3 text-right font-bold text-gray-900">契約数</th>
-                <th className="px-4 py-3 text-right font-bold text-gray-900">着工数</th>
-                <th className="px-4 py-3 text-right font-bold text-gray-900">引き渡し数</th>
-                <th className="px-4 py-3 text-right font-bold text-gray-900">入金額</th>
+                <th className="px-4 py-3 text-center font-bold text-gray-900">月</th>
+                <th className="px-4 py-3 text-center font-bold text-gray-900">契約数</th>
+                <th className="px-4 py-3 text-center font-bold text-gray-900">着工数</th>
+                <th className="px-4 py-3 text-center font-bold text-gray-900">引き渡し数</th>
+                <th className="px-4 py-3 text-center font-bold text-gray-900">入金額</th>
               </tr>
             </thead>
             <tbody>
@@ -1354,8 +1354,8 @@ export default function DashboardHome() {
                       <table className="w-full text-base">
                         <thead className="bg-gray-100">
                           <tr>
-                            <th className="px-4 py-3 text-left font-semibold text-gray-700">職種</th>
-                            <th className="px-4 py-3 text-right font-semibold text-gray-700">遅延件数</th>
+                            <th className="px-4 py-3 text-center font-semibold text-gray-700">職種</th>
+                            <th className="px-4 py-3 text-center font-semibold text-gray-700">遅延件数</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">

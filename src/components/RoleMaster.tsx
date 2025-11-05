@@ -159,10 +159,10 @@ export default function RoleMaster() {
             </colgroup>
             <thead className="bg-pastel-blue-light">
               <tr>
-                <th className="px-6 py-3 text-left text-base font-bold text-gray-800 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-base font-bold text-gray-800 uppercase tracking-wider">
                   役職コード
                 </th>
-                <th className="px-6 py-3 text-left text-base font-bold text-gray-800 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-base font-bold text-gray-800 uppercase tracking-wider">
                   役職名
                 </th>
                 <th className="px-6 py-3 text-center text-base font-bold text-gray-800 uppercase tracking-wider">

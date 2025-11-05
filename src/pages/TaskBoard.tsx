@@ -195,7 +195,7 @@ export default function TaskBoard() {
       </div>
 
       {/* メインコンテンツ */}
-      <div className="prisma-content px-4" style={{ maxWidth: '1400px' }}>
+      <div className="prisma-content" style={{ maxWidth: '1400px' }}>
         {/* 遅延タスク */}
         {delayedTasks.length > 0 && (
           <div className="prisma-card mb-4">
@@ -244,14 +244,12 @@ export default function TaskBoard() {
                         </span>
                       </td>
                       <td className="text-center">
-                        <div className="flex justify-center">
-                          <button
-                            onClick={() => handleTaskClick(task)}
-                            className="px-4 py-2 task-delayed rounded-lg text-base font-bold cursor-pointer hover:opacity-80 transition-opacity"
-                          >
-                            遅延
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => handleTaskClick(task)}
+                          className="px-4 py-2 task-delayed rounded-lg text-base font-bold cursor-pointer hover:opacity-80 transition-opacity"
+                        >
+                          遅延
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -309,14 +307,12 @@ export default function TaskBoard() {
                         </span>
                       </td>
                       <td className="text-center">
-                        <div className="flex justify-center">
-                          <button
-                            onClick={() => handleTaskClick(task)}
-                            className="px-4 py-2 task-in-progress rounded-lg text-base font-bold cursor-pointer hover:opacity-80 transition-opacity"
-                          >
-                            着手中
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => handleTaskClick(task)}
+                          className="px-4 py-2 task-in-progress rounded-lg text-base font-bold cursor-pointer hover:opacity-80 transition-opacity"
+                        >
+                          着手中
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -424,14 +420,12 @@ export default function TaskBoard() {
                         {task.actual_completion_date ? format(new Date(task.actual_completion_date), 'M/d (E)', { locale: ja }) : '-'}
                       </td>
                       <td className="text-center">
-                        <div className="flex justify-center">
-                          <button
-                            onClick={() => handleTaskClick(task)}
-                            className="px-4 py-2 task-completed rounded-lg text-base font-bold cursor-pointer hover:opacity-80 transition-opacity"
-                          >
-                            完了
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => handleTaskClick(task)}
+                          className="px-4 py-2 task-completed rounded-lg text-base font-bold cursor-pointer hover:opacity-80 transition-opacity"
+                        >
+                          完了
+                        </button>
                       </td>
                     </tr>
                   ))}

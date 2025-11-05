@@ -206,8 +206,8 @@ export default function ProductMaster() {
             <thead className="bg-gradient-to-r from-purple-100 to-purple-50 border-b border-gray-300">
               <tr>
                 <th className="px-2 py-4 text-center text-base font-bold text-gray-900"></th>
-                <th className="px-6 py-4 text-left text-base font-bold text-gray-900">商品名</th>
-                <th className="px-6 py-4 text-left text-base font-bold text-gray-900">カテゴリ</th>
+                <th className="px-6 py-4 text-center text-base font-bold text-gray-900">商品名</th>
+                <th className="px-6 py-4 text-center text-base font-bold text-gray-900">カテゴリ</th>
                 <th className="px-6 py-4 text-center text-base font-bold text-gray-900">有効/無効</th>
                 <th className="px-6 py-4 text-center text-base font-bold text-gray-900">操作</th>
               </tr>

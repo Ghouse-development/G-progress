@@ -137,8 +137,8 @@ export default function ProjectDetailFields({
   const tabs = [
     { id: 'grid', label: 'グリッドビュー' },
     { id: 'position', label: '職種別ビュー' },
-    { id: 'staff', label: '担当者' },
     { id: 'basic', label: '基本情報' },
+    { id: 'staff', label: '担当者' },
     { id: 'schedule', label: 'スケジュール' },
     { id: 'payment', label: '金額' },
     { id: 'loan', label: '融資関連' },
@@ -455,8 +455,8 @@ export default function ProjectDetailFields({
                         {dept.name}
                       </div>
 
-                      {/* 職種別タスク箇条書き */}
-                      <div className="p-6 space-y-5">
+                      {/* 職種別タスク1行表示 */}
+                      <div className="p-6 space-y-4">
                         {dept.positions.map(position => {
                           const positionTasks = deptTasks.filter(task => {
                             const taskPosition = task.description?.split(':')[0]?.trim()
@@ -466,91 +466,64 @@ export default function ProjectDetailFields({
                           if (positionTasks.length === 0) return null
 
                           return (
-                            <div key={position} className="space-y-2">
+                            <div key={position}>
                               {/* 職種ラベル */}
-                              <div className="px-4 py-2 bg-gray-100 rounded-lg">
-                                <span className="font-bold text-lg text-gray-900">{position}</span>
-                                <span className="ml-3 text-base text-gray-600">（{positionTasks.length}件）</span>
+                              <div className="px-3 py-1.5 bg-gray-100 rounded-lg mb-2 inline-block">
+                                <span className="font-bold text-base text-gray-900">{position}</span>
+                                <span className="ml-2 text-sm text-gray-600">（{positionTasks.length}件）</span>
                               </div>
 
-                              {/* タスク箇条書きリスト */}
-                              <ul className="pl-6 space-y-2">
+                              {/* タスク1行リスト */}
+                              <div className="pl-4 space-y-1">
                                 {positionTasks.map(task => {
                                   const isDelayed = task.due_date &&
                                     task.status !== 'completed' &&
                                     new Date(task.due_date) < new Date()
 
                                   return (
-                                    <li
+                                    <div
                                       key={task.id}
-                                      onClick={() => onTaskClick && onTaskClick(task)}
-                                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                                      className="flex items-center gap-2 py-1 hover:bg-gray-50 rounded transition-colors"
                                     >
-                                      {/* ステータスバッジ（箇条書きマーカー代わり） */}
-                                      <span className={`px-3 py-1 rounded-lg font-bold text-sm whitespace-nowrap flex-shrink-0 ${
+                                      {/* ステータス */}
+                                      <span className={`px-2 py-0.5 rounded text-xs font-bold whitespace-nowrap ${
                                         isDelayed ? 'task-delayed' : getStatusBadgeColor(task.status)
                                       }`}>
                                         {isDelayed ? '遅延' : getStatusText(task.status)}
                                       </span>
 
                                       {/* タスク情報 */}
-                                      <div className="flex-1 min-w-0 flex items-center gap-3 flex-wrap">
-                                        <span className="font-bold text-base text-gray-900">{task.title}</span>
-                                        {task.is_date_confirmed && (
-                                          <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold text-white bg-green-600 rounded-full" title="日付確定">
-                                            確定
-                                          </span>
-                                        )}
-                                        {task.original_due_date && task.due_date && task.original_due_date !== task.due_date && (
-                                          <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-bold text-white bg-yellow-500 rounded-full" title={`当初予定から${Math.abs(differenceInDays(new Date(task.due_date), new Date(task.original_due_date)))}日${differenceInDays(new Date(task.due_date), new Date(task.original_due_date)) > 0 ? '後ろ倒し' : '前倒し'}`}>
-                                            <AlertTriangle size={12} />
-                                            変更
-                                          </span>
-                                        )}
-                                        <span className="text-sm text-gray-600">
-                                          担当：{task.assigned_employee
-                                            ? `${task.assigned_employee.last_name} ${task.assigned_employee.first_name}`
-                                            : '未割当'
-                                          }
-                                        </span>
-                                        <span className="text-sm text-gray-600">
-                                          期限：{task.due_date
-                                            ? format(new Date(task.due_date), 'M/d (E)', { locale: ja })
-                                            : '未設定'
-                                          }
-                                        </span>
-                                        <span className="text-sm font-bold text-blue-700">
-                                          {task.dayFromContract || 0}日目
-                                        </span>
-                                      </div>
+                                      <span className="text-sm text-gray-900">{task.title}</span>
+                                      <span className="text-xs text-gray-500">|</span>
+                                      <span className="text-sm text-gray-600">
+                                        {task.due_date
+                                          ? format(new Date(task.due_date), 'M/d', { locale: ja })
+                                          : '未設定'
+                                        }
+                                      </span>
+                                      {task.is_date_confirmed && (
+                                        <span className="text-xs text-green-600 font-bold">確定</span>
+                                      )}
 
                                       {/* 操作ボタン */}
-                                      <div className="flex items-center gap-2 flex-shrink-0">
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation()
-                                            onTaskClick && onTaskClick(task)
-                                          }}
-                                          className="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg font-bold hover:bg-blue-200 transition-colors border-2 border-blue-600"
-                                          title="詳細表示"
-                                        >
-                                          <Eye size={20} />
-                                        </button>
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation()
-                                            onTaskDelete && onTaskDelete(task.id)
-                                          }}
-                                          className="px-3 py-2 bg-red-100 text-red-700 rounded-lg font-bold hover:bg-red-200 transition-colors border-2 border-red-600"
-                                          title="削除"
-                                        >
-                                          <Trash2 size={20} />
-                                        </button>
-                                      </div>
-                                    </li>
+                                      <button
+                                        onClick={() => onTaskClick && onTaskClick(task)}
+                                        className="prisma-btn-icon ml-auto"
+                                        title="詳細表示"
+                                      >
+                                        <Eye size={16} />
+                                      </button>
+                                      <button
+                                        onClick={() => onTaskDelete && onTaskDelete(task.id)}
+                                        className="prisma-btn-icon-danger"
+                                        title="削除"
+                                      >
+                                        <Trash2 size={16} />
+                                      </button>
+                                    </div>
                                   )
                                 })}
-                              </ul>
+                              </div>
                             </div>
                           )
                         })}

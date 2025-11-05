@@ -278,19 +278,19 @@ export default function EmployeeMaster() {
             </colgroup>
             <thead className="bg-pastel-blue-light dark:bg-gray-700">
               <tr>
-                <th className="px-6 py-3 text-left text-base font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-base font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
                   氏名
                 </th>
-                <th className="px-6 py-3 text-left text-base font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-base font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
                   メールアドレス
                 </th>
-                <th className="px-6 py-3 text-left text-base font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-base font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
                   部門
                 </th>
-                <th className="px-6 py-3 text-left text-base font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-base font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
                   拠点
                 </th>
-                <th className="px-6 py-3 text-left text-base font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-base font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
                   役職
                 </th>
                 <th className="px-6 py-3 text-center text-base font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
