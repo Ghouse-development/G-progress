@@ -1235,9 +1235,7 @@ export default function ProjectList() {
             maxWidth: '100%',
             overflowX: 'auto',
             overflowY: 'auto',
-            WebkitOverflowScrolling: 'touch',
-            scrollbarWidth: 'auto', // Firefox: スクロールバーを常時表示
-            msOverflowStyle: 'scrollbar' // IE/Edge: スクロールバーを常時表示
+            WebkitOverflowScrolling: 'touch'
           }}>
             <style>{`
               .prisma-table-container::-webkit-scrollbar {
