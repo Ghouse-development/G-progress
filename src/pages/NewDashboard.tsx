@@ -71,10 +71,10 @@ export default function NewDashboard() {
   const [countConstructionToInspection, setCountConstructionToInspection] = useState(0)
   const [countContractToHandover, setCountContractToHandover] = useState(0)
 
-  // 目標値
-  const [targetRevenue, setTargetRevenue] = useState(0)
-  const [targetUnits, setTargetUnits] = useState(0)
-  const [targetGrossProfit, setTargetGrossProfit] = useState(0)
+  // 拠点別目標値（拠点ID → 目標値のマップ）
+  const [branchTargets, setBranchTargets] = useState<{
+    [branchId: string]: { revenue: number; units: number; grossProfit: number }
+  }>({})
 
   // モーダル管理
   const [showSettingsModal, setShowSettingsModal] = useState(false)
@@ -89,48 +89,128 @@ export default function NewDashboard() {
   }, [selectedYear, mode, demoMode])
 
   const loadTargets = () => {
+    // 拠点リスト（固定）
+    const branchIds = ['1', '2', '3', '4', '5'] // 本部, 豊中, 奈良, 京都, 西宮
+    const targets: { [branchId: string]: { revenue: number; units: number; grossProfit: number } } = {}
+
     if (demoMode) {
-      // デモモード：デフォルト目標値を設定
-      setTargetRevenue(7500000000) // 75億円
-      setTargetUnits(250) // 250棟
-      setTargetGrossProfit(1500000000) // 15億円（粗利率20%想定）
+      // デモモード：各拠点にデフォルト目標値を設定
+      // 合計が 売上75億円、250棟、粗利15億円になるように配分
+      targets['1'] = { revenue: 2000000000, units: 67, grossProfit: 400000000 } // 本部
+      targets['2'] = { revenue: 1500000000, units: 50, grossProfit: 300000000 } // 豊中
+      targets['3'] = { revenue: 1500000000, units: 50, grossProfit: 300000000 } // 奈良
+      targets['4'] = { revenue: 1500000000, units: 50, grossProfit: 300000000 } // 京都
+      targets['5'] = { revenue: 1000000000, units: 33, grossProfit: 200000000 } // 西宮
+      setBranchTargets(targets)
       return
     }
 
-    // 通常モード：LocalStorageから読み込み
-    const savedTargetRevenue = localStorage.getItem(`target_revenue_${selectedYear}`)
-    const savedTargetUnits = localStorage.getItem(`target_units_${selectedYear}`)
-    const savedTargetGrossProfit = localStorage.getItem(`target_gross_profit_${selectedYear}`)
+    // 通常モード：LocalStorageから各拠点の目標値を読み込み
+    branchIds.forEach(branchId => {
+      const savedRevenue = localStorage.getItem(`target_revenue_${selectedYear}_${branchId}`)
+      const savedUnits = localStorage.getItem(`target_units_${selectedYear}_${branchId}`)
+      const savedGrossProfit = localStorage.getItem(`target_gross_profit_${selectedYear}_${branchId}`)
 
-    setTargetRevenue(savedTargetRevenue ? parseFloat(savedTargetRevenue) : 0)
-    setTargetUnits(savedTargetUnits ? parseInt(savedTargetUnits) : 0)
-    setTargetGrossProfit(savedTargetGrossProfit ? parseFloat(savedTargetGrossProfit) : 0)
+      targets[branchId] = {
+        revenue: savedRevenue ? parseFloat(savedRevenue) : 0,
+        units: savedUnits ? parseInt(savedUnits) : 0,
+        grossProfit: savedGrossProfit ? parseFloat(savedGrossProfit) : 0
+      }
+    })
+
+    setBranchTargets(targets)
   }
 
   const saveTargets = () => {
+    if (selectedBranch === '全体') {
+      toast.error('全体の目標は各拠点の目標値の合計です。各拠点で個別に設定してください。')
+      return
+    }
+
     const revenue = parseFloat(editTargetRevenue) || 0
     const units = parseInt(editTargetUnits) || 0
     const grossProfit = parseFloat(editTargetGrossProfit) || 0
 
-    try {
-      localStorage.setItem(`target_revenue_${selectedYear}`, revenue.toString())
-      localStorage.setItem(`target_units_${selectedYear}`, units.toString())
-      localStorage.setItem(`target_gross_profit_${selectedYear}`, grossProfit.toString())
+    // 拠点名から拠点IDを取得
+    const branchMap: { [key: string]: string } = {
+      '本部': '1',
+      '豊中店': '2',
+      '奈良店': '3',
+      '京都店': '4',
+      '西宮店': '5'
+    }
 
-      setTargetRevenue(revenue)
-      setTargetUnits(units)
-      setTargetGrossProfit(grossProfit)
+    const branchId = branchMap[selectedBranch]
+    if (!branchId) {
+      toast.error('拠点の選択が不正です')
+      return
+    }
+
+    try {
+      localStorage.setItem(`target_revenue_${selectedYear}_${branchId}`, revenue.toString())
+      localStorage.setItem(`target_units_${selectedYear}_${branchId}`, units.toString())
+      localStorage.setItem(`target_gross_profit_${selectedYear}_${branchId}`, grossProfit.toString())
+
+      // 拠点別目標値を更新
+      setBranchTargets(prev => ({
+        ...prev,
+        [branchId]: { revenue, units, grossProfit }
+      }))
+
       setShowSettingsModal(false)
+      toast.success(`${selectedBranch}の目標値を保存しました`)
     } catch (error) {
       toast.error('目標値の保存に失敗しました')
     }
   }
 
   const openSettingsModal = () => {
-    setEditTargetRevenue(targetRevenue.toString())
-    setEditTargetUnits(targetUnits.toString())
-    setEditTargetGrossProfit(targetGrossProfit.toString())
+    if (selectedBranch === '全体') {
+      // 全体の場合は編集不可（合計値を表示）
+      const totalRevenue = Object.values(branchTargets).reduce((sum, t) => sum + t.revenue, 0)
+      const totalUnits = Object.values(branchTargets).reduce((sum, t) => sum + t.units, 0)
+      const totalGrossProfit = Object.values(branchTargets).reduce((sum, t) => sum + t.grossProfit, 0)
+      setEditTargetRevenue(totalRevenue.toString())
+      setEditTargetUnits(totalUnits.toString())
+      setEditTargetGrossProfit(totalGrossProfit.toString())
+    } else {
+      // 各拠点の場合は既存の目標値をロード
+      const branchMap: { [key: string]: string } = {
+        '本部': '1',
+        '豊中店': '2',
+        '奈良店': '3',
+        '京都店': '4',
+        '西宮店': '5'
+      }
+      const branchId = branchMap[selectedBranch]
+      const target = branchTargets[branchId] || { revenue: 0, units: 0, grossProfit: 0 }
+      setEditTargetRevenue(target.revenue.toString())
+      setEditTargetUnits(target.units.toString())
+      setEditTargetGrossProfit(target.grossProfit.toString())
+    }
     setShowSettingsModal(true)
+  }
+
+  // 現在選択中の拠点の目標値を取得（全体の場合は合計）
+  const getCurrentTargets = () => {
+    if (selectedBranch === '全体') {
+      // 全体の場合は全拠点の合計
+      const totalRevenue = Object.values(branchTargets).reduce((sum, t) => sum + t.revenue, 0)
+      const totalUnits = Object.values(branchTargets).reduce((sum, t) => sum + t.units, 0)
+      const totalGrossProfit = Object.values(branchTargets).reduce((sum, t) => sum + t.grossProfit, 0)
+      return { revenue: totalRevenue, units: totalUnits, grossProfit: totalGrossProfit }
+    } else {
+      // 各拠点の場合
+      const branchMap: { [key: string]: string } = {
+        '本部': '1',
+        '豊中店': '2',
+        '奈良店': '3',
+        '京都店': '4',
+        '西宮店': '5'
+      }
+      const branchId = branchMap[selectedBranch]
+      return branchTargets[branchId] || { revenue: 0, units: 0, grossProfit: 0 }
+    }
   }
 
   const loadBranches = async () => {
@@ -499,6 +579,12 @@ export default function NewDashboard() {
   const totalGrossProfit = monthlyStats.reduce((sum, s) => sum + s.grossProfit, 0)
   const totalChangeContracts = monthlyStats.reduce((sum, s) => sum + s.changeContracts, 0)
 
+  // 現在の拠点の目標値
+  const currentTargets = getCurrentTargets()
+  const targetRevenue = currentTargets.revenue
+  const targetUnits = currentTargets.units
+  const targetGrossProfit = currentTargets.grossProfit
+
   // 円グラフのカラーパレット
   const PIE_COLORS = ['#000000', '#4b5563', '#6b7280', '#9ca3af', '#d1d5db']
 
@@ -524,7 +610,7 @@ export default function NewDashboard() {
             <button
               key={branch}
               onClick={() => setSelectedBranch(branch)}
-              className={selectedBranch === branch ? 'active' : ''}
+              className={`prisma-tab ${selectedBranch === branch ? 'active' : ''}`}
             >
               {branch}
             </button>
@@ -966,7 +1052,14 @@ export default function NewDashboard() {
           <div className="prisma-modal" style={{ maxWidth: '600px' }}>
             {/* ヘッダー */}
             <div className="prisma-modal-header">
-              <h2 className="prisma-modal-title">目標値設定 ({selectedYear}年度)</h2>
+              <h2 className="prisma-modal-title">
+                目標値設定 - {selectedBranch} ({selectedYear}年度)
+              </h2>
+              {selectedBranch === '全体' && (
+                <p className="text-xs text-gray-600 mt-1">
+                  ※全体の目標は各拠点の合計です。各拠点タブで個別に設定してください。
+                </p>
+              )}
             </div>
 
             {/* コンテンツ */}
@@ -981,6 +1074,8 @@ export default function NewDashboard() {
                   onChange={(e) => setEditTargetRevenue(e.target.value)}
                   placeholder="例: 500000000"
                   className="prisma-input"
+                  readOnly={selectedBranch === '全体'}
+                  disabled={selectedBranch === '全体'}
                 />
               </div>
 
@@ -994,6 +1089,8 @@ export default function NewDashboard() {
                   onChange={(e) => setEditTargetGrossProfit(e.target.value)}
                   placeholder="例: 100000000"
                   className="prisma-input"
+                  readOnly={selectedBranch === '全体'}
+                  disabled={selectedBranch === '全体'}
                 />
               </div>
 
@@ -1007,6 +1104,8 @@ export default function NewDashboard() {
                   onChange={(e) => setEditTargetUnits(e.target.value)}
                   placeholder="例: 250"
                   className="prisma-input"
+                  readOnly={selectedBranch === '全体'}
+                  disabled={selectedBranch === '全体'}
                 />
               </div>
             </div>
@@ -1017,14 +1116,16 @@ export default function NewDashboard() {
                 onClick={() => setShowSettingsModal(false)}
                 className="prisma-btn prisma-btn-secondary flex-1"
               >
-                キャンセル
+                {selectedBranch === '全体' ? '閉じる' : 'キャンセル'}
               </button>
-              <button
-                onClick={saveTargets}
-                className="prisma-btn prisma-btn-primary flex-1"
-              >
-                保存
-              </button>
+              {selectedBranch !== '全体' && (
+                <button
+                  onClick={saveTargets}
+                  className="prisma-btn prisma-btn-primary flex-1"
+                >
+                  保存
+                </button>
+              )}
             </div>
           </div>
         </div>

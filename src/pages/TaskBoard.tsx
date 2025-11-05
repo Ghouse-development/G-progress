@@ -216,17 +216,17 @@ export default function TaskBoard() {
                 </colgroup>
                 <thead>
                   <tr>
-                    <th className="text-center px-4 py-3">タスク名</th>
-                    <th className="text-center px-4 py-3">お客様</th>
-                    <th className="text-center px-4 py-3">期限</th>
-                    <th className="text-center px-4 py-3">遅延</th>
-                    <th className="text-center px-4 py-3">ステータス</th>
+                    <th className="text-center">タスク名</th>
+                    <th className="text-center">お客様</th>
+                    <th className="text-center">期限</th>
+                    <th className="text-center">遅延</th>
+                    <th className="text-center">ステータス</th>
                   </tr>
                 </thead>
                 <tbody>
                   {delayedTasks.map(task => (
                     <tr key={task.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-4">
+                      <td className="text-center">
                         <div
                           className="font-semibold text-base text-gray-900 cursor-pointer hover:text-blue-600"
                           onClick={() => handleTaskClick(task)}
@@ -234,16 +234,16 @@ export default function TaskBoard() {
                           {task.title}
                         </div>
                       </td>
-                      <td className="px-4 py-4 text-center text-base">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
-                      <td className="px-4 py-4 text-center text-base">
+                      <td className="text-center text-base">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
+                      <td className="text-center text-base">
                         {task.due_date ? format(new Date(task.due_date), 'M/d (E)', { locale: ja }) : '-'}
                       </td>
-                      <td className="px-4 py-4 text-center">
+                      <td className="text-center">
                         <span className="prisma-badge prisma-badge-red text-base">
                           {task.due_date && `${differenceInDays(new Date(), new Date(task.due_date))}日遅れ`}
                         </span>
                       </td>
-                      <td className="px-4 py-4 text-center">
+                      <td className="text-center">
                         <div className="flex justify-center">
                           <button
                             onClick={() => handleTaskClick(task)}
@@ -281,17 +281,17 @@ export default function TaskBoard() {
                 </colgroup>
                 <thead>
                   <tr>
-                    <th className="text-center px-4 py-3">タスク名</th>
-                    <th className="text-center px-4 py-3">お客様</th>
-                    <th className="text-center px-4 py-3">期限</th>
-                    <th className="text-center px-4 py-3">残り</th>
-                    <th className="text-center px-4 py-3">ステータス</th>
+                    <th className="text-center">タスク名</th>
+                    <th className="text-center">お客様</th>
+                    <th className="text-center">期限</th>
+                    <th className="text-center">残り</th>
+                    <th className="text-center">ステータス</th>
                   </tr>
                 </thead>
                 <tbody>
                   {upcomingTasks.map(task => (
                     <tr key={task.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-4">
+                      <td className="text-center">
                         <div
                           className="font-semibold text-base text-gray-900 cursor-pointer hover:text-blue-600"
                           onClick={() => handleTaskClick(task)}
@@ -299,16 +299,16 @@ export default function TaskBoard() {
                           {task.title}
                         </div>
                       </td>
-                      <td className="px-4 py-4 text-center text-base">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
-                      <td className="px-4 py-4 text-center text-base">
+                      <td className="text-center text-base">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
+                      <td className="text-center text-base">
                         {task.due_date ? format(new Date(task.due_date), 'M/d (E)', { locale: ja }) : '-'}
                       </td>
-                      <td className="px-4 py-4 text-center">
+                      <td className="text-center">
                         <span className="prisma-badge prisma-badge-yellow text-base">
                           {task.due_date && `あと${differenceInDays(new Date(task.due_date), new Date())}日`}
                         </span>
                       </td>
-                      <td className="px-4 py-4 text-center">
+                      <td className="text-center">
                         <div className="flex justify-center">
                           <button
                             onClick={() => handleTaskClick(task)}
@@ -346,11 +346,11 @@ export default function TaskBoard() {
                 </colgroup>
                 <thead>
                   <tr>
-                    <th className="text-center px-4 py-3">名目</th>
-                    <th className="text-center px-4 py-3">お客様</th>
-                    <th className="text-center px-4 py-3">金額</th>
-                    <th className="text-center px-4 py-3">予定日</th>
-                    <th className="text-center px-4 py-3">残り</th>
+                    <th className="text-center">名目</th>
+                    <th className="text-center">お客様</th>
+                    <th className="text-center">金額</th>
+                    <th className="text-center">予定日</th>
+                    <th className="text-center">残り</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -360,15 +360,15 @@ export default function TaskBoard() {
                       className="hover:bg-gray-50 cursor-pointer"
                       onClick={() => payment.project_id && handleNavigateToProject(payment.project_id)}
                     >
-                      <td className="px-4 py-4 text-center font-semibold text-base text-gray-900">{payment.payment_type}</td>
-                      <td className="px-4 py-4 text-center text-base">{payment.project ? `${payment.project.customer_names[0]}様` : '-'}</td>
-                      <td className="px-4 py-4 text-center font-bold text-base text-green-700">
+                      <td className="text-center font-semibold text-base text-gray-900">{payment.payment_type}</td>
+                      <td className="text-center text-base">{payment.project ? `${payment.project.customer_names[0]}様` : '-'}</td>
+                      <td className="text-center font-bold text-base text-green-700">
                         ¥{payment.scheduled_amount?.toLocaleString() || '-'}
                       </td>
-                      <td className="px-4 py-4 text-center text-base">
+                      <td className="text-center text-base">
                         {payment.scheduled_date ? format(new Date(payment.scheduled_date), 'M/d (E)', { locale: ja }) : '-'}
                       </td>
-                      <td className="px-4 py-4 text-center">
+                      <td className="text-center">
                         <span className="prisma-badge prisma-badge-green text-base">
                           {payment.scheduled_date && `あと${differenceInDays(new Date(payment.scheduled_date), new Date())}日`}
                         </span>
@@ -401,11 +401,11 @@ export default function TaskBoard() {
                 </colgroup>
                 <thead>
                   <tr>
-                    <th className="text-center px-4 py-3">名称</th>
-                    <th className="text-center px-4 py-3">お客様</th>
-                    <th className="text-center px-4 py-3">種別</th>
-                    <th className="text-center px-4 py-3">完了日/入金日</th>
-                    <th className="text-center px-4 py-3">ステータス</th>
+                    <th className="text-center">名称</th>
+                    <th className="text-center">お客様</th>
+                    <th className="text-center">種別</th>
+                    <th className="text-center">完了日/入金日</th>
+                    <th className="text-center">ステータス</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -415,15 +415,15 @@ export default function TaskBoard() {
                       className="hover:bg-gray-50 cursor-pointer"
                       onClick={() => handleTaskClick(task)}
                     >
-                      <td className="px-4 py-4 text-center font-semibold text-base text-gray-900">{task.title}</td>
-                      <td className="px-4 py-4 text-center text-base">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
-                      <td className="px-4 py-4 text-center">
+                      <td className="text-center font-semibold text-base text-gray-900">{task.title}</td>
+                      <td className="text-center text-base">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
+                      <td className="text-center">
                         <span className="prisma-badge prisma-badge-blue text-base">タスク</span>
                       </td>
-                      <td className="px-4 py-4 text-center text-base">
+                      <td className="text-center text-base">
                         {task.actual_completion_date ? format(new Date(task.actual_completion_date), 'M/d (E)', { locale: ja }) : '-'}
                       </td>
-                      <td className="px-4 py-4 text-center">
+                      <td className="text-center">
                         <div className="flex justify-center">
                           <button
                             onClick={() => handleTaskClick(task)}
@@ -441,15 +441,15 @@ export default function TaskBoard() {
                       className="hover:bg-gray-50 cursor-pointer"
                       onClick={() => payment.project_id && handleNavigateToProject(payment.project_id)}
                     >
-                      <td className="px-4 py-4 text-center font-semibold text-base text-gray-900">{payment.payment_type}</td>
-                      <td className="px-4 py-4 text-center text-base">{payment.project ? `${payment.project.customer_names[0]}様` : '-'}</td>
-                      <td className="px-4 py-4 text-center">
+                      <td className="text-center font-semibold text-base text-gray-900">{payment.payment_type}</td>
+                      <td className="text-center text-base">{payment.project ? `${payment.project.customer_names[0]}様` : '-'}</td>
+                      <td className="text-center">
                         <span className="prisma-badge prisma-badge-green text-base">入金</span>
                       </td>
-                      <td className="px-4 py-4 text-center text-base">
+                      <td className="text-center text-base">
                         {payment.actual_date ? format(new Date(payment.actual_date), 'M/d (E)', { locale: ja }) : '-'}
                       </td>
-                      <td className="px-4 py-4 text-center font-bold text-base text-green-700">
+                      <td className="text-center font-bold text-base text-green-700">
                         ¥{payment.actual_amount?.toLocaleString() || '-'}
                       </td>
                     </tr>

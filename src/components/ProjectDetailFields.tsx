@@ -322,16 +322,23 @@ export default function ProjectDetailFields({
                 {/* グリッドボディ */}
                 <div>
                   {(() => {
-                    // タスクがある日のみを抽出してソート
+                    // タスクがある日のみを抽出
                     const daysWithTasks = Array.from(
                       new Set(
                         tasks
                           .map(t => t.dayFromContract)
                           .filter(d => d !== undefined && d !== null)
                       )
-                    ).sort((a, b) => (a as number) - (b as number)) as number[]
+                    ) as number[]
 
-                    return daysWithTasks
+                    // 「今日」を常に含める（タスクがなくても）
+                    const todayDay = getTodayFromContract(project.contract_date)
+                    if (!daysWithTasks.includes(todayDay)) {
+                      daysWithTasks.push(todayDay)
+                    }
+
+                    // ソート
+                    return daysWithTasks.sort((a, b) => a - b)
                   })().map((day) => {
                     const hasTask = tasks.some(t => t.dayFromContract === day)
                     const currentDate = addDays(new Date(project.contract_date), day)

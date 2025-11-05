@@ -313,33 +313,58 @@ export default function TaskDetailModal({
             )}
           </div>
 
-          {/* 予定・確定ボタン */}
+          {/* 予定・確定トグル */}
           <div>
             <label className="block text-base font-medium text-gray-700 mb-2">
               日付の状態
             </label>
-            <div className="flex gap-2">
+            <div className="flex gap-0 border-2 border-gray-300 rounded-lg overflow-hidden">
               <button
-                onClick={handleToggleDateConfirmed}
-                disabled={isLocked || !task.due_date}
-                className={`flex-1 px-4 py-3 rounded-lg font-bold text-base transition-all ${
-                  task.is_date_confirmed
-                    ? 'bg-green-100 text-green-900 border-2 border-green-600'
-                    : 'bg-yellow-100 text-yellow-900 border-2 border-yellow-600'
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
+                onClick={async () => {
+                  if (!task.is_date_confirmed || !task.due_date) return
+                  try {
+                    await onUpdate(task.id, { is_date_confirmed: false })
+                    setTask({ ...task, is_date_confirmed: false })
+                    toast.success('日付を予定に変更しました')
+                    loadAuditLogs(task.id)
+                  } catch (error) {
+                    toast.error('日付状態の更新に失敗しました')
+                  }
+                }}
+                disabled={isLocked || !task.due_date || !task.is_date_confirmed}
+                className={`flex-1 px-4 py-3 font-bold text-base transition-all ${
+                  !task.is_date_confirmed
+                    ? 'bg-yellow-100 text-yellow-900 border-r-2 border-yellow-600'
+                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                } disabled:cursor-not-allowed`}
               >
-                {task.is_date_confirmed ? '確定' : '予定'}
+                予定
               </button>
-              {task.due_date && (
-                <button
-                  onClick={handleToggleDateConfirmed}
-                  disabled={isLocked}
-                  className="px-4 py-3 bg-gray-100 text-gray-900 rounded-lg font-bold text-base border-2 border-gray-400 hover:bg-gray-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {task.is_date_confirmed ? '予定に戻す' : '確定する'}
-                </button>
-              )}
+              <button
+                onClick={async () => {
+                  if (task.is_date_confirmed || !task.due_date) return
+                  try {
+                    await onUpdate(task.id, { is_date_confirmed: true })
+                    setTask({ ...task, is_date_confirmed: true })
+                    toast.success('日付を確定しました')
+                    loadAuditLogs(task.id)
+                  } catch (error) {
+                    toast.error('日付状態の更新に失敗しました')
+                  }
+                }}
+                disabled={isLocked || !task.due_date || task.is_date_confirmed}
+                className={`flex-1 px-4 py-3 font-bold text-base transition-all ${
+                  task.is_date_confirmed
+                    ? 'bg-green-100 text-green-900 border-l-2 border-green-600'
+                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                } disabled:cursor-not-allowed`}
+              >
+                確定
+              </button>
             </div>
+            {!task.due_date && (
+              <p className="text-xs text-gray-500 mt-1">※期限日が設定されていないため変更できません</p>
+            )}
           </div>
 
           {/* コメント */}
