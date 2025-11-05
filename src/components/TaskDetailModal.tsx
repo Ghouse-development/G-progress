@@ -380,7 +380,6 @@ export default function TaskDetailModal({
                   handleUpdateComment(commentValue)
                 }
               }}
-              disabled={isLocked}
               className="prisma-textarea"
               placeholder="コメントを入力"
               rows={3}
