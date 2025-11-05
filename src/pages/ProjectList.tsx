@@ -1231,28 +1231,10 @@ export default function ProjectList() {
 
           {/* マトリクステーブル */}
           <div className="prisma-table-container" style={{
-            maxHeight: 'calc(100vh - 400px)',
             maxWidth: '100%',
             overflowX: 'auto',
-            overflowY: 'auto',
             WebkitOverflowScrolling: 'touch'
           }}>
-            <style>{`
-              .prisma-table-container::-webkit-scrollbar {
-                height: 12px;
-                width: 12px;
-              }
-              .prisma-table-container::-webkit-scrollbar-track {
-                background: #f1f1f1;
-              }
-              .prisma-table-container::-webkit-scrollbar-thumb {
-                background: #888;
-                border-radius: 6px;
-              }
-              .prisma-table-container::-webkit-scrollbar-thumb:hover {
-                background: #555;
-              }
-            `}</style>
             <table className="prisma-table" style={{ minWidth: 'max-content', width: 'max-content', borderCollapse: 'separate', borderSpacing: 0 }}>
               <thead className="bg-gray-100">
                 <tr>

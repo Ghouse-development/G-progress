@@ -463,11 +463,11 @@ export default function TaskDetailModal({
           </div>
 
           {/* 変更履歴 */}
-          {auditLogs.length > 0 && (
-            <div>
-              <label className="block text-base font-medium text-gray-700 mb-2">
-                変更履歴（最新10件）
-              </label>
+          <div>
+            <label className="block text-base font-medium text-gray-700 mb-2">
+              変更履歴（最新10件）
+            </label>
+            {auditLogs.length > 0 ? (
               <div className="space-y-2 max-h-[300px] overflow-y-auto">
                 {auditLogs.map((log) => (
                   <div key={log.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
@@ -495,8 +495,12 @@ export default function TaskDetailModal({
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 text-center text-gray-500">
+                変更履歴はありません
+              </div>
+            )}
+          </div>
         </div>
 
         {/* フッター */}

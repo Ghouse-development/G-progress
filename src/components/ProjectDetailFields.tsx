@@ -228,16 +228,12 @@ export default function ProjectDetailFields({
   return (
     <div className="bg-white rounded-lg border-2 border-gray-200 shadow-sm">
       {/* タブヘッダー */}
-      <div className="flex border-b-2 border-gray-200 overflow-x-auto">
+      <div className="prisma-tabs overflow-x-auto">
         {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => handleTabChange(tab.id)}
-            className={`px-6 py-3 font-semibold text-base whitespace-nowrap transition-colors ${
-              activeTab === tab.id
-                ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-600 hover:bg-gray-50'
-            }`}
+            className={`prisma-tab ${activeTab === tab.id ? 'active' : ''}`}
           >
             {tab.label}
           </button>

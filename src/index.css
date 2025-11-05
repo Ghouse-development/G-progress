@@ -1789,34 +1789,45 @@ html, body {
   cursor: not-allowed;
 }
 
-/* Prismaタブ - ボタンスタイルに統一 */
+/* Prismaタブ - ボタンスタイルに統一（Prismaデザイン原則準拠） */
 .prisma-tabs {
   display: flex;
-  gap: 4px;
-  margin-bottom: 8px;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 4px;
+  background: #f9fafb;
+  border-radius: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .prisma-tab {
-  padding: 6px 12px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #6b7280;
-  background: transparent;
-  border: 2px solid #e5e7eb;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #4b5563;
+  background: white;
+  border: 3px solid #e5e7eb;
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .prisma-tab:hover {
   background: #f3f4f6;
-  color: #374151;
+  color: #1f2937;
+  border-color: #d1d5db;
 }
 
 .prisma-tab.active {
-  background: #e0f2fe;
-  color: #0369a1;
-  font-weight: 600;
+  background: #dbeafe;
+  color: #1e40af;
+  font-weight: 700;
+  border: 3px solid #3b82f6;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
 }
 
 /* Prisma入力フィールド */
