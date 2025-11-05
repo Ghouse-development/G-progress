@@ -206,7 +206,14 @@ export default function TaskBoard() {
               </h2>
             </div>
             <div className="overflow-x-auto">
-              <table className="prisma-table w-full">
+              <table className="prisma-table table-fixed w-full">
+                <colgroup>
+                  <col style={{ width: '35%' }} />
+                  <col style={{ width: '20%' }} />
+                  <col style={{ width: '15%' }} />
+                  <col style={{ width: '15%' }} />
+                  <col style={{ width: '15%' }} />
+                </colgroup>
                 <thead>
                   <tr>
                     <th className="text-center">タスク名</th>
@@ -262,7 +269,14 @@ export default function TaskBoard() {
               </h2>
             </div>
             <div className="overflow-x-auto">
-              <table className="prisma-table w-full">
+              <table className="prisma-table table-fixed w-full">
+                <colgroup>
+                  <col style={{ width: '35%' }} />
+                  <col style={{ width: '20%' }} />
+                  <col style={{ width: '15%' }} />
+                  <col style={{ width: '15%' }} />
+                  <col style={{ width: '15%' }} />
+                </colgroup>
                 <thead>
                   <tr>
                     <th className="text-center">タスク名</th>
@@ -318,7 +332,14 @@ export default function TaskBoard() {
               </h2>
             </div>
             <div className="overflow-x-auto">
-              <table className="prisma-table w-full">
+              <table className="prisma-table table-fixed w-full">
+                <colgroup>
+                  <col style={{ width: '25%' }} />
+                  <col style={{ width: '20%' }} />
+                  <col style={{ width: '20%' }} />
+                  <col style={{ width: '15%' }} />
+                  <col style={{ width: '20%' }} />
+                </colgroup>
                 <thead>
                   <tr>
                     <th className="text-center">名目</th>
@@ -366,7 +387,14 @@ export default function TaskBoard() {
               </h2>
             </div>
             <div className="overflow-x-auto">
-              <table className="prisma-table w-full">
+              <table className="prisma-table table-fixed w-full">
+                <colgroup>
+                  <col style={{ width: '30%' }} />
+                  <col style={{ width: '20%' }} />
+                  <col style={{ width: '15%' }} />
+                  <col style={{ width: '20%' }} />
+                  <col style={{ width: '15%' }} />
+                </colgroup>
                 <thead>
                   <tr>
                     <th className="text-center">名称</th>
