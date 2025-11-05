@@ -603,7 +603,6 @@ export default function NewDashboard() {
         </div>
       </div>
       <div className="prisma-content">
-        <div style={{ maxWidth: '1400px' }}>
         {/* === 拠点タブ === */}
         <div className="prisma-tabs" style={{ marginBottom: '16px' }}>
           {['全体', '本部', '豊中店', '奈良店', '京都店', '西宮店'].map(branch => (
@@ -978,7 +977,7 @@ export default function NewDashboard() {
 
         {/* === 拠点別成績（デモモードのみ） === */}
         {demoMode && (
-          <div style={{ maxWidth: '1400px', marginTop: '16px' }}>
+          <div style={{ marginTop: '16px' }}>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">拠点別成績</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {branchStats.map(stat => (
@@ -1043,7 +1042,6 @@ export default function NewDashboard() {
             </div>
           </div>
         )}
-        </div>
       </div>
 
       {/* === 目標値設定モーダル === */}

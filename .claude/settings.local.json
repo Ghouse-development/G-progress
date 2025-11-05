@@ -57,7 +57,9 @@
       "WebFetch(domain:vercel.com)",
       "WebFetch(domain:g-progress.vercel.app)",
       "Bash(git checkout:*)",
-      "Bash(timeout 120 git push origin master)"
+      "Bash(timeout 120 git push origin master)",
+      "Bash(git revert:*)",
+      "Bash(for file in *.tsx)"
     ],
     "deny": [],
     "ask": []

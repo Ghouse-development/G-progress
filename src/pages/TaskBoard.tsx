@@ -195,7 +195,7 @@ export default function TaskBoard() {
       </div>
 
       {/* メインコンテンツ */}
-      <div className="prisma-content" style={{ maxWidth: '1400px' }}>
+      <div className="prisma-content">
         {/* 遅延タスク */}
         {delayedTasks.length > 0 && (
           <div className="prisma-card mb-4">
