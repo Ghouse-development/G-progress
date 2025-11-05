@@ -312,17 +312,17 @@ export default function OrganizationManagement() {
                   <div className="flex items-center justify-end gap-2">
                     <button
                       onClick={() => handleOpenModal(org)}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      className="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg font-bold hover:bg-blue-200 transition-colors border-2 border-blue-600"
                       title="編集"
                     >
-                      <Edit size={18} />
+                      <Edit size={20} />
                     </button>
                     <button
                       onClick={() => handleDelete(org.id, org.name)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      className="px-3 py-2 bg-red-100 text-red-700 rounded-lg font-bold hover:bg-red-200 transition-colors border-2 border-red-600"
                       title="削除"
                     >
-                      <Trash2 size={18} />
+                      <Trash2 size={20} />
                     </button>
                   </div>
                 </td>

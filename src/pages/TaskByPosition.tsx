@@ -14,6 +14,7 @@ import { useMode } from '../contexts/ModeContext'
 import { useToast } from '../contexts/ToastContext'
 import { generateDemoTasks, generateDemoProjects, generateDemoCustomers } from '../utils/demoData'
 import { ORGANIZATION_HIERARCHY } from '../constants/organizationHierarchy'
+import TaskDetailModal from '../components/TaskDetailModal'
 
 interface TaskWithProject extends Task {
   project?: Project & { customer?: Customer }
@@ -48,6 +49,7 @@ export default function TaskByPosition() {
   const [showDetailModal, setShowDetailModal] = useState(false)
   const [selectedDepartment, setSelectedDepartment] = useState<string>('営業部')
   const [currentEmployee, setCurrentEmployee] = useState<Employee | null>(null)
+  const currentEmployeeId = localStorage.getItem('selectedEmployeeId') || ''
 
   useEffect(() => {
     loadCurrentEmployee()
@@ -142,36 +144,44 @@ export default function TaskByPosition() {
   }
 
   // ステータス変更
-  const handleStatusChange = async (newStatus: Task['status']) => {
-    if (!selectedTask) return
-
+  const handleUpdateTask = async (taskId: string, updates: Partial<Task>) => {
     if (demoMode) {
       // デモモード：ローカルステートのみ更新
       setTasks(prevTasks =>
         prevTasks.map(t =>
-          t.id === selectedTask.id ? { ...t, status: newStatus } : t
+          t.id === taskId ? { ...t, ...updates } : t
         )
       )
-      setSelectedTask({ ...selectedTask, status: newStatus })
+      if (selectedTask && selectedTask.id === taskId) {
+        setSelectedTask({ ...selectedTask, ...updates })
+      }
       return
     }
 
     // 通常モード：Supabaseを更新
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update(updates)
+        .eq('id', taskId)
+
+      if (error) throw error
+
+      await loadTasks()
+    } catch (error) {
+      throw error
+    }
+  }
+
+  const handleStatusChange = async (newStatus: Task['status']) => {
+    if (!selectedTask) return
+
     const updateData: any = { status: newStatus }
     if (newStatus === 'completed' && !selectedTask.actual_completion_date) {
       updateData.actual_completion_date = format(new Date(), 'yyyy-MM-dd')
     }
 
-    const { error } = await supabase
-      .from('tasks')
-      .update(updateData)
-      .eq('id', selectedTask.id)
-
-    if (error) {
-      // console removed
-      toast.error(`ステータスの更新に失敗しました: ${error.message}`)
-      return
-    }
+    await handleUpdateTask(selectedTask.id, updateData)
 
     setTasks(prevTasks =>
       prevTasks.map(t =>
@@ -343,147 +353,14 @@ export default function TaskByPosition() {
       </div>
 
       {/* タスク詳細モーダル */}
-      {showDetailModal && selectedTask && (
-        <div className="prisma-modal-overlay">
-          <div className="prisma-modal max-w-[800px]">
-            {/* ヘッダー */}
-            <div className="prisma-modal-header">
-              <div className="flex items-center justify-between">
-                <h2 className="prisma-modal-title">{selectedTask.title}</h2>
-                <button
-                  onClick={() => setShowDetailModal(false)}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-            </div>
-
-            {/* コンテンツ */}
-            <div className="prisma-modal-content space-y-4">
-              {/* ステータス変更ボタン */}
-              <div>
-                <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  ステータス
-                </label>
-                <div className="grid grid-cols-4 gap-2">
-                  <button
-                    onClick={() => handleStatusChange('not_started')}
-                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
-                      selectedTask.status === 'not_started'
-                        ? 'task-not-started'
-                        : 'bg-white text-gray-900 hover:bg-gray-50 border border-gray-300'
-                    }`}
-                  >
-                    未着手
-                  </button>
-                  <button
-                    onClick={() => handleStatusChange('requested')}
-                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
-                      selectedTask.status === 'requested'
-                        ? 'task-in-progress'
-                        : 'bg-white text-yellow-900 hover:bg-yellow-50 border-2 border-yellow-300'
-                    }`}
-                  >
-                    着手中
-                  </button>
-                  <button
-                    onClick={() => handleStatusChange('delayed')}
-                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
-                      selectedTask.status === 'delayed'
-                        ? 'task-delayed'
-                        : 'bg-white text-red-900 hover:bg-red-50 border-2 border-red-300'
-                    }`}
-                  >
-                    遅延
-                  </button>
-                  <button
-                    onClick={() => handleStatusChange('completed')}
-                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
-                      selectedTask.status === 'completed'
-                        ? 'task-completed'
-                        : 'bg-white text-blue-900 hover:bg-blue-50 border-2 border-blue-300'
-                    }`}
-                  >
-                    完了
-                  </button>
-                </div>
-              </div>
-
-              {/* タスク情報 */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    期限日
-                  </label>
-                  <p className="text-base text-gray-900 dark:text-gray-100">
-                    {selectedTask.due_date
-                      ? format(new Date(selectedTask.due_date), 'yyyy年M月d日 (E)', { locale: ja })
-                      : '未設定'}
-                  </p>
-                </div>
-                <div>
-                  <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    乖離日数
-                  </label>
-                  <p className={`text-base font-bold ${getDaysColor(getDaysFromToday(selectedTask.due_date || null))}`}>
-                    {getDaysText(getDaysFromToday(selectedTask.due_date || null))}
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  プロジェクト
-                </label>
-                <p className="text-base text-gray-900 dark:text-gray-100">
-                  {selectedTask.project?.customer?.names?.[0] || selectedTask.project?.contract_number || '不明'}
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  説明
-                </label>
-                <p className="text-base text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
-                  {selectedTask.description || 'なし'}
-                </p>
-              </div>
-
-              {selectedTask.dos && (
-                <div>
-                  <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Do's（やるべきこと）
-                  </label>
-                  <p className="text-base text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
-                    {selectedTask.dos}
-                  </p>
-                </div>
-              )}
-
-              {selectedTask.donts && (
-                <div>
-                  <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Don'ts（やってはいけないこと）
-                  </label>
-                  <p className="text-base text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
-                    {selectedTask.donts}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* フッター */}
-            <div className="prisma-modal-footer">
-              <button
-                onClick={() => setShowDetailModal(false)}
-                className="prisma-btn prisma-btn-secondary"
-              >
-                閉じる
-              </button>
-            </div>
-          </div>
-        </div>
+      {selectedTask && (
+        <TaskDetailModal
+          task={selectedTask}
+          isOpen={showDetailModal}
+          onClose={() => setShowDetailModal(false)}
+          onUpdate={handleUpdateTask}
+          currentEmployeeId={currentEmployeeId}
+        />
       )}
       </div>
     </>

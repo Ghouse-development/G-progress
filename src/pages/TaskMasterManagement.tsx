@@ -466,7 +466,7 @@ export default function TaskMasterManagement() {
                         <button
                           onClick={() => handleOpenModal(task)}
                           disabled={!canWrite}
-                          className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors border-2 border-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg font-bold hover:bg-blue-200 transition-colors border-2 border-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
                           title="編集"
                         >
                           <Edit2 size={20} />
@@ -474,10 +474,10 @@ export default function TaskMasterManagement() {
                         <button
                           onClick={() => handleDelete(task.id, task.title)}
                           disabled={!canDelete}
-                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors border-2 border-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="px-3 py-2 bg-red-100 text-red-700 rounded-lg font-bold hover:bg-red-200 transition-colors border-2 border-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
                           title="削除"
                         >
-                          <Trash2 size={18} />
+                          <Trash2 size={20} />
                         </button>
                       </div>
                     </td>

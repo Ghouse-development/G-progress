@@ -255,14 +255,14 @@ export default function ProductMaster() {
                       <div className="flex items-center justify-center gap-3">
                         <button
                           onClick={() => handleEdit(product)}
-                          className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors border-2 border-blue-600"
+                          className="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg font-bold hover:bg-blue-200 transition-colors border-2 border-blue-600"
                           title="編集"
                         >
                           <Edit2 size={20} />
                         </button>
                         <button
                           onClick={() => handleDelete(product.id)}
-                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors border-2 border-red-600"
+                          className="px-3 py-2 bg-red-100 text-red-700 rounded-lg font-bold hover:bg-red-200 transition-colors border-2 border-red-600"
                           title="削除"
                         >
                           <Trash2 size={20} />

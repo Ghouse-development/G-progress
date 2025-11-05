@@ -16,6 +16,7 @@ import { SkeletonTable } from '../components/ui/Skeleton'
 import { generateProjectTasks } from '../utils/taskGenerator'
 import { generateDemoProjects, generateDemoEmployees, generateDemoCustomers, generateDemoTasks } from '../utils/demoData'
 import { ORGANIZATION_HIERARCHY } from '../constants/organizationHierarchy'
+import TaskDetailModal from '../components/TaskDetailModal'
 
 interface ProjectWithRelations extends Project {
   customer?: Customer
@@ -69,6 +70,7 @@ export default function ProjectList() {
   const [taskAuditLogs, setTaskAuditLogs] = useState<any[]>([])
   const [taskComments, setTaskComments] = useState<any[]>([])
   const [newComment, setNewComment] = useState('')
+  const currentEmployeeId = localStorage.getItem('selectedEmployeeId') || ''
 
   // 従業員データ
   const [employees, setEmployees] = useState<Employee[]>([])
@@ -352,35 +354,19 @@ export default function ProjectList() {
     }
   }
 
-  // タスクステータス更新
-  const handleUpdateTaskStatus = async (taskId: string, newStatus: 'not_started' | 'requested' | 'delayed' | 'completed') => {
+  // タスク更新（共通ハンドラー）
+  const handleUpdateTask = async (taskId: string, updates: Partial<Task>) => {
     try {
-      const updateData: any = { status: newStatus }
-
-      // 完了に変更する場合、実績完了日を自動記録
-      if (newStatus === 'completed') {
-        updateData.actual_completion_date = format(new Date(), 'yyyy-MM-dd')
-      }
-
       const { error } = await supabase
         .from('tasks')
-        .update(updateData)
+        .update(updates)
         .eq('id', taskId)
 
       if (error) throw error
 
-      toast.success('ステータスを更新しました')
-
-      // selectedTaskを更新
-      if (selectedTask && selectedTask.id === taskId) {
-        setSelectedTask({ ...selectedTask, status: newStatus, actual_completion_date: updateData.actual_completion_date })
-      }
-
-      // プロジェクトリストを再読み込み
-      loadProjects()
+      await loadProjects()
     } catch (error) {
-      // Failed to update task status
-      toast.error('ステータスの更新に失敗しました')
+      throw error
     }
   }
 
@@ -1960,331 +1946,15 @@ export default function ProjectList() {
           </div>
         </div>
       )}
-
       {/* タスク詳細モーダル */}
-      {showTaskDetailModal && selectedTask && selectedTaskProject && (
-        <div className="prisma-modal-overlay">
-          <div className="prisma-modal" style={{ maxWidth: '800px' }}>
-            {/* ヘッダー */}
-            <div className="prisma-modal-header">
-              <div className="flex items-center justify-between">
-                <h2 className="prisma-modal-title">{selectedTask.title}</h2>
-                <button
-                  onClick={() => {
-                    setShowTaskDetailModal(false)
-                    setSelectedTask(null)
-                    setSelectedTaskProject(null)
-                    setEditingDueDate(false)
-                  }}
-                  className="text-gray-400 hover:text-gray-600 dark:text-gray-300 transition-colors"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-            </div>
-
-            {/* コンテンツ */}
-            <div className="prisma-modal-content space-y-4">
-              {/* 責任者 */}
-              {selectedTask.assigned_employee && (
-                <div>
-                  <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
-                    責任者
-                  </label>
-                  <div className="prisma-input bg-gray-50 dark:bg-gray-700">
-                    {selectedTask.assigned_employee.last_name} {selectedTask.assigned_employee.first_name}（{selectedTask.assigned_employee.department}）
-                  </div>
-                </div>
-              )}
-
-              {/* ステータス変更ボタン - ProjectDetailと完全統一 */}
-              <div>
-                <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  ステータス
-                </label>
-                <div className="grid grid-cols-4 gap-2">
-                  <button
-                    onClick={() => handleUpdateTaskStatus(selectedTask.id, 'not_started')}
-                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
-                      selectedTask.status === 'not_started'
-                        ? 'task-not-started'
-                        : 'bg-white text-gray-900 hover:bg-gray-50 border border-gray-300'
-                    }`}
-                  >
-                    未着手
-                  </button>
-                  <button
-                    onClick={() => handleUpdateTaskStatus(selectedTask.id, 'requested')}
-                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
-                      selectedTask.status === 'requested'
-                        ? 'task-in-progress'
-                        : 'bg-white text-yellow-900 hover:bg-yellow-50 border-2 border-yellow-300'
-                    }`}
-                  >
-                    着手中
-                  </button>
-                  <button
-                    onClick={() => handleUpdateTaskStatus(selectedTask.id, 'delayed')}
-                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
-                      selectedTask.status === 'delayed'
-                        ? 'task-delayed'
-                        : 'bg-white text-red-900 hover:bg-red-50 border-2 border-red-300'
-                    }`}
-                  >
-                    遅延
-                  </button>
-                  <button
-                    onClick={() => handleUpdateTaskStatus(selectedTask.id, 'completed')}
-                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
-                      selectedTask.status === 'completed'
-                        ? 'task-completed'
-                        : 'bg-white text-blue-900 hover:bg-blue-50 border-2 border-blue-300'
-                    }`}
-                  >
-                    完了
-                  </button>
-                </div>
-              </div>
-
-              {/* 期限日 */}
-              <div>
-                <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
-                  期限日
-                </label>
-                {editingDueDate ? (
-                  <input
-                    type="date"
-                    value={selectedTask.due_date || ''}
-                    onChange={(e) => handleUpdateDueDate(e.target.value)}
-                    onBlur={() => setEditingDueDate(false)}
-                    autoFocus
-                    className="prisma-input"
-                  />
-                ) : (
-                  <div
-                    onClick={() => setEditingDueDate(true)}
-                    className="prisma-input cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
-                  >
-                    <div className="font-medium text-gray-900 dark:text-gray-100">
-                      {selectedTask.due_date ? format(new Date(selectedTask.due_date), 'yyyy年MM月dd日 (E)', { locale: ja }) : '未設定'}
-                    </div>
-                    {selectedTask.due_date && selectedTaskProject.contract_date && (
-                      <div className="text-base text-gray-600 dark:text-gray-400 mt-1">
-                        契約日から {differenceInDays(new Date(selectedTask.due_date), new Date(selectedTaskProject.contract_date))}日目
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* 作業内容 */}
-              {selectedTask.description && (
-                <div>
-                  <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
-                    作業内容
-                  </label>
-                  <div className="prisma-input bg-gray-50 dark:bg-gray-700 whitespace-pre-wrap" style={{ minHeight: '60px' }}>
-                    {selectedTask.description}
-                  </div>
-                </div>
-              )}
-
-              {/* Do's & Don'ts */}
-              {(selectedTask.dos || selectedTask.donts) && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {selectedTask.dos && (
-                    <div>
-                      <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
-                        Do's（推奨事項）
-                      </label>
-                      <div className="prisma-input bg-gray-50 dark:bg-gray-700 whitespace-pre-wrap" style={{ minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
-                        {selectedTask.dos}
-                      </div>
-                    </div>
-                  )}
-
-                  {selectedTask.donts && (
-                    <div>
-                      <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
-                        Don'ts（禁止事項）
-                      </label>
-                      <div className="prisma-input bg-gray-50 dark:bg-gray-700 whitespace-pre-wrap" style={{ minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
-                        {selectedTask.donts}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* コメント */}
-              <div className="mt-4 pt-4 border-t-2 border-gray-200 dark:border-gray-700">
-                <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-2">
-                  コメント
-                </label>
-                <div className="space-y-3">
-                  {/* コメント入力 */}
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
-                      placeholder="コメントを入力..."
-                      className="prisma-input flex-1"
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          handleAddComment()
-                        }
-                      }}
-                    />
-                    <button
-                      onClick={handleAddComment}
-                      disabled={!newComment.trim()}
-                      className="prisma-btn prisma-btn-primary"
-                    >
-                      送信
-                    </button>
-                  </div>
-
-                  {/* コメント一覧 */}
-                  <div className="prisma-input bg-gray-50 dark:bg-gray-800" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                    {taskComments.length > 0 ? (
-                      <div className="space-y-3">
-                        {taskComments.map((comment) => (
-                          <div key={comment.id} className="pb-3 border-b border-gray-200 dark:border-gray-700 last:border-0">
-                            <div className="flex items-start justify-between gap-2 mb-1">
-                              <div className="font-medium text-base text-gray-900 dark:text-gray-100">
-                                {comment.user?.last_name} {comment.user?.first_name}
-                              </div>
-                              <div className="text-base text-gray-500 dark:text-gray-500 whitespace-nowrap">
-                                {format(new Date(comment.created_at), 'MM/dd HH:mm')}
-                              </div>
-                            </div>
-                            <div className="text-base text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                              {comment.content}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center text-gray-500 dark:text-gray-500 py-4 text-base">
-                        コメントがありません
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* 変更履歴 */}
-              <div className="mt-4 pt-4 border-t-2 border-gray-200 dark:border-gray-700">
-                <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-2">
-                  変更履歴（最新5件）
-                </label>
-                <div className="prisma-input bg-gray-50 dark:bg-gray-800" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                  {taskAuditLogs.length > 0 ? (
-                    <div className="space-y-2">
-                      {taskAuditLogs.map((log) => (
-                        <div key={log.id} className="pb-2 border-b border-gray-200 dark:border-gray-700 last:border-0">
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex-1">
-                              <div className="text-base font-medium text-gray-900 dark:text-gray-100">
-                                {log.action === 'update' ? '更新' : log.action === 'create' ? '作成' : log.action}
-                              </div>
-                              {log.changes && (
-                                <div className="text-base text-gray-600 dark:text-gray-400 mt-0.5">
-                                  {Object.keys(log.changes).map(key => {
-                                    const change = log.changes[key]
-                                    return (
-                                      <div key={key}>
-                                        {key === 'status' ? 'ステータス' :
-                                         key === 'due_date' ? '期限日' :
-                                         key === 'actual_completion_date' ? '完了日' : key}
-                                        : {String(change.old || '未設定')} → {String(change.new)}
-                                      </div>
-                                    )
-                                  })}
-                                </div>
-                              )}
-                            </div>
-                            <div className="text-base text-gray-500 dark:text-gray-500 whitespace-nowrap">
-                              {format(new Date(log.created_at), 'MM/dd HH:mm')}
-                            </div>
-                          </div>
-                          {log.user && (
-                            <div className="text-base text-gray-500 dark:text-gray-400 mt-1">
-                              {log.user.last_name} {log.user.first_name}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center text-gray-500 dark:text-gray-500 py-4 text-base">
-                      変更履歴がありません
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* マニュアル・動画 */}
-              <div className="mt-4 pt-4 border-t-2 border-gray-200 dark:border-gray-700">
-                <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-2">
-                  マニュアル・動画
-                </label>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
-                      マニュアル
-                    </label>
-                    {selectedTask.manual_url ? (
-                      <a
-                        href={selectedTask.manual_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="prisma-btn prisma-btn-secondary w-full"
-                      >
-                        開く
-                      </a>
-                    ) : (
-                      <div className="text-gray-500 dark:text-gray-400 text-base">未設定</div>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block prisma-text-base font-medium text-gray-700 dark:text-gray-300 prisma-mb-1">
-                      動画
-                    </label>
-                    {selectedTask.video_url ? (
-                      <a
-                        href={selectedTask.video_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="prisma-btn prisma-btn-secondary w-full"
-                      >
-                        再生
-                      </a>
-                    ) : (
-                      <div className="text-gray-500 dark:text-gray-400 text-base">未設定</div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="prisma-modal-footer">
-              <button
-                onClick={() => {
-                  setShowTaskDetailModal(false)
-                  setSelectedTask(null)
-                  setSelectedTaskProject(null)
-                  setEditingDueDate(false)
-                }}
-                className="prisma-btn prisma-btn-secondary"
-              >
-                閉じる
-              </button>
-            </div>
-          </div>
-        </div>
+      {selectedTask && (
+        <TaskDetailModal
+          task={selectedTask}
+          isOpen={showTaskDetailModal}
+          onClose={() => setShowTaskDetailModal(false)}
+          onUpdate={handleUpdateTask}
+          currentEmployeeId={currentEmployeeId}
+        />
       )}
     </>
   )

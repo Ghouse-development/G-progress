@@ -152,7 +152,7 @@ export default function TriggerMaster({ onClose }: TriggerMasterProps) {
               </colgroup>
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-2 text-left text-base font-bold text-gray-800">
+                  <th className="px-4 py-2 text-center text-base font-bold text-gray-800">
                     トリガー名
                   </th>
                   <th className="px-4 py-2 text-center text-base font-bold text-gray-800">
@@ -163,7 +163,7 @@ export default function TriggerMaster({ onClose }: TriggerMasterProps) {
               <tbody className="divide-y divide-gray-200">
                 {triggers.length === 0 ? (
                   <tr>
-                    <td colSpan={2} className="px-4 py-6 text-center text-gray-500 text-base">
+                    <td colSpan={2} className="px-4 py-4 text-center text-gray-500 text-base">
                       トリガーが登録されていません
                     </td>
                   </tr>

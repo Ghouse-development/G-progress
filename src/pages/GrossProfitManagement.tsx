@@ -203,71 +203,69 @@ export default function GrossProfitManagement() {
 
       <div className="prisma-content">
 
-      {/* コンパクトなサマリー */}
+      {/* 統計サマリー（1カードに統合） */}
       <div className="prisma-card mb-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {/* 売上 */}
+        <h3 className="text-xl font-bold text-gray-900 mb-4">統計サマリー</h3>
+
+        {/* 完工実績 */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
           <div className="text-center">
-            <p className="text-base font-bold text-gray-600 mb-1">売上（完工）</p>
-            <p className="text-lg font-bold text-gray-900">{formatCurrency(totalActualRevenue)}</p>
+            <p className="text-sm font-bold text-gray-600 mb-1">売上（完工）</p>
+            <p className="text-base font-bold text-gray-900">{formatCurrency(totalActualRevenue)}</p>
           </div>
-          {/* 原価 */}
           <div className="text-center">
-            <p className="text-base font-bold text-gray-600 mb-1">原価（完工）</p>
-            <p className="text-lg font-bold text-gray-900">{formatCurrency(totalActualCost)}</p>
+            <p className="text-sm font-bold text-gray-600 mb-1">原価（完工）</p>
+            <p className="text-base font-bold text-gray-900">{formatCurrency(totalActualCost)}</p>
           </div>
-          {/* 粗利益 */}
           <div className="text-center">
-            <p className="text-base font-bold text-gray-600 mb-1">粗利益（完工）</p>
-            <p className="text-lg font-bold text-green-600">{formatCurrency(totalActualGrossProfit)}</p>
+            <p className="text-sm font-bold text-gray-600 mb-1">粗利益（完工）</p>
+            <p className="text-base font-bold text-green-600">{formatCurrency(totalActualGrossProfit)}</p>
           </div>
-          {/* 粗利益率 */}
           <div className="text-center">
-            <p className="text-base font-bold text-gray-600 mb-1">粗利益率（完工）</p>
-            <p className="text-lg font-bold text-purple-600">{totalActualGrossProfitRate.toFixed(1)}%</p>
+            <p className="text-sm font-bold text-gray-600 mb-1">粗利益率（完工）</p>
+            <p className="text-base font-bold text-purple-600">{totalActualGrossProfitRate.toFixed(1)}%</p>
           </div>
         </div>
-      </div>
 
-      {/* 警告サマリー（コンパクト） */}
-      <div className="prisma-card mb-4">
-        <div className="flex items-center justify-around text-center">
-          <div>
-            <p className="text-base font-bold text-gray-600 mb-1">粗利率20%未満</p>
-            <p className="text-2xl font-bold text-orange-600">{lowMarginCount}件</p>
+        {/* セパレーター */}
+        <div className="border-t border-gray-200 my-3"></div>
+
+        {/* 警告指標 */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="text-center">
+            <p className="text-sm font-bold text-gray-600 mb-1">粗利率20%未満</p>
+            <p className="text-lg font-bold text-orange-600">{lowMarginCount}件</p>
           </div>
-          <div className="h-8 w-px bg-gray-300"></div>
-          <div>
-            <p className="text-base font-bold text-gray-600 mb-1">予算差5%以上</p>
-            <p className="text-2xl font-bold text-red-600">{largeDiffCount}件</p>
+          <div className="text-center">
+            <p className="text-sm font-bold text-gray-600 mb-1">予算差5%以上</p>
+            <p className="text-lg font-bold text-red-600">{largeDiffCount}件</p>
           </div>
         </div>
-      </div>
 
-      {/* フィルター */}
-      <div className="prisma-card mb-4">
-        <div className="flex items-center gap-3">
-          <label className="text-base font-bold text-gray-700">フィルター:</label>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setFilter('all')}
-              className={`prisma-btn text-base px-4 py-2 ${filter === 'all' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
-            >
-              全て ({projects.length})
-            </button>
-            <button
-              onClick={() => setFilter('low_margin')}
-              className={`prisma-btn text-base px-4 py-2 ${filter === 'low_margin' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
-            >
-              粗利率20%未満 ({lowMarginCount})
-            </button>
-            <button
-              onClick={() => setFilter('large_diff')}
-              className={`prisma-btn text-base px-4 py-2 ${filter === 'large_diff' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
-            >
-              予算差5%以上 ({largeDiffCount})
-            </button>
-          </div>
+        {/* セパレーター */}
+        <div className="border-t border-gray-200 my-3"></div>
+
+        {/* フィルター */}
+        <div className="flex flex-wrap items-center gap-2">
+          <label className="text-sm font-bold text-gray-700">フィルター:</label>
+          <button
+            onClick={() => setFilter('all')}
+            className={`prisma-btn text-sm px-3 py-1.5 ${filter === 'all' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
+          >
+            全て ({projects.length})
+          </button>
+          <button
+            onClick={() => setFilter('low_margin')}
+            className={`prisma-btn text-sm px-3 py-1.5 ${filter === 'low_margin' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
+          >
+            粗利率20%未満 ({lowMarginCount})
+          </button>
+          <button
+            onClick={() => setFilter('large_diff')}
+            className={`prisma-btn text-sm px-3 py-1.5 ${filter === 'large_diff' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
+          >
+            予算差5%以上 ({largeDiffCount})
+          </button>
         </div>
       </div>
 

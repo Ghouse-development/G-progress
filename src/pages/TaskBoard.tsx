@@ -4,10 +4,11 @@ import { supabase } from '../lib/supabase'
 import { Task, Employee, Payment } from '../types/database'
 import { format, differenceInDays } from 'date-fns'
 import { ja } from 'date-fns/locale'
-import { AlertTriangle, Clock, DollarSign, CheckCircle, X, ExternalLink } from 'lucide-react'
+import { AlertTriangle, Clock, DollarSign, CheckCircle } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
 import { useSettings } from '../contexts/SettingsContext'
 import { generateDemoTasks, generateDemoPayments, generateDemoProjects, generateDemoCustomers } from '../utils/demoData'
+import TaskDetailModal from '../components/TaskDetailModal'
 
 interface TaskWithEmployee extends Task {
   assigned_employee?: Employee
@@ -159,20 +160,18 @@ export default function TaskBoard() {
     setShowTaskModal(true)
   }
 
-  const handleUpdateTaskStatus = async (taskId: string, newStatus: 'not_started' | 'requested' | 'delayed' | 'completed') => {
+  const handleUpdateTask = async (taskId: string, updates: Partial<Task>) => {
     try {
       const { error } = await supabase
         .from('tasks')
-        .update({ status: newStatus })
+        .update(updates)
         .eq('id', taskId)
 
       if (error) throw error
 
-      showToast('ステータスを更新しました', 'success')
-      loadData()
-      setShowTaskModal(false)
+      await loadData()
     } catch (error) {
-      showToast('更新に失敗しました', 'error')
+      throw error
     }
   }
 
@@ -217,8 +216,8 @@ export default function TaskBoard() {
                 </colgroup>
                 <thead>
                   <tr>
-                    <th className="text-left px-4 py-3">タスク名</th>
-                    <th className="text-left px-4 py-3">お客様</th>
+                    <th className="text-center px-4 py-3">タスク名</th>
+                    <th className="text-center px-4 py-3">お客様</th>
                     <th className="text-center px-4 py-3">期限</th>
                     <th className="text-center px-4 py-3">遅延</th>
                     <th className="text-center px-4 py-3">ステータス</th>
@@ -282,8 +281,8 @@ export default function TaskBoard() {
                 </colgroup>
                 <thead>
                   <tr>
-                    <th className="text-left px-4 py-3">タスク名</th>
-                    <th className="text-left px-4 py-3">お客様</th>
+                    <th className="text-center px-4 py-3">タスク名</th>
+                    <th className="text-center px-4 py-3">お客様</th>
                     <th className="text-center px-4 py-3">期限</th>
                     <th className="text-center px-4 py-3">残り</th>
                     <th className="text-center px-4 py-3">ステータス</th>
@@ -347,9 +346,9 @@ export default function TaskBoard() {
                 </colgroup>
                 <thead>
                   <tr>
-                    <th className="text-left px-4 py-3">名目</th>
-                    <th className="text-left px-4 py-3">お客様</th>
-                    <th className="text-left px-4 py-3">金額</th>
+                    <th className="text-center px-4 py-3">名目</th>
+                    <th className="text-center px-4 py-3">お客様</th>
+                    <th className="text-center px-4 py-3">金額</th>
                     <th className="text-center px-4 py-3">予定日</th>
                     <th className="text-center px-4 py-3">残り</th>
                   </tr>
@@ -402,8 +401,8 @@ export default function TaskBoard() {
                 </colgroup>
                 <thead>
                   <tr>
-                    <th className="text-left px-4 py-3">名称</th>
-                    <th className="text-left px-4 py-3">お客様</th>
+                    <th className="text-center px-4 py-3">名称</th>
+                    <th className="text-center px-4 py-3">お客様</th>
                     <th className="text-center px-4 py-3">種別</th>
                     <th className="text-center px-4 py-3">完了日/入金日</th>
                     <th className="text-center px-4 py-3">ステータス</th>
@@ -472,120 +471,14 @@ export default function TaskBoard() {
       </div>
 
       {/* タスク詳細モーダル */}
-      {showTaskModal && selectedTask && (
-        <div className="prisma-modal-overlay">
-          <div className="prisma-modal max-w-[800px]">
-            {/* ヘッダー */}
-            <div className="prisma-modal-header">
-              <div className="flex items-center justify-between">
-                <h2 className="prisma-modal-title">{selectedTask.title}</h2>
-                <button
-                  onClick={() => setShowTaskModal(false)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-            </div>
-
-            {/* コンテンツ */}
-            <div className="prisma-modal-content space-y-4">
-              {/* ステータス選択 - ProjectDetailと完全統一 */}
-              <div>
-                <label className="block text-base font-medium text-gray-700 mb-2">
-                  ステータス
-                </label>
-                <div className="grid grid-cols-4 gap-2">
-                  <button
-                    onClick={() => handleUpdateTaskStatus(selectedTask.id, 'not_started')}
-                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
-                      selectedTask.status === 'not_started'
-                        ? 'task-not-started'
-                        : 'bg-white text-gray-900 hover:bg-gray-50 border border-gray-300'
-                    }`}
-                  >
-                    未着手
-                  </button>
-                  <button
-                    onClick={() => handleUpdateTaskStatus(selectedTask.id, 'requested')}
-                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
-                      selectedTask.status === 'requested'
-                        ? 'task-in-progress'
-                        : 'bg-white text-yellow-900 hover:bg-yellow-50 border-2 border-yellow-300'
-                    }`}
-                  >
-                    着手中
-                  </button>
-                  <button
-                    onClick={() => handleUpdateTaskStatus(selectedTask.id, 'delayed')}
-                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
-                      selectedTask.status === 'delayed'
-                        ? 'task-delayed'
-                        : 'bg-white text-red-900 hover:bg-red-50 border-2 border-red-300'
-                    }`}
-                  >
-                    遅延
-                  </button>
-                  <button
-                    onClick={() => handleUpdateTaskStatus(selectedTask.id, 'completed')}
-                    className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
-                      selectedTask.status === 'completed'
-                        ? 'task-completed'
-                        : 'bg-white text-blue-900 hover:bg-blue-50 border-2 border-blue-300'
-                    }`}
-                  >
-                    完了
-                  </button>
-                </div>
-              </div>
-
-              {/* タスク情報 */}
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-base font-medium text-gray-700 mb-2">期限</label>
-                  <p className="text-base text-gray-900">
-                    {selectedTask.due_date
-                      ? format(new Date(selectedTask.due_date), 'yyyy年M月d日 (E)', { locale: ja })
-                      : '未設定'}
-                  </p>
-                </div>
-
-                {selectedTask.description && (
-                  <div>
-                    <label className="block text-base font-medium text-gray-700 mb-2">説明</label>
-                    <p className="text-base text-gray-900">{selectedTask.description}</p>
-                  </div>
-                )}
-
-                {selectedTask.project && (
-                  <div>
-                    <label className="block text-base font-medium text-gray-700 mb-2">案件</label>
-                    <p className="text-base text-gray-900 mb-3">
-                      {selectedTask.project.customer_names.join('・')}様
-                    </p>
-                    <button
-                      onClick={() => handleNavigateToProject(selectedTask.project!.id)}
-                      className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-bold text-base hover:bg-blue-200 transition-colors border-2 border-blue-600 inline-flex items-center gap-2"
-                    >
-                      <ExternalLink size={18} />
-                      案件詳細を見る
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* フッター */}
-            <div className="prisma-modal-footer">
-              <button
-                onClick={() => setShowTaskModal(false)}
-                className="px-8 py-4 bg-gray-200 text-gray-800 rounded-lg font-bold text-xl hover:bg-gray-300 transition-colors border-4 border-gray-400 flex-1"
-              >
-                閉じる
-              </button>
-            </div>
-          </div>
-        </div>
+      {selectedTask && (
+        <TaskDetailModal
+          task={selectedTask}
+          isOpen={showTaskModal}
+          onClose={() => setShowTaskModal(false)}
+          onUpdate={handleUpdateTask}
+          currentEmployeeId={currentEmployeeId}
+        />
       )}
     </>
   )

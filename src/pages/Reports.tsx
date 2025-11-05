@@ -383,13 +383,20 @@ export default function Reports() {
           </h2>
           <div className="prisma-table-container">
             <table className="prisma-table">
+              <colgroup>
+                <col style={{ width: '30%' }} />
+                <col style={{ width: '20%' }} />
+                <col style={{ width: '20%' }} />
+                <col style={{ width: '15%' }} />
+                <col style={{ width: '15%' }} />
+              </colgroup>
               <thead>
                 <tr className="bg-red-100">
-                  <th className="px-3 py-3 text-left text-base font-bold text-gray-900">タスク</th>
-                  <th className="px-3 py-3 text-left text-base font-bold text-gray-900">顧客</th>
-                  <th className="px-3 py-3 text-left text-base font-bold text-gray-900">担当者</th>
-                  <th className="px-3 py-3 text-left text-base font-bold text-gray-900">期限</th>
-                  <th className="px-3 py-3 text-left text-base font-bold text-gray-900">遅延日数</th>
+                  <th className="px-3 py-3 text-center text-base font-bold text-gray-900">タスク</th>
+                  <th className="px-3 py-3 text-center text-base font-bold text-gray-900">顧客</th>
+                  <th className="px-3 py-3 text-center text-base font-bold text-gray-900">担当者</th>
+                  <th className="px-3 py-3 text-center text-base font-bold text-gray-900">期限</th>
+                  <th className="px-3 py-3 text-center text-base font-bold text-gray-900">遅延日数</th>
                 </tr>
               </thead>
               <tbody>
@@ -399,13 +406,13 @@ export default function Reports() {
                     className={`cursor-pointer hover:bg-gray-50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
                     onClick={() => navigate(`/projects/${task.projectId}`)}
                   >
-                    <td className="px-3 py-3 text-base text-gray-900">{task.taskTitle}</td>
-                    <td className="px-3 py-3 text-base text-gray-900">{task.customerName}</td>
-                    <td className="px-3 py-3 text-base text-gray-900">{task.assignedTo}</td>
-                    <td className="px-3 py-3 text-base text-gray-900">
+                    <td className="px-3 py-3 text-center text-base text-gray-900">{task.taskTitle}</td>
+                    <td className="px-3 py-3 text-center text-base text-gray-900">{task.customerName}</td>
+                    <td className="px-3 py-3 text-center text-base text-gray-900">{task.assignedTo}</td>
+                    <td className="px-3 py-3 text-center text-base text-gray-900">
                       {format(new Date(task.dueDate), 'yyyy/MM/dd', { locale: ja })}
                     </td>
-                    <td className="px-3 py-3 text-lg font-bold text-red-600">
+                    <td className="px-3 py-3 text-center text-lg font-bold text-red-600">
                       {task.delayDays}日
                     </td>
                   </tr>
@@ -423,11 +430,20 @@ export default function Reports() {
         </h2>
         <div className="prisma-table-container">
           <table className="prisma-table">
+            <colgroup>
+              <col style={{ width: '20%' }} />
+              <col style={{ width: '15%' }} />
+              <col style={{ width: '15%' }} />
+              <col style={{ width: '12%' }} />
+              <col style={{ width: '12%' }} />
+              <col style={{ width: '12%' }} />
+              <col style={{ width: '14%' }} />
+            </colgroup>
             <thead>
               <tr className="bg-gray-100">
-                <th className="px-3 py-3 text-left text-base font-bold text-gray-900">氏名</th>
-                <th className="px-3 py-3 text-left text-base font-bold text-gray-900">部門</th>
-                <th className="px-3 py-3 text-left text-base font-bold text-gray-900">役職</th>
+                <th className="px-3 py-3 text-center text-base font-bold text-gray-900">氏名</th>
+                <th className="px-3 py-3 text-center text-base font-bold text-gray-900">部門</th>
+                <th className="px-3 py-3 text-center text-base font-bold text-gray-900">役職</th>
                 <th className="px-3 py-3 text-center text-base font-bold text-gray-900">総タスク</th>
                 <th className="px-3 py-3 text-center text-base font-bold text-gray-900">完了</th>
                 <th className="px-3 py-3 text-center text-base font-bold text-gray-900">遅延</th>
@@ -442,17 +458,17 @@ export default function Reports() {
                     key={emp.id}
                     className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
                   >
-                    <td className="px-3 py-3 text-base font-bold text-gray-900">{emp.name}</td>
-                    <td className="px-3 py-3 text-base text-gray-900">{emp.department}</td>
-                    <td className="px-3 py-3 text-base text-gray-900">{emp.role}</td>
-                    <td className="px-3 py-3 text-base text-center text-gray-900">{emp.totalTasks}</td>
-                    <td className="px-3 py-3 text-base text-center text-blue-600">
+                    <td className="px-3 py-3 text-center text-base font-bold text-gray-900">{emp.name}</td>
+                    <td className="px-3 py-3 text-center text-base text-gray-900">{emp.department}</td>
+                    <td className="px-3 py-3 text-center text-base text-gray-900">{emp.role}</td>
+                    <td className="px-3 py-3 text-center text-base text-gray-900">{emp.totalTasks}</td>
+                    <td className="px-3 py-3 text-center text-base text-blue-600">
                       {emp.completedTasks}
                     </td>
-                    <td className="px-3 py-3 text-base text-center text-red-600">
+                    <td className="px-3 py-3 text-center text-base text-red-600">
                       {emp.delayedTasks}
                     </td>
-                    <td className={`px-3 py-3 text-lg text-center font-bold ${
+                    <td className={`px-3 py-3 text-center text-lg font-bold ${
                       emp.completionRate >= 80 ? 'text-green-600' :
                       emp.completionRate >= 50 ? 'text-yellow-600' :
                       'text-red-600'

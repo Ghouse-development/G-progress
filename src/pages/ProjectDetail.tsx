@@ -14,6 +14,7 @@ import { useAuditLog } from '../hooks/useAuditLog'
 import { useNotifications } from '../hooks/useNotifications'
 import { ORGANIZATION_HIERARCHY } from '../constants/organizationHierarchy'
 import ProjectDetailFields from '../components/ProjectDetailFields'
+import TaskDetailModal from '../components/TaskDetailModal'
 
 interface ProjectWithRelations extends Project {
   customer: Customer
@@ -306,64 +307,74 @@ export default function ProjectDetail() {
     }
   }
 
-  const handleUpdateTaskStatus = async (taskId: string, newStatus: 'not_started' | 'requested' | 'delayed' | 'completed') => {
+  // タスク更新（共通ハンドラー）
+  const handleUpdateTask = async (taskId: string, updates: Partial<Task>) => {
     try {
       const taskToUpdate = tasks.find(t => t.id === taskId)
-      const oldStatus = taskToUpdate?.status
+      const oldValues: any = {}
 
+      // 変更前の値を記録
+      Object.keys(updates).forEach(key => {
+        oldValues[key] = taskToUpdate?.[key as keyof Task]
+      })
+
+      // ローカルステート更新
       setTasks(prevTasks =>
         prevTasks.map(t =>
-          t.id === taskId ? { ...t, status: newStatus } : t
+          t.id === taskId ? { ...t, ...updates } : t
         )
       )
 
       if (selectedTask && selectedTask.id === taskId) {
-        setSelectedTask({ ...selectedTask, status: newStatus })
+        setSelectedTask({ ...selectedTask, ...updates })
       }
 
+      // Supabase更新
       const { error } = await supabase
         .from('tasks')
         .update({
-          status: newStatus,
+          ...updates,
           updated_at: new Date().toISOString()
         })
         .eq('id', taskId)
 
       if (error) {
-        toast.error(`ステータスの更新に失敗しました: ${error.message}`)
+        toast.error(`タスクの更新に失敗しました: ${error.message}`)
         await loadProjectData(false)
       } else {
-        // 監査ログ記録
-        const statusText = {
-          'not_started': '未着手',
-          'requested': '着手中',
-          'delayed': '遅延',
-          'completed': '完了'
-        }
-        await logUpdate(
-          'tasks',
-          taskId,
-          { status: oldStatus, task_title: taskToUpdate?.title },
-          { status: newStatus, task_title: taskToUpdate?.title },
-          `タスク「${taskToUpdate?.title}」のステータスを「${statusText[oldStatus as keyof typeof statusText] || oldStatus}」→「${statusText[newStatus]}」に変更しました`
-        )
+        // ステータス変更の場合、監査ログと通知
+        if (updates.status && updates.status !== oldValues.status) {
+          const statusText: Record<string, string> = {
+            'not_started': '未着手',
+            'requested': '着手中',
+            'delayed': '遅延',
+            'completed': '完了',
+            'not_applicable': '対象外'
+          }
+          await logUpdate(
+            'tasks',
+            taskId,
+            { status: oldValues.status, task_title: taskToUpdate?.title },
+            { status: updates.status, task_title: taskToUpdate?.title },
+            `タスク「${taskToUpdate?.title}」のステータスを「${statusText[oldValues.status] || oldValues.status}」→「${statusText[updates.status] || updates.status}」に変更しました`
+          )
 
-        // タスク完了通知（完了ステータスに変更された場合）
-        if (newStatus === 'completed' && oldStatus !== 'completed') {
-          const completedByEmployee = employees.find(e => e.id === currentEmployeeId)
-          if (completedByEmployee && project?.assigned_sales) {
-            await notifyTaskCompletion(
-              project.assigned_sales,
-              taskToUpdate?.title || '',
-              project.customer?.names?.join('・') || '',
-              `${completedByEmployee.last_name} ${completedByEmployee.first_name}`,
-              taskId
-            )
+          // タスク完了通知
+          if (updates.status === 'completed' && oldValues.status !== 'completed') {
+            const completedByEmployee = employees.find(e => e.id === currentEmployeeId)
+            if (completedByEmployee && project?.assigned_sales) {
+              await notifyTaskCompletion(
+                project.assigned_sales,
+                taskToUpdate?.title || '',
+                project.customer?.names?.join('・') || '',
+                `${completedByEmployee.last_name} ${completedByEmployee.first_name}`,
+                taskId
+              )
+            }
           }
         }
 
-        toast.success('ステータスを更新しました')
-        loadProjectData(false)
+        await loadProjectData(false)
       }
     } catch (err) {
       toast.error(`予期しないエラーが発生しました: ${err}`)
@@ -1094,432 +1105,24 @@ export default function ProjectDetail() {
         )}
 
         {/* タスク詳細モーダル */}
-        {showDetailModal && selectedTask && (
-          <div className="prisma-modal-overlay">
-            <div className="prisma-modal max-w-[800px]">
-              {/* ヘッダー */}
-              <div className="prisma-modal-header">
-                <div className="flex items-center justify-between">
-                  <h2 className="prisma-modal-title">{selectedTask.title}</h2>
-                  <button
-                    onClick={closeTaskDetail}
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
-                  >
-                    <X size={20} />
-                  </button>
-                </div>
-
-                {/* 編集ロック状態表示 */}
-                {taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId && (
-                  <div className="mt-3 p-4 bg-yellow-50 border-2 border-yellow-400 rounded-lg flex items-center gap-2">
-                    <Lock size={20} className="text-yellow-700" />
-                    <div className="flex-1">
-                      <p className="text-base font-bold text-yellow-900">
-                        {taskEditLock.lockedByName}が編集中です
-                      </p>
-                      <p className="text-base text-yellow-700">閲覧のみ可能です。編集はできません。</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* オンラインユーザー表示 */}
-                {taskEditLock.onlineUsers.length > 0 && (
-                  <div className="mt-2 p-3 bg-blue-50 border-2 border-blue-300 rounded-lg flex items-center gap-2">
-                    <Users size={18} className="text-blue-700" />
-                    <p className="text-base text-blue-900">
-                      他に{taskEditLock.onlineUsers.length}人が閲覧中
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* コンテンツ */}
-              <div className="prisma-modal-content space-y-4">
-                {/* ステータス変更ボタン */}
-                <div>
-                  <label className="block text-base font-medium text-gray-700 mb-2">
-                    ステータス
-                  </label>
-                  <div className="grid grid-cols-4 gap-2">
-                    <button
-                      onClick={() => handleUpdateTaskStatus(selectedTask.id, 'not_started')}
-                      disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
-                      className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
-                        selectedTask.status === 'not_started'
-                          ? 'task-not-started'
-                          : 'bg-white text-gray-900 hover:bg-gray-50 border border-gray-300'
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
-                      未着手
-                    </button>
-                    <button
-                      onClick={() => handleUpdateTaskStatus(selectedTask.id, 'requested')}
-                      disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
-                      className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
-                        selectedTask.status === 'requested'
-                          ? 'task-in-progress'
-                          : 'bg-white text-yellow-900 hover:bg-yellow-50 border-2 border-yellow-300'
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
-                      着手中
-                    </button>
-                    <button
-                      onClick={() => handleUpdateTaskStatus(selectedTask.id, 'delayed')}
-                      disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
-                      className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
-                        selectedTask.status === 'delayed'
-                          ? 'task-delayed'
-                          : 'bg-white text-red-900 hover:bg-red-50 border-2 border-red-300'
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
-                      遅延
-                    </button>
-                    <button
-                      onClick={() => handleUpdateTaskStatus(selectedTask.id, 'completed')}
-                      disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
-                      className={`px-4 py-3 rounded-lg font-bold text-base transition-all ${
-                        selectedTask.status === 'completed'
-                          ? 'task-completed'
-                          : 'bg-white text-blue-900 hover:bg-blue-50 border-2 border-blue-300'
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
-                      完了
-                    </button>
-                  </div>
-                </div>
-
-                {/* 期限日 */}
-                <div>
-                  <label className="block text-base font-medium text-gray-700 mb-2">
-                    期限日
-                  </label>
-                  {editingDueDate ? (
-                    <div>
-                      <input
-                        type="date"
-                        value={selectedTask.due_date || ''}
-                        onChange={(e) => handleUpdateDueDate(e.target.value)}
-                        onBlur={(e) => {
-                          // ボタンクリック時はonBlurをスキップ
-                          if (e.relatedTarget?.classList.contains('date-shortcut-btn')) {
-                            return
-                          }
-                          setEditingDueDate(false)
-                        }}
-                        autoFocus
-                        className="prisma-input"
-                      />
-                      <div className="flex gap-2 mt-2 flex-wrap">
-                        <button
-                          type="button"
-                          className="prisma-btn prisma-btn-secondary prisma-btn-sm"
-                          onClick={() => {
-                            const today = new Date()
-                            today.setHours(0, 0, 0, 0)
-                            handleUpdateDueDate(format(today, 'yyyy-MM-dd'))
-                          }}
-                        >
-                          今日
-                        </button>
-                        <button
-                          type="button"
-                          className="prisma-btn prisma-btn-secondary prisma-btn-sm"
-                          onClick={() => {
-                            const tomorrow = new Date()
-                            tomorrow.setDate(tomorrow.getDate() + 1)
-                            tomorrow.setHours(0, 0, 0, 0)
-                            handleUpdateDueDate(format(tomorrow, 'yyyy-MM-dd'))
-                          }}
-                        >
-                          明日
-                        </button>
-                        <button
-                          type="button"
-                          className="prisma-btn prisma-btn-secondary prisma-btn-sm"
-                          onClick={() => {
-                            const nextWeek = new Date()
-                            nextWeek.setDate(nextWeek.getDate() + 7)
-                            nextWeek.setHours(0, 0, 0, 0)
-                            handleUpdateDueDate(format(nextWeek, 'yyyy-MM-dd'))
-                          }}
-                        >
-                          1週間後
-                        </button>
-                        <button
-                          type="button"
-                          className="prisma-btn prisma-btn-secondary prisma-btn-sm"
-                          onClick={() => {
-                            const nextMonth = new Date()
-                            nextMonth.setMonth(nextMonth.getMonth() + 1)
-                            nextMonth.setHours(0, 0, 0, 0)
-                            handleUpdateDueDate(format(nextMonth, 'yyyy-MM-dd'))
-                          }}
-                        >
-                          1ヶ月後
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div
-                      className="prisma-input bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer relative"
-                    >
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="flex-1" onClick={() => setEditingDueDate(true)}>
-                          <div className="font-medium text-gray-900">
-                            {selectedTask.due_date ? format(new Date(selectedTask.due_date), 'yyyy年MM月dd日 (E)', { locale: ja }) : '未設定'}
-                          </div>
-                          <div className="text-base text-gray-600 mt-1">
-                            契約日から {selectedTask.dayFromContract || 0}日目
-                          </div>
-                        </div>
-                        <div className="flex gap-2 flex-shrink-0">
-                          <button
-                            onClick={async (e) => {
-                              e.stopPropagation()
-                              if (taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId) {
-                                toast.warning('他のユーザーが編集中です')
-                                return
-                              }
-                              try {
-                                const { error } = await supabase
-                                  .from('tasks')
-                                  .update({
-                                    is_date_confirmed: false,
-                                    updated_at: new Date().toISOString()
-                                  })
-                                  .eq('id', selectedTask.id)
-                                if (error) throw error
-                                toast.success('日付を予定に変更しました')
-                                setSelectedTask({ ...selectedTask, is_date_confirmed: false })
-                                // tasksステートも更新してグリッド表示に反映
-                                setTasks(tasks.map(t => t.id === selectedTask.id ? { ...t, is_date_confirmed: false } : t))
-                              } catch (error) {
-                                toast.error('日付ステータスの更新に失敗しました')
-                              }
-                            }}
-                            disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
-                            className={!selectedTask.is_date_confirmed ? 'prisma-btn prisma-btn-primary' : 'prisma-btn prisma-btn-secondary'}
-                          >
-                            予定
-                          </button>
-                          <button
-                            onClick={async (e) => {
-                              e.stopPropagation()
-                              if (taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId) {
-                                toast.warning('他のユーザーが編集中です')
-                                return
-                              }
-                              try {
-                                const { error } = await supabase
-                                  .from('tasks')
-                                  .update({
-                                    is_date_confirmed: true,
-                                    updated_at: new Date().toISOString()
-                                  })
-                                  .eq('id', selectedTask.id)
-                                if (error) throw error
-                                toast.success('日付を確定しました')
-                                setSelectedTask({ ...selectedTask, is_date_confirmed: true })
-                                // tasksステートも更新してグリッド表示に反映
-                                setTasks(tasks.map(t => t.id === selectedTask.id ? { ...t, is_date_confirmed: true } : t))
-                              } catch (error) {
-                                toast.error('日付ステータスの更新に失敗しました')
-                              }
-                            }}
-                            disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
-                            className={`${selectedTask.is_date_confirmed ? 'prisma-btn prisma-btn-success' : 'prisma-btn prisma-btn-secondary'} flex items-center gap-2`}
-                          >
-                            {selectedTask.is_date_confirmed && (
-                              <span className="inline-flex items-center justify-center w-6 h-6 text-base font-bold text-white bg-green-600 rounded-full border-2 border-white">
-                                確
-                              </span>
-                            )}
-                            確定
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* 予定からのずれ表示 */}
-                {selectedTask.original_due_date && selectedTask.due_date &&
-                 selectedTask.original_due_date !== selectedTask.due_date && (
-                  <div>
-                    <label className="block text-base font-medium text-gray-700 mb-2">
-                      予定からのずれ
-                    </label>
-                    <div className="flex items-start gap-3 p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-lg">
-                      <AlertTriangle className="text-yellow-600 flex-shrink-0 mt-0.5" size={20} />
-                      <div className="flex-1">
-                        <div className="font-bold text-yellow-900 text-base mb-1">
-                          {(() => {
-                            const daysDiff = differenceInDays(
-                              new Date(selectedTask.due_date),
-                              new Date(selectedTask.original_due_date)
-                            )
-                            const absDays = Math.abs(daysDiff)
-                            return daysDiff > 0
-                              ? `${absDays}日後ろ倒し`
-                              : `${absDays}日前倒し`
-                          })()}
-                        </div>
-                        <div className="text-base text-yellow-800">
-                          当初予定: {format(new Date(selectedTask.original_due_date), 'yyyy年M月d日 (E)', { locale: ja })}
-                          {' → '}
-                          現在: {format(new Date(selectedTask.due_date), 'yyyy年M月d日 (E)', { locale: ja })}
-                        </div>
-                        {selectedTask.date_change_count !== undefined && selectedTask.date_change_count > 0 && (
-                          <div className="text-base text-yellow-700 mt-1">
-                            変更回数: {selectedTask.date_change_count}回
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* トリガーからの日にち設定（読み取り専用） */}
-                {selectedTask.task_master?.trigger_task_id && selectedTask.task_master?.days_from_trigger !== undefined && (
-                  <div>
-                    <label className="block text-base font-medium text-gray-700 mb-2">
-                      トリガー設定
-                    </label>
-                    <div className="prisma-input bg-gray-50">
-                      <div className="font-medium text-gray-900">
-                        {selectedTask.task_master.trigger_task?.title || 'トリガータスク'}
-                        {' '}
-                        {selectedTask.task_master.days_from_trigger > 0 && `から ${selectedTask.task_master.days_from_trigger}日後`}
-                        {selectedTask.task_master.days_from_trigger < 0 && `から ${Math.abs(selectedTask.task_master.days_from_trigger)}日前`}
-                        {selectedTask.task_master.days_from_trigger === 0 && '完了時'}
-                      </div>
-                      <div className="text-base text-gray-600 mt-1">
-                        このタスクは上記タスクの完了を起点として期限が設定されます
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* コメント */}
-                <div>
-                  <label className="block text-base font-medium text-gray-700 mb-2">
-                    コメント（遅延理由・進捗状況など）
-                  </label>
-                  <textarea
-                    value={selectedTask.comment || ''}
-                    onChange={async (e) => {
-                      const newComment = e.target.value
-                      try {
-                        const { error } = await supabase
-                          .from('tasks')
-                          .update({
-                            comment: newComment,
-                            updated_at: new Date().toISOString()
-                          })
-                          .eq('id', selectedTask.id)
-
-                        if (error) throw error
-
-                        setSelectedTask({ ...selectedTask, comment: newComment })
-                      } catch (error) {
-                        toast.error('コメントの更新に失敗しました')
-                      }
-                    }}
-                    disabled={taskEditLock.isLocked && taskEditLock.lockedBy !== currentEmployeeId}
-                    className="prisma-textarea"
-                    placeholder="コメント"
-                    rows={3}
-                  />
-                </div>
-
-                {/* 作業内容 */}
-                {selectedTask.description && (
-                  <div>
-                    <label className="block text-base font-medium text-gray-700 mb-2">
-                      作業内容
-                    </label>
-                    <div className="prisma-textarea bg-gray-50 min-h-[80px]">
-                      {selectedTask.description}
-                    </div>
-                  </div>
-                )}
-
-                {/* Do's & Don'ts */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {selectedTask.dos && (
-                    <div>
-                      <label className="block text-base font-medium text-gray-700 mb-2">
-                        Do's（推奨事項）
-                      </label>
-                      <div className="prisma-textarea bg-gray-50 whitespace-pre-wrap min-h-[120px] max-h-[200px] overflow-y-auto">
-                        {selectedTask.dos}
-                      </div>
-                    </div>
-                  )}
-
-                  {selectedTask.donts && (
-                    <div>
-                      <label className="block text-base font-medium text-gray-700 mb-2">
-                        Don'ts（禁止事項）
-                      </label>
-                      <div className="prisma-textarea bg-gray-50 whitespace-pre-wrap min-h-[120px] max-h-[200px] overflow-y-auto">
-                        {selectedTask.donts}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* マニュアル・動画 */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-base font-medium text-gray-700 mb-2">
-                      マニュアル
-                    </label>
-                    {selectedTask.manual_url ? (
-                      <a
-                        href={selectedTask.manual_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="prisma-btn prisma-btn-secondary w-full"
-                      >
-                        開く
-                      </a>
-                    ) : (
-                      <div className="text-gray-500 text-base">未設定</div>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-base font-medium text-gray-700 mb-2">
-                      動画
-                    </label>
-                    {selectedTask.video_url ? (
-                      <a
-                        href={selectedTask.video_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="prisma-btn prisma-btn-secondary w-full"
-                      >
-                        再生
-                      </a>
-                    ) : (
-                      <div className="text-gray-500 text-base">未設定</div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* フッター */}
-              <div className="prisma-modal-footer">
-                <button
-                  onClick={closeTaskDetail}
-                  className="prisma-btn prisma-btn-secondary"
-                >
-                  閉じる
-                </button>
-              </div>
-            </div>
-          </div>
+        {selectedTask && (
+          <TaskDetailModal
+            task={selectedTask}
+            isOpen={showDetailModal}
+            onClose={() => {
+              setShowDetailModal(false)
+              setSelectedTask(null)
+              taskEditLock.releaseLock()
+            }}
+            onUpdate={handleUpdateTask}
+            currentEmployeeId={currentEmployeeId}
+            taskEditLock={{
+              isLocked: taskEditLock.isLocked,
+              lockedBy: taskEditLock.lockedBy,
+              lockedByName: taskEditLock.lockedByName || '',
+              onlineUsers: taskEditLock.onlineUsers
+            }}
+          />
         )}
       </div>
     </div>
