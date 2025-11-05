@@ -1,5 +1,5 @@
 // G-progress Service Worker
-const CACHE_NAME = 'g-progress-v2'
+const CACHE_NAME = 'g-progress-v3'
 const urlsToCache = [
   '/',
   '/index.html',

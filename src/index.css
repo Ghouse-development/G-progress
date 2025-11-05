@@ -1757,6 +1757,36 @@ html, body {
   cursor: not-allowed;
 }
 
+/* Prismaタブ - ボタンスタイルに統一 */
+.prisma-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.prisma-tab {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  background: transparent;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.prisma-tab:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.prisma-tab.active {
+  background: #e0f2fe;
+  color: #0369a1;
+  font-weight: 600;
+}
+
 /* Prisma入力フィールド */
 .prisma-input {
   width: 100%;
