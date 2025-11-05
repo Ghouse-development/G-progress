@@ -52,6 +52,7 @@ export default function NewDashboard() {
   const [branches, setBranches] = useState<Branch[]>([])
   const [branchStats, setBranchStats] = useState<BranchStats[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedBranch, setSelectedBranch] = useState<string>('全体')
 
   // 統計データ
   const [expectedCompletionCount, setExpectedCompletionCount] = useState(0)
@@ -141,6 +142,38 @@ export default function NewDashboard() {
       { id: '4', name: '京都', created_at: '', updated_at: '' },
       { id: '5', name: '西宮', created_at: '', updated_at: '' }
     ])
+  }
+
+  // 拠点によるフィルタリング
+  const filterProjectsByBranch = (projects: Project[]) => {
+    if (selectedBranch === '全体') {
+      return projects
+    }
+
+    // 拠点名から拠点IDを取得（「本部」→'1', 「豊中店」→'2'など）
+    const branchMap: { [key: string]: string } = {
+      '本部': '1',
+      '豊中店': '2',
+      '奈良店': '3',
+      '京都店': '4',
+      '西宮店': '5'
+    }
+
+    const branchId = branchMap[selectedBranch]
+    if (!branchId) return projects
+
+    // その拠点の従業員が担当するプロジェクトのみを抽出
+    return projects.filter(p => {
+      // sales_staffリレーションから拠点を取得
+      if (p.sales_staff && p.sales_staff.branch_id === branchId) {
+        return true
+      }
+      // sales_staffがない場合、sales（旧フィールド）で判定
+      if (p.sales && p.sales.branch_id === branchId) {
+        return true
+      }
+      return false
+    })
   }
 
   const calculateBranchStats = (projects: Project[], payments: Payment[], employees: Employee[]) => {
@@ -439,6 +472,20 @@ export default function NewDashboard() {
     setCountContractToHandover(projectsWithHandover.length)
   }
 
+  // 拠点選択が変更されたら統計を再計算
+  useEffect(() => {
+    if (!loading && projects.length > 0) {
+      const filteredProjects = filterProjectsByBranch(projects)
+      const filteredPayments = payments.filter(pay =>
+        filteredProjects.some(p => p.id === pay.project_id)
+      )
+      const filteredTasks = tasks.filter(task =>
+        filteredProjects.some(p => p.id === task.project_id)
+      )
+      calculateStats(filteredProjects, filteredPayments, filteredTasks)
+    }
+  }, [selectedBranch, projects, payments, tasks])
+
   if (loading) {
     return (
       <div className="prisma-content">
@@ -471,6 +518,19 @@ export default function NewDashboard() {
       </div>
       <div className="prisma-content">
         <div style={{ maxWidth: '1400px' }}>
+        {/* === 拠点タブ === */}
+        <div className="prisma-tabs" style={{ marginBottom: '16px' }}>
+          {['全体', '本部', '豊中店', '奈良店', '京都店', '西宮店'].map(branch => (
+            <button
+              key={branch}
+              onClick={() => setSelectedBranch(branch)}
+              className={selectedBranch === branch ? 'active' : ''}
+            >
+              {branch}
+            </button>
+          ))}
+        </div>
+
         {/* === 目標と実績サマリー（1枚のカードに統合） ===  */}
         <div className="prisma-card" style={{ marginBottom: '16px', padding: '12px' }}>
           <h2 className="prisma-card-title flex items-center justify-between">

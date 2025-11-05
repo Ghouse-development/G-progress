@@ -308,8 +308,15 @@ export default function TaskMasterManagement() {
     : taskMasters.filter(task => task.responsible_department === selectedPosition)
 
   return (
-    <div className="space-y-6">
+    <>
       {/* ヘッダー */}
+      <div className="prisma-header">
+        <h1 className="prisma-header-title">タスクマスタ管理</h1>
+      </div>
+
+      <div className="prisma-content">
+        <div className="space-y-4">
+      {/* ヘッダーボタン */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button
@@ -320,7 +327,6 @@ export default function TaskMasterManagement() {
             <ArrowLeft size={20} />
             戻る
           </button>
-          <h2 className="text-2xl font-light text-black">タスクマスタ管理</h2>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -371,13 +377,13 @@ export default function TaskMasterManagement() {
         <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-350px)] [-webkit-overflow-scrolling:touch]">
           <table className="w-full prisma-table min-w-max table-fixed">
             <colgroup>
-              <col style={{ width: '25%' }} />
-              <col style={{ width: '12%' }} />
+              <col style={{ width: '22%' }} />
+              <col style={{ width: '13%' }} />
               <col style={{ width: '10%' }} />
               <col style={{ width: '10%' }} />
+              <col style={{ width: '17%' }} />
+              <col style={{ width: '13%' }} />
               <col style={{ width: '15%' }} />
-              <col style={{ width: '10%' }} />
-              <col style={{ width: '18%' }} />
             </colgroup>
             <tbody className="divide-y divide-gray-200">
               {filteredTaskMasters.length === 0 ? (
@@ -789,6 +795,8 @@ export default function TaskMasterManagement() {
         </div>
       )}
 
-    </div>
+        </div>
+      </div>
+    </>
   )
 }

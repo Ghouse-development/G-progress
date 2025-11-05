@@ -453,20 +453,12 @@ export default function PaymentManagement() {
             </colgroup>
             <thead>
               <tr>
-                <th>案件</th>
-                <th>名目</th>
-                <th>
-                  <div className="text-center">金額</div>
-                </th>
-                <th>
-                  <div className="text-center">予定</div>
-                </th>
-                <th>
-                  <div className="text-center">実績</div>
-                </th>
-                <th>
-                  <div className="text-center">入金日</div>
-                </th>
+                <th className="text-center">案件</th>
+                <th className="text-center">名目</th>
+                <th className="text-center">金額</th>
+                <th className="text-center">予定</th>
+                <th className="text-center">実績</th>
+                <th className="text-center">入金日</th>
               </tr>
             </thead>
             <tbody>

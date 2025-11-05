@@ -347,34 +347,16 @@ export default function PerformanceManagement() {
                   </colgroup>
                   <thead>
                     <tr>
-                      <th>案件名</th>
-                      <th>
-                        <div className="text-center">太陽光</div>
-                      </th>
-                      <th>
-                        <div className="text-center">kW数</div>
-                      </th>
-                      <th>
-                        <div className="text-center">蓄電池</div>
-                      </th>
-                      <th>
-                        <div className="text-center">UA値</div>
-                      </th>
-                      <th>
-                        <div className="text-center">BELS</div>
-                      </th>
-                      <th>
-                        <div className="text-center">1次①</div>
-                      </th>
-                      <th>
-                        <div className="text-center">1次②</div>
-                      </th>
-                      <th>
-                        <div className="text-center">1次③</div>
-                      </th>
-                      <th>
-                        <div className="text-center">C値</div>
-                      </th>
+                      <th className="text-center">案件名</th>
+                      <th className="text-center">太陽光</th>
+                      <th className="text-center">kW数</th>
+                      <th className="text-center">蓄電池</th>
+                      <th className="text-center">UA値</th>
+                      <th className="text-center">BELS</th>
+                      <th className="text-center">1次①</th>
+                      <th className="text-center">1次②</th>
+                      <th className="text-center">1次③</th>
+                      <th className="text-center">C値</th>
                     </tr>
                   </thead>
                   <tbody>

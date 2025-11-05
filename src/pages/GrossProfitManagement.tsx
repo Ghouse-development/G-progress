@@ -203,62 +203,31 @@ export default function GrossProfitManagement() {
 
       <div className="prisma-content">
 
-      {/* 統計サマリー（1カードに統合） */}
-      <div className="prisma-card mb-4">
-        <h3 className="text-base font-bold text-gray-900 mb-2">統計サマリー</h3>
-
-        {/* 完工実績 */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-2">
-          <div className="text-center">
-            <p className="text-xs font-bold text-gray-600 mb-0.5">売上（完工）</p>
-            <p className="text-sm font-bold text-gray-900">{formatCurrency(totalActualRevenue)}</p>
-          </div>
-          <div className="text-center">
-            <p className="text-xs font-bold text-gray-600 mb-0.5">原価（完工）</p>
-            <p className="text-sm font-bold text-gray-900">{formatCurrency(totalActualCost)}</p>
-          </div>
-          <div className="text-center">
-            <p className="text-xs font-bold text-gray-600 mb-0.5">粗利益（完工）</p>
-            <p className="text-sm font-bold text-green-600">{formatCurrency(totalActualGrossProfit)}</p>
-          </div>
-          <div className="text-center">
-            <p className="text-xs font-bold text-gray-600 mb-0.5">粗利益率（完工）</p>
-            <p className="text-sm font-bold text-purple-600">{totalActualGrossProfitRate.toFixed(1)}%</p>
-          </div>
-        </div>
-
-        {/* 警告指標 */}
-        <div className="grid grid-cols-2 gap-2 mb-2 pt-2 border-t border-gray-200">
-          <div className="text-center">
-            <p className="text-xs font-bold text-gray-600 mb-0.5">粗利率20%未満</p>
-            <p className="text-sm font-bold text-orange-600">{lowMarginCount}件</p>
-          </div>
-          <div className="text-center">
-            <p className="text-xs font-bold text-gray-600 mb-0.5">予算差5%以上</p>
-            <p className="text-sm font-bold text-red-600">{largeDiffCount}件</p>
-          </div>
-        </div>
-
-        {/* フィルター */}
-        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-gray-200">
-          <label className="text-xs font-bold text-gray-700">フィルター:</label>
+      {/* 統計サマリー（超コンパクト版） */}
+      <div className="prisma-card mb-3" style={{ padding: '8px 12px' }}>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+          <span className="font-bold text-gray-900">統計サマリー</span>
+          <span className="text-gray-700">粗利益率: <strong className="text-purple-600">{totalActualGrossProfitRate.toFixed(1)}%</strong></span>
+          <span className="text-gray-700">粗利率20%未満: <strong className="text-orange-600">{lowMarginCount}件</strong></span>
+          <span className="text-gray-700">予算差5%以上: <strong className="text-red-600">{largeDiffCount}件</strong></span>
+          <span className="text-gray-400">|</span>
           <button
             onClick={() => setFilter('all')}
-            className={`prisma-btn text-sm px-3 py-1.5 ${filter === 'all' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
+            className={`px-2 py-0.5 rounded text-xs font-bold ${filter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
           >
             全て ({projects.length})
           </button>
           <button
             onClick={() => setFilter('low_margin')}
-            className={`prisma-btn text-sm px-3 py-1.5 ${filter === 'low_margin' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
+            className={`px-2 py-0.5 rounded text-xs font-bold ${filter === 'low_margin' ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
           >
-            粗利率20%未満 ({lowMarginCount})
+            粗利率20%未満
           </button>
           <button
             onClick={() => setFilter('large_diff')}
-            className={`prisma-btn text-sm px-3 py-1.5 ${filter === 'large_diff' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
+            className={`px-2 py-0.5 rounded text-xs font-bold ${filter === 'large_diff' ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
           >
-            予算差5%以上 ({largeDiffCount})
+            予算差5%以上
           </button>
         </div>
       </div>

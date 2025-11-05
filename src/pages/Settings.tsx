@@ -277,64 +277,42 @@ export default function Settings() {
       </div>
 
       {/* タブナビゲーション */}
-      <div className="mb-6">
-        <div className="flex gap-2 border-b-2 border-gray-300">
-          <button
-            onClick={() => handleTabChange('basic')}
-            className={`flex items-center gap-2 px-6 py-3 font-bold text-base transition-all ${
-              activeTab === 'basic'
-                ? 'border-b-4 border-blue-600 text-blue-600'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <Palette size={20} />
-            基本設定
-          </button>
-          <button
-            onClick={() => handleTabChange('kintone')}
-            className={`flex items-center gap-2 px-6 py-3 font-bold text-base transition-all ${
-              activeTab === 'kintone'
-                ? 'border-b-4 border-blue-600 text-blue-600'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <Database size={20} />
-            kintone連携
-          </button>
-          <button
-            onClick={() => handleTabChange('line')}
-            className={`flex items-center gap-2 px-6 py-3 font-bold text-base transition-all ${
-              activeTab === 'line'
-                ? 'border-b-4 border-blue-600 text-blue-600'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <MessageSquare size={20} />
-            LINE連携
-          </button>
-          <button
-            onClick={() => handleTabChange('system')}
-            className={`flex items-center gap-2 px-6 py-3 font-bold text-base transition-all ${
-              activeTab === 'system'
-                ? 'border-b-4 border-blue-600 text-blue-600'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <Cpu size={20} />
-            システム構想
-          </button>
-          <button
-            onClick={() => handleTabChange('aws')}
-            className={`flex items-center gap-2 px-6 py-3 font-bold text-base transition-all ${
-              activeTab === 'aws'
-                ? 'border-b-4 border-blue-600 text-blue-600'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <Cloud size={20} />
-            AWS移行
-          </button>
-        </div>
+      <div className="prisma-tabs mb-4">
+        <button
+          onClick={() => handleTabChange('basic')}
+          className={`prisma-tab ${activeTab === 'basic' ? 'active' : ''} flex items-center gap-2`}
+        >
+          <Palette size={18} />
+          基本設定
+        </button>
+        <button
+          onClick={() => handleTabChange('kintone')}
+          className={`prisma-tab ${activeTab === 'kintone' ? 'active' : ''} flex items-center gap-2`}
+        >
+          <Database size={18} />
+          kintone連携
+        </button>
+        <button
+          onClick={() => handleTabChange('line')}
+          className={`prisma-tab ${activeTab === 'line' ? 'active' : ''} flex items-center gap-2`}
+        >
+          <MessageSquare size={18} />
+          LINE連携
+        </button>
+        <button
+          onClick={() => handleTabChange('system')}
+          className={`prisma-tab ${activeTab === 'system' ? 'active' : ''} flex items-center gap-2`}
+        >
+          <Cpu size={18} />
+          システム構想
+        </button>
+        <button
+          onClick={() => handleTabChange('aws')}
+          className={`prisma-tab ${activeTab === 'aws' ? 'active' : ''} flex items-center gap-2`}
+        >
+          <Cloud size={18} />
+          AWS移行
+        </button>
       </div>
 
       <div className="space-y-6 max-w-4xl">
