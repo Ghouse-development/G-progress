@@ -53,9 +53,12 @@ export default function TaskDetailModal({
   const [task, setTask] = useState<TaskWithEmployee>(initialTask)
   const [editingDueDate, setEditingDueDate] = useState(false)
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([])
+  const [commentEditing, setCommentEditing] = useState(false)
+  const [commentValue, setCommentValue] = useState(initialTask.comment || '')
 
   useEffect(() => {
     setTask(initialTask)
+    setCommentValue(initialTask.comment || '')
     if (isOpen && initialTask.id) {
       loadAuditLogs(initialTask.id)
     }
@@ -275,12 +278,23 @@ export default function TaskDetailModal({
                 className="prisma-input bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
                 onClick={() => !isLocked && setEditingDueDate(true)}
               >
-                <div className="font-medium text-gray-900">
-                  {task.due_date ? format(new Date(task.due_date), 'yyyy年MM月dd日 (E)', { locale: ja }) : '未設定'}
+                <div className="flex items-center gap-2 font-medium text-gray-900">
+                  <span>{task.due_date ? format(new Date(task.due_date), 'yyyy年MM月dd日 (E)', { locale: ja }) : '未設定'}</span>
+                  {task.original_due_date && task.due_date && task.due_date !== task.original_due_date && (
+                    <span className="inline-flex items-center px-2 py-0.5 text-xs font-bold text-white bg-orange-600 rounded-full border-2 border-white shadow-sm">
+                      変更あり
+                    </span>
+                  )}
                 </div>
                 {task.dayFromContract !== undefined && (
                   <div className="text-base text-gray-600 mt-1">
                     契約日から {task.dayFromContract}日目
+                  </div>
+                )}
+                {task.original_due_date && task.due_date && task.due_date !== task.original_due_date && (
+                  <div className="text-sm text-orange-600 mt-1">
+                    当初予定: {format(new Date(task.original_due_date), 'yyyy年MM月dd日 (E)', { locale: ja })}
+                    {task.date_change_count && ` (変更回数: ${task.date_change_count}回)`}
                   </div>
                 )}
               </div>
@@ -293,8 +307,13 @@ export default function TaskDetailModal({
               コメント（遅延理由・進捗状況など）
             </label>
             <textarea
-              value={task.comment || ''}
-              onChange={(e) => handleUpdateComment(e.target.value)}
+              value={commentValue}
+              onChange={(e) => setCommentValue(e.target.value)}
+              onBlur={() => {
+                if (commentValue !== task.comment) {
+                  handleUpdateComment(commentValue)
+                }
+              }}
               disabled={isLocked}
               className="prisma-textarea"
               placeholder="コメントを入力"

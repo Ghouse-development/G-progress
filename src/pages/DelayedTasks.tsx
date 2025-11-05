@@ -136,13 +136,13 @@ export default function DelayedTasks() {
                 </colgroup>
                 <thead className="bg-gray-100 border-b-2 border-gray-300">
                   <tr>
-                    <th className="border border-gray-300 px-4 py-3 text-left font-bold text-base text-gray-900">
+                    <th className="border border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900">
                       担当者
                     </th>
-                    <th className="border border-gray-300 px-4 py-3 text-left font-bold text-base text-gray-900">
+                    <th className="border border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900">
                       邸名（案件名）
                     </th>
-                    <th className="border border-gray-300 px-4 py-3 text-left font-bold text-base text-gray-900">
+                    <th className="border border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900">
                       タスク名
                     </th>
                     <th className="border border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900">
@@ -151,7 +151,7 @@ export default function DelayedTasks() {
                     <th className="border border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900">
                       遅れ
                     </th>
-                    <th className="border border-gray-300 px-4 py-3 text-left font-bold text-base text-gray-900">
+                    <th className="border border-gray-300 px-4 py-3 text-center font-bold text-base text-gray-900">
                       コメント
                     </th>
                   </tr>

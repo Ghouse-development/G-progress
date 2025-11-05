@@ -1258,7 +1258,7 @@ export default function ProjectList() {
             <table className="prisma-table" style={{ minWidth: 'max-content', width: 'max-content', borderCollapse: 'separate', borderSpacing: 0 }}>
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-left font-semibold shadow-sm" style={{ position: 'sticky', top: 0, left: 0, zIndex: 50, minWidth: '200px', width: '200px', padding: '12px 8px', fontSize: '13px' }}>
+                  <th className="bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold shadow-sm" style={{ position: 'sticky', top: 0, left: 0, zIndex: 50, minWidth: '200px', width: '200px', padding: '12px 8px', fontSize: '13px' }}>
                     案件名
                   </th>
                   <th className="bg-gray-100 border border-gray-200 border-r-2 border-r-gray-400 text-center font-semibold shadow-sm" style={{ position: 'sticky', top: 0, left: '200px', zIndex: 50, minWidth: '110px', width: '110px', padding: '12px 8px', fontSize: '13px' }}>

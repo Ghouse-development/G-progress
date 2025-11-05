@@ -205,49 +205,43 @@ export default function GrossProfitManagement() {
 
       {/* 統計サマリー（1カードに統合） */}
       <div className="prisma-card mb-4">
-        <h3 className="text-xl font-bold text-gray-900 mb-4">統計サマリー</h3>
+        <h3 className="text-base font-bold text-gray-900 mb-2">統計サマリー</h3>
 
         {/* 完工実績 */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-2">
           <div className="text-center">
-            <p className="text-sm font-bold text-gray-600 mb-1">売上（完工）</p>
-            <p className="text-base font-bold text-gray-900">{formatCurrency(totalActualRevenue)}</p>
+            <p className="text-xs font-bold text-gray-600 mb-0.5">売上（完工）</p>
+            <p className="text-sm font-bold text-gray-900">{formatCurrency(totalActualRevenue)}</p>
           </div>
           <div className="text-center">
-            <p className="text-sm font-bold text-gray-600 mb-1">原価（完工）</p>
-            <p className="text-base font-bold text-gray-900">{formatCurrency(totalActualCost)}</p>
+            <p className="text-xs font-bold text-gray-600 mb-0.5">原価（完工）</p>
+            <p className="text-sm font-bold text-gray-900">{formatCurrency(totalActualCost)}</p>
           </div>
           <div className="text-center">
-            <p className="text-sm font-bold text-gray-600 mb-1">粗利益（完工）</p>
-            <p className="text-base font-bold text-green-600">{formatCurrency(totalActualGrossProfit)}</p>
+            <p className="text-xs font-bold text-gray-600 mb-0.5">粗利益（完工）</p>
+            <p className="text-sm font-bold text-green-600">{formatCurrency(totalActualGrossProfit)}</p>
           </div>
           <div className="text-center">
-            <p className="text-sm font-bold text-gray-600 mb-1">粗利益率（完工）</p>
-            <p className="text-base font-bold text-purple-600">{totalActualGrossProfitRate.toFixed(1)}%</p>
+            <p className="text-xs font-bold text-gray-600 mb-0.5">粗利益率（完工）</p>
+            <p className="text-sm font-bold text-purple-600">{totalActualGrossProfitRate.toFixed(1)}%</p>
           </div>
         </div>
-
-        {/* セパレーター */}
-        <div className="border-t border-gray-200 my-3"></div>
 
         {/* 警告指標 */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="grid grid-cols-2 gap-2 mb-2 pt-2 border-t border-gray-200">
           <div className="text-center">
-            <p className="text-sm font-bold text-gray-600 mb-1">粗利率20%未満</p>
-            <p className="text-lg font-bold text-orange-600">{lowMarginCount}件</p>
+            <p className="text-xs font-bold text-gray-600 mb-0.5">粗利率20%未満</p>
+            <p className="text-sm font-bold text-orange-600">{lowMarginCount}件</p>
           </div>
           <div className="text-center">
-            <p className="text-sm font-bold text-gray-600 mb-1">予算差5%以上</p>
-            <p className="text-lg font-bold text-red-600">{largeDiffCount}件</p>
+            <p className="text-xs font-bold text-gray-600 mb-0.5">予算差5%以上</p>
+            <p className="text-sm font-bold text-red-600">{largeDiffCount}件</p>
           </div>
         </div>
 
-        {/* セパレーター */}
-        <div className="border-t border-gray-200 my-3"></div>
-
         {/* フィルター */}
-        <div className="flex flex-wrap items-center gap-2">
-          <label className="text-sm font-bold text-gray-700">フィルター:</label>
+        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-gray-200">
+          <label className="text-xs font-bold text-gray-700">フィルター:</label>
           <button
             onClick={() => setFilter('all')}
             className={`prisma-btn text-sm px-3 py-1.5 ${filter === 'all' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
@@ -276,7 +270,7 @@ export default function GrossProfitManagement() {
             <thead className="bg-gray-100 dark:bg-gray-800 sticky top-0">
               {/* 1段目ヘッダー：グループ */}
               <tr>
-                <th rowSpan={2} className="px-3 py-2 text-left text-base font-bold text-gray-900 dark:text-gray-100 border border-gray-300" style={{ minWidth: '180px' }}>
+                <th rowSpan={2} className="px-3 py-2 text-center text-base font-bold text-gray-900 dark:text-gray-100 border border-gray-300" style={{ minWidth: '180px' }}>
                   案件名
                 </th>
                 <th rowSpan={2} className="px-3 py-2 text-right text-base font-bold text-gray-900 dark:text-gray-100 border border-gray-300 bg-blue-50" style={{ minWidth: '120px' }}>

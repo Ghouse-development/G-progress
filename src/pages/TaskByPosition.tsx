@@ -262,12 +262,12 @@ export default function TaskByPosition() {
             </colgroup>
             <thead className="bg-gradient-to-r from-blue-100 to-blue-50 border-b border-gray-300">
               <tr>
-                <th className="px-6 py-4 text-left text-base font-bold text-gray-900">職種</th>
-                <th className="px-6 py-4 text-left text-base font-bold text-gray-900">タスク名</th>
+                <th className="px-6 py-4 text-center text-base font-bold text-gray-900">職種</th>
+                <th className="px-6 py-4 text-center text-base font-bold text-gray-900">タスク名</th>
                 <th className="px-6 py-4 text-center text-base font-bold text-gray-900">ステータス</th>
-                <th className="px-6 py-4 text-left text-base font-bold text-gray-900">期限日</th>
+                <th className="px-6 py-4 text-center text-base font-bold text-gray-900">期限日</th>
                 <th className="px-6 py-4 text-center text-base font-bold text-gray-900">乖離日数</th>
-                <th className="px-6 py-4 text-left text-base font-bold text-gray-900">案件</th>
+                <th className="px-6 py-4 text-center text-base font-bold text-gray-900">案件</th>
               </tr>
             </thead>
             <tbody>

@@ -293,12 +293,12 @@ export default function AuditLogs() {
             </colgroup>
             <thead className="bg-gray-100 sticky top-0">
               <tr>
-                <th className="px-4 py-3 text-left text-base font-semibold text-gray-900">日時</th>
-                <th className="px-4 py-3 text-left text-base font-semibold text-gray-900">ユーザー</th>
-                <th className="px-4 py-3 text-left text-base font-semibold text-gray-900">部門</th>
-                <th className="px-4 py-3 text-left text-base font-semibold text-gray-900">案件</th>
-                <th className="px-4 py-3 text-left text-base font-semibold text-gray-900">アクション</th>
-                <th className="px-4 py-3 text-left text-base font-semibold text-gray-900 min-w-[300px]">変更内容</th>
+                <th className="px-4 py-3 text-center text-base font-semibold text-gray-900">日時</th>
+                <th className="px-4 py-3 text-center text-base font-semibold text-gray-900">ユーザー</th>
+                <th className="px-4 py-3 text-center text-base font-semibold text-gray-900">部門</th>
+                <th className="px-4 py-3 text-center text-base font-semibold text-gray-900">案件</th>
+                <th className="px-4 py-3 text-center text-base font-semibold text-gray-900">アクション</th>
+                <th className="px-4 py-3 text-center text-base font-semibold text-gray-900 min-w-[300px]">変更内容</th>
               </tr>
             </thead>
             <tbody className="bg-white">

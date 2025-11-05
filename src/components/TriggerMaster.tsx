@@ -177,14 +177,14 @@ export default function TriggerMaster({ onClose }: TriggerMasterProps) {
                         <div className="flex items-center justify-center gap-1">
                           <button
                             onClick={() => handleOpenModal(trigger)}
-                            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                            className="prisma-btn-icon"
                             title="編集"
                           >
                             <Edit2 size={16} />
                           </button>
                           <button
                             onClick={() => handleDelete(trigger)}
-                            className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"
+                            className="prisma-btn-icon-danger"
                             title="削除"
                           >
                             <Trash2 size={16} />

@@ -163,11 +163,11 @@ export default function ImportCSV() {
             <table className="prisma-table">
               <thead>
                 <tr className="bg-gray-100">
-                  <th className="px-4 py-3 text-left text-base font-semibold text-gray-900">契約番号</th>
-                  <th className="px-4 py-3 text-left text-base font-semibold text-gray-900">お客様名</th>
-                  <th className="px-4 py-3 text-left text-base font-semibold text-gray-900">建設地</th>
-                  <th className="px-4 py-3 text-left text-base font-semibold text-gray-900">商品</th>
-                  <th className="px-4 py-3 text-left text-base font-semibold text-gray-900">契約日</th>
+                  <th className="px-4 py-3 text-center text-base font-semibold text-gray-900">契約番号</th>
+                  <th className="px-4 py-3 text-center text-base font-semibold text-gray-900">お客様名</th>
+                  <th className="px-4 py-3 text-center text-base font-semibold text-gray-900">建設地</th>
+                  <th className="px-4 py-3 text-center text-base font-semibold text-gray-900">商品</th>
+                  <th className="px-4 py-3 text-center text-base font-semibold text-gray-900">契約日</th>
                 </tr>
               </thead>
               <tbody>

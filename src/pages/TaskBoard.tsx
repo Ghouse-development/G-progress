@@ -234,7 +234,7 @@ export default function TaskBoard() {
                           {task.title}
                         </div>
                       </td>
-                      <td className="px-4 py-4 text-left text-base">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
+                      <td className="px-4 py-4 text-center text-base">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
                       <td className="px-4 py-4 text-center text-base">
                         {task.due_date ? format(new Date(task.due_date), 'M/d (E)', { locale: ja }) : '-'}
                       </td>
@@ -299,7 +299,7 @@ export default function TaskBoard() {
                           {task.title}
                         </div>
                       </td>
-                      <td className="px-4 py-4 text-left text-base">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
+                      <td className="px-4 py-4 text-center text-base">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
                       <td className="px-4 py-4 text-center text-base">
                         {task.due_date ? format(new Date(task.due_date), 'M/d (E)', { locale: ja }) : '-'}
                       </td>
@@ -360,9 +360,9 @@ export default function TaskBoard() {
                       className="hover:bg-gray-50 cursor-pointer"
                       onClick={() => payment.project_id && handleNavigateToProject(payment.project_id)}
                     >
-                      <td className="px-4 py-4 text-left font-semibold text-base text-gray-900">{payment.payment_type}</td>
-                      <td className="px-4 py-4 text-left text-base">{payment.project ? `${payment.project.customer_names[0]}様` : '-'}</td>
-                      <td className="px-4 py-4 text-left font-bold text-base text-green-700">
+                      <td className="px-4 py-4 text-center font-semibold text-base text-gray-900">{payment.payment_type}</td>
+                      <td className="px-4 py-4 text-center text-base">{payment.project ? `${payment.project.customer_names[0]}様` : '-'}</td>
+                      <td className="px-4 py-4 text-center font-bold text-base text-green-700">
                         ¥{payment.scheduled_amount?.toLocaleString() || '-'}
                       </td>
                       <td className="px-4 py-4 text-center text-base">
@@ -415,8 +415,8 @@ export default function TaskBoard() {
                       className="hover:bg-gray-50 cursor-pointer"
                       onClick={() => handleTaskClick(task)}
                     >
-                      <td className="px-4 py-4 text-left font-semibold text-base text-gray-900">{task.title}</td>
-                      <td className="px-4 py-4 text-left text-base">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
+                      <td className="px-4 py-4 text-center font-semibold text-base text-gray-900">{task.title}</td>
+                      <td className="px-4 py-4 text-center text-base">{task.project ? `${task.project.customer_names[0]}様` : '-'}</td>
                       <td className="px-4 py-4 text-center">
                         <span className="prisma-badge prisma-badge-blue text-base">タスク</span>
                       </td>
@@ -441,8 +441,8 @@ export default function TaskBoard() {
                       className="hover:bg-gray-50 cursor-pointer"
                       onClick={() => payment.project_id && handleNavigateToProject(payment.project_id)}
                     >
-                      <td className="px-4 py-4 text-left font-semibold text-base text-gray-900">{payment.payment_type}</td>
-                      <td className="px-4 py-4 text-left text-base">{payment.project ? `${payment.project.customer_names[0]}様` : '-'}</td>
+                      <td className="px-4 py-4 text-center font-semibold text-base text-gray-900">{payment.payment_type}</td>
+                      <td className="px-4 py-4 text-center text-base">{payment.project ? `${payment.project.customer_names[0]}様` : '-'}</td>
                       <td className="px-4 py-4 text-center">
                         <span className="prisma-badge prisma-badge-green text-base">入金</span>
                       </td>

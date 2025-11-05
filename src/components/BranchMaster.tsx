@@ -170,14 +170,14 @@ export default function BranchMaster() {
                       <div className="flex items-center justify-center gap-2">
                         <button
                           onClick={() => handleOpenModal(branch)}
-                          className="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg font-bold hover:bg-blue-200 transition-colors border-2 border-blue-600"
+                          className="prisma-btn-icon"
                           title="編集"
                         >
                           <Edit2 size={20} />
                         </button>
                         <button
                           onClick={() => handleDelete(branch)}
-                          className="px-3 py-2 bg-red-100 text-red-700 rounded-lg font-bold hover:bg-red-200 transition-colors border-2 border-red-600"
+                          className="prisma-btn-icon-danger"
                           title="削除"
                         >
                           <Trash2 size={20} />

@@ -481,7 +481,7 @@ export default function NewDashboard() {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr className="border-b-3 border-gray-300">
-                  <th className="px-2 py-2 text-left text-sm font-bold text-gray-700">項目</th>
+                  <th className="px-2 py-2 text-center text-sm font-bold text-gray-700">項目</th>
                   <th className="px-2 py-2 text-right text-sm font-bold text-gray-700">目標</th>
                   <th className="px-2 py-2 text-right text-sm font-bold text-gray-700">実績／予想</th>
                   <th className="px-2 py-2 text-right text-sm font-bold text-gray-700">達成率</th>
