@@ -534,9 +534,9 @@ export default function ProjectDetailFields({
 
         {/* 担当者タブ */}
         {activeTab === 'staff' && (
-          <div className="p-4" style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto' }}>
+          <div className="p-4">
             {/* 拠点選択 */}
-            <div className="mb-3 flex items-center gap-3 bg-gray-50 rounded-lg px-3 py-2 border border-gray-300">
+            <div className="mb-4 flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3 border-2 border-gray-300">
               <label className="text-base font-bold text-gray-700 whitespace-nowrap">
                 拠点:
               </label>
@@ -555,93 +555,118 @@ export default function ProjectDetailFields({
               </select>
             </div>
 
-            {/* 2列グリッドレイアウト */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {DEPARTMENTS.map((dept) => (
-                <div key={dept.name} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-300">
-                  {/* 部門ヘッダー */}
-                  <div className={`px-3 py-2 font-bold text-base ${
-                    dept.name === '営業部' ? 'bg-blue-100 text-blue-900' :
-                    dept.name === '設計部' ? 'bg-green-100 text-green-900' :
-                    dept.name === '工事部' ? 'bg-orange-100 text-orange-900' :
-                    'bg-purple-100 text-purple-900'
-                  }`}>
-                    {dept.name}
-                  </div>
-                  {/* 職種リスト */}
-                  <div className="p-3 space-y-2">
-                    {dept.positions.map((position) => {
+            {/* テーブルレイアウト */}
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-3 text-left text-base font-bold text-gray-900 border border-gray-200 bg-gray-100" style={{ minWidth: '120px' }}>
+                      部門
+                    </th>
+                    <th className="px-4 py-3 text-left text-base font-bold text-gray-900 border border-gray-200 bg-gray-100" style={{ minWidth: '140px' }}>
+                      職種
+                    </th>
+                    <th className="px-4 py-3 text-left text-base font-bold text-gray-900 border border-gray-200 bg-gray-100" style={{ minWidth: '250px' }}>
+                      担当者
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {DEPARTMENTS.map((dept, deptIndex) => (
+                    dept.positions.map((position, posIndex) => {
                       const employee = employees.find(emp => emp.department === position)
-                      return (
-                        <div key={position} className="bg-white rounded-lg p-2 shadow-sm hover:shadow-md transition-shadow">
-                          <div className="text-base font-bold text-gray-900 mb-1">{position}</div>
-                          <select
-                            value={employee?.id || ''}
-                            onChange={async (e) => {
-                              const newEmployeeId = e.target.value
+                      const rowIndex = DEPARTMENTS.slice(0, deptIndex).reduce((sum, d) => sum + d.positions.length, 0) + posIndex
 
-                              try {
-                                // 空文字が選択された場合（未割当）
-                                if (!newEmployeeId) {
-                                  if (employee) {
+                      return (
+                        <tr
+                          key={`${dept.name}-${position}`}
+                          className={rowIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+                        >
+                          {/* 部門名（最初の行のみ表示、rowspanで結合） */}
+                          {posIndex === 0 && (
+                            <td
+                              rowSpan={dept.positions.length}
+                              className={`px-4 py-3 text-base font-bold border border-gray-200 ${
+                                dept.name === '営業部' ? 'bg-blue-50 text-blue-900' :
+                                dept.name === '設計部' ? 'bg-green-50 text-green-900' :
+                                dept.name === '工事部' ? 'bg-orange-50 text-orange-900' :
+                                'bg-purple-50 text-purple-900'
+                              }`}
+                            >
+                              {dept.name}
+                            </td>
+                          )}
+                          {/* 職種 */}
+                          <td className="px-4 py-3 text-base font-semibold text-gray-900 border border-gray-200">
+                            {position}
+                          </td>
+                          {/* 担当者セレクトボックス */}
+                          <td className="px-4 py-3 border border-gray-200">
+                            <select
+                              value={employee?.id || ''}
+                              onChange={async (e) => {
+                                const newEmployeeId = e.target.value
+
+                                try {
+                                  // 空文字が選択された場合（未割当）
+                                  if (!newEmployeeId) {
+                                    if (employee) {
+                                      await supabase
+                                        .from('employees')
+                                        .update({ department: 'その他' })
+                                        .eq('id', employee.id)
+
+                                      showToast('担当者を解除しました', 'success')
+                                      if (onEmployeeUpdate) {
+                                        onEmployeeUpdate()
+                                      }
+                                    }
+                                    return
+                                  }
+
+                                  // 現在このポジションに割り当てられている従業員をクリア
+                                  if (employee && employee.id !== newEmployeeId) {
                                     await supabase
                                       .from('employees')
                                       .update({ department: 'その他' })
                                       .eq('id', employee.id)
-
-                                    showToast('担当者を解除しました', 'success')
-                                    if (onEmployeeUpdate) {
-                                      onEmployeeUpdate()
-                                    }
                                   }
-                                  return
-                                }
 
-                                // 新しい従業員を取得（既に他のポジションに割り当てられているか確認）
-                                const newEmployee = employees.find(emp => emp.id === newEmployeeId)
-
-                                // 現在このポジションに割り当てられている従業員をクリア
-                                if (employee && employee.id !== newEmployeeId) {
-                                  await supabase
+                                  // 新しい担当者のdepartmentを更新
+                                  const { error } = await supabase
                                     .from('employees')
-                                    .update({ department: 'その他' })
-                                    .eq('id', employee.id)
+                                    .update({ department: position })
+                                    .eq('id', newEmployeeId)
+
+                                  if (error) throw error
+
+                                  showToast('担当者を設定しました', 'success')
+                                  // 従業員データのみを再読み込み（ページ遷移を防ぐ）
+                                  if (onEmployeeUpdate) {
+                                    onEmployeeUpdate()
+                                  }
+                                } catch (error) {
+                                  showToast('設定に失敗しました', 'error')
                                 }
-
-                                // 新しい担当者のdepartmentを更新
-                                const { error } = await supabase
-                                  .from('employees')
-                                  .update({ department: position })
-                                  .eq('id', newEmployeeId)
-
-                                if (error) throw error
-
-                                showToast('担当者を設定しました', 'success')
-                                // 従業員データのみを再読み込み（ページ遷移を防ぐ）
-                                if (onEmployeeUpdate) {
-                                  onEmployeeUpdate()
-                                }
-                              } catch (error) {
-                                showToast('設定に失敗しました', 'error')
-                              }
-                            }}
-                            className="prisma-select w-full"
-                          >
-                            <option value="">未割当</option>
-                            {employees
-                              .filter(emp => selectedBranchId === 'all' || emp.branch_id === selectedBranchId)
-                              .map(emp => (
-                                <option key={emp.id} value={emp.id}>
-                                  {emp.last_name} {emp.first_name}
-                                </option>
-                              ))}
-                          </select>
-                        </div>
+                              }}
+                              className="prisma-select w-full"
+                            >
+                              <option value="">未割当</option>
+                              {employees
+                                .filter(emp => selectedBranchId === 'all' || emp.branch_id === selectedBranchId)
+                                .map(emp => (
+                                  <option key={emp.id} value={emp.id}>
+                                    {emp.last_name} {emp.first_name}
+                                  </option>
+                                ))}
+                            </select>
+                          </td>
+                        </tr>
                       )
-                    })}
-                  </div>
-                </div>
-              ))}
+                    })
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
