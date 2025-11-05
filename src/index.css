@@ -1114,35 +1114,67 @@ th, td {
 
 /* タスクステータスの色分け（案件詳細の4項目に合わせる） */
 .task-not-started {
+  padding: 0.25rem 0.75rem !important;
   background: #D1D5DB !important; /* グレー */
   border: 3px solid #6B7280 !important;
+  border-radius: 0.5rem !important;
   color: #1F2937 !important;
   font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: opacity 0.2s !important;
   box-shadow: 0 2px 4px rgba(107, 114, 128, 0.3) !important;
 }
 
+.task-not-started:hover {
+  opacity: 0.8 !important;
+}
+
 .task-in-progress {
+  padding: 0.25rem 0.75rem !important;
   background: #FDE047 !important; /* 黄色 */
   border: 3px solid #EAB308 !important;
+  border-radius: 0.5rem !important;
   color: #713F12 !important;
   font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: opacity 0.2s !important;
   box-shadow: 0 2px 4px rgba(234, 179, 8, 0.3) !important;
 }
 
+.task-in-progress:hover {
+  opacity: 0.8 !important;
+}
+
 .task-delayed {
+  padding: 0.25rem 0.75rem !important;
   background: #FCA5A5 !important; /* 赤 */
   border: 3px solid #DC2626 !important;
+  border-radius: 0.5rem !important;
   color: #7F1D1D !important;
   font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: opacity 0.2s !important;
   box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3) !important;
 }
 
+.task-delayed:hover {
+  opacity: 0.8 !important;
+}
+
 .task-completed {
+  padding: 0.25rem 0.75rem !important;
   background: #93C5FD !important; /* 青 */
   border: 3px solid #2563EB !important;
+  border-radius: 0.5rem !important;
   color: #1E3A8A !important;
   font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: opacity 0.2s !important;
   box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3) !important;
+}
+
+.task-completed:hover {
+  opacity: 0.8 !important;
 }
 
 /* ========================================
@@ -1770,7 +1802,7 @@ html, body {
   font-weight: 500;
   color: #6b7280;
   background: transparent;
-  border: none;
+  border: 2px solid #e5e7eb;
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease;

@@ -348,10 +348,10 @@ export default function TaskMasterManagement() {
             （{filteredTaskMasters.length}件）
           </span>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="prisma-tabs flex-wrap">
           <button
             onClick={() => setSelectedPosition('全職種')}
-            className={`prisma-btn prisma-btn-sm ${selectedPosition === '全職種' ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
+            className={`prisma-tab ${selectedPosition === '全職種' ? 'active' : ''}`}
           >
             全職種
           </button>
@@ -362,7 +362,7 @@ export default function TaskMasterManagement() {
                 <button
                   key={position}
                   onClick={() => setSelectedPosition(position)}
-                  className={`prisma-btn prisma-btn-sm ${selectedPosition === position ? 'prisma-btn-primary' : 'prisma-btn-secondary'}`}
+                  className={`prisma-tab ${selectedPosition === position ? 'active' : ''}`}
                 >
                   {position}
                 </button>

@@ -363,16 +363,16 @@ export default function PaymentManagement() {
         <h1 className="prisma-header-title">入金管理</h1>
         <div className="prisma-header-actions">
           {/* 表示モード切り替え */}
-          <div className="flex gap-2">
+          <div className="prisma-tabs">
             <button
               onClick={() => setDisplayMode('monthly_detail')}
-              className={`${displayMode === 'monthly_detail' ? 'prisma-btn prisma-btn-primary' : 'prisma-btn prisma-btn-secondary'} whitespace-nowrap`}
+              className={`prisma-tab ${displayMode === 'monthly_detail' ? 'active' : ''}`}
             >
               月次詳細
             </button>
             <button
               onClick={() => setDisplayMode('period_summary')}
-              className={`${displayMode === 'period_summary' ? 'prisma-btn prisma-btn-primary' : 'prisma-btn prisma-btn-secondary'} whitespace-nowrap`}
+              className={`prisma-tab ${displayMode === 'period_summary' ? 'active' : ''}`}
             >
               期間集計
             </button>

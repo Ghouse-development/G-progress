@@ -232,22 +232,22 @@ export default function GrossProfitManagement() {
             <div className="text-2xl font-bold mt-1 text-red-600">{largeDiffCount}件</div>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="prisma-tabs">
           <button
             onClick={() => setFilter('all')}
-            className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-colors ${filter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+            className={`prisma-tab ${filter === 'all' ? 'active' : ''}`}
           >
             全て ({projects.length})
           </button>
           <button
             onClick={() => setFilter('low_margin')}
-            className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-colors ${filter === 'low_margin' ? 'bg-orange-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+            className={`prisma-tab ${filter === 'low_margin' ? 'active' : ''}`}
           >
             粗利率20%未満 ({lowMarginCount})
           </button>
           <button
             onClick={() => setFilter('large_diff')}
-            className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-colors ${filter === 'large_diff' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+            className={`prisma-tab ${filter === 'large_diff' ? 'active' : ''}`}
           >
             予算差5%以上 ({largeDiffCount})
           </button>

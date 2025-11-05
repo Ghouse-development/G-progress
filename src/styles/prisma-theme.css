@@ -289,7 +289,7 @@ body {
   font-weight: 500;
   color: #6b7280;
   background: transparent;
-  border: none;
+  border: 2px solid var(--border-color);
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease;

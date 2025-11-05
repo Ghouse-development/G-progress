@@ -280,37 +280,32 @@ export default function Settings() {
       <div className="prisma-tabs mb-4">
         <button
           onClick={() => handleTabChange('basic')}
-          className={`prisma-tab ${activeTab === 'basic' ? 'active' : ''} flex items-center gap-2`}
+          className={`prisma-tab ${activeTab === 'basic' ? 'active' : ''}`}
         >
-          <Palette size={18} />
           基本設定
         </button>
         <button
           onClick={() => handleTabChange('kintone')}
-          className={`prisma-tab ${activeTab === 'kintone' ? 'active' : ''} flex items-center gap-2`}
+          className={`prisma-tab ${activeTab === 'kintone' ? 'active' : ''}`}
         >
-          <Database size={18} />
           kintone連携
         </button>
         <button
           onClick={() => handleTabChange('line')}
-          className={`prisma-tab ${activeTab === 'line' ? 'active' : ''} flex items-center gap-2`}
+          className={`prisma-tab ${activeTab === 'line' ? 'active' : ''}`}
         >
-          <MessageSquare size={18} />
           LINE連携
         </button>
         <button
           onClick={() => handleTabChange('system')}
-          className={`prisma-tab ${activeTab === 'system' ? 'active' : ''} flex items-center gap-2`}
+          className={`prisma-tab ${activeTab === 'system' ? 'active' : ''}`}
         >
-          <Cpu size={18} />
           システム構想
         </button>
         <button
           onClick={() => handleTabChange('aws')}
-          className={`prisma-tab ${activeTab === 'aws' ? 'active' : ''} flex items-center gap-2`}
+          className={`prisma-tab ${activeTab === 'aws' ? 'active' : ''}`}
         >
-          <Cloud size={18} />
           AWS移行
         </button>
       </div>

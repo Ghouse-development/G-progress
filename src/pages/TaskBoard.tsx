@@ -246,7 +246,7 @@ export default function TaskBoard() {
                       <td>
                         <button
                           onClick={() => handleTaskClick(task)}
-                          className="px-3 py-1 task-delayed rounded-lg font-bold cursor-pointer hover:opacity-80 transition-opacity"
+                          className="task-delayed"
                         >
                           遅延
                         </button>
@@ -309,7 +309,7 @@ export default function TaskBoard() {
                       <td>
                         <button
                           onClick={() => handleTaskClick(task)}
-                          className="px-3 py-1 task-in-progress rounded-lg font-bold cursor-pointer hover:opacity-80 transition-opacity"
+                          className="task-in-progress"
                         >
                           着手中
                         </button>
@@ -422,7 +422,7 @@ export default function TaskBoard() {
                       <td>
                         <button
                           onClick={() => handleTaskClick(task)}
-                          className="px-3 py-1 task-completed rounded-lg font-bold cursor-pointer hover:opacity-80 transition-opacity"
+                          className="task-completed"
                         >
                           完了
                         </button>
