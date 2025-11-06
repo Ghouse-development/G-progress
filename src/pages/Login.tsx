@@ -147,7 +147,7 @@ export default function Login() {
           {/* 開発モード用クイックログイン */}
           {process.env.NODE_ENV === 'development' && (
             <div className="mt-6 pt-6 border-t-2 border-gray-200">
-              <p className="text-xs text-gray-500 mb-3 text-center font-medium">
+              <p className="text-sm text-gray-500 mb-3 text-center font-medium">
                 開発モード専用
               </p>
               <div className="mb-3">

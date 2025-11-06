@@ -293,7 +293,7 @@ export default function TaskDetailModal({
                 <div className="flex items-center gap-2 font-medium text-gray-900">
                   <span>{task.due_date ? format(new Date(task.due_date), 'yyyy年MM月dd日 (E)', { locale: ja }) : '未設定'}</span>
                   {task.original_due_date && task.due_date && task.due_date !== task.original_due_date && (
-                    <span className="inline-flex items-center px-2 py-0.5 text-xs font-bold text-white bg-orange-600 rounded-full border-2 border-white shadow-sm">
+                    <span className="inline-flex items-center px-2 py-0.5 text-sm font-bold text-white bg-orange-600 rounded-full border-2 border-white shadow-sm">
                       変更あり
                     </span>
                   )}
@@ -363,7 +363,7 @@ export default function TaskDetailModal({
               </button>
             </div>
             {!task.due_date && (
-              <p className="text-xs text-gray-500 mt-1">※期限日が設定されていないため変更できません</p>
+              <p className="text-sm text-gray-500 mt-1">※期限日が設定されていないため変更できません</p>
             )}
           </div>
 

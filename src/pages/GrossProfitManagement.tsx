@@ -265,7 +265,7 @@ export default function GrossProfitManagement() {
                   案件名
                 </th>
                 <th rowSpan={2} className="px-3 py-2 text-right text-base font-bold text-gray-900 dark:text-gray-100 border border-gray-300 bg-blue-50" style={{ minWidth: '120px' }}>
-                  請負金額<br/><span className="text-xs font-normal">(税別)</span>
+                  請負金額<br/><span className="text-sm font-normal">(税別)</span>
                 </th>
                 <th colSpan={4} className="px-3 py-2 text-center text-base font-bold text-gray-900 dark:text-gray-100 border border-gray-300 bg-green-50">
                   実行予算

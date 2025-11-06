@@ -295,7 +295,7 @@ export default function PerformanceManagement() {
                 <div>
                   <div className="prisma-text-base prisma-text-secondary">太陽光パネル採用率</div>
                   <div className="text-3xl font-bold mt-1">{stats.solarPanelPercentage.toFixed(1)}%</div>
-                  <div className="prisma-text-xs prisma-text-secondary">（{stats.solarPanelCount}/{stats.totalProjects}件）</div>
+                  <div className="prisma-text-sm prisma-text-secondary">（{stats.solarPanelCount}/{stats.totalProjects}件）</div>
                 </div>
                 <div>
                   <div className="prisma-text-base prisma-text-secondary">平均太陽光kW数</div>
@@ -304,24 +304,24 @@ export default function PerformanceManagement() {
                 <div>
                   <div className="prisma-text-base prisma-text-secondary">蓄電池採用率</div>
                   <div className="text-3xl font-bold mt-1">{stats.batteryPercentage.toFixed(1)}%</div>
-                  <div className="prisma-text-xs prisma-text-secondary">（{stats.batteryCount}/{stats.totalProjects}件）</div>
+                  <div className="prisma-text-sm prisma-text-secondary">（{stats.batteryCount}/{stats.totalProjects}件）</div>
                 </div>
                 <div>
                   <div className="prisma-text-base prisma-text-secondary">BELS採用率</div>
                   <div className="text-3xl font-bold mt-1">{stats.belsPercentage.toFixed(1)}%</div>
-                  <div className="prisma-text-xs prisma-text-secondary">（{stats.belsCount}/{stats.totalProjects}件）</div>
+                  <div className="prisma-text-sm prisma-text-secondary">（{stats.belsCount}/{stats.totalProjects}件）</div>
                 </div>
                 <div>
                   <div className="prisma-text-base prisma-text-secondary">平均UA値</div>
                   <div className="text-3xl font-bold mt-1">{stats.avgUaValue.toFixed(3)}</div>
-                  <div className="prisma-text-xs prisma-text-secondary">
+                  <div className="prisma-text-sm prisma-text-secondary">
                     最小: {stats.minUaValue.toFixed(3)} / 最大: {stats.maxUaValue.toFixed(3)}
                   </div>
                 </div>
                 <div>
                   <div className="prisma-text-base prisma-text-secondary">平均C値</div>
                   <div className="text-3xl font-bold mt-1">{stats.avgCValue.toFixed(3)}</div>
-                  <div className="prisma-text-xs prisma-text-secondary">
+                  <div className="prisma-text-sm prisma-text-secondary">
                     最小: {stats.minCValue.toFixed(3)} / 最大: {stats.maxCValue.toFixed(3)}
                   </div>
                 </div>

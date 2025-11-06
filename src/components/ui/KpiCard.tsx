@@ -26,7 +26,7 @@ const KpiCard = React.forwardRef<HTMLDivElement, KpiCardProps>(
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm text-gray-500 font-medium">{title}</CardTitle>
               {badge && (
-                <Badge variant="default" className="text-xs">
+                <Badge variant="default" className="text-sm">
                   {badge}
                 </Badge>
               )}
@@ -34,7 +34,7 @@ const KpiCard = React.forwardRef<HTMLDivElement, KpiCardProps>(
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-semibold tracking-tight text-gray-900">{value}</div>
-            {hint && <div className="text-xs text-gray-500 mt-2">{hint}</div>}
+            {hint && <div className="text-sm text-gray-500 mt-2">{hint}</div>}
           </CardContent>
         </Card>
       </motion.div>

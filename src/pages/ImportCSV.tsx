@@ -143,7 +143,7 @@ export default function ImportCSV() {
               <FileText className="h-5 w-5 text-blue-600" />
               <div className="flex-1">
                 <p className="text-base font-medium text-gray-900">{file.name}</p>
-                <p className="text-xs text-gray-500">
+                <p className="text-sm text-gray-500">
                   {(file.size / 1024).toFixed(2)} KB
                 </p>
               </div>

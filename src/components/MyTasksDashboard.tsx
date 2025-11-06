@@ -217,7 +217,7 @@ export default function MyTasksDashboard() {
               />
             ))}
             {thisWeekTasks.length > 5 && (
-              <div className="text-xs text-gray-500 text-center pt-2">
+              <div className="text-sm text-gray-500 text-center pt-2">
                 他 {thisWeekTasks.length - 5}件
               </div>
             )}

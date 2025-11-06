@@ -230,7 +230,7 @@ export default function FileUpload({ projectId, taskId, onUploadComplete }: File
                 {/* ファイル情報 */}
                 <div className="flex-1 min-w-0">
                   <div className="font-bold text-gray-900 truncate">{file.name}</div>
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
                     <span>{formatFileSize(file.size)}</span>
                     <span>•</span>
                     <span>{new Date(file.created_at).toLocaleDateString('ja-JP')}</span>

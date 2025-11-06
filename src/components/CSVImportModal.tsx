@@ -229,7 +229,7 @@ export default function CSVImportModal({ onClose, onSuccess }: CSVImportModalPro
               <div className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 インポート中...
               </div>
-              <div className="grid grid-cols-3 gap-2 text-xs">
+              <div className="grid grid-cols-3 gap-2 text-sm">
                 <div className="text-center">
                   <div className="font-bold text-green-600">{progress.success}</div>
                   <div className="text-gray-500">成功</div>

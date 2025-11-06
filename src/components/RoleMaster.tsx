@@ -246,7 +246,7 @@ export default function RoleMaster() {
                   disabled={!!editingRole}
                 />
                 {editingRole && (
-                  <p className="text-xs text-gray-500 mt-1">役職コードは変更できません</p>
+                  <p className="text-sm text-gray-500 mt-1">役職コードは変更できません</p>
                 )}
               </div>
 

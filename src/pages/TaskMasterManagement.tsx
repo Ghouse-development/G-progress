@@ -357,7 +357,7 @@ export default function TaskMasterManagement() {
           </button>
           {ORGANIZATION_HIERARCHY.map(dept => (
             <div key={dept.name} className="flex flex-wrap gap-2 items-center">
-              <span className="text-xs font-bold text-gray-500 px-2">{dept.name}:</span>
+              <span className="text-sm font-bold text-gray-500 px-2">{dept.name}:</span>
               {dept.positions.map(position => (
                 <button
                   key={position}
@@ -419,7 +419,7 @@ export default function TaskMasterManagement() {
                       <div className="flex items-center justify-center gap-2">
                         <span className="text-base font-bold text-gray-900">{task.title}</span>
                         {task.is_trigger_task && (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border-2 border-blue-300 whitespace-nowrap">
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-sm font-bold bg-blue-100 text-blue-800 border-2 border-blue-300 whitespace-nowrap">
                             トリガー
                           </span>
                         )}
@@ -444,7 +444,7 @@ export default function TaskMasterManagement() {
                           <span className="text-sm text-gray-700 font-medium truncate max-w-[120px]">
                             {taskMasters.find(t => t.id === task.trigger_task_id)?.title || '不明なタスク'}
                           </span>
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold whitespace-nowrap ${
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-bold whitespace-nowrap ${
                             (task.days_from_trigger ?? 0) >= 0
                               ? 'bg-green-100 text-green-800'
                               : 'bg-orange-100 text-orange-800'
@@ -456,11 +456,11 @@ export default function TaskMasterManagement() {
                     </td>
                     <td className="text-center whitespace-nowrap">
                       {task.show_in_progress ? (
-                        <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold bg-blue-100 text-blue-800 border-2 border-blue-300">
+                        <span className="inline-flex items-center px-2 py-1 rounded-md text-sm font-bold bg-blue-100 text-blue-800 border-2 border-blue-300">
                           掲載
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold bg-gray-100 text-gray-600 border-2 border-gray-300">
+                        <span className="inline-flex items-center px-2 py-1 rounded-md text-sm font-bold bg-gray-100 text-gray-600 border-2 border-gray-300">
                           非掲載
                         </span>
                       )}
@@ -704,7 +704,7 @@ export default function TaskMasterManagement() {
                         className="prisma-input"
                         placeholder="例: 5（トリガーから5日後）、-3（トリガーから3日前）"
                       />
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-sm text-gray-500 mt-1">
                         プラス値: トリガー完了から〇日後、マイナス値: トリガー完了から〇日前
                       </p>
                     </div>

@@ -22,7 +22,7 @@ const SectionCard = React.forwardRef<HTMLDivElement, SectionCardProps>(
           <CardHeader className="pb-3">
             <CardTitle className="flex items-baseline gap-3">
               <span className="text-base font-semibold text-gray-900">{title}</span>
-              {subtitle && <span className="text-xs text-gray-500 font-normal">{subtitle}</span>}
+              {subtitle && <span className="text-sm text-gray-500 font-normal">{subtitle}</span>}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">{children}</CardContent>

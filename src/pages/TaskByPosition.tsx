@@ -304,7 +304,7 @@ export default function TaskByPosition() {
                           <div className="flex items-center gap-2">
                             {task.title}
                             {task.is_date_confirmed && (
-                              <span className="inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-green-600 rounded-full border-2 border-white shadow-sm" title="日付確定">
+                              <span className="inline-flex items-center justify-center w-6 h-6 text-sm font-bold text-white bg-green-600 rounded-full border-2 border-white shadow-sm" title="日付確定">
                                 確
                               </span>
                             )}

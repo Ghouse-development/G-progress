@@ -659,7 +659,7 @@ export default function Calendar() {
                     }`}>
                       {format(day, 'd')}
                     </div>
-                    <div className={`text-xs lg:text-sm font-semibold ${
+                    <div className={`text-sm lg:text-sm font-semibold ${
                       rokuyo === '大安' ? 'text-red-600' :
                       rokuyo === '仏滅' ? 'text-gray-600' :
                       'text-gray-500'
@@ -820,7 +820,7 @@ export default function Calendar() {
         {/* 凡例 */}
         <div className="prisma-card mt-2 flex-shrink-0 py-2">
           {calendarMode === 'tasks' ? (
-            <div className="flex items-center justify-center gap-2 lg:gap-4 text-xs lg:text-base flex-wrap">
+            <div className="flex items-center justify-center gap-2 lg:gap-4 text-sm lg:text-base flex-wrap">
               <span className="font-bold text-canva-purple">凡例:</span>
               <div className="flex items-center gap-1">
                 <div className="w-3 h-3 bg-red-600 rounded"></div>
@@ -840,7 +840,7 @@ export default function Calendar() {
               </div>
             </div>
           ) : calendarMode === 'payments' ? (
-            <div className="flex items-center justify-center gap-2 lg:gap-4 text-xs lg:text-base flex-wrap">
+            <div className="flex items-center justify-center gap-2 lg:gap-4 text-sm lg:text-base flex-wrap">
               <span className="font-bold text-canva-green">凡例:</span>
               <div className="flex items-center gap-1">
                 <div className="w-3 h-3 bg-green-200 border border-green-400 rounded"></div>
@@ -852,7 +852,7 @@ export default function Calendar() {
               </div>
             </div>
           ) : calendarMode === 'construction_start' ? (
-            <div className="flex items-center justify-center gap-2 lg:gap-4 text-xs lg:text-base flex-wrap">
+            <div className="flex items-center justify-center gap-2 lg:gap-4 text-sm lg:text-base flex-wrap">
               <span className="font-bold text-orange-700">凡例:</span>
               <div className="flex items-center gap-1">
                 <div className="w-3 h-3 bg-orange-200 border border-orange-400 rounded"></div>
@@ -860,7 +860,7 @@ export default function Calendar() {
               </div>
             </div>
           ) : (
-            <div className="flex items-center justify-center gap-2 lg:gap-4 text-xs lg:text-base flex-wrap">
+            <div className="flex items-center justify-center gap-2 lg:gap-4 text-sm lg:text-base flex-wrap">
               <span className="font-bold text-purple-700">凡例:</span>
               <div className="flex items-center gap-1">
                 <div className="w-3 h-3 bg-purple-200 border border-purple-400 rounded"></div>

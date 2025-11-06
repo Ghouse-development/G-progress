@@ -116,7 +116,7 @@ export default function AIAssistant() {
               <Sparkles size={24} />
               <div>
                 <h3 className="font-bold text-lg">G-progress アシスタント</h3>
-                <p className="text-xs opacity-90">システムのヘルプAI</p>
+                <p className="text-sm opacity-90">システムのヘルプAI</p>
               </div>
             </div>
             <button
@@ -143,7 +143,7 @@ export default function AIAssistant() {
                   style={{ wordBreak: 'break-word' }}
                 >
                   <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                  <p className="text-xs opacity-70 mt-1">
+                  <p className="text-sm opacity-70 mt-1">
                     {message.timestamp.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
@@ -173,7 +173,7 @@ export default function AIAssistant() {
                   <button
                     key={index}
                     onClick={() => setInputMessage(suggestion)}
-                    className="text-xs p-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors text-left"
+                    className="text-sm p-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors text-left"
                   >
                     {suggestion}
                   </button>

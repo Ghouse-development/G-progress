@@ -320,7 +320,7 @@ export default function AuditLogs() {
                     {log.changes?.project_name || '-'}
                   </td>
                   <td className="px-3 py-3 text-base">
-                    <span className={`px-3 py-1 rounded-md text-xs font-bold ${
+                    <span className={`px-3 py-1 rounded-md text-sm font-bold ${
                       (log.action === 'INSERT' || log.action === 'create') ? 'bg-green-100 text-green-800' :
                       (log.action === 'UPDATE' || log.action === 'update') ? 'bg-yellow-100 text-yellow-800' :
                       (log.action === 'DELETE' || log.action === 'delete') ? 'bg-red-100 text-red-800' :

@@ -129,7 +129,7 @@ export default function SystemRoadmap() {
                             {feature.name}
                           </div>
                         </div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400 font-mono">
+                        <div className="text-sm text-gray-600 dark:text-gray-400 font-mono">
                           {feature.path}
                         </div>
                       </div>
@@ -152,7 +152,7 @@ export default function SystemRoadmap() {
                         <div className="font-bold text-gray-700 dark:text-gray-300 text-sm mb-1">
                           {feature.name}
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-sm text-gray-500">
                           {feature.category}
                         </div>
                       </div>
@@ -176,7 +176,7 @@ export default function SystemRoadmap() {
                       <div className="font-bold text-gray-800 dark:text-gray-200 text-base mb-2">
                         {business.name}
                       </div>
-                      <span className="prisma-badge prisma-badge-gray text-xs">
+                      <span className="prisma-badge prisma-badge-gray text-sm">
                         {business.status}
                       </span>
                     </div>

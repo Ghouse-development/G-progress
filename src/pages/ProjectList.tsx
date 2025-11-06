@@ -1292,7 +1292,7 @@ export default function ProjectList() {
                           {project.customer?.names?.join('・') || '顧客名なし'}様
                         </div>
                         {project.product && (
-                          <div className="text-xs text-gray-600 font-medium">
+                          <div className="text-sm text-gray-600 font-medium">
                             {project.product.name}
                           </div>
                         )}

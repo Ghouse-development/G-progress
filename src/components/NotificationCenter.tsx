@@ -96,7 +96,7 @@ export default function NotificationCenter() {
 
         {/* 未読バッジ */}
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1">
+          <span className="absolute -top-1 -right-1 bg-red-600 text-white text-sm font-bold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
@@ -111,7 +111,7 @@ export default function NotificationCenter() {
               <Bell size={20} className="text-blue-600" />
               <h3 className="font-bold text-gray-900 text-lg">通知センター</h3>
               {unreadCount > 0 && (
-                <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+                <span className="bg-red-600 text-white text-sm font-bold px-2 py-1 rounded-full">
                   {unreadCount}件未読
                 </span>
               )}
@@ -177,7 +177,7 @@ export default function NotificationCenter() {
                         </div>
 
                         {/* メタ情報 */}
-                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <div className="flex items-center gap-2 text-sm text-gray-500">
                           <span>
                             {format(new Date(notification.created_at), 'M月d日 HH:mm', { locale: ja })}
                           </span>
@@ -226,7 +226,7 @@ export default function NotificationCenter() {
           {/* フッター */}
           {notifications.length > 0 && (
             <div className="p-3 border-t-2 border-gray-300 bg-gray-50 text-center">
-              <p className="text-xs text-gray-600">
+              <p className="text-sm text-gray-600">
                 最新{notifications.length}件を表示中
               </p>
             </div>

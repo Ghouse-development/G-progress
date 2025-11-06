@@ -708,37 +708,37 @@ export default function NewDashboard() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 text-center">
               {/* 入金予定 */}
               <div className="p-1.5 bg-gray-50 rounded border border-gray-200">
-                <div className="text-xs text-gray-600 mb-0.5">入金予定</div>
+                <div className="text-sm text-gray-600 mb-0.5">入金予定</div>
                 <div className="text-sm font-bold text-gray-900">{Math.floor(totalScheduledPayment / 1.1 / 1000000)}百万円</div>
               </div>
               {/* 入金実績 */}
               <div className="p-1.5 bg-gray-50 rounded border border-gray-200">
-                <div className="text-xs text-gray-600 mb-0.5">入金実績</div>
+                <div className="text-sm text-gray-600 mb-0.5">入金実績</div>
                 <div className="text-sm font-bold text-green-600">{Math.floor(totalActualPayment / 1.1 / 1000000)}百万円</div>
               </div>
               {/* 変更契約 */}
               <div className="p-1.5 bg-gray-50 rounded border border-gray-200">
-                <div className="text-xs text-gray-600 mb-0.5">変更契約</div>
+                <div className="text-sm text-gray-600 mb-0.5">変更契約</div>
                 <div className="text-sm font-bold text-gray-900">{totalChangeContracts}件</div>
               </div>
               {/* 遅延タスク */}
               <div className={`p-1.5 rounded border ${delayedTaskCount > 0 ? 'bg-red-50 border-red-300' : 'bg-gray-50 border-gray-200'}`}>
-                <div className="text-xs text-gray-600 mb-0.5">遅延タスク</div>
+                <div className="text-sm text-gray-600 mb-0.5">遅延タスク</div>
                 <div className={`text-sm font-bold ${delayedTaskCount > 0 ? 'text-red-600' : 'text-gray-900'}`}>{delayedTaskCount}件</div>
               </div>
               {/* 平均坪数 */}
               <div className="p-1.5 bg-gray-50 rounded border border-gray-200">
-                <div className="text-xs text-gray-600 mb-0.5">平均坪数</div>
+                <div className="text-sm text-gray-600 mb-0.5">平均坪数</div>
                 <div className="text-sm font-bold text-gray-900">{avgFloorArea.toFixed(1)}坪</div>
               </div>
               {/* 平均契約額 */}
               <div className="p-1.5 bg-gray-50 rounded border border-gray-200">
-                <div className="text-xs text-gray-600 mb-0.5">平均契約額</div>
+                <div className="text-sm text-gray-600 mb-0.5">平均契約額</div>
                 <div className="text-sm font-bold text-gray-900">{Math.floor(avgContractAmount / 1000000)}百万円</div>
               </div>
               {/* 契約～引渡 */}
               <div className="p-1.5 bg-gray-50 rounded border border-gray-200">
-                <div className="text-xs text-gray-600 mb-0.5">契約→引渡</div>
+                <div className="text-sm text-gray-600 mb-0.5">契約→引渡</div>
                 <div className="text-sm font-bold text-blue-600">
                   {countContractToHandover > 0 ? Math.round(avgDaysContractToHandover) : '-'}日
                 </div>
@@ -989,13 +989,13 @@ export default function NewDashboard() {
                   {/* 売上・粗利益 */}
                   <div className="grid grid-cols-2 gap-3 mb-3">
                     <div className="bg-blue-50 p-3 rounded border-2 border-blue-300">
-                      <div className="text-xs font-bold text-gray-600 mb-1">売上</div>
+                      <div className="text-sm font-bold text-gray-600 mb-1">売上</div>
                       <div className="text-lg font-bold text-blue-900">
                         {Math.floor(stat.revenue / 1000000)}百万円
                       </div>
                     </div>
                     <div className="bg-green-50 p-3 rounded border-2 border-green-300">
-                      <div className="text-xs font-bold text-gray-600 mb-1">粗利益</div>
+                      <div className="text-sm font-bold text-gray-600 mb-1">粗利益</div>
                       <div className="text-lg font-bold text-green-900">
                         {Math.floor(stat.grossProfit / 1000000)}百万円
                       </div>
@@ -1008,7 +1008,7 @@ export default function NewDashboard() {
                     stat.grossProfitRate >= 10 ? 'bg-yellow-50 border-yellow-300' :
                     'bg-red-50 border-red-300'
                   }`}>
-                    <div className="text-xs font-bold text-gray-600 mb-1">粗利率</div>
+                    <div className="text-sm font-bold text-gray-600 mb-1">粗利率</div>
                     <div className={`text-2xl font-bold ${
                       stat.grossProfitRate >= 15 ? 'text-green-700' :
                       stat.grossProfitRate >= 10 ? 'text-yellow-700' :
@@ -1054,7 +1054,7 @@ export default function NewDashboard() {
                 目標値設定 - {selectedBranch} ({selectedYear}年度)
               </h2>
               {selectedBranch === '全体' && (
-                <p className="text-xs text-gray-600 mt-1">
+                <p className="text-sm text-gray-600 mt-1">
                   ※全体の目標は各拠点の合計です。各拠点タブで個別に設定してください。
                 </p>
               )}

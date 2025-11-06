@@ -482,7 +482,7 @@ export default function ProjectDetailFields({
                                       className="flex items-center gap-2 py-1 hover:bg-gray-50 rounded transition-colors"
                                     >
                                       {/* ステータス */}
-                                      <span className={`px-2 py-0.5 rounded text-xs font-bold whitespace-nowrap ${
+                                      <span className={`px-2 py-0.5 rounded text-sm font-bold whitespace-nowrap ${
                                         isDelayed ? 'task-delayed' : getStatusBadgeColor(task.status)
                                       }`}>
                                         {isDelayed ? '遅延' : getStatusText(task.status)}
@@ -490,7 +490,7 @@ export default function ProjectDetailFields({
 
                                       {/* タスク情報 */}
                                       <span className="text-sm text-gray-900">{task.title}</span>
-                                      <span className="text-xs text-gray-500">|</span>
+                                      <span className="text-sm text-gray-500">|</span>
                                       <span className="text-sm text-gray-600">
                                         {task.due_date
                                           ? format(new Date(task.due_date), 'M/d', { locale: ja })
@@ -498,7 +498,7 @@ export default function ProjectDetailFields({
                                         }
                                       </span>
                                       {task.is_date_confirmed && (
-                                        <span className="text-xs text-green-600 font-bold">確定</span>
+                                        <span className="text-sm text-green-600 font-bold">確定</span>
                                       )}
 
                                       {/* 操作ボタン */}

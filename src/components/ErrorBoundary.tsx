@@ -99,7 +99,7 @@ export class ErrorBoundary extends Component<Props, State> {
               {!import.meta.env.PROD && this.state.error && (
                 <div className="mb-6 p-4 bg-gray-100 rounded-lg text-left overflow-auto max-h-60">
                   <p className="text-sm font-semibold text-gray-900 mb-2">エラー詳細:</p>
-                  <pre className="text-xs text-red-600 whitespace-pre-wrap">
+                  <pre className="text-sm text-red-600 whitespace-pre-wrap">
                     {this.state.error.toString()}
                     {this.state.errorInfo && this.state.errorInfo.componentStack}
                   </pre>
@@ -130,7 +130,7 @@ export class ErrorBoundary extends Component<Props, State> {
                   問題が解決しない場合は、システム管理者にお問い合わせください。
                 </p>
                 {this.state.error && (
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-sm text-gray-500 mt-2">
                     エラーID: {this.state.error.message.substring(0, 20)}...
                   </p>
                 )}
